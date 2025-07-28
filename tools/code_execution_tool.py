@@ -5,25 +5,34 @@ import tempfile
 import os
 
 class CodeExecutionTool(Tool):
+    name = "code_interpreter"
+    description = "Execute Python code snippets safely in a sandbox."
+    parameters = {
+        "type": "object",
+        "properties": {
+            "code": {"type": "string", "description": "Python code to execute."}
+        },
+        "required": ["code"]
+    }
+
     def __init__(self):
-        self.name = "CodeExecutionTool"
-        self.description = "Execute Python code snippets safely in a sandbox."
         super().__init__()
 
     def match(self, command: str) -> bool:
         cmd = command.lower()
         return "run python" in cmd or "execute code" in cmd
 
-    def execute(self, command: str) -> str:
-        code = command.replace("run python", "").replace("execute code", "").strip()
+    def execute(self, command: str = "", code: str = "") -> str:
+        code = code or (command.replace("run python", "").replace("execute code", "").strip() if command else "")
         if not code:
             return "No code provided."
+        import tempfile, subprocess, os, logging
         try:
             with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
                 f.write(code.encode())
                 temp_file = f.name
             result = subprocess.run(
-                ["python3", temp_file],
+                [r"C:/Python310/python.exe", temp_file],
                 capture_output=True,
                 text=True,
                 timeout=10
