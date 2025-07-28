@@ -1,0 +1,69 @@
+cd C:\Users\ultro\source\repos\AutoGPT
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\backend
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\frontend
+
+ corepack enable
+ pnpm install
+ pnpm dev
+
+
+
+
+./build/bin/llama-cli -m /sdcard/Download/llama-2-7b-chat.Q4_K_M.gguf -p "You are Ultron."
+
+./build/bin/llama-cli -m /sdcard/Download/llama-2-7b-chat.Q4_K_M.gguf --interactive
+
+
+ ▲ Next.js 15.3.3 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.56.1:3000
+   - Environments: .env
+
+pnpm dev
+
+docker compose up -d
+docker compose up -d --build
+docker compose up -d --build
+
+docker ps
+
+docker compose logs supabase-db
+
+https://docs.agpt.co/platform/getting-started/#additional-notes
+
+
+Starting the AutoGPT server without Docker¶
+To run the server locally, start in the autogpt_platform folder:
+
+
+cd ..
+Run the following command to run database in docker but the application locally:
+
+
+docker compose --profile local up deps --build --detach
+cd backend
+poetry run app
+Starting the AutoGPT server with Docker¶
+Run the following command to build the dockerfiles:
+
+
+docker compose build
+Run the following command to run the app:
+
+
+docker compose up
+Run the following to automatically rebuild when code changes, in another terminal:
+
+
+docker compose watch
+Run the following command to shut down:
+
+
+docker compose down
+If you run into issues with dangling orphans, try:
+
+
+docker compose down --volumes --remove-orphans && docker-compose up --force-recreate --renew-anon-volumes --remove-orphans  
+📌 Windows Installation Note¶
+

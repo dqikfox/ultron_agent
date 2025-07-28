@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON - Pokedex AI Interface</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="ultron-spinner">
+                    <div class="spinner-ring">
+                        <div class="spinner-core"></div>
+                    </div>
+                </div>
+                <div class="ultron-logo">
+                    <div class="logo-circle"></div>
+                    <div class="logo-text retro-text">ULTRON</div>
+                </div>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+                <div class="loading-text retro-text text-shadow-glow">Initializing AI Systems...</div>
+            </div>
+        </div>
+
+        <!-- Main Pokedex Interface -->
+        <div id="main-interface" class="main-interface hidden">
+            <div class="pokedex-container">
+                
+                <!-- Left Panel - Control Section -->
+                <div class="pokedex-left">
+                    <div class="pokedex-top-section">
+                        <!-- Status LEDs -->
+                        <div class="led-cluster">
+                            <div class="led-main" id="main-led"></div>
+                            <div class="led-small-group">
+                                <div class="led-small led-yellow" id="led-1"></div>
+                                <div class="led-small led-green" id="led-2"></div>
+                                <div class="led-small led-red" id="led-3"></div>
+                            </div>
+                        </div>
+
+                        <!-- Title Section -->
+                        <div class="title-section">
+                            <h1 class="main-title">ULTRON</h1>
+                            <div class="subtitle">POKEDEX AI SYSTEM</div>
+                            <div class="version">v2.0 Enhanced</div>
+                        </div>
+
+                        <!-- Navigation Panel -->
+                        <div class="nav-panel">
+                            <div class="nav-grid">
+                                <button class="nav-btn active" data-section="console" id="nav-console">
+                                    <span class="nav-icon">💬</span>
+                                    <span class="nav-label">CONSOLE</span>
+                                </button>
+                                <button class="nav-btn" data-section="system" id="nav-system">
+                                    <span class="nav-icon">⚙️</span>
+                                    <span class="nav-label">SYSTEM</span>
+                                </button>
+                                <button class="nav-btn" data-section="vision" id="nav-vision">
+                                    <span class="nav-icon">👁️</span>
+                                    <span class="nav-label">VISION</span>
+                                </button>
+                                <button class="nav-btn" data-section="tasks" id="nav-tasks">
+                                    <span class="nav-icon">📋</span>
+                                    <span class="nav-label">TASKS</span>
+                                </button>
+                                <button class="nav-btn" data-section="files" id="nav-files">
+                                    <span class="nav-icon">📁</span>
+                                    <span class="nav-label">FILES</span>
+                                </button>
+                                <button class="nav-btn" data-section="settings" id="nav-settings">
+                                    <span class="nav-icon">⚡</span>
+                                    <span class="nav-label">CONFIG</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- D-Pad Controls -->
+                    <div class="dpad-section">
+                        <div class="dpad-container">
+                            <button class="dpad-btn dpad-up" data-direction="up">▲</button>
+                            <button class="dpad-btn dpad-left" data-direction="left">◄</button>
+                            <button class="dpad-btn dpad-center" data-direction="center">●</button>
+                            <button class="dpad-btn dpad-right" data-direction="right">►</button>
+                            <button class="dpad-btn dpad-down" data-direction="down">▼</button>
+                        </div>
+                        <div class="dpad-label">NAVIGATE</div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-section">
+                        <div class="action-buttons">
+                            <button class="action-btn btn-a" id="btn-a">A</button>
+                            <button class="action-btn btn-b" id="btn-b">B</button>
+                        </div>
+                        <div class="action-labels">
+                            <span>A: EXECUTE</span>
+                            <span>B: BACK</span>
+                        </div>
+                    </div>
+
+                    <!-- System Controls -->
+                    <div class="system-section">
+                        <div class="system-buttons">
+                            <button class="system-btn" id="btn-power" title="Power">⚡</button>
+                            <button class="system-btn" id="btn-volume" title="Volume">🔊</button>
+                            <button class="system-btn" id="btn-settings" title="Settings">⚙️</button>
+                        </div>
+                        <div class="system-label">SYSTEM</div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Main Screen -->
+                <div class="pokedex-right">
+                    <div class="main-screen">
+                        <div class="screen-border">
+                            <div class="screen-content" id="screen-content">
+                                
+                                <!-- Console Section -->
+                                <div class="section active" id="section-console">
+                                    <div class="console-header">
+                                        <h2>AI CONSOLE</h2>
+                                        <div class="console-status">
+                                            <span class="status-indicator" id="ai-status">ONLINE</span>
+                                            <span class="voice-indicator" id="voice-status">🎤</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chat-container">
+                                        <div class="message-area" id="message-area">
+                                            <div class="welcome-message">
+                                                <div class="message ai-message">
+                                                    <div class="message-content">
+                                                        <strong>ULTRON AI ONLINE</strong><br>
+                                                        Pokedex interface activated. Ready for commands.
+                                                    </div>
+                                                    <div class="message-time">System</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="input-section">
+                                            <div class="typing-indicator hidden" id="typing-indicator">
+                                                <span></span><span></span><span></span>
+                                                AI is thinking...
+                                            </div>
+                                            <div class="input-container">
+                                                <input type="text" id="user-input" placeholder="Enter command or speak with wake word..." autocomplete="off">
+                                                <button id="send-btn" class="send-btn">SEND</button>
+                                                <button id="voice-btn" class="voice-btn">🎤</button>
+                                                <button id="clear-btn" class="clear-btn">CLEAR</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- System Section -->
+                                <div class="section" id="section-system">
+                                    <div class="system-header">
+                                        <h2>SYSTEM STATUS</h2>
+                                        <div class="refresh-btn" id="refresh-system">↻</div>
+                                    </div>
+                                    
+                                    <div class="system-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-label">CPU USAGE</div>
+                                            <div class="stat-value" id="cpu-usage">0%</div>
+                                            <div class="stat-bar">
+                                                <div class="stat-fill" id="cpu-bar"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-card">
+                                            <div class="stat-label">MEMORY</div>
+                                            <div class="stat-value" id="memory-usage">0%</div>
+                                            <div class="stat-bar">
+                                                <div class="stat-fill" id="memory-bar"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-card">
+                                            <div class="stat-label">DISK SPACE</div>
+                                            <div class="stat-value" id="disk-usage">0%</div>
+                                            <div class="stat-bar">
+                                                <div class="stat-fill" id="disk-bar"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-card">
+                                            <div class="stat-label">NETWORK</div>
+                                            <div class="stat-value" id="network-status">CONNECTED</div>
+                                            <div class="stat-bar">
+                                                <div class="stat-fill network-active"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="process-section">
+                                        <h3>ACTIVE PROCESSES</h3>
+                                        <div class="process-list" id="process-list">
+                                            <!-- Process list will be populated dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Vision Section -->
+                                <div class="section" id="section-vision">
+                                    <div class="vision-header">
+                                        <h2>VISION SYSTEM</h2>
+                                        <div class="vision-controls">
+                                            <button id="capture-btn" class="vision-btn">CAPTURE</button>
+                                            <button id="analyze-btn" class="vision-btn">ANALYZE</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="vision-content">
+                                        <div class="screenshot-area" id="screenshot-area">
+                                            <div class="placeholder">
+                                                <div class="placeholder-icon">📷</div>
+                                                <div class="placeholder-text">Click CAPTURE to take screenshot</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="analysis-area">
+                                            <h3>ANALYSIS RESULTS</h3>
+                                            <div class="analysis-content" id="analysis-content">
+                                                No analysis data available.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tasks Section -->
+                                <div class="section" id="section-tasks">
+                                    <div class="tasks-header">
+                                        <h2>TASK MANAGER</h2>
+                                        <button id="add-task-btn" class="add-btn">+ ADD TASK</button>
+                                    </div>
+                                    
+                                    <div class="tasks-content">
+                                        <div class="task-categories">
+                                            <button class="category-btn active" data-category="all">ALL</button>
+                                            <button class="category-btn" data-category="pending">PENDING</button>
+                                            <button class="category-btn" data-category="active">ACTIVE</button>
+                                            <button class="category-btn" data-category="completed">COMPLETED</button>
+                                        </div>
+                                        
+                                        <div class="task-list" id="task-list">
+                                            <!-- Tasks will be populated dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Files Section -->
+                                <div class="section" id="section-files">
+                                    <div class="files-header">
+                                        <h2>FILE MANAGER</h2>
+                                        <div class="file-controls">
+                                            <button id="upload-btn" class="file-btn">UPLOAD</button>
+                                            <button id="refresh-files-btn" class="file-btn">REFRESH</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="files-content">
+                                        <div class="file-browser" id="file-browser">
+                                            <!-- File browser will be populated dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Settings Section -->
+                                <div class="section" id="section-settings">
+                                    <div class="settings-header">
+                                        <h2>CONFIGURATION</h2>
+                                        <button id="save-config-btn" class="save-btn">SAVE</button>
+                                    </div>
+                                    
+                                    <div class="settings-content">
+                                        <div class="config-group">
+                                            <h3>AI SETTINGS</h3>
+                                            <div class="config-item">
+                                                <label>OpenAI API Key</label>
+                                                <input type="password" id="api-key" placeholder="Enter API key...">
+                                            </div>
+                                            <div class="config-item">
+                                                <label>Voice Gender</label>
+                                                <select id="voice-gender">
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                </select>
+                                            </div>
+                                            <div class="config-item">
+                                                <label>Theme</label>
+                                                <select id="theme-select">
+                                                    <option value="red">Red (Classic)</option>
+                                                    <option value="blue">Blue (Advanced)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="config-group">
+                                            <h3>SYSTEM SETTINGS</h3>
+                                            <div class="config-item">
+                                                <label>Vision System</label>
+                                                <input type="checkbox" id="vision-enabled">
+                                                <span class="checkbox-label">Enable Vision</span>
+                                            </div>
+                                            <div class="config-item">
+                                                <label>Auto Launch Web</label>
+                                                <input type="checkbox" id="auto-launch">
+                                                <span class="checkbox-label">Auto Launch</span>
+                                            </div>
+                                            <div class="config-item">
+                                                <label>Offline Mode</label>
+                                                <input type="checkbox" id="offline-mode">
+                                                <span class="checkbox-label">Offline Only</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Bar -->
+                    <div class="status-bar">
+                        <div class="status-left">
+                            <span id="current-time">00:00:00</span>
+                            <span id="current-section">CONSOLE</span>
+                        </div>
+                        <div class="status-right">
+                            <span id="connection-status">CONNECTED</span>
+                            <div class="signal-indicator">
+                                <div class="signal-bar"></div>
+                                <div class="signal-bar"></div>
+                                <div class="signal-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Power Menu Modal -->
+        <div id="power-menu" class="modal hidden">
+            <div class="modal-content">
+                <h2>POWER CONTROL</h2>
+                <div class="power-options">
+                    <button class="power-option" data-action="shutdown">
+                        <span class="power-icon">⚡</span>
+                        <span class="power-label">SHUTDOWN</span>
+                    </button>
+                    <button class="power-option" data-action="reboot">
+                        <span class="power-icon">🔄</span>
+                        <span class="power-label">REBOOT</span>
+                    </button>
+                    <button class="power-option" data-action="hibernate">
+                        <span class="power-icon">💤</span>
+                        <span class="power-label">HIBERNATE</span>
+                    </button>
+                    <button class="power-option" data-action="cancel">
+                        <span class="power-icon">❌</span>
+                        <span class="power-label">CANCEL</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="audio-wake" preload="auto">
+        <source src="assets/wake.wav" type="audio/wav">
+    </audio>
+    <audio id="audio-button" preload="auto">
+        <source src="assets/button_press.wav" type="audio/wav">
+    </audio>
+    <audio id="audio-confirm" preload="auto">
+        <source src="assets/confirm.wav" type="audio/wav">
+    </audio>
+
+    <script src="app.js"></script>
+</body>
+</html>
