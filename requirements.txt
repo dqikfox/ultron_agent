@@ -1,0 +1,12 @@
+pyttsx3
+speechrecognition
+requests
+openai
+supabase
+elevenlabs
+whisper
+pygame
+cryptography
+flask
+pyjwt
+faiss-cpu
