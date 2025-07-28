@@ -1,6 +1,6 @@
 # Ultron Agent 2.0
 
-An advanced AI assistant with voice, vision, memory, and tool capabilities, powered by Ollama, OpenAI, ElevenLabs, Supabase, and Google Gemini APIs.
+Ultron Agent 2.0 is a modular, autonomous AI assistant with voice, vision, GUI, and deep system integration. It features a plugin-based tool system, a modular LLM "brain" (see `brain.py`), and a robust architecture for extensibility and security.
 
 ## Setup Instructions
 
@@ -19,7 +19,7 @@ An advanced AI assistant with voice, vision, memory, and tool capabilities, powe
      python3 setup.py
      ```
 
-3. **Encrypt Keys**:
+3. **Encrypt Keys** (optional):
    - Run the provided `encrypt_keys.py` script to encrypt your `keys.txt` using `VAULT_ENC_KEY`:
      ```bash
      python3 encrypt_keys.py
@@ -36,19 +36,33 @@ An advanced AI assistant with voice, vision, memory, and tool capabilities, powe
 5. **Usage**:
    - Use voice commands (e.g., "search for AI news", "generate image of a futuristic city").
    - Use the GUI to input commands and adjust settings.
-   - Access the API at `http://localhost:5000` with JWT authentication.
+   - Access the API at `http://localhost:5000` (if enabled).
 
 ## Features
-- Voice interaction with ElevenLabs TTS and Whisper STT.
-- Enhanced GUI with command input and settings panel.
-- Tools for file operations, web search, database queries, image generation, and code execution.
-- Ollama integration with model switching and response caching.
-- Supabase database integration.
-- Google Gemini for image generation.
-- Secure API with JWT authentication.
-- Cross-platform support.
+
+- Voice recognition (multi-engine, wake word)
+- Text-to-speech (pyttsx3)
+- LLM integration (OpenAI, Ollama, local models)
+- Vision/OCR (Tesseract)
+- Pokedex-style GUI
+- System monitoring
+- File system AI sorting
+- System automation
+- Robust error handling
+- Security (MAC whitelist, safe mode)
+- Extensible plugin-based tools (see `tools/`)
+- Modular brain module (see `brain.py`)
+- Vector-based long-term memory (optional)
+
+## Documentation
+
+See the `docs/` folder for:
+- `ultron_agent_2_architecture.md`: Advanced architecture and design plan
+- Setup instructions, design notes, and module documentation
+
+For details on the modular brain and plugin system, see `brain.py` and the `tools/` package.
 
 ## Troubleshooting
 - Check `logs/ultron.log` for errors.
-- Ensure Ollama is running and API keys are correctly encrypted.
+- Ensure Ollama is running and API keys are correctly set.
 - Update `ultron_config.json` for custom settings (e.g., model, voice).
