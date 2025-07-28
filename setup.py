@@ -20,7 +20,7 @@ def run_command(command):
 
 def install_dependencies():
     logging.info("Installing Python dependencies...")
-    run_command("pip install -r requirements.txt")
+    run_command(r'C:/Python310/python.exe -m pip install -r requirements.txt')
 
 def main():
     install_dependencies()

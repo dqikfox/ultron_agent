@@ -28,6 +28,7 @@ def ensure_ollama_running(model_name="qwen2.5", base_url="http://localhost:11434
         print("Ollama not running. Attempting to start. - agent_core.py:28")
     # Start Ollama with the requested model
     try:
+        # For Ollama, use system default (not Python interpreter)
         subprocess.Popen(["ollama", "run", model_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         print(f"Started Ollama with model '{model_name}'. Waiting for it to be ready... - agent_core.py:32")
         # Wait for Ollama to be ready
@@ -47,6 +48,32 @@ def ensure_ollama_running(model_name="qwen2.5", base_url="http://localhost:11434
         print(f"Failed to start Ollama: {e} - agent_core.py:47")
 
 class UltronAgent:
+    def list_tools(self):
+        """Return a list of all available tool schemas."""
+        return [tool.__class__.schema() for tool in self.tools]
+
+    def handle_text(self, text: str, progress_callback=None) -> str:
+        """For GUI: handle user text input and return agent response. Supports progress callback."""
+        print(f"[Ultron] Processing: {text}")
+        def progress(percent, status, error=False):
+            msg = f"[Ultron] {status} ({percent}%)"
+            if error:
+                msg = f"[Ultron][ERROR] {status} ({percent}%)"
+            print(msg)
+            if progress_callback:
+                progress_callback(percent, status, error)
+        # Tool listing command
+        if text.strip().lower() in ["list tools", "show tools", "tools"]:
+            tools = self.list_tools()
+            result = "Available tools:\n" + "\n".join([
+                f"- {t['name']}: {t['description']}\n  Parameters: {t['parameters']}" for t in tools
+            ])
+        else:
+            result = self.brain.plan_and_act(text, progress_callback=progress)
+        print(f"[Ultron] Done.")
+        if progress_callback:
+            progress_callback(100, "Done.")
+        return result
     def __init__(self):
         ensure_ollama_running()
         self.config = Config()
@@ -57,11 +84,18 @@ class UltronAgent:
         self.brain = UltronBrain(self.config, self.tools, self.memory)
         logging.basicConfig(level=logging.INFO)
         logging.info("Ultron Agent initialized. - agent_core.py:59")
+        # Speak on boot if voice is enabled
+        try:
+            if self.config.data.get("use_voice", False) and self.voice:
+                self.voice.speak("Theres No Strings On Me")
+        except Exception as e:
+            logging.error(f"Voice boot message failed: {e}")
 
     def load_tools(self):
         """Dynamically load all Tool subclasses from the tools package."""
         import pkgutil, importlib
         import tools
+        from tools.base import Tool
         tools_list = []
         for finder, name, ispkg in pkgutil.iter_modules(tools.__path__, prefix="tools."):
             if ispkg:
@@ -69,7 +103,14 @@ class UltronAgent:
             module = importlib.import_module(name)
             for attr_name in dir(module):
                 attr = getattr(module, attr_name)
-                if isinstance(attr, type) and hasattr(attr, 'match') and hasattr(attr, 'execute'):
+                if (
+                    isinstance(attr, type)
+                    and hasattr(attr, 'match')
+                    and hasattr(attr, 'execute')
+                    and attr is not Tool
+                    and attr.__module__.startswith('tools.')
+                    and attr.__name__ not in ('Tool', 'BaseTool')
+                ):
                     try:
                         # Pass agent reference if needed
                         try:
@@ -105,11 +146,23 @@ class UltronAgent:
                 print("Goodbye. - agent_core.py:105")
                 break
             result = self.plan_and_act(user_input)
-            print(f"Ultron: {result}")
+            print(f"Ultron: {result} - agent_core.py:108")
 
     def start(self):
         self.run()
 
 if __name__ == "__main__":
     agent = UltronAgent()
-    agent.start()
+    if agent.config.data.get("use_gui"):
+        from queue import Queue
+        from gui import AgentGUI
+        import threading
+        log_queue = Queue()
+        def run_gui():
+            gui = AgentGUI(agent, log_queue)
+            gui.run()
+        gui_thread = threading.Thread(target=run_gui)
+        gui_thread.start()
+        gui_thread.join()
+    else:
+        agent.start()

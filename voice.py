@@ -9,34 +9,44 @@ from elevenlabs import ElevenLabs
 class VoiceAssistant:
     def __init__(self, config):
         self.config = config
-        self.recognizer = sr.Recognizer() if sr else None
+        self.recognizer = None
         self.tts_engine = None
         self.elevenlabs = None
         self.whisper_model = None
 
-        # Initialize ElevenLabs
-        if config.data.get("tts_engine") == "elevenlabs" and config.data.get("elevenlabs_api_key"):
+        # Initialize speech recognizer
+        try:
+            self.recognizer = sr.Recognizer() if sr else None
+        except Exception as e:
+            logging.error(f"SpeechRecognition not available: {e}")
+
+        # Initialize TTS engine
+        tts_engine = config.data.get("tts_engine") or config.data.get("voice_engine") or "pyttsx3"
+        if tts_engine == "elevenlabs" and config.data.get("elevenlabs_api_key"):
             try:
                 self.elevenlabs = ElevenLabs(api_key=config.data.get("elevenlabs_api_key"))
                 logging.info("ElevenLabs TTS initialized.")
             except Exception as e:
                 logging.error(f"ElevenLabs initialization failed: {e}")
-
-        # Fallback to pyttsx3
-        if not self.elevenlabs and config.data.get("tts_engine") == "pyttsx3" and pyttsx3:
+        if not self.elevenlabs and tts_engine == "pyttsx3":
             try:
                 self.tts_engine = pyttsx3.init()
                 logging.info("pyttsx3 TTS initialized.")
             except Exception as e:
                 logging.error(f"pyttsx3 initialization failed: {e}")
+        if not self.elevenlabs and not self.tts_engine:
+            logging.warning("No TTS engine available. Voice output will be text only.")
 
-        # Initialize Whisper
-        if config.data.get("stt_engine") == "whisper":
+        # Initialize Whisper STT
+        stt_engine = config.data.get("stt_engine") or "whisper"
+        if stt_engine == "whisper":
             try:
                 self.whisper_model = whisper.load_model("base")
                 logging.info("Whisper STT initialized.")
             except Exception as e:
                 logging.error(f"Whisper initialization failed: {e}")
+        if not self.whisper_model:
+            logging.warning("No STT engine available. Voice input will be disabled.")
 
     def listen(self, timeout: int = 5) -> str:
         if not self.recognizer:

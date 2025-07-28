@@ -27,7 +27,11 @@ class SystemTool(Tool):
     def open_application(self, app_name: str) -> str:
         try:
             if os.name == 'nt':  # Windows
-                os.startfile(app_name)
+                # If opening a Python script, use the specified interpreter
+                if app_name.lower().endswith('.py'):
+                    subprocess.Popen([r"C:/Python310/python.exe", app_name])
+                else:
+                    os.startfile(app_name)
             elif os.name == 'posix':  # macOS or Linux
                 subprocess.Popen(["open", app_name]) if os.uname().sysname == 'Darwin' else subprocess.Popen([app_name])
             return f"Opened {app_name}."
