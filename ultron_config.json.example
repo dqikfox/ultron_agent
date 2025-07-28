@@ -1,0 +1,18 @@
+{
+  "use_voice": true,
+  "use_vision": true,
+  "use_api": true,
+  "use_gui": true,
+  "voice_engine": "pyttsx3",
+  "stt_engine": "whisper",
+  "tts_engine": "pyttsx3",
+  "openai_api_key": null,
+  "ollama_api_key": null,
+  "elevenlabs_api_key": null,
+  "supabase_url": null,
+  "supabase_anon_key": null,
+  "gemini_api_key": null,
+  "jwt_secret": null,
+  "llm_model": "llama3.2:latest",
+  "elevenlabs_agent_id": null
+}
