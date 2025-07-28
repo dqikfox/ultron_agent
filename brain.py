@@ -19,7 +19,7 @@ class UltronBrain:
             else:
                 self.cache = {}
         except Exception as e:
-            logging.error(f"Failed to load cache: {e}")
+            logging.error(f"Failed to load cache: {e} - brain.py:22")
             self.cache = {}
 
     def save_cache(self):
@@ -44,16 +44,33 @@ class UltronBrain:
         try:
             response = requests.post(
                 "http://localhost:11434/api/chat",
-                json={"model": "llama3.2:latest", "messages": [{"role": "user", "content": prompt}]},
-                headers={"Authorization": f"Bearer {self.config.data['ollama_api_key']}"}
+                json={"model": "qwen2.5", "messages": [{"role": "user", "content": prompt}]},
+                headers={"Authorization": f"Bearer {self.config.data.get('ollama_api_key', '')}"}
             )
             response.raise_for_status()
-            reply = response.json().get("message", {}).get("content", "")
-            self.cache[cache_key] = reply
-            self.save_cache()
-            return reply
+            # Ollama streams multiple JSON lines, one per chunk. Collect all 'content' fields.
+            lines = response.text.strip().splitlines()
+            import json as jsonlib
+            reply_parts = []
+            for line in lines:
+                try:
+                    data = jsonlib.loads(line)
+                    content = data.get("message", {}).get("content", "")
+                    if content:
+                        reply_parts.append(content)
+                except Exception:
+                    continue
+            reply = "".join(reply_parts).strip()
+            if reply:
+                self.cache[cache_key] = reply
+                self.save_cache()
+                return reply
+            # If nothing parsed, fallback to error/debug info
+            logging.error(f"Ollama streaming response could not be parsed. Raw response: {response.text} - brain.py:69")
+            print("[DEBUG] Ollama raw response:\n - brain.py:70" + response.text)
+            return "[LLM error: Could not parse Ollama streaming response. See logs for details.]"
         except Exception as e:
-            logging.error(f"LLM query error: {e}")
+            logging.error(f"LLM query error: {e} - brain.py:73")
             return "[LLM unavailable. Please configure OpenAI or Ollama.]"
 
     def plan_and_act(self, user_input: str) -> str:
