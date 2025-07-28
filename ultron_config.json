@@ -1,0 +1,18 @@
+{
+  "use_voice": true,
+  "use_vision": true,
+  "use_api": true,
+  "use_gui": true,
+  "voice_engine": "elevenlabs",
+  "stt_engine": "whisper",
+  "tts_engine": "elevenlabs",
+  "openai_api_key": "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",
+  "ollama_api_key": "ollama-placeholder-key-1234567890",
+  "elevenlabs_api_key": "sk_a99d3caeef2c2dc6e98567110d905e724af83375e5c29d9d",
+  "supabase_url": "https://jdkddrfloluhkytxdkkh.supabase.co",
+  "supabase_anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "gemini_api_key": "AIzaSyAXRBP9DtXP8WzQLVjLs4uP8BSZKNJ5h7A",
+  "jwt_secret": "3QyXN!pa7nDkz&WRj4vtHBNxz2spVzj3pUbe2GnKsQMqLsbFs",
+  "llm_model": "llama3.2:latest",
+  "elevenlabs_agent_id": "agent_01jz2wq70mfetr2b7nchrhew1t"
+}

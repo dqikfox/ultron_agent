@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ultron Web UI</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #chat { height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; }
+        #input { width: 80%; padding: 10px; }
+        button { padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Ultron Agent</h1>
+    <div id="chat"></div>
+    <input id="input" type="text" placeholder="Type a command...">
+    <button onclick="sendCommand()">Send</button>
+    <script>
+        async function sendCommand() {
+            const input = document.getElementById('input').value;
+    <elevenlabs-convai agent-id="agent_01k015w6sff02v1trreympkc0x"></elevenlabs-convai>
+    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+            const chat = document.getElementById('chat');
+            chat.innerHTML += `<p><b>User:</b> ${input}</p>`;
+            try {
+                const response = await fetch('http://localhost:11434/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'llama3.2:latest',
+                        max_tokens: 512
+                    })
+                });
+                const data = await response.json();
+                const reply = data.message.content.trim();
+                chat.innerHTML += `<p><b>Ultron:</b> ${reply}</p>`;
+                chat.scrollTop = chat.scrollHeight;
+            } catch (e) {
+                chat.innerHTML += `<p><b>Error:</b> ${e.message}</p>`;
+            }
+            document.getElementById('input').value = '';
+        }
+    </script>
+</body>
+</html>
