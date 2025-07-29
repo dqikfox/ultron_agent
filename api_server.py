@@ -267,9 +267,6 @@ def handle_disable_task(data):
             emit('task_disabled', {'error': 'Failed to disable task'})
     except Exception as e:
         emit('task_disabled', {'error': str(e)})
-            return jsonify({"error": f"Invalid token: {e}"}), 401
-        return f(*args, **kwargs)
-    return decorated
 
 @app.route("/status", methods=["GET"])
 def status():
