@@ -2,6 +2,9 @@ import logging
 import requests
 import json
 import os
+import asyncio
+from tools.agent_network import AgentNetwork
+from tools.openai_tools import OpenAITools
 
 class UltronBrain:
     def __init__(self, config, tools, memory):
@@ -10,6 +13,18 @@ class UltronBrain:
         self.memory = memory
         self.cache_file = "cache.json"
         self.load_cache()
+        
+        # Initialize agent network and OpenAI tools if available
+        self.agent_network = None
+        self.openai_tools = None
+        if config.data.get("openai_api_key"):
+            try:
+                self.agent_network = AgentNetwork(config)
+                self.openai_tools = OpenAITools(config)
+                self._register_tools()
+                logging.info("Agent network initialized")
+            except Exception as e:
+                logging.error(f"Agent network initialization failed: {e}")
 
     def load_cache(self):
         try:
@@ -39,7 +54,23 @@ class UltronBrain:
         prompt += "\nIf you want to use a tool, reply in the format: TOOL:<tool_name> PARAMS:<json_parameters>\n"
         return prompt
 
-    def query_llm(self, prompt: str, progress_callback=None) -> str:
+    def _register_tools(self):
+        """Register available tools with the agent network."""
+        if self.agent_network:
+            tool_list = []
+            for tool in self.tools:
+                tool_dict = {
+                    "type": "function",
+                    "function": {
+                        "name": tool.name,
+                        "description": tool.description,
+                        "parameters": getattr(tool, 'parameters', {})
+                    }
+                }
+                tool_list.append(tool_dict)
+            self.agent_network.register_tools(tool_list)
+
+    async def query_llm(self, prompt: str, progress_callback=None) -> str:
         cache_key = hash(prompt)
         if cache_key in self.cache:
             if progress_callback:
@@ -47,6 +78,21 @@ class UltronBrain:
             return self.cache[cache_key]
 
         try:
+            # Try agent network first if available
+            if self.agent_network:
+                try:
+                    context = {
+                        "memory": self.memory.get_recent_memory(),
+                        "tools_available": len(self.tools)
+                    }
+                    result = await self.agent_network.process_request(prompt, context=context)
+                    response = result["response"]
+                    self.cache[cache_key] = response
+                    return response
+                except Exception as e:
+                    logging.error(f"Agent network query failed: {e}")
+                    
+            # Fallback to direct Ollama
             response = requests.post(
                 "http://localhost:11434/api/chat",
                 json={"model": "qwen2.5", "messages": [{"role": "user", "content": prompt}]},
@@ -88,10 +134,10 @@ class UltronBrain:
                 progress_callback(0, f"LLM query error: {e}", error=True)
             return "[LLM unavailable. Please configure OpenAI or Ollama.]"
 
-    def plan_and_act(self, user_input: str, progress_callback=None) -> str:
+    async def plan_and_act(self, user_input: str, progress_callback=None) -> str:
         import re, json
         prompt = self.build_prompt(user_input)
-        reply = self.query_llm(prompt, progress_callback=progress_callback)
+        reply = await self.query_llm(prompt, progress_callback=progress_callback)
         if not reply:
             return "No response from LLM."
         # Check for tool call in LLM reply

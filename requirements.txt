@@ -8,5 +8,6 @@ whisper
 pygame
 cryptography
 flask
+flask-socketio
 pyjwt
 faiss-cpu
