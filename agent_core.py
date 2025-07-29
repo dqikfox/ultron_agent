@@ -6,7 +6,37 @@ from vision import Vision
 from config import Config
 from brain import UltronBrain
 from utils.event_system import EventSystem
-from utils.performance_monitor import PerformanceMonitor
+from utils.performance_monitor im        # Setup event handlers and default tasks
+        self._setup_event_handlers()
+        self._setup_default_tasks()
+        
+        logging.basicConfig(level=logging.INFO)
+        logging.info("Ultron Agent initialized with enhanced systems - agent_core.py:14")
+        
+        # Speak on boot if voice is enabled
+        try:
+            if self.config.data.get("use_voice", False) and self.voice:
+                self.voice.speak("Theres No Strings On Me")
+        except Exception as e:
+            logging.error(f"Voice boot message failed: {e} - agent_core.py:21")
+
+    def _setup_event_handlers(self):
+        """Setup event handlers for various system events."""
+        def on_error(error_data):
+            self.status = AgentStatus.ERROR
+            logging.error(f"System error: {error_data} - agent_core.py:27")
+            
+        def on_command(command_data):
+            self.status = AgentStatus.BUSY
+            logging.info(f"Processing command: {command_data} - agent_core.py:31")
+            
+        def on_command_complete(result_data):
+            self.status = AgentStatus.READY
+            logging.info(f"Command completed: {result_data} - agent_core.py:35")
+        
+        self.event_system.subscribe("error", on_error)
+        self.event_system.subscribe("command_start", on_command)
+        self.event_system.subscribe("command_complete", on_command_complete)nceMonitor
 from utils.task_scheduler import TaskScheduler
 import subprocess
 import requests
@@ -29,19 +59,19 @@ def ensure_ollama_running(model_name="qwen2.5", base_url="http://localhost:11434
         if resp.status_code == 200:
             tags = resp.json().get("models", [])
             if any(model_name in m.get("name", "") for m in tags):
-                print(f"Ollama is running and model '{model_name}' is loaded. - agent_core.py:32")
+                print(f"Ollama is running and model '{model_name}' is loaded. - agent_core.py:62")
                 return
             else:
-                print(f"Ollama running but model '{model_name}' not loaded. Loading now... - agent_core.py:35")
+                print(f"Ollama running but model '{model_name}' not loaded. Loading now... - agent_core.py:65")
         else:
-            print("Ollama server responded but not healthy. Attempting to start. - agent_core.py:37")
+            print("Ollama server responded but not healthy. Attempting to start. - agent_core.py:67")
     except Exception:
-        print("Ollama not running. Attempting to start. - agent_core.py:39")
+        print("Ollama not running. Attempting to start. - agent_core.py:69")
     # Start Ollama with the requested model
     try:
         # For Ollama, use system default (not Python interpreter)
         subprocess.Popen(["ollama", "run", model_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f"Started Ollama with model '{model_name}'. Waiting for it to be ready... - agent_core.py:44")
+        print(f"Started Ollama with model '{model_name}'. Waiting for it to be ready... - agent_core.py:74")
         # Wait for Ollama to be ready
         for _ in range(20):
             try:
@@ -49,14 +79,14 @@ def ensure_ollama_running(model_name="qwen2.5", base_url="http://localhost:11434
                 if resp.status_code == 200:
                     tags = resp.json().get("models", [])
                     if any(model_name in m.get("name", "") for m in tags):
-                        print(f"Ollama is now running with model '{model_name}'. - agent_core.py:52")
+                        print(f"Ollama is now running with model '{model_name}'. - agent_core.py:82")
                         return
             except Exception:
                 pass
             time.sleep(1)
-        print("Warning: Ollama did not start in time. The agent may not function correctly. - agent_core.py:57")
+        print("Warning: Ollama did not start in time. The agent may not function correctly. - agent_core.py:87")
     except Exception as e:
-        print(f"Failed to start Ollama: {e} - agent_core.py:59")
+        print(f"Failed to start Ollama: {e} - agent_core.py:89")
 
 class UltronAgent:
     def _setup_default_tasks(self):
@@ -197,10 +227,10 @@ class UltronAgent:
                 "Monitor CPU and system temperature"
             )
             
-            logging.info("Default tasks scheduled successfully - agent_core.py:200")
+            logging.info("Default tasks scheduled successfully - agent_core.py:230")
             
         except Exception as e:
-            logging.error(f"Error setting up default tasks: {e} - agent_core.py:203")
+            logging.error(f"Error setting up default tasks: {e} - agent_core.py:233")
 
     def list_tools(self):
         """Return a list of all available tool schemas."""
@@ -208,7 +238,7 @@ class UltronAgent:
 
     def handle_text(self, text: str, progress_callback=None) -> str:
         """For GUI: handle user text input and return agent response. Supports progress callback."""
-        print(f"[Ultron] Processing: {text} - agent_core.py:211")
+        print(f"[Ultron] Processing: {text} - agent_core.py:241")
         def progress(percent, status, error=False):
             msg = f"[Ultron] {status} ({percent}%)"
             if error:
@@ -224,7 +254,7 @@ class UltronAgent:
             ])
         else:
             result = self.brain.plan_and_act(text, progress_callback=progress)
-        print(f"[Ultron] Done. - agent_core.py:227")
+        print(f"[Ultron] Done. - agent_core.py:257")
         if progress_callback:
             progress_callback(100, "Done.")
         return result
@@ -258,14 +288,14 @@ class UltronAgent:
         self._setup_default_tasks()
         
         logging.basicConfig(level=logging.INFO)
-        logging.info("Ultron Agent initialized with enhanced systems - agent_core.py:261")
+        logging.info("Ultron Agent initialized with enhanced systems - agent_core.py:291")
         
         # Speak on boot if voice is enabled
         try:
             if self.config.data.get("use_voice", False) and self.voice:
                 self.voice.speak("Theres No Strings On Me")
         except Exception as e:
-            logging.error(f"Voice boot message failed: {e} - agent_core.py:268")
+            logging.error(f"Voice boot message failed: {e} - agent_core.py:298")
 
     def load_tools(self):
         """Dynamically load all Tool subclasses from the tools package."""
@@ -303,14 +333,14 @@ class UltronAgent:
         return self.brain.plan_and_act(user_input)
 
     def handle_command(self, command: str):
-        logging.info(f"Received command: {command} - agent_core.py:306")
+        logging.info(f"Received command: {command} - agent_core.py:336")
         response = self.plan_and_act(command)
-        logging.info(f"Agent response: {response} - agent_core.py:308")
+        logging.info(f"Agent response: {response} - agent_core.py:338")
         return response
 
     async def run(self):
         """Start the agent and all its subsystems."""
-        logging.info("Starting Ultron Agent with enhanced systems... - agent_core.py:313")
+        logging.info("Starting Ultron Agent with enhanced systems... - agent_core.py:343")
         try:
             # Start performance monitoring
             await self.performance_monitor.start_monitoring()
@@ -328,18 +358,18 @@ class UltronAgent:
                     if not user_input:
                         continue
                     if user_input.lower() in ("exit", "quit"):
-                        print("Goodbye. - agent_core.py:331")
+                        print("Goodbye. - agent_core.py:361")
                         break
                     result = self.plan_and_act(user_input)
-                    print(f"Ultron: {result} - agent_core.py:334")
+                    print(f"Ultron: {result} - agent_core.py:364")
                 except (EOFError, KeyboardInterrupt):
-                    print("\nShutting down. - agent_core.py:336")
+                    print("\nShutting down. - agent_core.py:366")
                     break
                 except Exception as e:
-                    print(f"Error: {e} - agent_core.py:339")
+                    print(f"Error: {e} - agent_core.py:369")
                     await self.event_system.emit("error", str(e))
         except Exception as e:
-            logging.error(f"Fatal error in run(): {e} - agent_core.py:342")
+            logging.error(f"Fatal error in run(): {e} - agent_core.py:372")
             await self.event_system.emit("error", str(e))
         finally:
             # Cleanup
@@ -348,6 +378,47 @@ class UltronAgent:
 
     def start(self):
         asyncio.run(self.run())
+
+    async def stop(self):
+        """Stop the agent and cleanup."""
+        try:
+            await self.performance_monitor.stop_monitoring()
+            await self.task_scheduler.stop()
+            await self.event_system.emit("agent_stopping")
+            self.status = AgentStatus.MAINTENANCE
+        except Exception as e:
+            logging.error(f"Error stopping agent: {e} - agent_core.py:390")
+
+    async def process_command(self, command: str) -> str:
+        """Process a user command with event tracking."""
+        try:
+            await self.event_system.emit("command_start", command)
+            
+            # Add command to memory
+            self.memory.add_interaction("user", command)
+            
+            # Get current system metrics
+            metrics = self.performance_monitor.get_metrics_summary()
+            if metrics.get('cpu_avg', 0) > 90:
+                return "System is under heavy load. Please try again later."
+            
+            # Process command
+            result = self.brain.plan_and_act(command)
+            
+            # Add response to memory
+            self.memory.add_interaction("system", result)
+            
+            await self.event_system.emit("command_complete", {
+                "command": command,
+                "result": result
+            })
+            
+            return result
+            
+        except Exception as e:
+            error_msg = f"Error processing command: {str(e)}"
+            await self.event_system.emit("error", error_msg)
+            return error_msg
 
 if __name__ == "__main__":
     agent = UltronAgent()
