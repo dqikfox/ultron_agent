@@ -4,42 +4,996 @@
     <meta charset="UTF-8">
     <title>Ultron Web UI</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        #chat { height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; }
-        #input { width: 80%; padding: 10px; }
-        button { padding: 10px; }
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --chat-bg: #f8f9fa;
+            --message-bg: #e9ecef;
+            --user-message-bg: #d1ecf1;
+        }
+
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--chat-bg);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #dc3545;
+        }
+
+        .status-indicator.connected {
+            background-color: #28a745;
+        }
+
+        #chat { 
+            height: 400px; 
+            overflow-y: scroll; 
+            border: 1px solid #ccc; 
+            padding: 10px;
+            background: var(--chat-bg);
+            border-radius: 5px;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: var(--message-bg);
+        }
+
+        .user-message {
+            background: var(--user-message-bg);
+            margin-left: 20px;
+        }
+
+        .system-message {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #input { 
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button { 
+            padding: 10px 20px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--primary-color);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .theme-toggle {
+            padding: 5px 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Task Management Styles */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--background-color);
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .side-panel.active {
+            right: 0;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .task-item {
+            background: var(--message-bg);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: var(--user-message-bg);
+        }
+
+        .task-item h3 {
+            margin: 0 0 5px 0;
+        }
+
+        .task-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .task-status.enabled {
+            background: #28a745;
+            color: white;
+        }
+
+        .task-status.disabled {
+            background: #dc3545;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--background-color);
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .task-details {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .task-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .metric-item {
+            background: var(--chat-bg);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Enhanced Analytics Styles */
+        .analytics-summary {
+            background: var(--chat-bg);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .analytics-item {
+            text-align: center;
+            padding: 10px;
+            background: var(--message-bg);
+            border-radius: 4px;
+        }
+
+        .analytics-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .analytics-label {
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .small-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            background: var(--secondary-color);
+            color: white;
+            transition: background 0.3s ease;
+        }
+
+        .small-btn:hover {
+            background: var(--primary-color);
+        }
+
+        .small-btn.danger {
+            background: #dc3545;
+        }
+
+        .small-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        /* Enhanced schedule fields */
+        #schedule-fields {
+            min-height: 50px;
+            padding: 10px;
+            background: var(--chat-bg);
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        /* Status enhancements */
+        .status-bar {
+            position: relative;
+        }
+
+        .status-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--secondary-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .status-bar.active::after {
+            transform: scaleX(1);
+        }
+
+        /* Message enhancements */
+        .message {
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .user-message {
+            border-left-color: var(--secondary-color);
+        }
+
+        .system-message {
+            border-left-color: #dc3545;
+        }
+
+        /* History enhancements */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item small {
+            opacity: 0.6;
+            font-size: 11px;
+        }
+
+        /* Input enhancements */
+        #input {
+            transition: border-color 0.3s ease;
+        }
+
+        #input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Task panel enhancements */
+        .side-panel {
+            z-index: 1000;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .side-panel h2 {
+            margin: 0;
+            color: var(--secondary-color);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .side-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0%, 33% { content: '.'; }
+            34%, 66% { content: '..'; }
+            67%, 100% { content: '...'; }
+        }
+
+        .dark-theme {
+            --background-color: #1a1a1a;
+            --text-color: #ffffff;
+            --chat-bg: #2d2d2d;
+            --message-bg: #3d3d3d;
+            --user-message-bg: #2c5d63;
+        }
+
+        #history {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--chat-bg);
+            border-radius: 5px;
+        }
+
+        .history-item {
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .history-item:hover {
+            background: var(--message-bg);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .recording {
+            animation: pulse 1.5s infinite;
+            background: #dc3545 !important;
+        }
     </style>
 </head>
 <body>
-    <h1>Ultron Agent</h1>
-    <div id="chat"></div>
-    <input id="input" type="text" placeholder="Type a command...">
-    <button onclick="sendCommand()">Send</button>
+    <div class="container">
+        <div class="header">
+            <h1>Ultron Agent</h1>
+            <div class="header-buttons">
+                <button onclick="toggleTasksPanel()">Tasks</button>
+                <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+            </div>
+        </div>
+        
+        <!-- Tasks Panel -->
+        <div id="tasks-panel" class="side-panel">
+            <div class="panel-header">
+                <h2>Scheduled Tasks</h2>
+                <button onclick="createNewTask()">New Task</button>
+            </div>
+            <div id="tasks-list"></div>
+        </div>
+        
+        <!-- Task Details Modal -->
+        <div id="task-modal" class="modal">
+            <div class="modal-content">
+                <h2>Task Details</h2>
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="task-id">Task ID:</label>
+                        <input type="text" id="task-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-command">Command:</label>
+                        <input type="text" id="task-command" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Description:</label>
+                        <textarea id="task-description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="schedule-type">Schedule Type:</label>
+                        <select id="schedule-type" onchange="updateScheduleFields()">
+                            <option value="interval">Interval</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="cron">Cron Expression</option>
+                        </select>
+                    </div>
+                    <div id="schedule-fields"></div>
+                    <div class="button-group">
+                        <button type="submit">Save</button>
+                        <button type="button" onclick="closeTaskModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div id="connection-status" class="status-indicator"></div>
+            <span id="status-text">Disconnected</span>
+            <span id="agent-status"></span>
+        </div>
+
+        <div id="chat"></div>
+        
+        <div class="input-area">
+            <input id="input" type="text" placeholder="Type a command...">
+            <button id="voiceButton" onclick="toggleVoiceInput()">
+                <i class="fas fa-microphone"></i> Voice
+            </button>
+            <button onclick="sendCommand()">Send</button>
+        </div>
+
+        <div id="history">
+            <h3>Command History</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script>
+        const socket = io({
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: 10
+        });
+        const commandHistory = [];
+        let currentTask = null;
+        let reconnectAttempts = 0;
+        
+        const chatDiv = document.getElementById('chat');
+        const statusIndicator = document.getElementById('connection-status');
+        const statusText = document.getElementById('status-text');
+        const voiceButton = document.getElementById('voiceButton');
+        const historyList = document.getElementById('history-list');
+        let isRecording = false;
+        
+        // Theme Management
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        // Enhanced Connection Management
+        socket.on('connect', () => {
+            statusIndicator.classList.add('connected');
+            statusText.textContent = 'Connected';
+            appendMessage('System', 'Connected to Ultron');
+            reconnectAttempts = 0;
+        });
+
+        socket.on('disconnect', () => {
+            statusIndicator.classList.remove('connected');
+            statusText.textContent = 'Disconnected';
+            appendMessage('System', 'Disconnected from Ultron');
+        });
+
+        socket.on('reconnecting', (attempt) => {
+            statusText.textContent = `Reconnecting... (${attempt})`;
+            reconnectAttempts = attempt;
+        });
+
+        socket.on('response', (data) => {
+            if (data.error) {
+                appendMessage('Error', data.error, 'system-message');
+            } else {
+                appendMessage('Ultron', data.result);
+            }
+        });
+
+        // Enhanced Message Display
+        function appendMessage(sender, message, className = '') {
+            const div = document.createElement('div');
+            div.className = `message ${sender === 'You' ? 'user-message' : ''} ${className}`;
+            
+            // Add timestamp
+            const timestamp = new Date().toLocaleTimeString();
+            div.innerHTML = `<strong>${sender}</strong> <small>(${timestamp})</small>: ${message}`;
+            
+            chatDiv.appendChild(div);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        // Enhanced Command History
+        function addToHistory(command) {
+            if (!commandHistory.includes(command)) {
+                commandHistory.unshift(command);
+                if (commandHistory.length > 20) {  // Increased history size
+                    commandHistory.pop();
+                }
+                updateHistoryDisplay();
+                // Save to localStorage
+                localStorage.setItem('commandHistory', JSON.stringify(commandHistory));
+            }
+        }
+
+        function updateHistoryDisplay() {
+            historyList.innerHTML = '';
+            commandHistory.forEach((cmd, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `${cmd} <small>(${index + 1})</small>`;
+                div.onclick = () => {
+                    document.getElementById('input').value = cmd;
+                };
+                historyList.appendChild(div);
+            });
+        }
+
+        // Load saved history
+        const savedHistory = localStorage.getItem('commandHistory');
+        if (savedHistory) {
+            commandHistory.push(...JSON.parse(savedHistory));
+            updateHistoryDisplay();
+        }
+
+        // Voice Input
+        async function toggleVoiceInput() {
+            if (!isRecording) {
+                try {
+                    voiceButton.classList.add('recording');
+                    socket.emit('start_voice');
+                    isRecording = true;
+                    statusText.textContent = 'Listening...';
+                } catch (error) {
+                    appendMessage('System', 'Error starting voice input: ' + error.message, 'system-message');
+                }
+            } else {
+                voiceButton.classList.remove('recording');
+                socket.emit('stop_voice');
+                isRecording = false;
+                statusText.textContent = statusIndicator.classList.contains('connected') ? 'Connected' : 'Disconnected';
+            }
+        }
+
+        socket.on('voice_text', (data) => {
+            document.getElementById('input').value = data.text;
+            appendMessage('Voice', 'Recognized: ' + data.text);
+        });
+
+        // Task Management
+        function toggleTasksPanel() {
+            const panel = document.getElementById('tasks-panel');
+            panel.classList.toggle('active');
+            if (panel.classList.contains('active')) {
+                refreshTasks();
+                loadSystemAnalytics();
+            }
+        }
+
+        function refreshTasks() {
+            socket.emit('list_tasks');
+        }
+
+        function loadSystemAnalytics() {
+            socket.emit('get_system_analytics');
+        }
+
+        socket.on('tasks_list', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error loading tasks: ' + data.error, 'system-message');
+                return;
+            }
+
+            const tasksList = document.getElementById('tasks-list');
+            tasksList.innerHTML = '';
+
+            // Add system analytics summary
+            const analyticsDiv = document.createElement('div');
+            analyticsDiv.id = 'system-analytics-summary';
+            analyticsDiv.className = 'analytics-summary';
+            tasksList.appendChild(analyticsDiv);
+
+            data.tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-item';
+                
+                // Calculate next run display
+                const nextRun = task.next_run ? new Date(task.next_run).toLocaleString() : 'Not scheduled';
+                const lastRun = task.last_run ? new Date(task.last_run).toLocaleString() : 'Never';
+                
+                taskElement.innerHTML = `
+                    <h3>${task.id}
+                        <span class="task-status ${task.enabled ? 'enabled' : 'disabled'}">
+                            ${task.enabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                    </h3>
+                    <div class="task-details">
+                        <p><strong>Command:</strong> ${task.command}</p>
+                        <p><strong>Description:</strong> ${task.description || 'No description'}</p>
+                        <p><strong>Next Run:</strong> ${nextRun}</p>
+                        <p><strong>Last Run:</strong> ${lastRun}</p>
+                        <div class="task-metrics">
+                            <div class="metric-item">
+                                <strong>Runs:</strong> ${task.runs || 0}
+                            </div>
+                            <div class="metric-item">
+                                <strong>Failures:</strong> ${task.failures || 0}
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button onclick="showTaskAnalytics('${task.id}')" class="small-btn">Analytics</button>
+                            <button onclick="editTask('${task.id}')" class="small-btn">Edit</button>
+                            <button onclick="toggleTaskStatus('${task.id}', ${!task.enabled})" class="small-btn">
+                                ${task.enabled ? 'Disable' : 'Enable'}
+                            </button>
+                            <button onclick="deleteTask('${task.id}')" class="small-btn danger">Delete</button>
+                        </div>
+                    </div>
+                `;
+                tasksList.appendChild(taskElement);
+            });
+        });
+
+        socket.on('system_analytics', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error loading analytics: ' + data.error, 'system-message');
+                return;
+            }
+
+            const summaryDiv = document.getElementById('system-analytics-summary');
+            if (summaryDiv) {
+                const analytics = data.analytics;
+                summaryDiv.innerHTML = `
+                    <h3>System Overview</h3>
+                    <div class="analytics-grid">
+                        <div class="analytics-item">
+                            <div class="analytics-value">${analytics.total_tasks}</div>
+                            <div class="analytics-label">Total Tasks</div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-value">${analytics.enabled_tasks}</div>
+                            <div class="analytics-label">Active</div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-value">${analytics.system_success_rate}%</div>
+                            <div class="analytics-label">Success Rate</div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-value">${analytics.system_health_score}</div>
+                            <div class="analytics-label">Health Score</div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        function showTaskAnalytics(taskId) {
+            socket.emit('get_task_analytics', { task_id: taskId });
+        }
+
+        socket.on('task_analytics', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error loading task analytics: ' + data.error, 'system-message');
+                return;
+            }
+
+            const analytics = data.analytics;
+            appendMessage('Analytics', `
+                Task: ${analytics.task_id}<br>
+                Success Rate: ${analytics.success_rate}%<br>
+                Reliability Score: ${analytics.reliability_score}<br>
+                Avg Execution Time: ${analytics.avg_execution_time}s<br>
+                Execution Trend: ${analytics.execution_trend}<br>
+                Last Run: ${analytics.last_run || 'Never'}<br>
+                Next Run: ${analytics.next_run || 'Not scheduled'}
+            `);
+        });
+
+        function toggleTaskStatus(taskId, enable) {
+            if (enable) {
+                socket.emit('enable_task', { task_id: taskId });
+            } else {
+                socket.emit('disable_task', { task_id: taskId });
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm(`Are you sure you want to delete task "${taskId}"?`)) {
+                socket.emit('delete_task', { task_id: taskId });
+            }
+        }
+
+        function editTask(taskId) {
+            socket.emit('get_task_details', { task_id: taskId });
+        }
+
+        socket.on('task_details', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error loading task details: ' + data.error, 'system-message');
+                return;
+            }
+            showTaskDetails(data.task);
+        });
+
+        function createNewTask() {
+            currentTask = null;
+            document.getElementById('task-form').reset();
+            document.getElementById('task-modal').style.display = 'block';
+            updateScheduleFields();
+        }
+
+        function closeTaskModal() {
+            document.getElementById('task-modal').style.display = 'none';
+        }
+
+        function updateScheduleFields() {
+            const type = document.getElementById('schedule-type').value;
+            const fields = document.getElementById('schedule-fields');
+            fields.innerHTML = '';
+
+            switch (type) {
+                case 'interval':
+                    fields.innerHTML = `
+                        <div class="form-group">
+                            <label>Interval:</label>
+                            <input type="number" id="interval-value" min="1" required>
+                            <select id="interval-unit">
+                                <option value="minutes">Minutes</option>
+                                <option value="hours">Hours</option>
+                                <option value="days">Days</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'daily':
+                    fields.innerHTML = `
+                        <div class="form-group">
+                            <label>Time:</label>
+                            <input type="time" id="daily-time" required>
+                        </div>
+                    `;
+                    break;
+                case 'weekly':
+                    fields.innerHTML = `
+                        <div class="form-group">
+                            <label>Days:</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" value="0"> Sunday</label>
+                                <label><input type="checkbox" value="1"> Monday</label>
+                                <label><input type="checkbox" value="2"> Tuesday</label>
+                                <label><input type="checkbox" value="3"> Wednesday</label>
+                                <label><input type="checkbox" value="4"> Thursday</label>
+                                <label><input type="checkbox" value="5"> Friday</label>
+                                <label><input type="checkbox" value="6"> Saturday</label>
+                            </div>
+                            <label>Time:</label>
+                            <input type="time" id="weekly-time" required>
+                        </div>
+                    `;
+                    break;
+                case 'monthly':
+                    fields.innerHTML = `
+                        <div class="form-group">
+                            <label>Day of Month:</label>
+                            <input type="number" id="monthly-day" min="1" max="31" value="1" required>
+                            <label>Time:</label>
+                            <input type="time" id="monthly-time" required>
+                        </div>
+                    `;
+                    break;
+                case 'cron':
+                    fields.innerHTML = `
+                        <div class="form-group">
+                            <label>Cron Expression (minute hour day month weekday):</label>
+                            <input type="text" id="cron-expression" placeholder="0 9 * * 1" required>
+                            <small>Example: "0 9 * * 1" = Every Monday at 9:00 AM</small>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        // Command Sending
         async function sendCommand() {
-            const input = document.getElementById('input').value;
+            const input = document.getElementById('input');
+            const command = input.value.trim();
+            
+            if (!command) return;
+            
+            appendMessage('You', command);
+            addToHistory(command);
+            socket.emit('command', { command: command });
+            input.value = '';
+        }
+
+        // Input Handling with shortcuts
+        document.getElementById('input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendCommand();
+            } else if (e.key === 'ArrowUp' && e.ctrlKey) {
+                // Ctrl+Up to navigate history
+                if (commandHistory.length > 0) {
+                    e.target.value = commandHistory[0];
+                }
+            }
+        });
+
+        // Socket events for task management
+        socket.on('task_created', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error creating task: ' + data.error, 'system-message');
+            } else {
+                appendMessage('System', 'Task created: ' + data.task_id);
+                refreshTasks();
+            }
+        });
+
+        socket.on('task_updated', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error updating task: ' + data.error, 'system-message');
+            } else {
+                appendMessage('System', 'Task updated: ' + data.task_id);
+                refreshTasks();
+            }
+        });
+
+        socket.on('task_deleted', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error deleting task: ' + data.error, 'system-message');
+            } else {
+                appendMessage('System', 'Task deleted: ' + data.task_id);
+                refreshTasks();
+            }
+        });
+
+        socket.on('task_enabled', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error enabling task: ' + data.error, 'system-message');
+            } else {
+                appendMessage('System', 'Task enabled: ' + data.task_id);
+                refreshTasks();
+            }
+        });
+
+        socket.on('task_disabled', (data) => {
+            if (data.error) {
+                appendMessage('System', 'Error disabling task: ' + data.error, 'system-message');
+            } else {
+                appendMessage('System', 'Task disabled: ' + data.task_id);
+                refreshTasks();
+            }
+        });
+
+        // Initialize
+        updateHistoryDisplay();
+    </script>
     <elevenlabs-convai agent-id="agent_01k015w6sff02v1trreympkc0x"></elevenlabs-convai>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
-            const chat = document.getElementById('chat');
-            chat.innerHTML += `<p><b>User:</b> ${input}</p>`;
-            try {
-                const response = await fetch('http://localhost:11434/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'llama3.2:latest',
-                        max_tokens: 512
-                    })
-                });
-                const data = await response.json();
-                const reply = data.message.content.trim();
-                chat.innerHTML += `<p><b>Ultron:</b> ${reply}</p>`;
-                chat.scrollTop = chat.scrollHeight;
-            } catch (e) {
-                chat.innerHTML += `<p><b>Error:</b> ${e.message}</p>`;
-            }
-            document.getElementById('input').value = '';
-        }
-    </script>
 </body>
 </html>
