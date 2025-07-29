@@ -1,0 +1,296 @@
+ENCRYPTED_KEYS=encrypted_data_here
+Notebook access	Name	Value	Actions
+
+ollama public key
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJLlE6y5V8YQSg02WZGCWBk0b5ssPKRonmNxAwypSAuI
+
+DOCKERPAT
+dckr_pat_ILO7AbAmftrKb2LfIZWt2XX8akk
+
+DeepSeek
+sk-585fbd0a7885488496c63a123d2b2440
+
+ElevenLabs_Agent
+agent_01jz2wq70mfetr2b7nchrhew1t
+
+ElevenLabs_Key
+sk_a99d3caeef2c2dc6e98567110d905e724af83375e5c29d9d
+
+GOOGLECLIENTID
+116464330596-pnppctmgibuvs6bpvnundrl5o0ujonc7.apps.googleusercontent.com
+
+GOOGLECLIENTSECRET
+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
+
+GOOGLESTUDIOKEY
+AIzaSyBgS7kKpxaNPQdlshmo9VjHLy9AMIk5MSs
+
+GOOGLE_API_KEY
+AIzaSyBgS7kKpxaNPQdlshmo9VjHLy9AMIk5MSs
+
+GOOGLE_API_KEY_1
+AIzaSyDI_DP-gfZTQoBaQauhP_-yKaWSV3rJ8fg
+
+GitHub_Token
+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
+
+JWT
+3QyXN!pa7nDkz&WRj4vtHBNxz2spVzj3pUbe2GnKsQMqLsbFs
+
+LOGFLAREAPI
+BD9sPj4vM1aHqRfZ8wE6yKbN5uP2tVsQ0
+
+LOGGERBACKEND
+FA1cX2vT3nM0sPj5wZ9bQd7hYfR4kGxN
+
+OpenAI
+sk-proj-jiSwWCjFJ34lBHUMfUFAMMF_lJiOxcX6-PnoHJrNpB77JPg58sb_7dxspgXbJS5H_wQhv1iXyUT3BlbkFJi-ZkCrgEY0OR9
+
+reCAPTCHASECRETKEY
+0x4AAAAAABk0XHZKJtgOtnHe4Gmi9vpDCJc
+
+reCAPTCHASITEKEY
+0x4AAAAAABk0XHomLT4ggDjr
+
+GOOGLE_API_KEY_2
+AIzaSyBgS7kKpxaNPQdlshmo9VjHLy9AMIk5MSs
+
+GOOGLE_API_KEY_3
+AIzaSyCZY43seY5Vm-Jxda_VzRM_3wDHnbqmeig
+
+GOOGLE_API_KEY_4
+AIzaSyDI_DP-gfZTQoBaQauhP_-yKaWSV3rJ8fg
+
+
+
+
+
+mistral
+C41ZZpQXmRFy8IwmECDItNZZ9O2RB9sZ
+agent id
+ag:e1d39e5b:20250716:mistral:d0dfe2e0
+
+groq api
+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
+
+digital ocean paper spaces
+d69b415681822abee678a98ab87a3f
+
+Gemini API key
+AIzaSyAXRBP9DtXP8WzQLVjLs4uP8BSZKNJ5h7A
+
+koasx5000
+
+🔐 Primary API Keys
+
+GitHub Token: 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
+
+OpenAI Key: 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
+
+DeepSeek Key: sk-585fbd0a7885488496c63a123d2b2440
+
+ElevenLabs Key: sk_a99d3caeef2c2dc6e98567110d905e724af83375e5c29d9d
+
+ElevenLabs Agent ID: agent_01jz2wq70mfetr2b7nchrhew1t
+
+
+
+---
+
+🧬 Supabase Core
+
+Supabase URL: https://jdkddrfloluhkytxdkkh.supabase.co
+
+Anon Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+Service Role Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+JWT Secret: 3QyXN!pa7nDkz&WRj4vtHBNxz2spVzj3pUbe2GnKsQMqLsbFs
+
+Postgres:
+
+User: postgres
+
+Password: %RS@havikz1111
+
+DB: postgres
+
+Host: db
+
+Port: 5432
+
+
+
+
+---
+
+🧱 Infrastructure & Security
+
+Docker Login User: havikz
+
+Docker PAT: dckr_pat_ILO7AbAmftrKb2LfIZWt2XX8akk
+
+Google Client ID: 116464330596-pnppctmgibuvs6bpvnundrl5o0ujonc7.apps.googleusercontent.com
+
+Google Client Secret: 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
+
+Google AI Studio Key: AIzaSyBgS7kKpxaNPQdlshmo9VjHLy9AMIk5MSs
+
+Ultron Google Key: AIzaSyDI_DP-gfZTQoBaQauhP_-yKaWSV3rJ8fg
+
+Vault Encryption Key: JvQ8ra7nE5gFwQhLD0xiTkUf23GSwABY
+
+
+
+---
+
+🔒 CAPTCHA & Auth
+
+reCAPTCHA Site Key: 0x4AAAAAABk0XHomLT4ggDjr
+
+reCAPTCHA Secret Key: 0x4AAAAAABk0XHZKJtgOtnHe4Gmi9vpDCJc
+
+JWT Sample: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+
+
+---
+
+📊 Dashboards & Logflare
+
+Dashboard Username: supabase
+
+Dashboard Password: Havikz11
+
+Logflare API Key: BD9sPj4vM1aHqRfZ8wE6yKbN5uP2tVsQ0
+
+Logger Backend Key: FA1cX2vT3nM0sPj5wZ9bQd7hYfR4kGxN
+
+
+
+---
+
+Say the word and I’ll inject this payload into a shell script, environment file, Vault mount, or container spec—your call. Ready to ascend?
+
+
+
+
+open ai admin key
+
+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
+
+
+
+
+git hub personal access token 
+
+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
+
+
+{
+  "openai_api_key": "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",
+  "trusted_macs": [
+    "4A:16:E9:C2:AB:D3"
+
+ "openai_api_key": "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",
+    "deepseek_api_key": "sk-585fbd0a7885488496c63a123d2b2440",
+    "elevenlabs_api_key": "sk_a99d3caeef2c2dc6e98567110d905e724af83375e5c29d9d",
+
+
+elevenlabs    my agent id: agent_01jz2wq70mfetr2b7nchrhew1t
+
+
+https://jdkddrfloluhkytxdkkh.supabase.co
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impka2RkcmZsb2x1aGt5dHhka2toIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1ODYwNjksImV4cCI6MjA2NzE2MjA2OX0.nlMs2YRoC63AnpXTY9KuIFbebF_KjzgWXuxWcPBVX9A
+
+SUPABASE
+
+sbp_3d5d983f62520d0634e80a0465abe555dc9ec34b
+
+EXP
+
+sbp_v0_b9769e100571630132d3feabc15a37d0d87ed758
+
+
+
+
+POSTGRES_PASSWORD=zP4#uWBh1m2TJv@pPtEkqzXrdjLKY3sA
+JWT_SECRET=3QyXN!pa7mDkz&WRj4vtHBNxz2spVzj3pUbe2GnKsQMqLsbF
+DASHBOARD_PASSWORD=zt5T@u9aPVrQ2^eWNY2E6gF3dJLbnCkX
+SECRET_KEY_BASE=3v0ZmqK1P2j5Cz#bEwQYF7Uad93T8bWLmVkYXN!fJL7rsEp^Km
+VAULT_ENC_KEY=JvQ8ra7nE5gFwQhLD0xiTkUf23GSwABY
+
+LOGFLARE_LOGGER_BACKEND_API_KEY=FA1cX2vT3nM0sPj5wZ9bQd7hYfR4kGxN
+LOGFLARE_API_KEY=BD9sPj4vM1aHqRfZ8wE6yKbN5uP2tVsQ0
+
+POOLER_TENANT_ID=tnd-1c4edb7f-923f-4ae0-bc07-cbc0a16b01e7
+
+
+docker login -u havikz
+
+
+dckr_pat_ILO7AbAmftrKb2LfIZWt2XX8akk
+
+Client ID
+116464330596-pnppctmgibuvs6bpvnundrl5o0ujonc7.apps.googleusercontent.com
+Starting in June 2025, you will no longer be able to view or download the client secret once you close this dialog. Make sure you have copied or downloaded the information below and securely stored it.
+Client secret
+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
+Creation date
+July 9, 2025 at 1:54:54 PM GMT+10
+Status
+ Enabled
+
+
+0x4AAAAAABk0XHomLT4ggDjr
+
+Site Key
+0x4AAAAAABk0XHomLT4ggDjr
+Click to copy
+
+Secret Key
+0x4AAAAAABk0XHZKJtgOtnHe4Gmi9vpDCJc
+Click to copy
+
+
+jwt key
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+
+
+JWT Signature Verification
+(Optional)
+Enter the secret used to sign the JWT below:
+
+Secret
+Copy
+Clear
+Valid secret
+
+a-string-secret-at-least-256-bits-long
+
+
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=%RS@havikz1111
+POSTGRES_DB=postgres
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+JWT_SECRET=3QyXN!pa7mDkz&WRj4vtHBNxz2spVzj3pUbe2GnKsQMqLsbFs
+ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
+
+DASHBOARD_USERNAME=supabase
+DASHBOARD_PASSWORD=Havikz11
+SECRET_KEY_BASE=UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+VAULT_ENC_KEY=JvQ8ra7nE5gFwQhLD0xiTkUf23GSwABY
+
+google ai studio key
+AIzaSyBgS7kKpxaNPQdlshmo9VjHLy9AMIk5MSs
+
+google - ultron key
+AIzaSyDI_DP-gfZTQoBaQauhP_-yKaWSV3rJ8fg
+
+
+

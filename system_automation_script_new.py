@@ -20,7 +20,7 @@ logging.basicConfig(
 # Directory for file operations using pathlib
 WORKING_DIR = Path("automated_files")
 WORKING_DIR.mkdir(exist_ok=True)
-logging.info(f"Ensuring working directory exists: {WORKING_DIR} - system_automation_script.py:23")
+logging.info(f"Ensuring working directory exists: {WORKING_DIR}")
 
 class SystemTools:
     """Class to encapsulate system operation tools"""
@@ -90,11 +90,11 @@ class SystemTools:
             if battery:
                 report += f"\nBattery: {diagnostic_data['battery']['percent']}% {'(Charging)' if diagnostic_data['battery']['power_plugged'] else '(On Battery)'}"
             
-            logging.info("Diagnostics completed successfully - system_automation_script.py:93")
+            logging.info("Diagnostics completed successfully")
             return {"data": diagnostic_data, "report": report}
             
         except Exception as e:
-            logging.error(f"Diagnostics error: {str(e)} - system_automation_script.py:97", exc_info=True)
+            logging.error(f"Diagnostics error: {str(e)}", exc_info=True)
             raise
 
     @staticmethod
@@ -107,7 +107,7 @@ class SystemTools:
                 if operation == "create":
                     with open(filepath, 'w', encoding='utf-8') as f:
                         f.write(content)
-                    logging.info(f"Created file: {filepath} - system_automation_script.py:110")
+                    logging.info(f"Created file: {filepath}")
                     return {"status": "success", "filepath": str(filepath), "message": f"File created: {filepath}"}
                 
                 elif operation == "edit":
@@ -115,18 +115,18 @@ class SystemTools:
                         raise FileNotFoundError(f"File not found: {filepath}")
                     with open(filepath, 'a', encoding='utf-8') as f:
                         f.write(f"\n{content}")
-                    logging.info(f"Edited file: {filepath} - system_automation_script.py:118")
+                    logging.info(f"Edited file: {filepath}")
                     return {"status": "success", "filepath": str(filepath), "message": f"File edited: {filepath}"}
                 
                 elif operation == "delete":
                     if not filepath.exists():
                         raise FileNotFoundError(f"File not found: {filepath}")
                     filepath.unlink()
-                    logging.info(f"Deleted file: {filepath} - system_automation_script.py:125")
+                    logging.info(f"Deleted file: {filepath}")
                     return {"status": "success", "filepath": str(filepath), "message": f"File deleted: {filepath}"}
                 
         except Exception as e:
-            logging.error(f"File operation error: {str(e)} - system_automation_script.py:129", exc_info=True)
+            logging.error(f"File operation error: {str(e)}", exc_info=True)
             raise
 
     @classmethod
@@ -167,11 +167,11 @@ class SystemTools:
             for file in files:
                 report += f"- {file['name']} ({file['size']/1024:.1f}KB, modified: {file['modified']})\n"
             
-            logging.info("Listed files in working directory - system_automation_script.py:170")
+            logging.info("Listed files in working directory")
             return {"status": "success", "files": files, "report": report}
             
         except Exception as e:
-            logging.error(f"File listing error: {str(e)} - system_automation_script.py:174", exc_info=True)
+            logging.error(f"File listing error: {str(e)}", exc_info=True)
             raise
 
     @staticmethod
@@ -181,10 +181,10 @@ class SystemTools:
             await asyncio.sleep(1)  # Give user time to focus the target window
             keyboard.write(text)
             keyboard.press_and_release('enter')
-            logging.info(f"Wrote to active window: {text[:50]}... - system_automation_script.py:184")
+            logging.info(f"Wrote to active window: {text[:50]}...")
             return {"status": "success", "text": text, "message": "Text written to active window"}
         except Exception as e:
-            logging.error(f"Error writing to active window: {str(e)} - system_automation_script.py:187", exc_info=True)
+            logging.error(f"Error writing to active window: {str(e)}", exc_info=True)
             raise
 
 class CommandProcessor:
@@ -299,7 +299,7 @@ class CommandProcessor:
             return await self._execute_command(command.lower(), response)
             
         except Exception as e:
-            logging.error(f"Command processing error: {str(e)} - system_automation_script.py:302", exc_info=True)
+            logging.error(f"Command processing error: {str(e)}", exc_info=True)
             return f"Error processing command: {str(e)}"
 
     async def _process_with_ollama(self, command: str) -> str:
@@ -312,7 +312,7 @@ class CommandProcessor:
             )
             return response['message']['content']
         except Exception as e:
-            logging.error(f"Ollama processing error: {str(e)} - system_automation_script.py:315", exc_info=True)
+            logging.error(f"Ollama processing error: {str(e)}", exc_info=True)
             raise
 
     async def _execute_command(self, command_lower: str, ollama_response: str) -> str:
@@ -368,7 +368,7 @@ class CommandProcessor:
             return ollama_response
             
         except Exception as e:
-            logging.error(f"Command execution error: {str(e)} - system_automation_script.py:371", exc_info=True)
+            logging.error(f"Command execution error: {str(e)}", exc_info=True)
             return f"Error executing command: {str(e)}"
             
     def _show_help(self) -> str:
@@ -410,30 +410,30 @@ Type 'exit' to quit, 'help' for command list.""")
     use_openai = bool(os.getenv("OPENAI_API_KEY"))
     
     if use_openai:
-        print("\nUsing OpenAI's agent network for enhanced capabilities. - system_automation_script.py:413")
+        print("\nUsing OpenAI's agent network for enhanced capabilities.")
     else:
-        print("\nUsing Ollama (qwen2.5) for command processing. - system_automation_script.py:415")
+        print("\nUsing Ollama (qwen2.5) for command processing.")
     
     while True:
         try:
             command = input("\n> ")
             if command.lower() == 'exit':
-                print("\nExiting... - system_automation_script.py:421")
-                logging.info("Script terminated by user - system_automation_script.py:422")
+                print("\nExiting...")
+                logging.info("Script terminated by user")
                 break
             
             result = await processor.process_command(command, use_openai=use_openai)
-            print(f"\n{result} - system_automation_script.py:426")
+            print(f"\n{result}")
             
         except KeyboardInterrupt:
-            print("\nInterrupted by user. Type 'exit' to quit properly. - system_automation_script.py:429")
+            print("\nInterrupted by user. Type 'exit' to quit properly.")
         except Exception as e:
-            logging.error(f"Main loop error: {str(e)} - system_automation_script.py:431", exc_info=True)
-            print(f"\nError: {str(e)} - system_automation_script.py:432")
+            logging.error(f"Main loop error: {str(e)}", exc_info=True)
+            print(f"\nError: {str(e)}")
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except Exception as e:
-        logging.critical(f"Fatal error: {str(e)} - system_automation_script.py:438", exc_info=True)
-        print(f"\nFatal error: {str(e)} - system_automation_script.py:439")
+        logging.critical(f"Fatal error: {str(e)}", exc_info=True)
+        print(f"\nFatal error: {str(e)}")
