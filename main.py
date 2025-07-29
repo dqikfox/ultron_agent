@@ -8,6 +8,7 @@ from agent_core import UltronAgent
 from api_server import app, socketio, set_agent_instance
 
 async def main():
+    agent = None
     try:
         # Initialize the agent
         agent = UltronAgent()
@@ -34,10 +35,12 @@ async def main():
         
     except KeyboardInterrupt:
         print("\nShutting down gracefully...")
-        await agent.stop()
+        if agent:
+            await agent.stop()
     except Exception as e:
         print(f"Fatal error: {e}")
-        await agent.stop()
+        if agent:
+            await agent.stop()
 
 if __name__ == "__main__":
     try:

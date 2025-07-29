@@ -1,0 +1,222 @@
+{
+  "system_health_check": {
+    "command": "run diagnostics",
+    "schedule": {
+      "type": "interval",
+      "interval": {
+        "minutes": 15
+      }
+    },
+    "description": "Regular system health check",
+    "created_at": "2025-07-30T01:14:44.309467",
+    "last_run": null,
+    "next_run": "2025-07-30T01:29:44.309467",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "memory_optimization": {
+    "command": "optimize memory",
+    "schedule": {
+      "type": "daily",
+      "time": {
+        "hour": 3,
+        "minute": 0
+      }
+    },
+    "description": "Daily memory cleanup and optimization",
+    "created_at": "2025-07-30T01:14:44.310675",
+    "last_run": null,
+    "next_run": "2025-07-30T03:00:00.310675",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "performance_report": {
+    "command": "generate performance report",
+    "schedule": {
+      "type": "interval",
+      "interval": {
+        "hours": 1
+      }
+    },
+    "description": "Hourly performance monitoring report",
+    "created_at": "2025-07-30T01:14:44.311989",
+    "last_run": null,
+    "next_run": "2025-07-30T02:14:44.311989",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "system_backup": {
+    "command": "backup system",
+    "schedule": {
+      "type": "weekly",
+      "days": [
+        6
+      ],
+      "time": {
+        "hour": 2,
+        "minute": 0
+      }
+    },
+    "description": "Weekly system backup",
+    "created_at": "2025-07-30T01:14:44.313352",
+    "last_run": null,
+    "next_run": "2025-08-03T02:00:00.313352",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "check_model_updates": {
+    "command": "check for model updates",
+    "schedule": {
+      "type": "daily",
+      "time": {
+        "hour": 4,
+        "minute": 0
+      }
+    },
+    "description": "Check for model updates",
+    "created_at": "2025-07-30T01:14:44.314349",
+    "last_run": null,
+    "next_run": "2025-07-30T04:00:00.314349",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "log_rotation": {
+    "command": "rotate logs",
+    "schedule": {
+      "type": "daily",
+      "time": {
+        "hour": 1,
+        "minute": 0
+      }
+    },
+    "description": "Daily log file rotation and cleanup",
+    "created_at": "2025-07-30T01:14:44.315383",
+    "last_run": null,
+    "next_run": "2025-07-31T01:00:00.315383",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "security_scan": {
+    "command": "run security scan",
+    "schedule": {
+      "type": "weekly",
+      "days": [
+        0
+      ],
+      "time": {
+        "hour": 3,
+        "minute": 0
+      }
+    },
+    "description": "Weekly security vulnerability scan",
+    "created_at": "2025-07-30T01:14:44.316391",
+    "last_run": null,
+    "next_run": "2025-08-04T03:00:00.316391",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "cache_cleanup": {
+    "command": "cleanup cache",
+    "schedule": {
+      "type": "interval",
+      "interval": {
+        "hours": 6
+      }
+    },
+    "description": "Regular cache cleanup to free up space",
+    "created_at": "2025-07-30T01:14:44.317399",
+    "last_run": null,
+    "next_run": "2025-07-30T07:14:44.317399",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "database_maintenance": {
+    "command": "maintain database",
+    "schedule": {
+      "type": "weekly",
+      "days": [
+        1
+      ],
+      "time": {
+        "hour": 2,
+        "minute": 30
+      }
+    },
+    "description": "Weekly database optimization and maintenance",
+    "created_at": "2025-07-30T01:14:44.318400",
+    "last_run": null,
+    "next_run": "2025-08-05T02:30:00.318400",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "system_update_check": {
+    "command": "check system updates",
+    "schedule": {
+      "type": "daily",
+      "time": {
+        "hour": 5,
+        "minute": 0
+      }
+    },
+    "description": "Check for system and dependency updates",
+    "created_at": "2025-07-30T01:14:44.319398",
+    "last_run": null,
+    "next_run": "2025-07-30T05:00:00.319398",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "network_test": {
+    "command": "test network connectivity",
+    "schedule": {
+      "type": "interval",
+      "interval": {
+        "minutes": 30
+      }
+    },
+    "description": "Regular network connectivity and speed test",
+    "created_at": "2025-07-30T01:14:44.320449",
+    "last_run": null,
+    "next_run": "2025-07-30T01:44:44.320449",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  },
+  "temperature_monitor": {
+    "command": "monitor system temperature",
+    "schedule": {
+      "type": "interval",
+      "interval": {
+        "minutes": 5
+      }
+    },
+    "description": "Monitor CPU and system temperature",
+    "created_at": "2025-07-30T01:14:44.322448",
+    "last_run": null,
+    "next_run": "2025-07-30T01:19:44.322448",
+    "enabled": true,
+    "runs": 0,
+    "failures": 0,
+    "last_error": null
+  }
+}
