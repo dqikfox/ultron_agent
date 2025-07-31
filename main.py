@@ -34,11 +34,11 @@ async def main():
         await asyncio.gather(agent_task, web_server)
         
     except KeyboardInterrupt:
-        print("\nShutting down gracefully...")
+        print("\nShutting down gracefully... - main.py:37")
         if agent:
             await agent.stop()
     except Exception as e:
-        print(f"Fatal error: {e}")
+        print(f"Fatal error: {e} - main.py:41")
         if agent:
             await agent.stop()
 
@@ -46,4 +46,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\nShutdown complete.")
+        print("\nShutdown complete. - main.py:49")
