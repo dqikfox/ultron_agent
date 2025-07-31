@@ -60,6 +60,14 @@ if exist agent_core.py (
 )
 
 echo.
-echo Ultron Agent exited. Press any key to close this window.
+echo Ultron Agent exited.
+
+:: Git commit and push for test automation
+echo Committing and pushing test changes...
+git add .
+git commit -m "test"
+git push
+
+echo Press any key to close this window.
 pause >nul
 endlocal
