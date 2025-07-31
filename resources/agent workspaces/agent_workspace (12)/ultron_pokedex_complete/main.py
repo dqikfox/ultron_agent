@@ -24,18 +24,19 @@ from pathlib import Path
 import asyncio
 import ctypes
 
-# Enhanced configuration for D:\ULTRON structure
-ULTRON_ROOT = r"D:\ULTRON"
-CONFIG_PATH = os.path.join(ULTRON_ROOT, "config.json")
-MODEL_DIR = os.path.join(ULTRON_ROOT, "models")
-CORE_DIR = os.path.join(ULTRON_ROOT, "core")
-ASSETS_DIR = os.path.join(ULTRON_ROOT, "assets")
-LOG_DIR = os.path.join(ULTRON_ROOT, "logs")
-WEB_DIR = os.path.join(ULTRON_ROOT, "web")
+
+# --- Workspace-local configuration ---
+WORKSPACE_ROOT = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(WORKSPACE_ROOT, "config.json")
+MODEL_DIR = os.path.join(WORKSPACE_ROOT, "models")
+CORE_DIR = os.path.join(WORKSPACE_ROOT, "core")
+ASSETS_DIR = os.path.join(WORKSPACE_ROOT, "assets")
+LOG_DIR = os.path.join(WORKSPACE_ROOT, "logs")
+WEB_DIR = os.path.join(WORKSPACE_ROOT, "web")
 WAKE_WORDS = ["ultron", "hello", "speak", "ultra"]
 
 # Create directories if missing
-for directory in [ULTRON_ROOT, MODEL_DIR, CORE_DIR, ASSETS_DIR, LOG_DIR, WEB_DIR]:
+for directory in [MODEL_DIR, CORE_DIR, ASSETS_DIR, LOG_DIR, WEB_DIR]:
     os.makedirs(directory, exist_ok=True)
 
 # Setup logging
