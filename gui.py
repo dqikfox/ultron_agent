@@ -1,446 +1,487 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
-
+from tkinter import ttk, scrolledtext, messagebox
+import threading
+import time
+import os
+import sys
+import webbrowser
+import psutil
+from PIL import Image, ImageTk, ImageGrab
+import asyncio
+from pathlib import Path
 
 class AgentGUI:
     def __init__(self, agent, log_queue):
         self.agent = agent
         self.log_queue = log_queue
+        self.listening = False
+        self.conversation_history = []
+        
+        # Initialize main window
         self.root = tk.Tk()
-        self.root.title("Ultron Agent 2.0")
-        self.root.geometry("800x600")
+        self.root.title("ULTRON Agent 2.0 - Pokedex Interface")
+        self.root.geometry("1200x800")
+        self.root.configure(bg='#1a1a2e')
+        
+        # Create the Pokedex-style UI
+        self.create_pokedex_ui()
+        self.start_background_tasks()
+        
+        # Add initial welcome message
+        self.add_to_conversation("ULTRON", "ULTRON AI Assistant initialized. Ready for commands.")
 
-        # Main frame
-        main_frame = tk.Frame(self.root)
+    def create_pokedex_ui(self):
+        """Create Pokedex-style interface"""
+        
+        # Main container
+        main_frame = tk.Frame(self.root, bg='#1a1a2e')
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # Settings panel
-        self.settings_frame = tk.LabelFrame(main_frame, text="Settings")
-        self.settings_frame.pack(fill=tk.X, pady=5)
-        self.settings = {
-            "Voice": tk.BooleanVar(value=self.agent.config.data.get("use_voice")),
-            "Vision": tk.BooleanVar(value=self.agent.config.data.get("use_vision")),
-            "API": tk.BooleanVar(value=self.agent.config.data.get("use_api"))
-        }
-        for name, var in self.settings.items():
-            cb = tk.Checkbutton(self.settings_frame, text=name, variable=var, command=self.update_settings)
-            cb.pack(side=tk.LEFT)
-
-        # Voice enable/disable button
-        self.voice_enabled = tk.BooleanVar(value=self.agent.config.data.get("use_voice", True))
-        self.voice_button = tk.Button(self.settings_frame, text="Enable Voice" if not self.voice_enabled.get() else "Disable Voice", command=self.toggle_voice)
-        self.voice_button.pack(side=tk.LEFT, padx=(10,0))
-
-        # Voice engine dropdown
-        tk.Label(self.settings_frame, text="Voice Engine:").pack(side=tk.LEFT, padx=(20,0))
-        self.voice_engine_var = tk.StringVar(value=self.agent.config.data.get("voice_engine", "pyttsx3"))
-        self.voice_engine_menu = ttk.Combobox(self.settings_frame, textvariable=self.voice_engine_var, state="readonly", width=12)
-        self.voice_engine_menu['values'] = ("pyttsx3", "elevenlabs")
-        self.voice_engine_menu.pack(side=tk.LEFT)
-
-        # LLM model dropdown
-        tk.Label(self.settings_frame, text="LLM Model:").pack(side=tk.LEFT, padx=(20,0))
-        self.llm_model_var = tk.StringVar(value=self.agent.config.data.get("llm_model", "llama3.2:latest"))
-        self.llm_model_menu = ttk.Combobox(self.settings_frame, textvariable=self.llm_model_var, state="readonly", width=32)
-        self.llm_model_menu['values'] = (
-            "qwen3:0.6b",
-            "qikfox/Eleven:latest",
-            "llama3.2:latest",
-            "qwen2.5:latest",
-            "mxbai-embed-large:latest",
-            "Qwen2.5-7B-Mini.Q5_K_S:latest",
-            "phi-3-mini-128k-instruct.Q5_K_M:latest",
-            "hermes3:latest",
-            "hermes3:8b"
+        
+        # Top section - Pokedex screen style
+        top_frame = tk.Frame(main_frame, bg='#e74c3c', relief=tk.RAISED, bd=3)
+        top_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        # ULTRON title with glow effect
+        title_frame = tk.Frame(top_frame, bg='#2c3e50')
+        title_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        title_label = tk.Label(
+            title_frame, 
+            text="ULTRON v2.0", 
+            font=("Orbitron", 24, "bold"),
+            fg='#00ff41', 
+            bg='#2c3e50'
         )
-        self.llm_model_menu.pack(side=tk.LEFT)
-        self.llm_model_menu.bind("<<ComboboxSelected>>", self.update_llm_model)
+        title_label.pack()
+        
+        status_label = tk.Label(
+            title_frame,
+            text="AI Assistant - Online",
+            font=("Courier", 12),
+            fg='#3498db',
+            bg='#2c3e50'
+        )
+        status_label.pack()
+        
+        # Middle section - Main display
+        middle_frame = tk.Frame(main_frame, bg='#16213e')
+        middle_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        
+        # Left panel - System status
+        left_panel = tk.Frame(middle_frame, bg='#2c3e50', width=300)
+        left_panel.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 10))
+        left_panel.pack_propagate(False)
+        
+        self.create_status_panel(left_panel)
+        
+        # Center panel - Conversation
+        center_panel = tk.Frame(middle_frame, bg='#34495e')
+        center_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
+        
+        self.create_conversation_panel(center_panel)
+        
+        # Right panel - Controls
+        right_panel = tk.Frame(middle_frame, bg='#2c3e50', width=300)
+        right_panel.pack(side=tk.RIGHT, fill=tk.Y)
+        right_panel.pack_propagate(False)
+        
+        self.create_control_panel(right_panel)
+        
+        # Bottom section - Command input
+        bottom_frame = tk.Frame(main_frame, bg='#e67e22', relief=tk.RAISED, bd=3)
+        bottom_frame.pack(fill=tk.X)
+        
+        self.create_input_panel(bottom_frame)
 
-        tk.Button(self.settings_frame, text="Apply", command=self.apply_settings).pack(side=tk.RIGHT)
+    def create_status_panel(self, parent):
+        """Create system status panel"""
+        tk.Label(
+            parent, 
+            text="SYSTEM STATUS", 
+            font=("Orbitron", 14, "bold"),
+            fg='#00ff41', 
+            bg='#2c3e50'
+        ).pack(pady=10)
+        
+        # Status indicators
+        self.status_vars = {
+            'cpu': tk.StringVar(value="CPU: 0%"),
+            'memory': tk.StringVar(value="Memory: 0%"),
+            'disk': tk.StringVar(value="Disk: 0%"),
+            'voice': tk.StringVar(value="Voice: Ready"),
+            'ai': tk.StringVar(value="AI: Online")
+        }
+        
+        for key, var in self.status_vars.items():
+            frame = tk.Frame(parent, bg='#2c3e50')
+            frame.pack(fill=tk.X, padx=10, pady=2)
+            
+            tk.Label(
+                frame,
+                textvariable=var,
+                font=("Courier", 10),
+                fg='#3498db',
+                bg='#2c3e50',
+                anchor='w'
+            ).pack(side=tk.LEFT)
+        
+        # System controls
+        tk.Label(
+            parent, 
+            text="QUICK ACTIONS", 
+            font=("Orbitron", 12, "bold"),
+            fg='#00ff41', 
+            bg='#2c3e50'
+        ).pack(pady=(20, 10))
+        
+        actions = [
+            ("Screenshot", self.take_screenshot),
+            ("System Info", self.show_system_info),
+            ("Open Browser", lambda: webbrowser.open("https://google.com")),
+            ("File Manager", self.open_file_manager),
+            ("Tools Explorer", self.show_tools_explorer)
+        ]
+        
+        for text, command in actions:
+            btn = tk.Button(
+                parent,
+                text=text,
+                command=command,
+                bg='#3498db',
+                fg='white',
+                font=("Courier", 10, "bold"),
+                relief=tk.FLAT,
+                padx=10,
+                pady=5
+            )
+            btn.pack(fill=tk.X, padx=10, pady=2)
 
-        # --- Voice Input Controls ---
-        self.voice_controls_frame = tk.Frame(self.settings_frame)
-        self.voice_controls_frame.pack(side=tk.LEFT, padx=(10,0))
-        self.listen_button = tk.Button(self.voice_controls_frame, text="Listen", command=self.listen_once)
-        self.listen_button.pack(side=tk.LEFT)
-        self.always_listen_var = tk.BooleanVar(value=False)
-        self.always_listen_check = tk.Checkbutton(self.voice_controls_frame, text="Always Listen", variable=self.always_listen_var, command=self.toggle_always_listen)
-        self.always_listen_check.pack(side=tk.LEFT)
-        self.listening_thread = None
-        self._stop_listening = False
+    def create_conversation_panel(self, parent):
+        """Create conversation display panel"""
+        tk.Label(
+            parent, 
+            text="CONVERSATION LOG", 
+            font=("Orbitron", 14, "bold"),
+            fg='#00ff41', 
+            bg='#34495e'
+        ).pack(pady=10)
+        
+        # Conversation display
+        self.conversation_text = scrolledtext.ScrolledText(
+            parent,
+            wrap=tk.WORD,
+            state=tk.DISABLED,
+            bg='#2c3e50',
+            fg='#ecf0f1',
+            font=("Courier", 11),
+            insertbackground='#3498db'
+        )
+        self.conversation_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Configure text tags for styling
+        self.conversation_text.tag_configure("user", foreground="#3498db")
+        self.conversation_text.tag_configure("ultron", foreground="#00ff41")
+        self.conversation_text.tag_configure("system", foreground="#e67e22")
 
-        # --- Command Entry ---
-        self.entry_frame = tk.Frame(main_frame)
-        self.entry_frame.pack(fill=tk.X, pady=(10, 0))
-        tk.Label(self.entry_frame, text="Command:").pack(side=tk.LEFT, padx=(0, 5))
-        self.command_entry = tk.Entry(self.entry_frame, width=60)
-        self.command_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        self.command_entry.bind("<Return>", self.send_command)
-        tk.Button(self.entry_frame, text="Send", command=self.send_command).pack(side=tk.LEFT, padx=(5, 0))
+    def create_control_panel(self, parent):
+        """Create control panel"""
+        tk.Label(
+            parent, 
+            text="VOICE CONTROLS", 
+            font=("Orbitron", 14, "bold"),
+            fg='#00ff41', 
+            bg='#2c3e50'
+        ).pack(pady=10)
+        
+        # Voice control buttons
+        self.voice_btn = tk.Button(
+            parent,
+            text="🎤 Start Listening",
+            command=self.toggle_listening,
+            bg='#27ae60',
+            fg='white',
+            font=("Courier", 12, "bold"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=10
+        )
+        self.voice_btn.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Agent configuration
+        tk.Label(
+            parent, 
+            text="AGENT CONFIG", 
+            font=("Orbitron", 12, "bold"),
+            fg='#00ff41', 
+            bg='#2c3e50'
+        ).pack(pady=(20, 10))
+        
+        # Voice engine selection
+        voice_frame = tk.Frame(parent, bg='#2c3e50')
+        voice_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        tk.Label(voice_frame, text="Voice Engine:", bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        self.voice_engine_var = tk.StringVar(value=self.agent.config.data.get("voice_engine", "pyttsx3"))
+        voice_combo = ttk.Combobox(voice_frame, textvariable=self.voice_engine_var, state="readonly")
+        voice_combo['values'] = ("pyttsx3", "elevenlabs", "openai")
+        voice_combo.pack(fill=tk.X, pady=2)
+        voice_combo.bind("<<ComboboxSelected>>", self.update_voice_engine)
+        
+        # LLM model selection
+        llm_frame = tk.Frame(parent, bg='#2c3e50')
+        llm_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        tk.Label(llm_frame, text="LLM Model:", bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        self.llm_model_var = tk.StringVar(value=self.agent.config.data.get("llm_model", "llama3.2:latest"))
+        llm_combo = ttk.Combobox(llm_frame, textvariable=self.llm_model_var, state="readonly")
+        llm_combo['values'] = ("llama3.2:latest", "qwen2.5:latest", "hermes3:latest")
+        llm_combo.pack(fill=tk.X, pady=2)
+        llm_combo.bind("<<ComboboxSelected>>", self.update_llm_model)
+        
+        # Enable/disable toggles
+        toggles_frame = tk.Frame(parent, bg='#2c3e50')
+        toggles_frame.pack(fill=tk.X, padx=10, pady=10)
+        
+        self.voice_enabled = tk.BooleanVar(value=self.agent.config.data.get("use_voice", True))
+        self.vision_enabled = tk.BooleanVar(value=self.agent.config.data.get("use_vision", True))
+        self.api_enabled = tk.BooleanVar(value=self.agent.config.data.get("use_api", True))
+        
+        tk.Checkbutton(toggles_frame, text="Voice", variable=self.voice_enabled, 
+                      bg='#2c3e50', fg='#ecf0f1', selectcolor='#34495e').pack(anchor='w')
+        tk.Checkbutton(toggles_frame, text="Vision", variable=self.vision_enabled,
+                      bg='#2c3e50', fg='#ecf0f1', selectcolor='#34495e').pack(anchor='w')
+        tk.Checkbutton(toggles_frame, text="API", variable=self.api_enabled,
+                      bg='#2c3e50', fg='#ecf0f1', selectcolor='#34495e').pack(anchor='w')
 
-        # --- Response Text ---
-        self.response_text = tk.Text(main_frame, height=12, wrap=tk.WORD, state=tk.DISABLED)
-        self.response_text.pack(fill=tk.BOTH, expand=True, pady=(10, 0))
+    def create_input_panel(self, parent):
+        """Create command input panel"""
+        input_frame = tk.Frame(parent, bg='#e67e22')
+        input_frame.pack(fill=tk.X, padx=10, pady=10)
+        
+        tk.Label(
+            input_frame,
+            text="Command Input:",
+            font=("Orbitron", 12, "bold"),
+            bg='#e67e22',
+            fg='white'
+        ).pack(anchor='w')
+        
+        entry_frame = tk.Frame(input_frame, bg='#e67e22')
+        entry_frame.pack(fill=tk.X, pady=5)
+        
+        self.command_entry = tk.Entry(
+            entry_frame,
+            font=("Courier", 12),
+            bg='#2c3e50',
+            fg='#ecf0f1',
+            insertbackground='#3498db',
+            relief=tk.FLAT
+        )
+        self.command_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+        self.command_entry.bind('<Return>', self.process_text_command)
+        
+        tk.Button(
+            entry_frame,
+            text="Execute",
+            command=self.process_text_command,
+            bg='#27ae60',
+            fg='white',
+            font=("Courier", 10, "bold"),
+            relief=tk.FLAT,
+            padx=20
+        ).pack(side=tk.RIGHT)
 
-        # --- Indicators ---
-        self.indicators = {}
-        self.indicator_frame = tk.Frame(self.settings_frame)
-        self.indicator_frame.pack(side=tk.RIGHT, padx=(10, 0))
-        for name in self.settings:
-            canvas = tk.Canvas(self.indicator_frame, width=16, height=16, highlightthickness=0)
-            oval = canvas.create_oval(2, 2, 14, 14, fill="green" if self.settings[name].get() else "gray")
-            canvas.pack(side=tk.LEFT, padx=2)
-            self.indicators[name] = (canvas, oval)
+    def add_to_conversation(self, speaker, message):
+        """Add message to conversation log"""
+        self.conversation_text.config(state=tk.NORMAL)
+        
+        timestamp = time.strftime("%H:%M:%S")
+        
+        if speaker == "ULTRON":
+            tag = "ultron"
+        elif speaker == "USER":
+            tag = "user"
+        else:
+            tag = "system"
+        
+        self.conversation_text.insert(tk.END, f"[{timestamp}] {speaker}: ", tag)
+        self.conversation_text.insert(tk.END, f"{message}\n\n")
+        self.conversation_text.config(state=tk.DISABLED)
+        self.conversation_text.see(tk.END)
+        
+        # Save to history
+        self.conversation_history.append({
+            'timestamp': timestamp,
+            'speaker': speaker,
+            'message': message
+        })
 
-        # --- Tool Explorer Panel ---
-        tool_explorer = tk.LabelFrame(main_frame, text="Tool Explorer")
-        tool_explorer.pack(fill=tk.BOTH, expand=False, pady=10)
-        self.tool_listbox = tk.Listbox(tool_explorer, width=40, height=6)
-        self.tool_listbox.pack(side=tk.LEFT, fill=tk.Y, padx=(5,0), pady=5)
-        self.tool_details = tk.Text(tool_explorer, width=60, height=6, state=tk.DISABLED)
-        self.tool_details.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-        self.tool_invoke_frame = tk.Frame(tool_explorer)
-        self.tool_invoke_frame.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
-        self.tool_param_entries = {}
-        tk.Button(self.tool_invoke_frame, text="Invoke Tool", command=self.invoke_selected_tool).pack(pady=(0,5))
-        self.populate_tool_list()
-        self.tool_listbox.bind("<<ListboxSelect>>", self.show_tool_details)
+    def process_text_command(self, event=None):
+        """Process text command"""
+        command = self.command_entry.get().strip()
+        if not command:
+            return
+        
+        self.add_to_conversation("USER", command)
+        self.command_entry.delete(0, tk.END)
+        
+        # Process with agent
+        try:
+            response = self.agent.handle_text(command)
+            self.add_to_conversation("ULTRON", response)
+        except Exception as e:
+            self.add_to_conversation("SYSTEM", f"Error processing command: {str(e)}")
 
-    def listen_once(self):
+    def toggle_listening(self):
+        """Toggle voice listening"""
         if not self.agent.voice:
             messagebox.showwarning("Voice", "Voice is not enabled.")
             return
-        self.listen_button.config(state=tk.DISABLED)
-        self.root.after(100, self._do_listen_once)
-
-    def _do_listen_once(self):
-        try:
-            # Release mic from other processes before listening
-            import subprocess
-            subprocess.run([sys.executable, "mic_release.py"], cwd=os.path.dirname(__file__), timeout=5)
-            text = self.agent.voice.listen()
-            if text:
-                self.command_entry.delete(0, tk.END)
-                self.command_entry.insert(0, text)
-                self.send_command()
-            else:
-                messagebox.showinfo("Voice", "No speech detected.")
-        except Exception as e:
-            messagebox.showerror("Voice", f"Voice input error: {e}")
-        finally:
-            self.listen_button.config(state=tk.NORMAL)
-
-    def toggle_always_listen(self):
-        if self.always_listen_var.get():
-            self._stop_listening = False
-            import threading
-            self.listening_thread = threading.Thread(target=self._background_listen, daemon=True)
-            self.listening_thread.start()
+            
+        if not self.listening:
+            self.listening = True
+            self.voice_btn.config(text="🛑 Stop Listening", bg='#e74c3c')
+            threading.Thread(target=self.listen_for_voice, daemon=True).start()
         else:
-            self._stop_listening = True
+            self.listening = False
+            self.voice_btn.config(text="🎤 Start Listening", bg='#27ae60')
 
-    def _background_listen(self):
-        import time
-        while not self._stop_listening:
-            if self.agent.voice:
-                try:
-                    text = self.agent.voice.listen()
-                    if text:
-                        self.root.after(0, self._handle_voice_command, text)
-                except Exception as e:
-                    print(f"Voice listen error: {e} - gui.py:148")
-            time.sleep(1)
+    def listen_for_voice(self):
+        """Listen for voice commands"""
+        while self.listening:
+            try:
+                # Use asyncio to handle the async voice.listen method
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                text = loop.run_until_complete(self.agent.voice.listen(timeout=3))
+                loop.close()
+                
+                if text:
+                    self.root.after(0, self.process_voice_command, text)
+                    
+            except Exception as e:
+                print(f"Voice recognition error: {e}")
+            
+            time.sleep(0.5)
 
-    def _handle_voice_command(self, text):
-        self.command_entry.delete(0, tk.END)
-        self.command_entry.insert(0, text)
-        self.send_command()
-
-    # ...existing code...
-
-    def listen_once(self):
-        if not self.agent.voice:
-            messagebox.showwarning("Voice", "Voice is not enabled.")
-            return
-        self.listen_button.config(state=tk.DISABLED)
-        self.root.after(100, self._do_listen_once)
-
-    def _do_listen_once(self):
+    def process_voice_command(self, command):
+        """Process voice command"""
+        self.add_to_conversation("USER", f"🎤 {command}")
+        
         try:
-            text = self.agent.voice.listen()
-            if text:
-                self.command_entry.delete(0, tk.END)
-                self.command_entry.insert(0, text)
-                self.send_command()
-            else:
-                messagebox.showinfo("Voice", "No speech detected.")
+            response = self.agent.handle_text(command)
+            self.add_to_conversation("ULTRON", response)
         except Exception as e:
-            messagebox.showerror("Voice", f"Voice input error: {e}")
-        finally:
-            self.listen_button.config(state=tk.NORMAL)
+            self.add_to_conversation("SYSTEM", f"Error processing voice command: {str(e)}")
 
-    def toggle_always_listen(self):
-        if self.always_listen_var.get():
-            self._stop_listening = False
-            import threading
-            self.listening_thread = threading.Thread(target=self._background_listen, daemon=True)
-            self.listening_thread.start()
-        else:
-            self._stop_listening = True
+    def update_system_status(self):
+        """Update system status display"""
+        try:
+            cpu = psutil.cpu_percent()
+            memory = psutil.virtual_memory().percent
+            disk = psutil.disk_usage('C:').percent if os.name == 'nt' else psutil.disk_usage('/').percent
+            
+            self.status_vars['cpu'].set(f"CPU: {cpu:.1f}%")
+            self.status_vars['memory'].set(f"Memory: {memory:.1f}%")
+            self.status_vars['disk'].set(f"Disk: {disk:.1f}%")
+            self.status_vars['voice'].set(f"Voice: {'Listening' if self.listening else 'Ready'}")
+            self.status_vars['ai'].set(f"AI: {'Online' if hasattr(self.agent, 'brain') else 'Offline'}")
+            
+        except Exception as e:
+            print(f"Status update error: {e}")
 
-    def _background_listen(self):
-        import time
-        import subprocess
-        while not self._stop_listening:
-            if self.agent.voice:
-                try:
-                    # Release mic from other processes before listening
-                    subprocess.run([sys.executable, "mic_release.py"], cwd=os.path.dirname(__file__), timeout=5)
-                    text = self.agent.voice.listen()
-                    if text:
-                        self.root.after(0, self._handle_voice_command, text)
-                except Exception as e:
-                    print(f"Voice listen error: {e} - gui.py:197")
-            time.sleep(1)
+    def take_screenshot(self):
+        """Take screenshot"""
+        try:
+            screenshot = ImageGrab.grab()
+            timestamp = int(time.time())
+            screenshot_path = Path(f"screenshot_{timestamp}.png")
+            screenshot.save(screenshot_path)
+            self.add_to_conversation("SYSTEM", f"Screenshot saved: {screenshot_path}")
+        except Exception as e:
+            self.add_to_conversation("SYSTEM", f"Screenshot failed: {str(e)}")
 
-    def _handle_voice_command(self, text):
-        self.command_entry.delete(0, tk.END)
-        self.command_entry.insert(0, text)
-        self.send_command()
-    def __init__(self, agent, log_queue):
-        self.agent = agent
-        self.log_queue = log_queue
-        self.root = tk.Tk()
-        self.root.title("Ultron Agent 2.0")
-        self.root.geometry("800x600")
-
-        # Main frame
-        main_frame = tk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # Settings panel
-        self.settings_frame = tk.LabelFrame(main_frame, text="Settings")
-        self.settings_frame.pack(fill=tk.X, pady=5)
-        self.settings = {
-            "Voice": tk.BooleanVar(value=self.agent.config.data.get("use_voice")),
-            "Vision": tk.BooleanVar(value=self.agent.config.data.get("use_vision")),
-            "API": tk.BooleanVar(value=self.agent.config.data.get("use_api"))
+    def show_system_info(self):
+        """Show system information"""
+        info = {
+            "Platform": os.name,
+            "CPU Count": psutil.cpu_count(),
+            "Total Memory": f"{psutil.virtual_memory().total / (1024**3):.1f} GB",
+            "Python Version": sys.version.split()[0],
+            "ULTRON Version": "2.0"
         }
-        for name, var in self.settings.items():
-            cb = tk.Checkbutton(self.settings_frame, text=name, variable=var, command=self.update_settings)
-            cb.pack(side=tk.LEFT)
+        
+        info_text = "\n".join([f"{k}: {v}" for k, v in info.items()])
+        self.add_to_conversation("SYSTEM", f"System Information:\n{info_text}")
 
-        # Voice enable/disable button
-        self.voice_enabled = tk.BooleanVar(value=self.agent.config.data.get("use_voice", True))
-        self.voice_button = tk.Button(self.settings_frame, text="Enable Voice" if not self.voice_enabled.get() else "Disable Voice", command=self.toggle_voice)
-        self.voice_button.pack(side=tk.LEFT, padx=(10,0))
-
-        # Voice engine dropdown
-        tk.Label(self.settings_frame, text="Voice Engine:").pack(side=tk.LEFT, padx=(20,0))
-        self.voice_engine_var = tk.StringVar(value=self.agent.config.data.get("voice_engine", "pyttsx3"))
-        self.voice_engine_menu = ttk.Combobox(self.settings_frame, textvariable=self.voice_engine_var, state="readonly", width=12)
-        self.voice_engine_menu['values'] = ("pyttsx3", "elevenlabs")
-        self.voice_engine_menu.pack(side=tk.LEFT)
-
-        # LLM model dropdown
-        tk.Label(self.settings_frame, text="LLM Model:").pack(side=tk.LEFT, padx=(20,0))
-        self.llm_model_var = tk.StringVar(value=self.agent.config.data.get("llm_model", "llama3.2:latest"))
-        self.llm_model_menu = ttk.Combobox(self.settings_frame, textvariable=self.llm_model_var, state="readonly", width=32)
-        self.llm_model_menu['values'] = (
-            "qwen3:0.6b",
-            "qikfox/Eleven:latest",
-            "llama3.2:latest",
-            "qwen2.5:latest",
-            "mxbai-embed-large:latest",
-            "Qwen2.5-7B-Mini.Q5_K_S:latest",
-            "phi-3-mini-128k-instruct.Q5_K_M:latest",
-            "hermes3:latest",
-            "hermes3:8b"
-        )
-        self.llm_model_menu.pack(side=tk.LEFT)
-        self.llm_model_menu.bind("<<ComboboxSelected>>", self.update_llm_model)
-
-        tk.Button(self.settings_frame, text="Apply", command=self.apply_settings).pack(side=tk.RIGHT)
-
-        # --- Command Entry ---
-        self.entry_frame = tk.Frame(main_frame)
-        self.entry_frame.pack(fill=tk.X, pady=(10, 0))
-        tk.Label(self.entry_frame, text="Command:").pack(side=tk.LEFT, padx=(0, 5))
-        self.command_entry = tk.Entry(self.entry_frame, width=60)
-        self.command_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        self.command_entry.bind("<Return>", self.send_command)
-        tk.Button(self.entry_frame, text="Send", command=self.send_command).pack(side=tk.LEFT, padx=(5, 0))
-
-        # --- Response Text ---
-        self.response_text = tk.Text(main_frame, height=12, wrap=tk.WORD, state=tk.DISABLED)
-        self.response_text.pack(fill=tk.BOTH, expand=True, pady=(10, 0))
-
-        # --- Indicators ---
-        self.indicators = {}
-        self.indicator_frame = tk.Frame(self.settings_frame)
-        self.indicator_frame.pack(side=tk.RIGHT, padx=(10, 0))
-        for name in self.settings:
-            canvas = tk.Canvas(self.indicator_frame, width=16, height=16, highlightthickness=0)
-            oval = canvas.create_oval(2, 2, 14, 14, fill="green" if self.settings[name].get() else "gray")
-            canvas.pack(side=tk.LEFT, padx=2)
-            self.indicators[name] = (canvas, oval)
-
-        # --- Tool Explorer Panel ---
-        tool_explorer = tk.LabelFrame(main_frame, text="Tool Explorer")
-        tool_explorer.pack(fill=tk.BOTH, expand=False, pady=10)
-        self.tool_listbox = tk.Listbox(tool_explorer, width=40, height=6)
-        self.tool_listbox.pack(side=tk.LEFT, fill=tk.Y, padx=(5,0), pady=5)
-        self.tool_details = tk.Text(tool_explorer, width=60, height=6, state=tk.DISABLED)
-        self.tool_details.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-        self.tool_invoke_frame = tk.Frame(tool_explorer)
-        self.tool_invoke_frame.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
-        self.tool_param_entries = {}
-        tk.Button(self.tool_invoke_frame, text="Invoke Tool", command=self.invoke_selected_tool).pack(pady=(0,5))
-        self.populate_tool_list()
-        self.tool_listbox.bind("<<ListboxSelect>>", self.show_tool_details)
-
-    def populate_tool_list(self):
-        self.tool_listbox.delete(0, tk.END)
-        self.tools = self.agent.tools
-        for tool in self.tools:
-            self.tool_listbox.insert(tk.END, tool.name)
-
-    def show_tool_details(self, event=None):
-        selection = self.tool_listbox.curselection()
-        if not selection:
-            return
-        idx = selection[0]
-        tool = self.tools[idx]
-        self.tool_details.config(state=tk.NORMAL)
-        self.tool_details.delete(1.0, tk.END)
-        self.tool_details.insert(tk.END, f"Name: {tool.name}\nDescription: {tool.description}\nParameters: {getattr(tool, 'parameters', {})}\n")
-        self.tool_details.config(state=tk.DISABLED)
-        # Show parameter entry fields
-        for widget in self.tool_invoke_frame.winfo_children():
-            if isinstance(widget, tk.Entry) or isinstance(widget, tk.Label):
-                widget.destroy()
-        self.tool_param_entries = {}
-        params = getattr(tool, 'parameters', {}).get('properties', {})
-        for pname, pinfo in params.items():
-            tk.Label(self.tool_invoke_frame, text=pname+':').pack()
-            entry = tk.Entry(self.tool_invoke_frame, width=20)
-            entry.pack()
-            self.tool_param_entries[pname] = entry
-
-    def invoke_selected_tool(self):
-        selection = self.tool_listbox.curselection()
-        if not selection:
-            messagebox.showwarning("Tool", "No tool selected.")
-            return
-        idx = selection[0]
-        tool = self.tools[idx]
-        params = {}
-        for pname, entry in self.tool_param_entries.items():
-            params[pname] = entry.get()
+    def open_file_manager(self):
+        """Open file manager"""
         try:
-            result = tool.execute(**params)
+            if os.name == 'nt':
+                os.startfile(os.getcwd())
+            else:
+                import subprocess
+                subprocess.Popen(['xdg-open', os.getcwd()])
+            self.add_to_conversation("SYSTEM", f"File manager opened: {os.getcwd()}")
         except Exception as e:
-            result = f"Error: {e}"
-        self.show_tool_result(tool.name, result)
+            self.add_to_conversation("SYSTEM", f"Failed to open file manager: {str(e)}")
 
-    def run(self):
-        self.root.mainloop()
-
-    def run_tool_from_gui(self, tool):
-        user_input = tool.name  # or prompt for args if needed
-        try:
-            result = tool.execute(user_input)
-        except Exception as e:
-            result = f"Error: {e}"
-        self.show_tool_result(tool.name, result)
-
-    def show_tool_result(self, tool_name, result):
+    def show_tools_explorer(self):
+        """Show tools explorer popup"""
         popup = tk.Toplevel(self.root)
-        popup.title(f"Result: {tool_name}")
-        tk.Label(popup, text=result, wraplength=400, justify="left").pack(padx=20, pady=20)
-        tk.Button(popup, text="Close", command=popup.destroy).pack(pady=(0,10))
-
-    def toggle_voice(self):
-        current = self.voice_enabled.get()
-        self.voice_enabled.set(not current)
-        self.agent.config.data["use_voice"] = not current
-        try:
-            if not current:
-                from voice import VoiceAssistant
-                self.agent.voice = VoiceAssistant(self.agent.config)
-                self.voice_button.config(text="Disable Voice")
-                messagebox.showinfo("Voice", "Voice enabled.")
-            else:
-                self.agent.voice = None
-                self.voice_button.config(text="Enable Voice")
-                messagebox.showinfo("Voice", "Voice disabled.")
-        except Exception as e:
-            self.agent.voice = None
-            self.voice_button.config(text="Enable Voice")
-            messagebox.showerror("Voice Error", f"Failed to toggle voice: {e}")
+        popup.title("Tools Explorer")
+        popup.geometry("600x400")
+        popup.configure(bg='#2c3e50')
+        
+        # Tools list
+        tools_frame = tk.Frame(popup, bg='#2c3e50')
+        tools_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        tk.Label(tools_frame, text="Available Tools:", font=("Orbitron", 14, "bold"),
+                fg='#00ff41', bg='#2c3e50').pack(anchor='w')
+        
+        tools_listbox = tk.Listbox(tools_frame, bg='#34495e', fg='#ecf0f1', font=("Courier", 10))
+        tools_listbox.pack(fill=tk.BOTH, expand=True, pady=5)
+        
+        # Populate tools
+        for tool in self.agent.tools:
+            tools_listbox.insert(tk.END, f"{tool.name} - {tool.description}")
+        
+        tk.Button(popup, text="Close", command=popup.destroy,
+                 bg='#e74c3c', fg='white', font=("Courier", 10, "bold")).pack(pady=5)
 
     def update_voice_engine(self, event=None):
+        """Update voice engine"""
         new_engine = self.voice_engine_var.get()
         self.agent.config.data["voice_engine"] = new_engine
         self.agent.config.data["tts_engine"] = new_engine
-        # Re-initialize voice assistant if enabled
-        if self.agent.config.data.get("use_voice"):
-            from voice import VoiceAssistant
-            self.agent.voice = VoiceAssistant(self.agent.config)
-        messagebox.showinfo("Voice Engine", f"Voice engine set to {new_engine}.")
+        self.add_to_conversation("SYSTEM", f"Voice engine set to {new_engine}")
 
     def update_llm_model(self, event=None):
+        """Update LLM model"""
         new_model = self.llm_model_var.get()
         self.agent.config.data["llm_model"] = new_model
-        # Attempt to switch Ollama model for new requests
-        try:
-            import requests
-            # This will not interrupt a running model, but will set for next request
-            # Optionally, you could send a dummy request to preload the model
-            requests.post(
-                "http://localhost:11434/api/chat",
-                json={"model": new_model, "messages": [{"role": "user", "content": "Hello"}]},
-                timeout=5
-            )
-        except Exception as e:
-            messagebox.showwarning("LLM Model", f"Model set to {new_model}, but could not preload: {e}")
-        else:
-            messagebox.showinfo("LLM Model", f"LLM model set to {new_model}.")
+        self.add_to_conversation("SYSTEM", f"LLM model set to {new_model}")
 
-        # Start polling log queue
+    def start_background_tasks(self):
+        """Start background monitoring tasks"""
+        def update_loop():
+            while True:
+                self.root.after(0, self.update_system_status)
+                time.sleep(2)
+        
+        threading.Thread(target=update_loop, daemon=True).start()
+        
+        # Start log queue polling
         self.root.after(500, self._poll_log_queue)
-
-    def send_command(self, event=None):
-        command = self.command_entry.get()
-        if command:
-            self.command_entry.delete(0, tk.END)
-            response = self.agent.handle_text(command)
-            self.response_text.config(state=tk.NORMAL)
-            self.response_text.insert(tk.END, f"User: {command}\nUltron: {response}\n\n")
-            self.response_text.config(state=tk.DISABLED)
-            self.response_text.see(tk.END)
 
     def _poll_log_queue(self):
+        """Poll log queue for messages"""
         while not self.log_queue.empty():
             msg = self.log_queue.get_nowait()
-            self.response_text.config(state=tk.NORMAL)
-            self.response_text.insert(tk.END, msg + "\n")
-            self.response_text.config(state=tk.DISABLED)
-            self.response_text.see(tk.END)
+            self.add_to_conversation("SYSTEM", msg)
         self.root.after(500, self._poll_log_queue)
 
-    def update_settings(self):
-        for name, var in self.settings.items():
-            self.indicators[name][0].itemconfig(self.indicators[name][1], fill="green" if var.get() else "gray")
-
-    def apply_settings(self):
-        self.agent.config.data["use_voice"] = self.settings["Voice"].get()
-        self.agent.config.data["use_vision"] = self.settings["Vision"].get()
-        self.agent.config.data["use_api"] = self.settings["API"].get()
-        messagebox.showinfo("Settings", "Settings applied. Restart may be required for some changes.")
-        if self.agent.config.data["use_voice"] and not hasattr(self.agent, "voice"):
-            from voice import VoiceAssistant
-            self.agent.voice = VoiceAssistant(self.agent.config)
-        if self.agent.config.data["use_vision"] and not hasattr(self.agent, "vision"):
-            from vision import Vision
-            self.agent.vision = Vision()
+    def run(self):
+        """Start the GUI"""
+        self.root.mainloop()

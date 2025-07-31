@@ -24,27 +24,20 @@ class AudioManager:
     def list_audio_devices(self) -> list:
         """List all available audio output devices."""
         try:
-            pygame.mixer.quit()
-            devices = []
-            for i in range(pygame.mixer.get_num_devices()):
-                devices.append(pygame.mixer.get_device_info(i))
-            return devices
+            # Simple fallback - pygame doesn't have reliable device enumeration
+            return ["Default Audio Device"]
         except Exception as e:
             logging.error(f"Failed to list audio devices: {e}")
             return []
-        finally:
-            self._init_pygame()  # Reinitialize mixer
 
     def set_audio_device(self, device_index: int) -> bool:
         """Set the audio output device."""
         try:
-            pygame.mixer.quit()
-            pygame.mixer.init(devicename=str(device_index))
-            self.audio_device = device_index
+            # pygame doesn't have reliable device selection, use default
+            self._init_pygame()
             return True
         except Exception as e:
             logging.error(f"Failed to set audio device {device_index}: {e}")
-            self._init_pygame()  # Fallback to default device
             return False
 
     def play_audio(self, file_path: str, block: bool = True) -> bool:
@@ -95,10 +88,15 @@ class AudioManager:
             frequency = 440  # A4 note
             num_samples = int(duration * sample_rate)
             
-            buffer = pygame.sndarray.make_sound(
-                numpy.sin(2 * numpy.pi * numpy.arange(num_samples) * frequency / sample_rate)
-                .astype(numpy.float32)
-            )
+            # Create a stereo wave (2 channels) to match the mixer settings
+            wave = numpy.sin(2 * numpy.pi * numpy.arange(num_samples) * frequency / sample_rate)
+            stereo_wave = numpy.array([wave, wave]).T.astype(numpy.float32)
+            
+            # Ensure the array is C-contiguous for pygame
+            if not stereo_wave.flags['C_CONTIGUOUS']:
+                stereo_wave = numpy.ascontiguousarray(stereo_wave)
+            
+            buffer = pygame.sndarray.make_sound(stereo_wave)
             
             buffer.play()
             pygame.time.wait(int(duration * 1000))
@@ -106,4 +104,21 @@ class AudioManager:
             
         except Exception as e:
             logging.error(f"Audio test failed: {e}")
+            return False
+
+    def record_audio(self, file_path: str, timeout: int = 5) -> bool:
+        """Record audio to file"""
+        try:
+            import speech_recognition as sr
+            r = sr.Recognizer()
+            with sr.Microphone() as source:
+                logging.info(f"Recording audio for {timeout} seconds...")
+                r.adjust_for_ambient_noise(source, duration=1)
+                audio_data: sr.AudioData = r.listen(source, timeout=timeout, phrase_time_limit=timeout)
+                # audio_data is an AudioData object, which has get_wav_data method
+                with open(file_path, "wb") as f:
+                    f.write(audio_data.get_wav_data())
+                return True
+        except Exception as e:
+            logging.error(f"Audio recording failed: {e}")
             return False

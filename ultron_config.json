@@ -6,7 +6,7 @@
   "voice_engine": "pyttsx3",
   "stt_engine": "whisper",
   "tts_engine": "pyttsx3",
-  "openai_api_key": "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",
+  "openai_api_key": "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",
   "ollama_api_key": "ollama-placeholder-key-1234567890",
   "elevenlabs_api_key": "sk_a99d3caeef2c2dc6e98567110d905e724af83375e5c29d9d",
   "supabase_url": "https://jdkddrfloluhkytxdkkh.supabase.co",
