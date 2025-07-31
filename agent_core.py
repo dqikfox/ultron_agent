@@ -271,7 +271,12 @@ class UltronAgent:
         self._setup_event_handlers()
         self._setup_default_tasks()
         
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s %(levelname)s %(message)s',
+            filename='ultron_agent.log',
+            filemode='a'
+        )
         logging.info("Ultron Agent initialized with enhanced systems - agent_core.py:275")
         
         # Speak on boot if voice is enabled (scheduled asynchronously)
@@ -328,13 +333,20 @@ class UltronAgent:
         try:
             # Start performance monitoring
             await self.performance_monitor.start_monitoring()
-            
+
             # Start task scheduler
             asyncio.create_task(self.task_scheduler.start())
-            
+
             self.status = AgentStatus.READY
             await self.event_system.emit("agent_ready")
-            
+
+            # Speak on boot if voice is enabled (now inside event loop)
+            try:
+                if self.config.data.get("use_voice", False) and self.voice:
+                    await self.voice.speak("Theres No Strings On Me")
+            except Exception as e:
+                logging.error(f"Voice boot message failed: {e} - agent_core.py:boot")
+
             # Start main loop
             while True:
                 try:
@@ -357,6 +369,7 @@ class UltronAgent:
             await self.event_system.emit("error", str(e))
         finally:
             # Cleanup
+            logging.info("Ultron Agent closed - agent_core.py:shutdown")
             await self.performance_monitor.stop_monitoring()
             await self.task_scheduler.stop()
 
@@ -366,6 +379,8 @@ class UltronAgent:
     async def stop(self):
         """Stop the agent and cleanup."""
         try:
+            if hasattr(self, "voice") and hasattr(self.voice, "stop_voice"):
+                self.voice.stop_voice()
             await self.performance_monitor.stop_monitoring()
             await self.task_scheduler.stop()
             await self.event_system.emit("agent_stopping")

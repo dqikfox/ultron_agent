@@ -11,6 +11,16 @@ from tools.audio_manager import AudioManager
 from pathlib import Path
 
 class VoiceAssistant:
+    def stop_voice(self):
+        """Release any audio resources (mic, audio, etc)."""
+        try:
+            if hasattr(self, 'audio_manager') and hasattr(self.audio_manager, 'stop_audio'):
+                self.audio_manager.stop_audio()
+            # If using speech_recognition Microphone, release it (future-proof)
+            if hasattr(self, 'recognizer') and hasattr(self.recognizer, 'reset'):  # Not standard, but for custom
+                self.recognizer.reset()
+        except Exception as e:
+            logging.error(f"Error releasing voice/audio resources: {e} - voice.py:23")
     def __init__(self, config):
         self.config = config
         self.recognizer = None
@@ -22,15 +32,15 @@ class VoiceAssistant:
         
         # Test audio system
         if self.audio_manager.test_audio():
-            logging.info("Audio system test successful")
+            logging.info("Audio system test successful - voice.py:35")
         else:
-            logging.warning("Audio system test failed, attempting to find working device")
+            logging.warning("Audio system test failed, attempting to find working device - voice.py:37")
 
         # Initialize speech recognizer
         try:
             self.recognizer = sr.Recognizer() if sr else None
         except Exception as e:
-            logging.error(f"SpeechRecognition not available: {e}")
+            logging.error(f"SpeechRecognition not available: {e} - voice.py:43")
 
         # Initialize TTS engines based on configuration
         tts_engine = config.data.get("tts_engine") or config.data.get("voice_engine") or "openai"
@@ -39,63 +49,62 @@ class VoiceAssistant:
         if config.data.get("openai_api_key"):
             try:
                 self.openai_tools = OpenAITools(config)
-                logging.info("OpenAI tools initialized.")
+                logging.info("OpenAI tools initialized. - voice.py:52")
             except Exception as e:
-                logging.error(f"OpenAI tools initialization failed: {e}")
+                logging.error(f"OpenAI tools initialization failed: {e} - voice.py:54")
         
         # Initialize ElevenLabs if configured
         if tts_engine == "elevenlabs" and config.data.get("elevenlabs_api_key"):
             try:
                 self.elevenlabs = ElevenLabs(api_key=config.data.get("elevenlabs_api_key"))
-                logging.info("ElevenLabs TTS initialized.")
+                logging.info("ElevenLabs TTS initialized. - voice.py:60")
             except Exception as e:
-                logging.error(f"ElevenLabs initialization failed: {e}")
+                logging.error(f"ElevenLabs initialization failed: {e} - voice.py:62")
         
         # Initialize pyttsx3 as fallback
         if not self.openai_tools and not self.elevenlabs and tts_engine == "pyttsx3":
             try:
                 self.tts_engine = pyttsx3.init()
-                logging.info("pyttsx3 TTS initialized.")
+                logging.info("pyttsx3 TTS initialized. - voice.py:68")
             except Exception as e:
-                logging.error(f"pyttsx3 initialization failed: {e}")
+                logging.error(f"pyttsx3 initialization failed: {e} - voice.py:70")
         
         if not self.openai_tools and not self.elevenlabs and not self.tts_engine:
-            logging.warning("No TTS engine available. Voice output will be text only.")
+            logging.warning("No TTS engine available. Voice output will be text only. - voice.py:73")
 
         # Initialize Whisper STT
         stt_engine = config.data.get("stt_engine") or "whisper"
         if stt_engine == "whisper":
             try:
                 self.whisper_model = whisper.load_model("base")
-                logging.info("Whisper STT initialized.")
+                logging.info("Whisper STT initialized. - voice.py:80")
             except Exception as e:
-                logging.error(f"Whisper initialization failed: {e}")
+                logging.error(f"Whisper initialization failed: {e} - voice.py:82")
         if not self.whisper_model:
-            logging.warning("No STT engine available. Voice input will be disabled.")
+            logging.warning("No STT engine available. Voice input will be disabled. - voice.py:84")
 
     async def listen(self, timeout: int = 5) -> str:
         if not self.recognizer:
             return ""
-            
+
         temp_path = Path("temp_audio.wav")
-        
-        # Record audio using AudioManager
+        audio = None
         try:
             self.audio_manager.record_audio(str(temp_path), timeout)
-            logging.info("Recording completed")
-            
-            # Create AudioData object from the recorded file
+            logging.info("Recording completed - voice.py:94")
+
+            # Use context manager to ensure file and mic are released
             with sr.AudioFile(str(temp_path)) as source:
                 audio = self.recognizer.record(source)
-                
+
             # Try OpenAI Whisper API first
             if self.openai_tools:
                 try:
                     text = await self.openai_tools.speech_to_text(str(temp_path))
-                    logging.info(f"OpenAI Whisper recognized: {text}")
+                    logging.info(f"OpenAI Whisper recognized: {text} - voice.py:104")
                     return text
                 except Exception as e:
-                    logging.error(f"OpenAI Whisper STT error: {e}")
+                    logging.error(f"OpenAI Whisper STT error: {e} - voice.py:107")
 
             # Try local Whisper next
             if self.whisper_model:
@@ -103,19 +112,27 @@ class VoiceAssistant:
                     result = self.whisper_model.transcribe(str(temp_path))
                     return result["text"]
                 except Exception as e:
-                    logging.error(f"Local Whisper STT error: {e}")
+                    logging.error(f"Local Whisper STT error: {e} - voice.py:115")
 
             # Fallback to Google
             try:
                 text = self.recognizer.recognize_google(audio)
-                logging.info(f"Google STT recognized: {text}")
+                logging.info(f"Google STT recognized: {text} - voice.py:120")
                 return text
             except Exception as e:
-                logging.error(f"Google STT error: {e}")
+                logging.error(f"Google STT error: {e} - voice.py:123")
                 return ""
         finally:
             # Clean up temp file
             temp_path.unlink(missing_ok=True)
+            # Explicitly release any lingering Microphone resources (if any)
+            try:
+                if hasattr(sr, 'Microphone'):
+                    mic = sr.Microphone()
+                    if hasattr(mic, '__exit__'):
+                        mic.__exit__(None, None, None)
+            except Exception as e:
+                logging.warning(f"Microphone release workaround failed: {e}  listen:finally - voice.py:135")
 
     async def speak(self, text: str) -> None:
         if not text:
@@ -128,12 +145,12 @@ class VoiceAssistant:
             try:
                 voice = self.config.data.get("openai_voice", "alloy")
                 output_file = await self.openai_tools.text_to_speech(text, voice=voice)
-                logging.info(f"Generated speech using OpenAI TTS: {output_file}")
+                logging.info(f"Generated speech using OpenAI TTS: {output_file} - voice.py:148")
                 # Play using audio manager
                 self.audio_manager.play_audio(output_file)
                 return
             except Exception as e:
-                logging.error(f"OpenAI TTS error: {e}")
+                logging.error(f"OpenAI TTS error: {e} - voice.py:153")
         
         # Try ElevenLabs next
         if self.elevenlabs:
@@ -146,7 +163,7 @@ class VoiceAssistant:
                 self.audio_manager.play_audio(str(temp_audio))
                 temp_audio.unlink(missing_ok=True)
             except Exception as e:
-                logging.error(f"ElevenLabs TTS error: {e}")
+                logging.error(f"ElevenLabs TTS error: {e} - voice.py:166")
         elif self.tts_engine:
             try:
                 # For pyttsx3, we need to save to a file first
@@ -156,7 +173,7 @@ class VoiceAssistant:
                 self.audio_manager.play_audio(str(temp_audio))
                 temp_audio.unlink(missing_ok=True)
             except Exception as e:
-                logging.error(f"pyttsx3 TTS error: {e}")
-                print(f"[Voice]: {text}")  # Fallback to text
+                logging.error(f"pyttsx3 TTS error: {e} - voice.py:176")
+                print(f"[Voice]: {text} - voice.py:177")  # Fallback to text
         else:
-            print(f"[Voice]: {text}")
+            print(f"[Voice]: {text} - voice.py:179")
