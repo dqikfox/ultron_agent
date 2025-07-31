@@ -61,13 +61,15 @@ class VoiceAssistant:
             except Exception as e:
                 logging.error(f"ElevenLabs initialization failed: {e} - voice.py:62")
         
-        # Initialize pyttsx3 as fallback
-        if not self.openai_tools and not self.elevenlabs and tts_engine == "pyttsx3":
-            try:
-                self.tts_engine = pyttsx3.init()
-                logging.info("pyttsx3 TTS initialized. - voice.py:68")
-            except Exception as e:
-                logging.error(f"pyttsx3 initialization failed: {e} - voice.py:70")
+        # Initialize pyttsx3 as fallback (always initialize for reliability)
+        try:
+            self.tts_engine = pyttsx3.init()
+            # Set properties for better performance
+            self.tts_engine.setProperty('rate', 150)  # Speed of speech
+            self.tts_engine.setProperty('volume', 0.9)  # Volume level (0.0 to 1.0)
+            logging.info("pyttsx3 TTS initialized as fallback. - voice.py:68")
+        except Exception as e:
+            logging.error(f"pyttsx3 initialization failed: {e} - voice.py:70")
         
         if not self.openai_tools and not self.elevenlabs and not self.tts_engine:
             logging.warning("No TTS engine available. Voice output will be text only. - voice.py:73")
@@ -140,8 +142,8 @@ class VoiceAssistant:
         
         temp_path = Path("temp_audio")
         
-        # Try OpenAI TTS first
-        if self.openai_tools:
+        # Try OpenAI TTS first if API key is available
+        if self.openai_tools and self.config.data.get("openai_api_key"):
             try:
                 voice = self.config.data.get("openai_voice", "alloy")
                 output_file = await self.openai_tools.text_to_speech(text, voice=voice)
@@ -162,18 +164,33 @@ class VoiceAssistant:
                     f.write(audio.read())
                 self.audio_manager.play_audio(str(temp_audio))
                 temp_audio.unlink(missing_ok=True)
+                return
             except Exception as e:
                 logging.error(f"ElevenLabs TTS error: {e} - voice.py:166")
-        elif self.tts_engine:
+        
+        # Fallback to pyttsx3 for direct speech
+        if self.tts_engine:
             try:
-                # For pyttsx3, we need to save to a file first
-                temp_audio = temp_path.with_suffix('.wav')
-                self.tts_engine.save_to_file(text, str(temp_audio))
+                # Try direct speech first (faster)
+                self.tts_engine.say(text)
                 self.tts_engine.runAndWait()
-                self.audio_manager.play_audio(str(temp_audio))
-                temp_audio.unlink(missing_ok=True)
+                logging.info(f"Used pyttsx3 direct speech for: {text[:50]}... - voice.py:174")
+                return
             except Exception as e:
-                logging.error(f"pyttsx3 TTS error: {e} - voice.py:176")
-                print(f"[Voice]: {text} - voice.py:177")  # Fallback to text
-        else:
-            print(f"[Voice]: {text} - voice.py:179")
+                logging.error(f"pyttsx3 direct speech error: {e} - voice.py:176")
+                
+                # Fallback to file-based speech
+                try:
+                    temp_audio = temp_path.with_suffix('.wav')
+                    self.tts_engine.save_to_file(text, str(temp_audio))
+                    self.tts_engine.runAndWait()
+                    self.audio_manager.play_audio(str(temp_audio))
+                    temp_audio.unlink(missing_ok=True)
+                    logging.info(f"Used pyttsx3 file-based speech for: {text[:50]}... - voice.py:184")
+                    return
+                except Exception as e2:
+                    logging.error(f"pyttsx3 file-based speech error: {e2} - voice.py:186")
+        
+        # Final fallback - text output
+        print(f"[Voice]: {text} - voice.py:189")
+        logging.warning(f"Voice output failed, using text fallback: {text[:50]}... - voice.py:190")

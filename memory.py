@@ -42,3 +42,40 @@ class Memory:
     def clear_long_term(self):
         self.long_term_memory.clear()
         logging.info("Cleared longterm memory. - memory.py:44")
+    
+    def get_recent_memory(self, limit=5):
+        """Get recent memory items for agent network queries"""
+        recent_items = []
+        
+        # Get recent short-term memory
+        short_term_items = list(self.short_term_memory)
+        recent_items.extend(short_term_items[-limit:])
+        
+        # Get recent long-term memory if needed
+        if len(recent_items) < limit:
+            long_term_items = list(self.long_term_memory.values())
+            remaining = limit - len(recent_items)
+            recent_items.extend(long_term_items[-remaining:])
+        
+        return recent_items[:limit]
+    
+    def search_memory(self, query):
+        """Search memory for relevant items"""
+        results = []
+        query_lower = query.lower()
+        
+        # Search short-term memory
+        for item in self.short_term_memory:
+            if isinstance(item, str) and query_lower in item.lower():
+                results.append(item)
+            elif isinstance(item, dict) and any(query_lower in str(v).lower() for v in item.values()):
+                results.append(item)
+        
+        # Search long-term memory
+        for item in self.long_term_memory.values():
+            if isinstance(item, str) and query_lower in item.lower():
+                results.append(item)
+            elif isinstance(item, dict) and any(query_lower in str(v).lower() for v in item.values()):
+                results.append(item)
+        
+        return results
