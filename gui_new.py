@@ -10,7 +10,7 @@ from PIL import Image, ImageTk, ImageGrab
 import asyncio
 from pathlib import Path
 
-class AgentGUI:
+class PokedexAgentGUI:
     def __init__(self, agent, log_queue):
         self.agent = agent
         self.log_queue = log_queue

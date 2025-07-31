@@ -237,7 +237,15 @@ class UltronAgent:
                 f"- {t['name']}: {t['description']}\n  Parameters: {t['parameters']}" for t in tools
             ])
         else:
-            result = self.brain.plan_and_act(text, progress_callback=progress)
+            # Run the async function in a new event loop
+            import asyncio
+            try:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                result = loop.run_until_complete(self.brain.plan_and_act(text, progress_callback=progress))
+                loop.close()
+            except Exception as e:
+                result = f"Error processing command: {str(e)}"
         print(f"[Ultron] Done. - agent_core.py:241")
         if progress_callback:
             progress_callback(100, "Done.")
@@ -279,12 +287,38 @@ class UltronAgent:
         )
         logging.info("Ultron Agent initialized with enhanced systems - agent_core.py:275")
         
-        # Speak on boot if voice is enabled (scheduled asynchronously)
+        # Speak on boot if voice is enabled
         try:
             if self.config.data.get("use_voice", False) and self.voice:
-                asyncio.ensure_future(self.voice.speak("Theres No Strings On Me"))
+                import threading
+                def speak_boot():
+                    import asyncio
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(self.voice.speak("There's No Strings On Me"))
+                    loop.close()
+                threading.Thread(target=speak_boot, daemon=True).start()
         except Exception as e:
             logging.error(f"Voice boot message failed: {e} - agent_core.py:282")
+        
+        # Initialize GUI if enabled
+        self.gui = None
+        if self.config.data.get("use_gui", True):
+            try:
+                from queue import Queue
+                from gui_compact import AgentGUI
+                import threading
+                self.log_queue = Queue()
+                
+                def run_gui():
+                    self.gui = AgentGUI(self, self.log_queue)
+                    self.gui.run()
+                
+                self.gui_thread = threading.Thread(target=run_gui, daemon=True)
+                self.gui_thread.start()
+                logging.info("GUI started successfully - agent_core.py:304")
+            except Exception as e:
+                logging.error(f"Failed to start GUI: {e} - agent_core.py:306")
 
     def load_tools(self):
         """Dynamically load all Tool subclasses from the tools package."""
@@ -319,7 +353,14 @@ class UltronAgent:
 
     def plan_and_act(self, user_input: str) -> str:
         """Delegate planning and acting to the modular brain module."""
-        return self.brain.plan_and_act(user_input)
+        # Create event loop to handle async brain.plan_and_act
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            result = loop.run_until_complete(self.brain.plan_and_act(user_input))
+            return result
+        finally:
+            loop.close()
 
     def handle_command(self, command: str):
         logging.info(f"Received command: {command} - agent_core.py:320")
@@ -423,7 +464,7 @@ if __name__ == "__main__":
     agent = UltronAgent()
     if agent.config.data.get("use_gui"):
         from queue import Queue
-        from gui import AgentGUI
+        from gui_compact import AgentGUI
         import threading
         log_queue = Queue()
         def run_gui():
