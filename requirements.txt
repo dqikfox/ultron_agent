@@ -11,3 +11,4 @@ flask
 flask-socketio
 pyjwt
 faiss-cpu
+psutil
