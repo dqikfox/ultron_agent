@@ -12,7 +12,20 @@ class OpenAITools:
         api_key = config.data.get("openai_api_key")
         if not api_key:
             raise ValueError("OpenAI API key not found in configuration")
-        self.client = AsyncOpenAI(api_key=api_key)
+        
+        # Get organization and project IDs if available
+        organization = config.data.get("openai_organization")
+        project = config.data.get("openai_project")
+        
+        # Initialize client with organization support
+        client_params = {"api_key": api_key}
+        if organization:
+            client_params["organization"] = organization
+        if project:
+            client_params["project"] = project
+            
+        self.client = AsyncOpenAI(**client_params)
+        logging.info(f"OpenAI client initialized with org: {organization}, project: {project}")
         
     async def text_to_speech(self, text: str, voice: str = "alloy", model: str = "tts-1", output_file: str = None) -> str:
         """Convert text to speech using OpenAI's TTS API."""

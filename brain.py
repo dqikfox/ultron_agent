@@ -14,6 +14,9 @@ class UltronBrain:
         self.cache_file = "cache.json"
         self.load_cache()
         
+        # Initialize POCHI availability
+        self.pochi_available = config.data.get("use_pochi", False)
+        
         # Initialize agent network and OpenAI tools if available
         self.agent_network = None
         self.openai_tools = None
@@ -78,7 +81,20 @@ class UltronBrain:
             return self.cache[cache_key]
 
         try:
-            # Try agent network first if available
+            # Try POCHI first for complex reasoning if available
+            if hasattr(self, 'pochi_available') and self.pochi_available:
+                try:
+                    from tools.pochi_tool import get_pochi_manager
+                    pochi = get_pochi_manager()
+                    if pochi.is_available():
+                        response = await pochi.chat_with_pochi(prompt)
+                        if response and not response.startswith("POCHI error"):
+                            self.cache[cache_key] = response
+                            return response
+                except Exception as e:
+                    logging.error(f"POCHI query failed: {e}")
+            
+            # Try agent network next if available
             if self.agent_network:
                 try:
                     context = {

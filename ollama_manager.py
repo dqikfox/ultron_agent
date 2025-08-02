@@ -19,7 +19,7 @@ class OllamaManager:
     def __init__(self, config=None):
         self.config = config
         self.base_url = "http://127.0.0.1:11434"
-        self.current_model = None
+        self.current_model = "qwen2.5vl:latest"  # Set primary model to qwen2.5vl
         self.available_models = []
         self.is_connected = False
         
@@ -97,40 +97,40 @@ class OllamaManager:
             # Stop any currently running models
             self._stop_running_models()
             
-            # Run the model to load it (using subprocess for better control)
-            cmd = ["ollama", "run", model_name, "--help"]  # Use --help to load without interactive mode
-            logger.info(f"Executing: {' '.join(cmd)}")
+            # Run the model to load it (using proper ollama run command)
+            cmd = ["ollama", "run", model_name]
+            logger.info(f"Executing: ollama run {model_name}")
             
             try:
-                process = subprocess.run(
+                # Start the model in background
+                process = subprocess.Popen(
                     cmd,
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                    check=False
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
                 )
                 
-                # Check if model loaded successfully
-                if process.returncode == 0 or "Available Commands" in process.stdout:
+                # Give it time to start
+                time.sleep(3)
+                
+                # Test the model is working
+                if self.test_model(model_name):
                     self.current_model = model_name
-                    logger.info(f"Model switched successfully to: {model_name}")
+                    logger.info(f"✅ Model {model_name} loaded and responding")
                     
                     # Update config if available
                     if self.config and hasattr(self.config, 'data'):
                         self.config.data['llm_model'] = model_name
                     
-                    # Verify the model is working
-                    if self.test_model(model_name):
-                        return True
-                    else:
-                        logger.warning(f"Model {model_name} loaded but not responding properly")
-                        return True  # Still consider it successful if loaded
+                    return True
                 else:
-                    logger.error(f"Model switch failed. Error: {process.stderr}")
-                    return False
+                    logger.warning(f"Model {model_name} loaded but not responding properly")
+                    # Still consider it successful if it appears to be loaded
+                    self.current_model = model_name
+                    return True
                     
-            except subprocess.TimeoutExpired:
-                logger.error(f"Timeout switching to model: {model_name}")
+            except Exception as e:
+                logger.error(f"Error running model: {e}")
                 return False
                 
         except Exception as e:
@@ -365,19 +365,24 @@ class OllamaManager:
             return {}
     
     def ensure_default_model(self):
-        """Ensure default model (qwen2.5) is loaded"""
+        """Ensure default model (qwen2.5vl) is loaded"""
         try:
-            default_models = ['qwen2.5:latest', 'qwen2.5', 'qwen2.5:7b']
+            default_models = ['qwen2.5vl:latest', 'qwen2.5vl', 'qwen2.5:latest', 'qwen2.5']
             
-            # Check if any qwen2.5 variant is available
+            # Check if any qwen2.5vl variant is available first
             for model in default_models:
                 if model in self.available_models:
                     if self.current_model != model:
                         return self.switch_model(model)
                     return True
             
-            # Try to pull qwen2.5:latest if not available
-            logger.info("Default model qwen2.5 not found, attempting to pull...")
+            # Try to pull qwen2.5vl:latest if not available
+            logger.info("Default model qwen2.5vl not found, attempting to pull...")
+            if self.pull_model('qwen2.5vl:latest'):
+                return self.switch_model('qwen2.5vl:latest')
+            
+            # Fallback to qwen2.5 if qwen2.5vl fails
+            logger.info("Fallback: attempting to pull qwen2.5:latest...")
             if self.pull_model('qwen2.5:latest'):
                 return self.switch_model('qwen2.5:latest')
             
