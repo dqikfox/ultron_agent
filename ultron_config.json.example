@@ -14,5 +14,7 @@
   "gemini_api_key": null,
   "jwt_secret": null,
   "llm_model": "llama3.2:latest",
+  "ollama_base_url": "http://localhost:11434",
+  "voice_boot_message": "There's No Strings On Me",
   "elevenlabs_agent_id": null
 }
