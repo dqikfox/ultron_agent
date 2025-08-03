@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, scrolledtext, Toplevel, Frame, Label, Button
+from tkinter import ttk, scrolledtext, Toplevel, Frame, Label, Button, Entry
 from PIL import Image, ImageTk
 import threading
 import psutil
@@ -11,7 +11,7 @@ class UltimateAgentGUI:
     def __init__(self, agent_handle):
         self.agent_handle = agent_handle
         self.root = tk.Tk()
-        self.root.title("ULTRON - Primary Interface")
+        self.root.title("ULTRON 3.0 - Ultimate Cyberpunk Interface")
         self.root.geometry("1280x720")
         self.root.minsize(1024, 600)
         self.root.configure(bg='#000000')

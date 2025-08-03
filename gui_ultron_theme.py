@@ -1,5 +1,5 @@
 """
-ULTRON Agent 2.0 - Stunning Visual Theme System
+ULTRON Agent 3.0 - Stunning Visual Theme System
 Cyberpunk/Ultron-inspired GUI with advanced visual effects
 """
 

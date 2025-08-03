@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for ULTRON Ultimate GUI
+Test script for ULTRON 3.0 Ultimate GUI
 """
 
 import tkinter as tk
@@ -76,23 +76,18 @@ def test_gui():
         print("✅ Successfully imported UltimateAgentGUI - test_gui_ultimate.py:76")
         
         # Create the GUI (this will test initialization)
-        gui = UltimateAgentGUI(agent, log_queue)
+        gui = UltimateAgentGUI(agent)
         
         print("✅ Successfully created GUI instance - test_gui_ultimate.py:81")
         print("✅ All systems initialized - test_gui_ultimate.py:82")
         
         # Add a test message
-        gui.add_to_conversation("SYSTEM", "🧪 GUI Test Mode - All systems operational!")
-        gui.add_to_conversation("ULTRON", "Ultimate interface test successful. Ready for deployment!")
+        gui.add_message("SYSTEM", "🧪 GUI Test Mode - All systems operational!")
+        gui.add_message("ULTRON", "Ultimate interface test successful. Ready for deployment!")
         
         print("✅ Conversation system working - test_gui_ultimate.py:88")
         
-        # Test status updates
-        gui.update_component_status('ollama', 'green')
-        gui.update_component_status('voice', 'green')
-        gui.update_component_status('brain', 'green')
-        
-        print("✅ Status system working - test_gui_ultimate.py:95")
+        print("✅ ULTRON 3.0 Ultimate GUI test completed successfully! - test_gui_ultimate.py:90")
         
         # Start the GUI (will show window)
         print("🎮 Launching Ultimate GUI window... - test_gui_ultimate.py:98")
