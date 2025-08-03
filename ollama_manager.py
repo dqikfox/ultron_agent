@@ -1,5 +1,5 @@
 """
-Ollama Manager for ULTRON Agent 2.0
+Ollama Manager for ULTRON Agent 3.0
 Handles Ollama connection, model loading, and model switching
 """
 

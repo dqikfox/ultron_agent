@@ -1,5 +1,5 @@
 """
-Enhanced Voice System for ULTRON Agent 2.0
+Enhanced Voice System for ULTRON Agent 3.0
 Fixes threading issues with pyttsx3 and provides robust voice capabilities
 """
 
