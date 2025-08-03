@@ -1,4 +1,6 @@
 {
+  "version": "3.0",
+  "name": "ULTRON Agent 3.0",
   "use_voice": true,
   "use_vision": true,
   "use_api": true,
