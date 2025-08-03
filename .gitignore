@@ -416,3 +416,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Custom ignores
+ultron_config.json
+keys.txt
+.env
+SYSTEM_SUMMARY.md

@@ -25,7 +25,7 @@ class OpenAITools:
             client_params["project"] = project
             
         self.client = AsyncOpenAI(**client_params)
-        logging.info(f"OpenAI client initialized with org: {organization}, project: {project}")
+        logging.info(f"OpenAI client initialized with org: {organization}, project: {project} - openai_tools.py:28")
         
     async def text_to_speech(self, text: str, voice: str = "alloy", model: str = "tts-1", output_file: str = None) -> str:
         """Convert text to speech using OpenAI's TTS API."""
@@ -40,11 +40,11 @@ class OpenAITools:
             )
             
             await response.astream_to_file(output_file)
-            logging.info(f"Generated speech saved to {output_file}")
+            logging.info(f"Generated speech saved to {output_file} - openai_tools.py:43")
             return output_file
             
         except Exception as e:
-            logging.error(f"TTS error: {e}")
+            logging.error(f"TTS error: {e} - openai_tools.py:47")
             raise
 
     async def speech_to_text(self, audio_file: str, model: str = "whisper-1", language: str = None) -> str:
@@ -56,11 +56,11 @@ class OpenAITools:
                     file=audio,
                     language=language
                 )
-            logging.info("Successfully transcribed audio")
+            logging.info("Successfully transcribed audio - openai_tools.py:59")
             return transcription.text
             
         except Exception as e:
-            logging.error(f"STT error: {e}")
+            logging.error(f"STT error: {e} - openai_tools.py:63")
             raise
 
     async def agent_invoke_tools(self, prompt: str, tools: List[Dict[str, Any]], 
@@ -115,7 +115,7 @@ class OpenAITools:
             }
             
         except Exception as e:
-            logging.error(f"Agent tools error: {e}")
+            logging.error(f"Agent tools error: {e} - openai_tools.py:118")
             raise
 
     async def _execute_tool(self, function_name: str, function_args: Dict) -> Any:
@@ -134,5 +134,5 @@ class OpenAITools:
                 return f"Tool {function_name} not implemented"
                 
         except Exception as e:
-            logging.error(f"Tool execution error: {e}")
+            logging.error(f"Tool execution error: {e} - openai_tools.py:137")
             raise
