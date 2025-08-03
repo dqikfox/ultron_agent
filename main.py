@@ -1,49 +1,37 @@
-"""
-Ultron Agent 2.0 main entry point.
-This script starts the UltronAgent and web interface using agent_core.py and api_server.py.
-"""
-import os
 import asyncio
+import logging
+import threading
 from agent_core import UltronAgent
-from api_server import app, socketio, set_agent_instance
+from gui_ultimate import UltimateAgentGUI
 
-async def main():
-    agent = None
+def main():
+    """Main entry point for the Ultron Agent."""
     try:
-        # Initialize the agent
+        # Initialize the core agent logic
         agent = UltronAgent()
         
-        # Set the agent instance in the API server
-        set_agent_instance(agent)
-        
-        # Create tasks for both the agent and web server
-        agent_task = asyncio.create_task(agent.run())
-        
-        # Configure web server
-        port = int(os.environ.get('PORT', 5000))
-        web_server = socketio.run(
-            app, 
-            host='0.0.0.0', 
-            port=port, 
-            debug=True, 
-            allow_unsafe_werkzeug=True,
-            use_reloader=False  # Disable reloader to avoid conflicts with asyncio
-        )
-        
-        # Wait for both tasks
-        await asyncio.gather(agent_task, web_server)
-        
+        # Launch the Ultimate GUI if enabled in the config
+        if agent.config.get("use_gui", True):
+            logging.info("GUI mode is enabled. Launching Ultimate Interface... - main.py:15")
+            
+            # The GUI must run in the main thread for stability on all OS
+            # The agent's async tasks will run in background threads.
+            ultimate_gui = UltimateAgentGUI(agent)
+            ultimate_gui.run() # This will block until the GUI is closed
+
+        else:
+            # Fallback to command-line interface (CLI) mode if GUI is disabled
+            logging.info("GUI mode is disabled. Running in CommandLine Interface (CLI) mode. - main.py:24")
+            # The agent's start() method contains its own blocking run loop.
+            agent.start()
+
     except KeyboardInterrupt:
-        print("\nShutting down gracefully... - main.py:37")
-        if agent:
-            await agent.stop()
+        logging.info("Shutdown signal received. Exiting Ultron Agent. - main.py:29")
     except Exception as e:
-        print(f"Fatal error: {e} - main.py:41")
-        if agent:
-            await agent.stop()
+        logging.critical(f"A fatal error occurred in the main application thread: {e} - main.py:31", exc_info=True)
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nShutdown complete. - main.py:49")
+    # Setup basic logging before anything else
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    main()
+
