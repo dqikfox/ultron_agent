@@ -1,0 +1,1 @@
+"""Multimodal interface stubs (voice and vision)"""

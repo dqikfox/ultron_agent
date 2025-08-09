@@ -6,6 +6,9 @@ import psutil
 import time
 import os
 import logging
+from ultron_agent.maverick.engine import MaverickEngine
+from ultron_agent.maverick.panel import MaverickPanel
+from pathlib import Path
 
 class UltimateAgentGUI:
     def __init__(self, agent_handle):
@@ -21,6 +24,12 @@ class UltimateAgentGUI:
         
         self._create_main_layout()
         self._start_monitoring()
+        
+        # Maverick engine (Phase 1)
+        try:
+            self.maverick_engine = MaverickEngine(repo_root=Path('.'), interval_seconds=60, auto_apply=False)
+        except Exception:
+            self.maverick_engine = None
 
     def _load_images(self):
         image_paths = {
@@ -97,6 +106,7 @@ class UltimateAgentGUI:
         Button(button_frame, text="Tools Menu", command=self._open_tools_menu, bg='#1a1a1a', fg='#00ff00', relief='flat').pack(side=tk.LEFT, padx=10)
         Button(button_frame, text="File Browser", command=self._open_file_browser, bg='#1a1a1a', fg='#00ff00', relief='flat').pack(side=tk.LEFT, padx=10)
         Button(button_frame, text="Settings", command=self._open_settings_panel, bg='#1a1a1a', fg='#00ff00', relief='flat').pack(side=tk.LEFT, padx=10)
+        Button(button_frame, text="Maverick", command=self._open_maverick_panel, bg='#1a1a1a', fg='#00ff00', relief='flat').pack(side=tk.LEFT, padx=10)
         
         # --- System Stats ---
         stats_frame = Frame(self.bg_canvas, bg='#000000', bd=0, highlightthickness=0)
@@ -320,6 +330,16 @@ class UltimateAgentGUI:
         
         monitor_thread = threading.Thread(target=update_stats, daemon=True)
         monitor_thread.start()
+
+    def _open_maverick_panel(self):
+        if not hasattr(self, 'maverick_engine') or self.maverick_engine is None:
+            self.add_message("System", "Maverick not available.")
+            return
+        try:
+            panel = MaverickPanel(self.root, self.maverick_engine)
+            panel.open()
+        except Exception as e:
+            self.add_message("System", f"Failed to open Maverick: {e}")
 
     def run(self):
         self.root.mainloop()
