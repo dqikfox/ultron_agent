@@ -1,6 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import readline from 'readline';
+import fs from 'fs';
 import { ElevenLabs } from 'elevenlabs';
 
 const app = express();

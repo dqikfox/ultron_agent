@@ -1,9 +1,49 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": [],
-    "python.testing.pytestArgs": [
-        "tests"
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "extensions.experimental.affinity": {
+        "sixth.sixth-ai": 1
+    },
+
+    "amazonQ.telemetry": true,
+    "amazonQ.shareCodeWhispererContentWithAWS": true,
+    "amazonQ.suppressPrompts": {
+        "amazonQChatDisclaimer": true,
+        "amazonQChatPairProgramming": true
+    },
+
+    "editor.inlineSuggest.enabled": true,
+    "editor.suggest.preview": true,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "python": true,
+        "javascript": true,
+        "typescript": true,
+        "json": true,
+        "yaml": true
+    },
+    "github.copilot.nextEditSuggestions.enabled": true,
+
+    "http.proxySupport": "override",
+    "http.systemCertificates": true,
+
+    "search.followSymlinks": false,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/venv/**": true,
+        "**/__pycache__/**": true
+    },
+
+    "python.defaultInterpreterPath": "python",
+    "python.analysis.typeCheckingMode": "strict",
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "python.pythonPath": ".venv\\Scripts\\python.exe",
+    "files.readonlyInclude": {
+        "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true
+    }
 }
