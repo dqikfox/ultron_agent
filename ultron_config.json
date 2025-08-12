@@ -6,6 +6,9 @@
   "use_api": true,
   "use_gui": true,
   "use_pochi": true,
+  "enable_maverick": true,
+  "maverick_analysis_interval": 300,
+  "maverick_auto_apply_threshold": 0.9,
   "voice_engine": "pyttsx3",
   "stt_engine": "whisper",
   "tts_engine": "pyttsx3",
@@ -18,8 +21,27 @@
   "supabase_anon_key": null,
   "gemini_api_key": null,
   "jwt_secret": null,
-  "llm_model": "qwen2.5vl:latest",
+  "llm_model": "qwen2.5-coder:1.5b",
   "elevenlabs_agent_id": null,
   "pochi_config_path": "pochi_config.yaml",
-  "anthropic_api_key": null
+  "anthropic_api_key": null,
+  "nvidia_nim": {
+    "enabled": true,
+    "api_key": "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",
+    "default_model": "gpt-oss",
+    "coding_model": "qwen-coder",
+    "chat_model": "llama",
+    "max_tokens": 2048,
+    "temperature": 0.7
+  },
+  "qwen_coder": {
+    "enabled": true,
+    "model": "qwen2.5-coder:1.5b",
+    "use_for_development": true,
+    "integration_mode": "nvidia_nim",
+    "capabilities": ["coding", "debugging", "architecture", "documentation"],
+    "memory_optimized": true,
+    "max_context": 1024,
+    "max_tokens": 512
+  }
 }

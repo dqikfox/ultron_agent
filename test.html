@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ULTRON Test</title>
+</head>
+<body>
+    <h1>ULTRON WebSocket Test</h1>
+    <div id="status">Connecting...</div>
+    <input type="text" id="messageInput" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+    <div id="messages"></div>
+
+    <script>
+        const socket = new WebSocket("ws://localhost:8000/ws");
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+
+        socket.onopen = function(event) {
+            status.textContent = "✅ Connected to ULTRON server";
+            console.log("Connected successfully!");
+        };
+
+        socket.onmessage = function(event) {
+            const div = document.createElement('div');
+            div.textContent = "Server: " + event.data;
+            messages.appendChild(div);
+        };
+
+        socket.onerror = function(event) {
+            status.textContent = "❌ Connection error";
+            console.error("WebSocket error:", event);
+        };
+
+        socket.onclose = function(event) {
+            status.textContent = "🔴 Connection closed";
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            if (input.value && socket.readyState === WebSocket.OPEN) {
+                socket.send(input.value);
+                const div = document.createElement('div');
+                div.textContent = "You: " + input.value;
+                messages.appendChild(div);
+                input.value = '';
+            }
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

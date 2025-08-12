@@ -25,13 +25,13 @@ def mock_memory():
     return memory
 
 @pytest.fixture
+@patch('tools.agent_network.AgentNetwork', MagicMock())
 def brain(mock_config, mock_memory):
     # Mock tools list
     mock_tool = MagicMock()
     mock_tool.name = "mock_tool"
     mock_tool.description = "A mock tool"
     mock_tool.parameters = {}
-    
     brain_instance = UltronBrain(mock_config, [mock_tool], mock_memory)
     brain_instance.cache = {}
     brain_instance.save_cache = MagicMock()
@@ -109,7 +109,7 @@ async def test_plan_and_act_with_tool_call(brain):
     user_input = "use a tool"
     tool_response = 'TOOL: mock_tool PARAMS: {"param": "value"}'
     
-    with patch.object(brain, 'query_llm', new_callable=AsyncMock) as mock_query_llm,
+    with patch.object(brain, 'query_llm', new_callable=AsyncMock) as mock_query_llm, \
          patch.object(brain.tools[0], 'execute', return_value="Tool executed") as mock_execute:
         
         mock_query_llm.return_value = tool_response
@@ -123,7 +123,7 @@ async def test_plan_and_act_with_tool_call(brain):
 async def test_plan_and_act_direct_tool_match(brain):
     user_input = "mock_tool please"
     
-    with patch.object(brain.tools[0], 'match', return_value=True),
+    with patch.object(brain.tools[0], 'match', return_value=True), \
          patch.object(brain.tools[0], 'execute', return_value="Direct execution") as mock_execute:
         
         response = await brain.plan_and_act(user_input)

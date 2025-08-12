@@ -203,6 +203,24 @@
         </select>
       </div>
       <button id="apply-settings">Apply</button>
+      
+      <h3 style="margin-top: 20px;">Git Operations</h3>
+      <div class="setting">
+        <button id="git-status">Git Status</button>
+      </div>
+      <div class="setting">
+        <button id="git-add">Git Add All</button>
+      </div>
+      <div class="setting">
+        <input type="text" id="commit-message" placeholder="Commit message" style="width: 100%; margin-bottom: 5px;">
+        <button id="git-commit">Commit</button>
+      </div>
+      <div class="setting">
+        <button id="git-push">Push</button>
+      </div>
+      <div class="setting">
+        <button id="git-pull">Pull</button>
+      </div>
     </div>
     <div class="central-area">
       <div class="command-input">
@@ -230,16 +248,44 @@
   </div>
 
   <script>
+    let socket;
+
+    function appendMessage(sender, message) {
+      const responseText = document.getElementById('response-text');
+      responseText.innerHTML += `<p><strong>${sender}:</strong> ${message}</p>`;
+      responseText.scrollTop = responseText.scrollHeight;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      // Initialize WebSocket
+      socket = new WebSocket("ws://localhost:8000/ws");
+
+      socket.onopen = function(event) {
+        console.log("Connected to the WebSocket server.");
+        appendMessage("System", "Connected to Ultron Agent backend.");
+      };
+
+      socket.onmessage = function(event) {
+        appendMessage("Ultron", event.data);
+      };
+
+      socket.onerror = function(event) {
+        appendMessage("System", "WebSocket error. Please check backend.");
+      };
+
+      socket.onclose = function(event) {
+        appendMessage("System", "WebSocket connection closed.");
+      };
+
       // Handle send command
       document.getElementById('send-command').addEventListener('click', () => {
         const command = document.getElementById('command-entry').value;
-        if (command) {
-          const responseText = document.getElementById('response-text');
-          responseText.innerHTML += `<p><strong>User:</strong> ${command}</p>`;
-          responseText.innerHTML += `<p><strong>Ultron:</strong> [Processing command...]</p>`;
+        if (command && socket && socket.readyState === WebSocket.OPEN) {
+          appendMessage("User", command);
+          socket.send(command);
           document.getElementById('command-entry').value = '';
-          // Add backend integration here
+        } else {
+          appendMessage("System", "Not connected to backend.");
         }
       });
 
@@ -253,21 +299,80 @@
           llm_model: document.getElementById('llm-model').value
         };
         console.log('Settings applied:', settings);
-        // Send settings to backend here
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'settings', data: settings}));
+        }
       });
 
       // Handle tool selection
       document.getElementById('tool-select').addEventListener('change', () => {
         const selectedTool = document.getElementById('tool-select').value;
         document.getElementById('tool-details').textContent = `Details for ${selectedTool}`;
-        // Fetch tool details from backend here
+        // Optionally fetch tool details from backend here
       });
 
       // Handle invoke tool
       document.getElementById('invoke-tool').addEventListener('click', () => {
         const selectedTool = document.getElementById('tool-select').value;
         console.log(`Invoking tool: ${selectedTool}`);
-        // Send tool invocation to backend here
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'invoke_tool', tool: selectedTool}));
+        }
+      });
+
+      // Handle Git operations
+      document.getElementById('git-status').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git status'}));
+        }
+      });
+
+      document.getElementById('git-add').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git add .'}));
+        }
+      });
+
+      document.getElementById('git-commit').addEventListener('click', () => {
+        const message = document.getElementById('commit-message').value;
+        if (message && socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: `git commit -m "${message}"`}));
+          document.getElementById('commit-message').value = '';
+        } else {
+          appendMessage("System", "Please enter a commit message.");
+        }
+      });
+
+      document.getElementById('git-push').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git push'}));
+        }
+      });
+
+      document.getElementById('git-pull').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git pull'}));
+        }
+      });
+
+      // Add keyboard shortcuts for accessibility
+      document.addEventListener('keydown', (event) => {
+        // Ctrl+Enter to send command
+        if (event.ctrlKey && event.key === 'Enter') {
+          document.getElementById('send-command').click();
+        }
+        // Alt+G for git status (hands-free)
+        if (event.altKey && event.key === 'g') {
+          document.getElementById('git-status').click();
+        }
+        // Alt+C to focus commit message
+        if (event.altKey && event.key === 'c') {
+          document.getElementById('commit-message').focus();
+        }
+        // Alt+P for push
+        if (event.altKey && event.key === 'p') {
+          document.getElementById('git-push').click();
+        }
       });
     });
   </script>
