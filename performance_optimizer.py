@@ -216,6 +216,8 @@ class PerformanceOptimizer:
 # Global performance optimizer instance
 _performance_optimizer = None
 
+# Alias for backward compatibility
+PerformanceMonitor = PerformanceOptimizer
 
 def get_performance_optimizer() -> PerformanceOptimizer:
     """Get global performance optimizer instance."""

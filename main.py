@@ -1,40 +1,118 @@
-from asyncio import run as asyncio_run
-from logging import basicConfig, INFO, info, critical, getLogger
-from threading import Thread
-from agent_core import UltronAgent
-from gui_ultimate import UltimateAgentGUI
+#!/usr/bin/env python3
+"""
+Ultron Agent 3.0 - Main entry point with proper structure and error handling.
+"""
+from __future__ import annotations
 
-def main():
-    """Main entry point for the Ultron Agent 3.0."""
+import asyncio
+import sys
+import signal
+from pathlib import Path
+from typing import Optional
+
+# Add project root to Python path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+from ultron_agent import setup_logging, get_config, get_logger
+from ultron_agent.errors import handle_error, UltronError, ErrorSeverity
+from ultron_agent.api import run_server
+from ultron_agent.core import get_agent
+
+
+def setup_signal_handlers(logger) -> None:
+    """Setup graceful shutdown on signals."""
+    def signal_handler(signum, frame):
+        logger.info(f"Received signal {signum}, shutting down gracefully...")
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+
+async def main_async() -> int:
+    """Main async entry point."""
+    logger = None
+
     try:
-        # Initialize the core agent logic
-        agent = UltronAgent()
+        # Load configuration first
+        config = get_config()
+
+        # Setup logging with correlation ID
+        setup_logging(
+            log_level=config.log_level.value,
+            log_directory=config.log_directory,
+            enable_json=True,
+            enable_console=True
+        )
+
+        logger = get_logger("ultron.main", source="core")
+        logger.info("Starting Ultron Agent 3.0...")
+        logger.info(f"Configuration loaded: {config.sanitized_dict()}")
+
+        # Setup signal handlers
+        setup_signal_handlers(logger)
+
+        # Initialize integrated agent with all components
+        logger.info("Initializing integrated ULTRON Agent...")
+        agent = await get_agent()
         
-        # Launch the Ultimate GUI if enabled in the config
-        if agent.config.get("use_gui", True):
-            info("ULTRON 3.0 GUI mode is enabled. Launching Ultimate Interface...")
-            
-            # The GUI must run in the main thread for stability on all OS
-            # The agent's async tasks will run in background threads.
-            ultimate_gui = UltimateAgentGUI(agent)
-            ultimate_gui.run() # This will block until the GUI is closed
+        logger.info(f"Agent initialized successfully with status: {agent.status}")
+        logger.info(f"Components status: Brain={agent.brain is not None}, "
+                   f"Voice={agent.voice is not None}, GUI={agent.gui is not None}, "
+                   f"Maverick={agent.maverick is not None}, Tools={len(agent.tools)}")
 
+        # Start API server with agent integration
+        logger.info("Starting API server...")
+        
+        # Store agent reference in app state for API endpoints
+        import ultron_agent.api as api_module
+        api_module._agent_instance = agent
+        
+        await run_server(
+            host=config.api_host,
+            port=config.api_port,
+            reload=config.debug,
+            log_level=config.log_level.value
+        )
+
+        return 0
+
+    except UltronError as e:
+        if logger:
+            logger.critical(f"Ultron error during startup: {e.to_dict()}")
         else:
-            # Fallback to command-line interface (CLI) mode if GUI is disabled
-            info("ULTRON 3.0 GUI mode is disabled. Running in CommandLine Interface (CLI) mode.")
-            # The agent's start() method contains its own blocking run loop.
-            agent.start()
+            print(f"CRITICAL: Ultron error during startup: {e.get_user_message()}", file=sys.stderr)
+        return 1
 
-    except KeyboardInterrupt:
-        info("ULTRON 3.0 shutdown signal received. Exiting Ultron Agent.")
-    except (ImportError, ModuleNotFoundError) as e:
-        critical(f"Missing required module in ULTRON 3.0: {e}", exc_info=True)
     except Exception as e:
-        from security_utils import sanitize_log_input
-        critical(f"A fatal error occurred in ULTRON 3.0 main application thread: {sanitize_log_input(str(e))}", exc_info=True)
+        ultron_error = handle_error(e, logger or get_logger("ultron.main"), "startup")
+
+        if ultron_error.severity == ErrorSeverity.CRITICAL:
+            if logger:
+                logger.critical(f"Critical startup failure: {ultron_error.to_dict()}")
+            else:
+                print(f"CRITICAL: Startup failed: {ultron_error.get_user_message()}", file=sys.stderr)
+            return 1
+        else:
+            if logger:
+                logger.error(f"Startup error (continuing): {ultron_error.to_dict()}")
+            return 0
+
+
+def main() -> int:
+    """Main entry point."""
+    try:
+        return asyncio.run(main_async())
+    except KeyboardInterrupt:
+        print("\nShutdown requested by user", file=sys.stderr)
+        return 0
+    except Exception as e:
+        print(f"FATAL: Unhandled exception: {e}", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    # Setup basic logging before anything else
-    basicConfig(level=INFO, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
-    main()
+    exit_code = main()
+    sys.exit(exit_code)
 
