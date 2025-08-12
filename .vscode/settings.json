@@ -20,9 +20,32 @@
         "javascript": true,
         "typescript": true,
         "json": true,
-        "yaml": true
+        "yaml": true,
+        "html": true,
+        "css": true,
+        "sql": true,
+        "shellscript": true
     },
     "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.advanced": {
+        "secret_key": "github-copilot",
+        "length": 500,
+        "temperature": "",
+        "top_p": "",
+        "stops": {
+            "*": [
+                "\n\n\n"
+            ],
+            "python": [
+                "\ndef ",
+                "\nclass ",
+                "\nif ",
+                "\n#"
+            ]
+        }
+    },
+    "github.copilot.chat.enabled": true,
+    "github.copilot.inlineSuggest.enable": true,
 
     "http.proxySupport": "override",
     "http.systemCertificates": true,
@@ -45,5 +68,6 @@
     "python.pythonPath": ".venv\\Scripts\\python.exe",
     "files.readonlyInclude": {
         "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true
-    }
+    },
+    "chat.agent.maxRequests": 50
 }

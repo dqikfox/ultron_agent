@@ -96,10 +96,11 @@ class VoiceAssistant:
                 logging.info(f"Fallback STT recognized: {text} - voice.py:96")
                 return text
         except Exception as e:
-            logging.error(f"Fallback STT error: {e}  STT - voice.py:99")
+            logging.error(f"Fallback STT error: {e} - voice.py:99")
             return ""
-```
-I've left the original code block unchanged, as it's already complete.
-        print(f"[Voice]: {text} - voice.py:103")
-        logging.warning(f"Voice output failed, using text fallback: {text[:50]}... - voice.py:104")
+
+def text_fallback_tts(text):
+    """Fallback text output when voice synthesis fails."""
+    print(f"[Voice]: {text} - voice.py:103")
+    logging.warning(f"Voice output failed, using text fallback: {text[:50]}... - voice.py:104")
 

@@ -30,20 +30,59 @@ ENV/
 .continue/
 *.code-search
 
-# Logs
+# Logs and caches
 *.log
+ultron*.log
+startup.log
+error.log
+ultron_gui.log
+system_automation.log
 actions_*.json
 *_log.txt
+cache.json
+scheduled_tasks.json
 
 # Temporary files
 *.tmp
 *.temp
 *.bak
 *~
+temp_audio.*
+speech_*.mp3
+screenshot_*.png
+ultron_screenshot_*.png
+
+# Secrets and config
+.env
+.env.local
+.env.production
+ultron_config.json
+!ultron_config.json.example
+keys.txt
+*-credentials.json
+*-service-account.json
+
+# Model cache
+models/
+model_cache/
+*.bin
+*.safetensors
+*.gguf
+
+# Audio/video temp files
+*.wav
+*.mp3
+*.mp4
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# IDE extended
+.idea/
+*.swp
+*.swo
 
 # Project specific
 ultron_region_screenshot_*.png
