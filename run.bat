@@ -6,7 +6,7 @@ set "PYTHON_CMD=python"
 set "VENV_DIR=venv"
 
 :: --- Title ---
-title Ultron Agent 2.0 Launcher
+title Ultron Agent 3.0 Launcher
 
 :: --- Functions ---
 
@@ -32,7 +32,7 @@ title Ultron Agent 2.0 Launcher
 
 :: --- Main Script ---
 
-call :info "Starting Ultron Agent 2.0..."
+call :info "Starting Ultron Agent 3.0..."
 
 :: 1. Check for Python
 call :info "Checking for Python..."
@@ -71,7 +71,7 @@ if not exist ".env" (
 )
 
 :: 5. Run the Agent
-call :info "Launching Ultron Agent..."
+call :info "Launching Ultron Agent 3.0..."
 
 :: Add any command-line arguments here if needed
 :: For example: %PYTHON_CMD% main.py --mode cli

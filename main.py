@@ -1,6 +1,6 @@
-import asyncio
-import logging
-import threading
+from asyncio import run as asyncio_run
+from logging import basicConfig, INFO, info, critical, getLogger
+from threading import Thread
 from agent_core import UltronAgent
 from gui_ultimate import UltimateAgentGUI
 
@@ -12,7 +12,7 @@ def main():
         
         # Launch the Ultimate GUI if enabled in the config
         if agent.config.get("use_gui", True):
-            logging.info("ULTRON 3.0 GUI mode is enabled. Launching Ultimate Interface... - main.py:15")
+            info("ULTRON 3.0 GUI mode is enabled. Launching Ultimate Interface...")
             
             # The GUI must run in the main thread for stability on all OS
             # The agent's async tasks will run in background threads.
@@ -21,17 +21,20 @@ def main():
 
         else:
             # Fallback to command-line interface (CLI) mode if GUI is disabled
-            logging.info("ULTRON 3.0 GUI mode is disabled. Running in CommandLine Interface (CLI) mode. - main.py:24")
+            info("ULTRON 3.0 GUI mode is disabled. Running in CommandLine Interface (CLI) mode.")
             # The agent's start() method contains its own blocking run loop.
             agent.start()
 
     except KeyboardInterrupt:
-        logging.info("ULTRON 3.0 shutdown signal received. Exiting Ultron Agent. - main.py:29")
+        info("ULTRON 3.0 shutdown signal received. Exiting Ultron Agent.")
+    except (ImportError, ModuleNotFoundError) as e:
+        critical(f"Missing required module in ULTRON 3.0: {e}", exc_info=True)
     except Exception as e:
-        logging.critical(f"A fatal error occurred in ULTRON 3.0 main application thread: {e} - main.py:31", exc_info=True)
+        from security_utils import sanitize_log_input
+        critical(f"A fatal error occurred in ULTRON 3.0 main application thread: {sanitize_log_input(str(e))}", exc_info=True)
 
 if __name__ == "__main__":
     # Setup basic logging before anything else
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    basicConfig(level=INFO, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
     main()
 

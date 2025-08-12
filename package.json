@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "express": "^5.1.0",
     "axios": "^1.7.7",
     "elevenlabs": "^0.1.0",
+    "express": "^5.1.0",
     "readline": "^1.3.0"
   },
   "name": "ultron",
@@ -10,6 +10,14 @@
   "type": "module",
   "main": "ultron.js",
   "scripts": {
-    "start": "node ultron.js"
+    "start": "node ultron.js",
+    "lint": "eslint *.js --ext .js,.jsx",
+    "lint:all": "eslint . --ext .js,.jsx",
+    "lint:fix": "eslint *.js --ext .js,.jsx --fix",
+    "lint:check": "eslint --print-config ."
+  },
+  "devDependencies": {
+    "eslint": "^9.32.0",
+    "eslint-plugin-react": "^7.37.5"
   }
 }

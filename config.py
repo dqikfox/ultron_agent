@@ -1,11 +1,12 @@
 import os
-import json
-import logging
-import uuid
 from pathlib import Path
 from typing import Dict, Any, Optional
+from json import loads as json_loads, dumps as json_dumps, JSONDecodeError
+from logging import getLogger, info, error, warning
+from uuid import uuid4
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv
+from security_utils import sanitize_log_input, validate_api_key
 
 class ConfigValidationError(Exception):
     """Raised when configuration validation fails."""
@@ -13,7 +14,7 @@ class ConfigValidationError(Exception):
 
 class Config:
     """Enhanced configuration manager with validation and security features."""
-    
+
     # Define required and optional configuration keys
     REQUIRED_KEYS = {
         "use_voice": bool,
@@ -22,7 +23,7 @@ class Config:
         "use_gui": bool,
         "llm_model": str
     }
-    
+
     OPTIONAL_KEYS = {
         "use_pochi": bool,
         "voice_engine": str,
@@ -47,7 +48,7 @@ class Config:
         "max_cache_size": int,
         "session_timeout": int
     }
-    
+
     DEFAULT_VALUES = {
         "ollama_base_url": "http://localhost:11434",
         "voice_boot_message": "There's No Strings On Me",
@@ -57,36 +58,39 @@ class Config:
         "session_timeout": 3600,
         "pochi_config_path": "pochi_config.yaml"
     }
-    
+
     def __init__(self, path: str = "ultron_config.json"):
         self.config_path = Path(path)
         self.data: Dict[str, Any] = {}
         self._sensitive_keys = {
-            "openai_api_key", "ollama_api_key", "elevenlabs_api_key", 
-            "supabase_anon_key", "gemini_api_key", "jwt_secret", 
+            "openai_api_key", "ollama_api_key", "elevenlabs_api_key",
+            "supabase_anon_key", "gemini_api_key", "jwt_secret",
             "anthropic_api_key", "logflare_api_key", "logflare_logger_backend_api_key"
         }
-        
+
         try:
             # Load environment variables first
             load_dotenv()
-            
+
             # Load configuration file
             self.load_config()
-            
+
             # Load environment variables (they override config file)
             self.load_env_variables()
-            
+
             # Apply default values for missing optional keys
             self.apply_defaults()
-            
+
             # Validate configuration
             self.validate_config()
-            
-            logging.info(f"Configuration loaded successfully from {self.config_path} - config.py:86")
-            
+
+            info(f"Configuration loaded successfully from {sanitize_log_input(str(self.config_path))}")
+
+        except (FileNotFoundError, JSONDecodeError, PermissionError) as e:
+            error(f"Configuration initialization failed: {sanitize_log_input(str(e))}")
+            raise ConfigValidationError(f"Configuration initialization failed: {e}")
         except Exception as e:
-            logging.error(f"Failed to initialize configuration: {e} - config.py:89")
+            error(f"Unexpected configuration error: {sanitize_log_input(str(e))}")
             raise
 
     def load_config(self) -> None:
@@ -94,19 +98,19 @@ class Config:
         if self.config_path.exists():
             try:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
-                    self.data = json.load(f)
-                logging.info(f"Configuration file loaded: {self.config_path} - config.py:98")
-            except json.JSONDecodeError as e:
+                    self.data = json_loads(f.read())
+                info(f"Configuration file loaded: {sanitize_log_input(str(self.config_path))}")
+            except JSONDecodeError as e:
                 error_msg = f"Invalid JSON in configuration file {self.config_path}: {e}"
-                logging.error(f"{error_msg} - config.py:101")
+                error(sanitize_log_input(error_msg))
                 raise ConfigValidationError(error_msg)
-            except Exception as e:
-                error_msg = f"Error reading configuration file {self.config_path}: {e}"
-                logging.error(f"{error_msg} - config.py:105")
+            except (PermissionError, OSError) as e:
+                error_msg = f"Cannot access configuration file {self.config_path}: {e}"
+                error(sanitize_log_input(error_msg))
                 raise ConfigValidationError(error_msg)
         else:
             # Create default config if it doesn't exist
-            logging.warning(f"Configuration file {self.config_path} not found, creating default - config.py:109")
+            warning(f"Configuration file {sanitize_log_input(str(self.config_path))} not found, creating default")
             self.create_default_config()
 
     def create_default_config(self) -> None:
@@ -123,31 +127,43 @@ class Config:
             "llm_model": "llama3.2:latest",
             **self.DEFAULT_VALUES
         }
-        
+
         # Add null values for API keys (to be filled by user)
         for key in self.OPTIONAL_KEYS:
             if key.endswith('_key') or key.endswith('_secret'):
                 default_config[key] = None
-                
+
         self.data = default_config
         self.save_config()
 
     def save_config(self) -> None:
-        """Save current configuration to file."""
+        """Save current configuration to file with proper error handling."""
+        backup_path = None
         try:
             # Create backup of existing config
             if self.config_path.exists():
                 backup_path = self.config_path.with_suffix('.json.bak')
                 self.config_path.rename(backup_path)
-                
+
+            # Write new config
             with open(self.config_path, 'w', encoding='utf-8') as f:
-                json.dump(self.data, f, indent=2, ensure_ascii=False)
-                
-            logging.info(f"Configuration saved to {self.config_path} - config.py:146")
-            
-        except Exception as e:
+                f.write(json_dumps(self.data, indent=2, ensure_ascii=False))
+
+            info(f"Configuration saved to {sanitize_log_input(str(self.config_path))}")
+
+            # Remove backup if successful
+            if backup_path and backup_path.exists():
+                backup_path.unlink()
+
+        except (PermissionError, OSError) as e:
+            # Restore backup if write failed
+            if backup_path and backup_path.exists():
+                try:
+                    backup_path.rename(self.config_path)
+                except OSError:
+                    pass
             error_msg = f"Failed to save configuration: {e}"
-            logging.error(f"{error_msg} - config.py:150")
+            error(sanitize_log_input(error_msg))
             raise ConfigValidationError(error_msg)
 
     def load_env_variables(self) -> None:
@@ -172,41 +188,42 @@ class Config:
             "VOICE_BOOT_MESSAGE": "voice_boot_message",
             "LOG_LEVEL": "log_level"
         }
-        
+
         loaded_count = 0
         for env_key, config_key in env_mappings.items():
             if value := os.getenv(env_key):
                 # Validate sensitive keys
-                if config_key in self._sensitive_keys and len(value.strip()) < 10:
-                    logging.warning(f"Suspiciously short value for {config_key} - config.py:181")
-                    
+                if config_key in self._sensitive_keys and not validate_api_key(value):
+                    warning(f"Invalid or suspicious value for {sanitize_log_input(config_key)}")
+
                 self.data[config_key] = value.strip()
                 loaded_count += 1
-                
+
                 # Special handling for Google credentials
                 if env_key == "GOOGLE_APPLICATION_CREDENTIALS":
                     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = value
-                    
-        logging.info(f"Loaded {loaded_count} environment variables into configuration - config.py:190")
+
+        info(f"Loaded {loaded_count} environment variables into configuration")
 
     def apply_defaults(self) -> None:
         """Apply default values for missing optional configuration keys."""
+        from logging import debug
         for key, default_value in self.DEFAULT_VALUES.items():
             if key not in self.data or self.data[key] is None:
                 self.data[key] = default_value
-                logging.debug(f"Applied default value for {key}: {default_value} - config.py:197")
+                debug(f"Applied default value for {key}: {default_value}")
 
     def validate_config(self) -> None:
         """Validate configuration against schema."""
         errors = []
-        
+
         # Check required keys
         for key, expected_type in self.REQUIRED_KEYS.items():
             if key not in self.data:
                 errors.append(f"Missing required key: {key}")
             elif not isinstance(self.data[key], expected_type):
                 errors.append(f"Invalid type for {key}: expected {expected_type.__name__}, got {type(self.data[key]).__name__}")
-                
+
         # Check optional keys
         for key, expected_types in self.OPTIONAL_KEYS.items():
             if key in self.data and self.data[key] is not None:
@@ -217,20 +234,20 @@ class Config:
                 else:
                     if not isinstance(self.data[key], expected_types):
                         errors.append(f"Invalid type for {key}: expected {expected_types.__name__}, got {type(self.data[key]).__name__}")
-                        
+
         # Specific validations
         if self.data.get("max_cache_size", 0) <= 0:
             errors.append("max_cache_size must be positive")
-            
+
         if self.data.get("session_timeout", 0) <= 0:
             errors.append("session_timeout must be positive")
-            
+
         if errors:
             error_msg = "Configuration validation failed:\n" + "\n".join(f"  - {error}" for error in errors)
-            logging.error(f"{error_msg} - config.py:230")
+            error(f"{error_msg}")
             raise ConfigValidationError(error_msg)
-            
-        logging.info("Configuration validation passed - config.py:233")
+
+        info("Configuration validation passed")
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value with optional default."""
@@ -248,9 +265,9 @@ class Config:
             else:
                 if not isinstance(value, expected_type) and value is not None:
                     raise ValueError(f"Invalid type for {key}: expected {expected_type.__name__}, got {type(value).__name__}")
-                    
+
         self.data[key] = value
-        logging.info(f"Configuration key '{key}' updated - config.py:253")
+        logging.info(f"Configuration key '{key}' updated - config.py:270")
 
     def get_sanitized_data(self) -> Dict[str, Any]:
         """Get configuration data with sensitive values masked."""

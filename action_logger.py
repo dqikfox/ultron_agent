@@ -171,6 +171,44 @@ class ActionLogger:
             }
         )
     
+    def log_voice_action(self, action: str, message: str, engine: str = "unknown"):
+        """Log voice/TTS actions"""
+        self.log_action(
+            "VOICE_ACTION",
+            f"Voice {action}: {message[:100]}{'...' if len(message) > 100 else ''}",
+            {
+                "voice_action": action,
+                "engine": engine,
+                "full_message": message,
+                "message_length": len(message)
+            }
+        )
+    
+    def log_accessibility_action(self, disability_type: str, action: str, context: str = ""):
+        """Log accessibility-specific actions"""
+        self.log_action(
+            "ACCESSIBILITY",
+            f"Accessibility support for {disability_type}: {action[:100]}{'...' if len(action) > 100 else ''}",
+            {
+                "disability_type": disability_type,
+                "action": action,
+                "context": context,
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+    
+    def log_automation_action(self, tool_name: str, description: str, details: Optional[Dict[str, Any]] = None):
+        """Log automation actions"""
+        self.log_action(
+            "AUTOMATION",
+            f"{tool_name}: {description}",
+            {
+                "tool": tool_name,
+                "details": details or {},
+                "automation_type": "user_requested"
+            }
+        )
+    
     def save_action_log(self):
         """Save actions to JSON file"""
         try:

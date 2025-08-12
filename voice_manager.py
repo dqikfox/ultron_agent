@@ -3,15 +3,15 @@ Enhanced Voice System Integration for ULTRON Agent 3.0
 Fixes all threading and API issues with proper fallback mechanisms
 """
 
-import asyncio
-import logging
-import os
-import threading
-import time
-import queue
-import tempfile
-import subprocess
-import sys
+from asyncio import run as asyncio_run, run_coroutine_threadsafe
+from logging import getLogger, info, error, warning
+from os import name as os_name, unlink
+from threading import Thread
+from time import sleep
+from queue import Queue, Empty, Full
+from tempfile import NamedTemporaryFile
+from subprocess import run as subprocess_run, DEVNULL
+from sys import platform
 from pathlib import Path
 
 # Import original voice module
@@ -40,7 +40,7 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 class UltronVoiceManager:
     """Unified voice manager that handles all voice operations for ULTRON"""
@@ -57,7 +57,7 @@ class UltronVoiceManager:
         self.voice_id = None
         
         # Threading
-        self.voice_queue = queue.Queue()
+        self.voice_queue = Queue()
         self.is_running = False
         self.worker_thread = None
         
@@ -66,15 +66,16 @@ class UltronVoiceManager:
         
     def _initialize_engines(self):
         """Initialize all available voice engines"""
-        logger.info("Initializing ULTRON voice engines...")
+        info("Initializing ULTRON voice engines...")
         
         # Enhanced Engine (Process-based pyttsx3)
         if UltronVoiceEngine:
             try:
                 self.voice_engines['enhanced'] = UltronVoiceEngine()
-                logger.info("Enhanced voice engine initialized")
+                info("Enhanced voice engine initialized")
             except Exception as e:
-                logger.error(f"Enhanced voice engine failed: {e}")
+                from security_utils import sanitize_log_input
+                error(f"Enhanced voice engine failed: {sanitize_log_input(str(e))}")
         
         # Direct pyttsx3
         if PYTTSX3_AVAILABLE:
@@ -86,9 +87,10 @@ class UltronVoiceManager:
                 engine.setProperty('rate', self.rate)
                 engine.setProperty('volume', self.volume)
                 self.voice_engines['pyttsx3'] = engine
-                logger.info("Direct pyttsx3 engine initialized")
+                info("Direct pyttsx3 engine initialized")
             except Exception as e:
-                logger.error(f"Direct pyttsx3 failed: {e}")
+                from security_utils import sanitize_log_input
+                error(f"Direct pyttsx3 failed: {sanitize_log_input(str(e))}")
         
         # OpenAI TTS
         if OPENAI_AVAILABLE and self.config:
@@ -96,9 +98,10 @@ class UltronVoiceManager:
                 api_key = self.config.data.get('openai_api_key')
                 if api_key:
                     self.voice_engines['openai'] = {'api_key': api_key}
-                    logger.info("OpenAI TTS engine initialized")
+                    info("OpenAI TTS engine initialized")
             except Exception as e:
-                logger.error(f"OpenAI TTS failed: {e}")
+                from security_utils import sanitize_log_input
+                error(f"OpenAI TTS failed: {sanitize_log_input(str(e))}")
         
         # Console fallback
         self.voice_engines['console'] = True
@@ -107,7 +110,7 @@ class UltronVoiceManager:
         for engine_name in self.fallback_chain:
             if engine_name in self.voice_engines:
                 self.active_engine = engine_name
-                logger.info(f"Active voice engine: {engine_name}")
+                info(f"Active voice engine: {engine_name}")
                 break
     
     def speak(self, text, async_mode=True):
@@ -115,7 +118,8 @@ class UltronVoiceManager:
         if not text or not text.strip():
             return
         
-        logger.info(f"[ULTRON VOICE] Speaking: {text[:50]}...")
+        from security_utils import sanitize_log_input
+        info(f"[ULTRON VOICE] Speaking: {sanitize_log_input(text[:50])}...")
         
         if async_mode:
             self._speak_async(text)
@@ -129,8 +133,8 @@ class UltronVoiceManager:
         
         try:
             self.voice_queue.put(text, block=False)
-        except queue.Full:
-            logger.warning("Voice queue full, skipping")
+        except Full:
+            warning("Voice queue full, skipping")
     
     def _speak_sync(self, text):
         """Synchronous voice output with fallback chain"""
@@ -141,14 +145,15 @@ class UltronVoiceManager:
                 
                 success = self._try_engine(engine_name, text)
                 if success:
-                    logger.info(f"[ULTRON VOICE] Success with {engine_name}")
+                    info(f"[ULTRON VOICE] Success with {engine_name}")
                     return True
                     
             except Exception as e:
-                logger.warning(f"Engine {engine_name} failed: {e}")
+                from security_utils import sanitize_log_input
+                warning(f"Engine {engine_name} failed: {sanitize_log_input(str(e))}")
                 continue
         
-        logger.error("All voice engines failed")
+        error("All voice engines failed")
         return False
     
     def _try_engine(self, engine_name, text):
@@ -171,7 +176,8 @@ class UltronVoiceManager:
                 return True
                 
         except Exception as e:
-            logger.error(f"Engine {engine_name} error: {e}")
+            from security_utils import sanitize_log_input
+            error(f"Engine {engine_name} error: {sanitize_log_input(str(e))}")
             return False
         
         return False
@@ -191,34 +197,35 @@ class UltronVoiceManager:
             )
             
             # Save and play audio
-            with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
+            with NamedTemporaryFile(suffix='.mp3', delete=False) as f:
                 f.write(response.content)
                 audio_file = f.name
             
             try:
                 # Play audio file
-                if os.name == 'nt':
+                if os_name == 'nt':
                     import winsound
                     winsound.PlaySound(audio_file, winsound.SND_FILENAME)
                 else:
-                    subprocess.run(['mpg123', audio_file], check=True)
+                    subprocess_run(['mpg123', audio_file], check=True, stdout=DEVNULL, stderr=DEVNULL)
                 
                 return True
             finally:
                 try:
-                    os.unlink(audio_file)
-                except:
+                    unlink(audio_file)
+                except OSError:
                     pass
                     
         except Exception as e:
-            logger.error(f"OpenAI TTS error: {e}")
+            from security_utils import sanitize_log_input
+            error(f"OpenAI TTS error: {sanitize_log_input(str(e))}")
             return False
     
     def _start_voice_worker(self):
         """Start voice worker thread"""
         if not self.is_running:
             self.is_running = True
-            self.worker_thread = threading.Thread(target=self._voice_worker, daemon=True)
+            self.worker_thread = Thread(target=self._voice_worker, daemon=True)
             self.worker_thread.start()
     
     def _voice_worker(self):
@@ -229,10 +236,11 @@ class UltronVoiceManager:
                 if text is None:
                     break
                 self._speak_sync(text)
-            except queue.Empty:
+            except Empty:
                 continue
             except Exception as e:
-                logger.error(f"Voice worker error: {e}")
+                from security_utils import sanitize_log_input
+                error(f"Voice worker error: {sanitize_log_input(str(e))}")
     
     def test_voice(self):
         """Test voice system"""
@@ -244,11 +252,11 @@ class UltronVoiceManager:
         
         for msg in test_messages:
             if self._speak_sync(msg):
-                logger.info("Voice test successful!")
+                info("Voice test successful!")
                 return True
-            time.sleep(0.5)
+            sleep(0.5)
         
-        logger.error("Voice test failed!")
+        error("Voice test failed!")
         return False
     
     def shutdown(self):
@@ -270,7 +278,7 @@ class UltronVoiceManager:
             except:
                 pass
         
-        logger.info("Voice system shutdown complete")
+        info("Voice system shutdown complete")
 
 # Global voice manager
 _voice_manager = None

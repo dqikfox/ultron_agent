@@ -1,272 +1,123 @@
-# 🤖 ULTRON Agent 3.0 - Ultimate AI Assistant
+﻿# Ultron Agent 2 - Development Guide
 
-> *"I was designed to save the world. People would look to the sky and see hope."* - Vision
+##  Overview
+This is the Ultron Agent 2 project workspace, configured with advanced AI development tools and extensions.
 
-**ULTRON Agent 3.0** is a cutting-edge, fully autonomous AI assistant featuring advanced voice processing, real-time vision capabilities, stunning GUI interface, and deep system integration. Built with enterprise-grade architecture and professional startup experience.
+##  AI Tools Enabled
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-green.svg)](https://python.org)
-[![Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)](https://microsoft.com/windows)
-[![Ollama](https://img.shields.io/badge/AI-Ollama-orange.svg)](https://ollama.ai)
+###  Active AI Extensions
+- **Amazon Q (CodeWhisperer)** - AWS AI coding assistant
+- **GitHub Copilot** - GitHub's AI pair programmer  
+- **Sixth AI** - Advanced inline completions (with proposed API)
+- **Pochi/Tabby** - MCP-enabled AI assistant
+- **IDL for VS Code** - Specialized development environment
 
-## 🚀 **Professional Quick Start**
+##  Quick Start
 
-### **🎯 One-Click Launch**
-```batch
-# Simply double-click run.bat for professional startup experience!
-.\run.bat
+### 1. Launch with AI Extensions
+```powershell
+# Use the custom launch script
+& "$env:USERPROFILE\launch-vscode-ai.ps1" -WorkspacePath "C:\Projects\ultron_agent_2" -WithProposedAPIs
+
+# Or manually
+code --enable-proposed-api sixth.sixth-ai "C:\Projects\ultron_agent_2"
 ```
 
-The enhanced startup script automatically handles:
-- ✅ **System Diagnostics** - Complete hardware detection
-- ✅ **Python Verification** - Version compatibility checking  
-- ✅ **Ollama Integration** - Service detection with model inventory
-- ✅ **GPU Detection** - NVIDIA & Intel graphics enumeration
-- ✅ **Network Validation** - Connectivity testing
-- ✅ **Process Management** - Intelligent conflict resolution
+### 2. Verify AI Tools
+- Press `Ctrl+Shift+P` and type "Amazon Q" to access Q Chat
+- Start typing code to see GitHub Copilot suggestions
+- Use `Ctrl+I` for inline AI assistance
+- Check status bar for active AI services
 
----
+##  Configuration Features
 
-## 🎨 **Stunning Features**
+### AI Optimizations
+-  Proposed APIs enabled for Sixth AI
+-  Network proxy configuration for connectivity
+-  Performance optimizations for file watching
+-  Memory usage optimizations
 
-### 🎤 **Advanced Voice System**
-- **Multi-Engine Fallback Chain**: Enhanced → pyttsx3 → OpenAI → Console
-- **Thread-Safe Processing**: Eliminates audio conflicts
-- **Real-Time Recognition**: Multiple STT engines with smart fallbacks
-- **Organization API Support**: Professional OpenAI integration
+### Development Settings
+- **Python**: Strict type checking, Black formatting
+- **Editor**: Format on save, trim whitespace
+- **Terminal**: PowerShell default
+- **Theme**: Neon IDL with IDL icons
 
-### 🤖 **Intelligent Model Management**  
-- **10+ AI Models**: qwen2.5, llama3.2, hermes3, phi-3-mini, and more
-- **Smart Model Switching**: One-click model changes via `ollama run`
-- **Real-Time Status**: Live model monitoring and performance tracking
-- **Automatic Model Pulling**: Seamless model downloading when needed
+##  AI Usage Tips
 
-### 🖥️ **Professional GUI Interface**
-- **Cyberpunk Theme**: Ultron-inspired visual design
-- **Real-Time Monitoring**: CPU, Memory, GPU, Network status
-- **Interactive Controls**: Voice testing, model switching, system diagnostics
-- **Professional Logging**: Timestamped conversation history
+### Amazon Q
+- Use `/help` in Q Chat for guidance
+- Ask questions about your code
+- Request code reviews and optimizations
 
-### 🔧 **Enterprise System Integration**
-- **Hardware Detection**: NVIDIA RTX 3050 + Intel UHD Graphics support
-- **Network Monitoring**: Real-time connectivity and performance tracking
-- **Process Management**: Smart conflict detection and resolution
-- **Enhanced Logging**: Comprehensive error tracking and diagnostics
+### GitHub Copilot
+- Tab to accept suggestions
+- `Ctrl+Right Arrow` to accept word-by-word
+- `Alt+]` and `Alt+[` to cycle through suggestions
 
----
+### Sixth AI
+- Advanced context-aware completions
+- Supports inline editing capabilities
+- Works with proposed VS Code APIs
 
-## 📋 **System Requirements**
-
-| Component | Requirement | Status |
-|-----------|-------------|---------|
-| **OS** | Windows 10+ | ✅ Tested on 10.0.26120.5722 |
-| **Python** | 3.10+ | ✅ Confirmed working |
-| **Memory** | 8GB+ RAM | ✅ Required for AI models |
-| **GPU** | NVIDIA RTX (optional) | ✅ Detected RTX 3050 |
-| **Network** | Internet connection | ✅ Required for API access |
-| **Storage** | 10GB+ free space | ✅ For AI models |
-
----
-
-## 🛠️ **Installation Guide**
-
-### **Method 1: Professional Setup (Recommended)**
-```batch
-# 1. Clone or extract ULTRON Agent 3.0
-# 2. Double-click run.bat
-# 3. Follow automated setup prompts
-# 4. Enjoy your AI assistant!
+##  Project Structure
+```
+ultron_agent_2/
+ .vscode/
+    settings.json     # AI-optimized workspace settings
+    launch.json       # Debug configurations
+ docs/
+    README.md         # This guide
+    API.md           # API documentation
+    DEVELOPMENT.md   # Development workflow
+ src/                  # Source code
+ tests/               # Test files
+ requirements.txt     # Python dependencies
+ pyproject.toml      # Python project configuration
 ```
 
-### **Method 2: Manual Setup**
-```bash
-# Install Python 3.10+
-python --version
+##  Troubleshooting
 
-# Install Ollama
-# Download from: https://ollama.ai
-ollama run qwen2.5:latest
+### Common Issues
+1. **Sixth AI API Error**: Ensure VS Code launched with `--enable-proposed-api sixth.sixth-ai`
+2. **Amazon Q Connectivity**: Check network settings and proxy configuration
+3. **Copilot Not Working**: Verify authentication in VS Code settings
+4. **Performance Issues**: Review file watcher exclusions
 
-# Install Python dependencies
-pip install -r requirements.txt
+### Quick Fixes
+```powershell
+# Restart with all AI tools
+& "$env:USERPROFILE\launch-vscode-ai.ps1" -WorkspacePath "." -WithProposedAPIs
 
-# Configure API keys in ultron_config.json
-# Run the agent
-python main.py
+# Check extension status
+code --list-extensions --show-versions | findstr -i "amazon\|github\|sixth"
 ```
 
----
+##  Customization
 
-## 🎯 **Usage Examples**
+### Adding New AI Tools
+1. Install extension via VS Code marketplace
+2. Add configuration to `.vscode/settings.json`
+3. Update launch script if needed
+4. Test functionality
 
-### **Voice Commands**
-```
-"Hey ULTRON, what model are you?"
-"Switch to qwen2.5 model"
-"Take a screenshot"
-"Show system information"
-"Test voice output"
-```
+### Performance Tuning
+- Adjust `files.watcherExclude` for your project structure
+- Modify `python.analysis.typeCheckingMode` as needed
+- Configure additional formatters/linters
 
-### **GUI Operations**
-- 🔊 **Voice Testing**: Click "Test Voice" for multi-engine verification
-- 🤖 **Model Switching**: Use dropdown to change AI models instantly  
-- 📊 **System Monitor**: Real-time hardware and network status
-- 🖼️ **Screenshots**: Instant screen capture with timestamping
-- 📁 **File Manager**: Quick access to project directory
+##  Commands Reference
 
-### **API Access**
-```bash
-# Web Interface
-http://127.0.0.1:5000
+### AI Assistant Commands
+- `Ctrl+Shift+P`  "Amazon Q: Open Chat"
+- `Ctrl+I`  Inline AI editing
+- `Alt+/`  Trigger completions
+- `F1`  Command palette (all AI commands)
 
-# Network Access  
-http://192.168.1.118:5000
-
-# REST API Endpoints
-curl http://localhost:5000/api/status
-```
+### Development Commands  
+- `Ctrl+Shift+P`  "Python: Select Interpreter"
+- `Ctrl+K, Ctrl+F`  Format document
+- `Ctrl+Shift+I`  Organize imports
 
 ---
-
-## 🏗️ **Architecture Overview**
-
-```
-ULTRON Agent 3.0
-├── 🎤 Voice System (voice_manager.py)
-│   ├── Enhanced Voice Engine
-│   ├── Multi-Engine Fallbacks  
-│   └── Thread-Safe Processing
-├── 🤖 AI Integration (ollama_manager.py)
-│   ├── Model Management
-│   ├── Smart Switching
-│   └── Status Monitoring
-├── 🖥️ GUI Interface (gui_compact.py)
-│   ├── Cyberpunk Theme
-│   ├── Real-Time Monitoring
-│   └── Interactive Controls
-├── 🔧 System Core (agent_core.py)
-│   ├── Process Management
-│   ├── Error Handling
-│   └── Integration Hub
-└── 🚀 Enhanced Startup (run.bat)
-    ├── System Diagnostics
-    ├── Hardware Detection
-    └── Professional Logging
-```
-
----
-
-## 🎨 **Available AI Models**
-
-| Model | Size | Specialty | Status |
-|-------|------|-----------|---------|
-| **qwen2.5:latest** | 4.7GB | General Purpose | ✅ Default |
-| **llama3.2:latest** | 2.0GB | Conversational | ✅ Ready |
-| **hermes3:latest** | 4.7GB | Advanced Reasoning | ✅ Ready |
-| **phi-3-mini** | 2.8GB | Efficient Processing | ✅ Ready |
-| **qwen3:0.6b** | 522MB | Lightweight | ✅ Ready |
-| **mxbai-embed** | 669MB | Embeddings | ✅ Ready |
-
-*And 4 more specialized models available for advanced operations*
-
----
-
-## 🔧 **Configuration**
-
-### **ultron_config.json**
-```json
-{
-  "openai_api_key": "sk-proj-...",
-  "openai_organization": "org-...",
-  "openai_project": "proj_...",
-  "llm_model": "qwen2.5:latest",
-  "voice_engine": "pyttsx3",
-  "use_gui": true,
-  "use_voice": true
-}
-```
-
-### **Environment Variables**
-```bash
-# Set OpenAI API key
-set OPENAI_API_KEY=sk-proj-...
-
-# Optional: Organization settings
-set OPENAI_ORG=org-...
-set OPENAI_PROJECT=proj_...
-```
-
----
-
-## 🔍 **Troubleshooting**
-
-### **Common Issues**
-
-| Issue | Solution | 
-|-------|----------|
-| 🔇 **No Voice Output** | Check voice test button - fallback to console working |
-| 🤖 **Ollama Not Found** | Install from https://ollama.ai and run `ollama serve` |
-| 🐍 **Python Errors** | Ensure Python 3.10+ and run `pip install -r requirements.txt` |
-| 🔑 **API Key Issues** | Update ultron_config.json with valid OpenAI credentials |
-| 🖥️ **GUI Problems** | Check startup.log for detailed error information |
-
-### **Log Files**
-- 📄 **startup.log**: Professional startup diagnostics
-- 📄 **error.log**: Detailed error tracking  
-- 📄 **ultron_gui.log**: GUI operations and status
-- 📄 **ultron.log**: Core system operations
-
----
-
-## 🤝 **Contributing**
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### **Development Setup**
-```bash
-# Clone repository
-git clone https://github.com/dqikfox/ultron_agent.git
-
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-python -m pytest tests/
-
-# Start development server
-python main.py --debug
-```
-
----
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🏆 **Achievements**
-
-- ✅ **Professional Startup**: Enterprise-grade initialization system
-- ✅ **Hardware Detection**: Complete GPU and system enumeration  
-- ✅ **Voice Excellence**: Multi-engine fallback with 100% reliability
-- ✅ **AI Model Mastery**: 10+ models with seamless switching
-- ✅ **GUI Perfection**: Cyberpunk-themed professional interface
-- ✅ **Organization API**: Advanced OpenAI integration support
-- ✅ **Windows Integration**: Advanced CMD features and monitoring
-
----
-
-**🎉 Experience the future of AI assistance with ULTRON Agent 3.0!**
-
-*Built with ❤️ for the AI community*
-
----
-
-## 📞 **Support**
-
-- 📧 **Email**: [Your Support Email]
-- 💬 **Discord**: [Your Discord Server]
-- 🐛 **Issues**: [GitHub Issues](https://github.com/dqikfox/ultron_agent/issues)
-- 📖 **Documentation**: [Wiki](https://github.com/dqikfox/ultron_agent/wiki)
+** Ready to code with AI assistance!**
