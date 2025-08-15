@@ -46,7 +46,7 @@ class UltronWebAPI:
         # Setup logging first
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        
+
         self.app = FastAPI(title="ULTRON Agent 3.0 API", version="3.0.0")
         self.agent = None
         self.connected_clients = set()
@@ -79,16 +79,16 @@ class UltronWebAPI:
                 # Set use_gui to False temporarily for web API
                 import os
                 os.environ["ULTRON_USE_GUI"] = "false"
-                
+
                 # Initialize agent
                 self.agent = UltronAgent()
-                
+
                 # Make sure GUI is disabled
                 if hasattr(self.agent, 'gui'):
                     self.agent.gui = None
                 if hasattr(self.agent, 'gui_thread'):
                     self.agent.gui_thread = None
-                
+
                 self.logger.info("ULTRON Agent initialized successfully for web API")
             except Exception as e:
                 self.logger.error(f"Failed to initialize agent: {e}")
@@ -119,7 +119,7 @@ class UltronWebAPI:
     async def handle_websocket_message(self, message):
         """Handle WebSocket messages from clients"""
         msg_type = message.get('type', 'unknown')
-        
+
         if msg_type == 'command':
             command = message.get('data', {}).get('command', '').strip()
             if not command:
@@ -160,11 +160,11 @@ class UltronWebAPI:
                         "command": command
                     }
                 }
-        
+
         elif msg_type == 'system_stats':
             stats = await self.get_system_stats()
             return {"type": "system_stats", "data": stats}
-            
+
         else:
             return {"type": "error", "message": f"Unknown message type: {msg_type}"}
         @self.app.get("/api/status")
