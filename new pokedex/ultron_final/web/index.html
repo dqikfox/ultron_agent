@@ -10,7 +10,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Courier New', monospace;
             background: linear-gradient(135deg, #0a0a0a, #1a0000);
@@ -18,26 +18,26 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-        
+
         .header {
             text-align: center;
             padding: 20px;
             background: rgba(255, 0, 0, 0.1);
             border-bottom: 2px solid #ff0000;
         }
-        
+
         .header h1 {
             color: #ff0000;
             font-size: 2.5em;
             text-shadow: 0 0 10px #ff0000;
             animation: glow 2s ease-in-out infinite alternate;
         }
-        
+
         @keyframes glow {
             from { text-shadow: 0 0 10px #ff0000; }
             to { text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000; }
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -46,32 +46,33 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-        
+
         .panel {
             background: rgba(0, 255, 0, 0.05);
             border: 1px solid #00ff00;
             border-radius: 10px;
             padding: 20px;
             backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
-        
+
         .panel h2 {
             color: #00ffff;
             margin-bottom: 15px;
             border-bottom: 1px solid #00ffff;
             padding-bottom: 5px;
         }
-        
+
         .command-panel {
             grid-column: 1 / -1;
         }
-        
+
         .input-group {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
-        
+
         input[type="text"] {
             flex: 1;
             background: rgba(0, 0, 0, 0.7);
@@ -81,12 +82,12 @@
             border-radius: 5px;
             font-family: inherit;
         }
-        
+
         input[type="text"]:focus {
             outline: none;
             box-shadow: 0 0 10px #00ff00;
         }
-        
+
         .btn {
             background: linear-gradient(45deg, #1a1a1a, #333);
             border: 1px solid #00ff00;
@@ -97,21 +98,21 @@
             font-family: inherit;
             transition: all 0.3s;
         }
-        
+
         .btn:hover {
             background: linear-gradient(45deg, #333, #1a1a1a);
             box-shadow: 0 0 10px #00ff00;
         }
-        
+
         .btn.danger {
             border-color: #ff0000;
             color: #ff0000;
         }
-        
+
         .btn.danger:hover {
             box-shadow: 0 0 10px #ff0000;
         }
-        
+
         .log-area {
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #00ff00;
@@ -122,45 +123,45 @@
             font-size: 0.9em;
             line-height: 1.4;
         }
-        
+
         .log-entry {
             margin-bottom: 5px;
         }
-        
+
         .log-entry.error {
             color: #ff6666;
         }
-        
+
         .log-entry.success {
             color: #66ff66;
         }
-        
+
         .status-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
-        
+
         .status-item {
             background: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #333;
         }
-        
+
         .status-value {
             font-size: 1.2em;
             font-weight: bold;
             color: #00ffff;
         }
-        
+
         .controls {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 15px;
         }
-        
+
         .footer {
             text-align: center;
             padding: 20px;
@@ -168,17 +169,17 @@
             border-top: 1px solid #333;
             margin-top: 40px;
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
                 padding: 10px;
             }
-            
+
             .header h1 {
                 font-size: 2em;
             }
-            
+
             .controls {
                 justify-content: center;
             }
@@ -190,7 +191,7 @@
         <h1>🔴 ULTRON SOLUTIONS 🔴</h1>
         <p>Advanced AI System Controller</p>
     </div>
-    
+
     <div class="container">
         <div class="panel command-panel">
             <h2>Command Interface</h2>
@@ -206,7 +207,7 @@
             </div>
             <div class="log-area" id="logArea"></div>
         </div>
-        
+
         <div class="panel">
             <h2>System Status</h2>
             <div class="status-grid">
@@ -228,7 +229,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="panel">
             <h2>Component Status</h2>
             <div class="status-grid">
@@ -251,11 +252,11 @@
             </div>
         </div>
     </div>
-    
+
     <div class="footer">
         <p>ULTRON SOLUTIONS - Fully Automated AI Assistant | Status: <span id="overallStatus">Initializing...</span></p>
     </div>
-    
+
     <script>
         // Command input handling
         document.getElementById('commandInput').addEventListener('keypress', function(e) {
@@ -263,7 +264,7 @@
                 executeCommand();
             }
         });
-        
+
         // Logging function
         function addLog(message, type = 'info') {
             const logArea = document.getElementById('logArea');
@@ -274,7 +275,7 @@
             logArea.appendChild(entry);
             logArea.scrollTop = logArea.scrollHeight;
         }
-        
+
         // API call wrapper
         async function apiCall(endpoint, data = null) {
             try {
@@ -284,11 +285,11 @@
                         'Content-Type': 'application/json'
                     }
                 };
-                
+
                 if (data) {
                     options.body = JSON.stringify(data);
                 }
-                
+
                 const response = await fetch(endpoint, options);
                 return await response.json();
             } catch (error) {
@@ -296,41 +297,41 @@
                 return { error: error.message };
             }
         }
-        
+
         // Command execution
         async function executeCommand() {
             const input = document.getElementById('commandInput');
             const command = input.value.trim();
-            
+
             if (!command) return;
-            
+
             input.value = '';
             addLog(`User: ${command}`);
-            
+
             const result = await apiCall('/api/command', { command });
-            
+
             if (result.error) {
                 addLog(`Error: ${result.error}`, 'error');
             } else {
                 addLog(`ULTRON: ${result.response}`, 'success');
             }
         }
-        
+
         // System functions
         async function takeScreenshot() {
             addLog('Taking screenshot...');
             const result = await apiCall('/api/screenshot', {});
-            
+
             if (result.error) {
                 addLog(`Screenshot failed: ${result.error}`, 'error');
             } else {
                 addLog(`Screenshot saved: ${result.path}`, 'success');
             }
         }
-        
+
         async function getSystemInfo() {
             const result = await apiCall('/api/system');
-            
+
             if (result.error) {
                 addLog(`System info error: ${result.error}`, 'error');
             } else {
@@ -338,23 +339,23 @@
                 addLog(`System Status: ${info}`, 'success');
             }
         }
-        
+
         async function sortFiles() {
             addLog('Starting file sort...');
             const result = await apiCall('/api/files/sort', {});
-            
+
             if (result.error) {
                 addLog(`File sort failed: ${result.error}`, 'error');
             } else {
                 addLog(`File sort complete: ${result.total || 0} files processed`, 'success');
             }
         }
-        
+
         function clearLog() {
             document.getElementById('logArea').innerHTML = '';
             addLog('Log cleared');
         }
-        
+
         // Status updates
         async function updateStatus() {
             try {
@@ -366,7 +367,7 @@
                     document.getElementById('diskStatus').textContent = `${systemInfo.disk?.toFixed(1) || 0}%`;
                     document.getElementById('adminStatus').textContent = systemInfo.admin ? '✓' : '✗';
                 }
-                
+
                 // Update component status
                 const overallStatus = await apiCall('/api/status');
                 if (!overallStatus.error) {
@@ -375,20 +376,20 @@
                     document.getElementById('visionStatus').textContent = components.vision ? '✓' : '✗';
                     document.getElementById('aiStatus').textContent = components.ai ? '✓' : '✗';
                     document.getElementById('filesStatus').textContent = components.files ? '✓' : '✗';
-                    
+
                     document.getElementById('overallStatus').textContent = overallStatus.running ? 'Online' : 'Offline';
                 }
             } catch (error) {
                 console.error('Status update error:', error);
             }
         }
-        
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             addLog('ULTRON Web Interface initialized');
             addLog('Ready for commands...');
             updateStatus();
-            
+
             // Update status every 5 seconds
             setInterval(updateStatus, 5000);
         });

@@ -291,9 +291,11 @@ class LogContext:
         self.start_time = datetime.utcnow()
 
         # Add correlation ID to all logs in this context
+        correlation_id = self.correlation_id
+
         class ContextFilter(logging.Filter):
             def filter(self, record):
-                record.correlation_id = self.correlation_id
+                record.correlation_id = correlation_id
                 return True
 
         self.filter = ContextFilter()
