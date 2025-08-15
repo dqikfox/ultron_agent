@@ -125,14 +125,15 @@ code --list-extensions --show-versions | findstr -i "amazon\|github\|sixth"
 - Modify `python.analysis.typeCheckingMode` as needed
 - Configure additional formatters/linters
 
-## AI Assistant Web Application
+## ULTRON Enhanced GUI Interface
 
-The project includes a fully functional AI assistant web application:
+The project includes a fully functional Pokédex-style GUI interface:
 
-- **Location**: `assistant/ai-assistant/`
-- **Technology**: React + TypeScript + Vite
-- **Status**: ✅ Successfully deployed
-- **URL**: https://r5fy57715g.space.minimax.io
+- **Location**: `gui/ultron_enhanced/web/`
+- **Main File**: `file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html`
+- **Technology**: HTML5 + CSS3 + JavaScript
+- **Status**: ✅ Fully Functional
+- **Features**: Console, System Monitor, Vision, Tasks, Files, Settings, Profile
 
 ### Features
 
@@ -143,12 +144,15 @@ The project includes a fully functional AI assistant web application:
 - 📝 Productivity suite (notes, tasks, reminders)
 - 🎨 Modern responsive UI with dark/light themes
 
-### Quick Start
+### Quick Start - GUI Interface
 
 ```bash
-cd assistant/ai-assistant
-npm install
-npm run dev
+# Open the ULTRON Enhanced GUI directly in browser
+start file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html
+
+# Or launch via Python server
+cd gui/ultron_enhanced
+python ultron_main.py
 ```
 
 ## Commands Reference

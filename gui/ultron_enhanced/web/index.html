@@ -34,10 +34,10 @@
         <!-- Main Pokedex Interface -->
         <div id="main-interface" class="main-interface hidden">
             <div class="pokedex-container">
-                
+
                 <!-- Main Pokédex Body -->
                 <div class="pokedex-body pokedex-red" id="pokedex-body">
-                    
+
                     <!-- Top Section - Control Panel -->
                     <div class="pokedex-top">
                         <!-- Status LEDs -->
@@ -62,7 +62,7 @@
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div class="nav-buttons-grid">
                                 <button class="nav-button active" data-section="console">
                                     <span class="nav-icon">🖥️</span>
@@ -88,6 +88,10 @@
                                     <span class="nav-icon">🔧</span>
                                     <span class="nav-label">CONFIG</span>
                                 </button>
+                                <button class="nav-button" data-section="profile">
+                                    <span class="nav-icon">👤</span>
+                                    <span class="nav-label">PROFILE</span>
+                                </button>
                                 <button class="nav-button" data-section="assistant" onclick="window.open('http://localhost:5173', '_blank')">
                                     <span class="nav-icon">🤖</span>
                                     <span class="nav-label">AI CHAT</span>
@@ -101,7 +105,7 @@
                         <div class="screen-border">
                             <div class="screen-content">
                                 <div class="scan-lines"></div>
-                                
+
                                 <!-- Console Section -->
                                 <div id="console-section" class="section-content active">
                                     <div class="section-title">ULTRON CONSOLE</div>
@@ -208,6 +212,75 @@
                                         <div class="setting-group">
                                             <label>API Key</label>
                                             <input type="password" id="api-key-input" placeholder="Enter OpenAI API key">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Profile Section -->
+                                <div id="profile-section" class="section-content">
+                                    <div class="section-title">USER PROFILE</div>
+                                    <div class="profile-content">
+                                        <div class="profile-header">
+                                            <div class="profile-avatar">
+                                                <div class="avatar-placeholder">👤</div>
+                                            </div>
+                                            <div class="profile-info">
+                                                <h2 class="profile-name">ULTRON Agent</h2>
+                                                <p class="profile-email">ultron.agent@example.com</p>
+                                                <p class="profile-status">Status: <span class="status-online">Online</span></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="profile-details">
+                                            <div class="detail-card">
+                                                <h3>Account Information</h3>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Member Since:</span>
+                                                    <span class="detail-value">2025</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Last Login:</span>
+                                                    <span class="detail-value">Today</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="detail-card">
+                                                <h3>Preferences</h3>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Theme:</span>
+                                                    <span class="detail-value">Red Pokedex</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Voice:</span>
+                                                    <span class="detail-value">Enabled</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Sound:</span>
+                                                    <span class="detail-value">On</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="detail-card">
+                                                <h3>System Stats</h3>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Tasks Completed:</span>
+                                                    <span class="detail-value">127</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Files Processed:</span>
+                                                    <span class="detail-value">42</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Analysis Runs:</span>
+                                                    <span class="detail-value">89</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="profile-actions">
+                                            <button class="profile-btn" id="edit-profile-btn">Edit Profile</button>
+                                            <button class="profile-btn" id="export-data-btn">Export Data</button>
+                                            <button class="profile-btn danger" id="reset-system-btn">Reset System</button>
                                         </div>
                                     </div>
                                 </div>
@@ -445,7 +518,7 @@ function initFloatingBall() {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initFloatingBall); 
+document.addEventListener('DOMContentLoaded', initFloatingBall);
 </script>
 
 </body>

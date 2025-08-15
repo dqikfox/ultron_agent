@@ -174,6 +174,12 @@ def process_user_input(user_data: str) -> str:
     # Copilot suggests: return sanitize_log_input(user_data)
 ```
 
+### GUI Integration
+The ULTRON Enhanced GUI is located at:
+- **Path**: `gui/ultron_enhanced/web/index.html`
+- **URL**: `file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html`
+- **Launcher**: Use `launch_gui.bat` or `python launch_gui.py`
+
 ## Need Help?
 
 1. **VS Code Command Palette**: `Ctrl+Shift+P` → Search "Copilot"
