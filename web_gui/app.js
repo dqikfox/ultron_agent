@@ -19,7 +19,7 @@ class UltronPokedexInterface {
         this.animationIntervals = [];
         this.websocket = null;
         this.apiBaseUrl = window.location.origin;
-        
+
         this.init();
     }
 
@@ -32,7 +32,7 @@ class UltronPokedexInterface {
         this.connectWebSocket();
         this.startSystemMonitoring();
         this.showLoadingScreen();
-        
+
         // Simulate loading and then show main interface
         setTimeout(() => {
             this.hideLoadingScreen();
@@ -43,26 +43,26 @@ class UltronPokedexInterface {
     connectWebSocket() {
         const wsUrl = `ws://${window.location.host}/ws`;
         console.log('🔌 Connecting to WebSocket:', wsUrl);
-        
+
         this.websocket = new WebSocket(wsUrl);
-        
+
         this.websocket.onopen = () => {
             console.log('✅ WebSocket connected');
             this.isConnected = true;
             this.updateConnectionStatus(true);
             this.requestSystemUpdate();
         };
-        
+
         this.websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             this.handleWebSocketMessage(data);
         };
-        
+
         this.websocket.onclose = () => {
             console.log('🔴 WebSocket disconnected');
             this.isConnected = false;
             this.updateConnectionStatus(false);
-            
+
             // Attempt to reconnect after 5 seconds
             setTimeout(() => {
                 if (!this.isConnected) {
@@ -70,7 +70,7 @@ class UltronPokedexInterface {
                 }
             }, 5000);
         };
-        
+
         this.websocket.onerror = (error) => {
             console.error('WebSocket error:', error);
             this.updateConnectionStatus(false);
@@ -116,11 +116,11 @@ class UltronPokedexInterface {
         try {
             const response = await fetch(`${this.apiBaseUrl}/api/status`);
             const data = await response.json();
-            
+
             console.log('📊 System status:', data);
             this.updateSystemStats(data.system);
             this.updateAgentStatus(data);
-            
+
         } catch (error) {
             console.error('Failed to check system status:', error);
             this.showNotification('System status check failed', 'error');
@@ -130,10 +130,10 @@ class UltronPokedexInterface {
     showLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
         const mainInterface = document.getElementById('main-interface');
-        
+
         if (loadingScreen) loadingScreen.classList.remove('hidden');
         if (mainInterface) mainInterface.classList.add('hidden');
-        
+
         // Animate loading progress
         const progressBar = document.querySelector('.loading-progress');
         if (progressBar) {
@@ -153,19 +153,19 @@ class UltronPokedexInterface {
     hideLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
         const mainInterface = document.getElementById('main-interface');
-        
+
         if (loadingScreen) {
             loadingScreen.classList.add('hidden');
         }
         if (mainInterface) {
             mainInterface.classList.remove('hidden');
         }
-        
+
         // Initialize the interface
         this.addSystemMessage('🔴 ULTRON AI System Online');
         this.addSystemMessage('🟢 All systems operational');
         this.addSystemMessage('📡 Awaiting commands...');
-        
+
         this.playSound('wake');
     }
 
@@ -360,7 +360,7 @@ class UltronPokedexInterface {
         // Send command to API
         try {
             this.addSystemMessage('⏳ Processing command...');
-            
+
             // Use WebSocket if available, otherwise REST API
             if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
                 await this.sendWebSocketMessage({
@@ -377,7 +377,7 @@ class UltronPokedexInterface {
                     },
                     body: JSON.stringify({ command: command })
                 });
-                
+
                 const result = await response.json();
                 this.handleCommandResponse({
                     success: result.success,
@@ -406,23 +406,23 @@ class UltronPokedexInterface {
         try {
             const response = await fetch(`${this.apiBaseUrl}/api/system`);
             const data = await response.json();
-            
+
             this.addSystemMessage('📊 System Status:');
             this.addSystemMessage(`🖥️ CPU: ${data.cpu.usage.toFixed(1)}%`);
             this.addSystemMessage(`💾 Memory: ${data.memory.usage.toFixed(1)}%`);
             this.addSystemMessage(`💿 Disk: ${data.disk.usage.toFixed(1)}%`);
-            
+
             if (data.gpu && data.gpu.length > 0) {
                 data.gpu.forEach((gpu, i) => {
                     this.addSystemMessage(`🎮 GPU ${i}: ${gpu.memory_usage.toFixed(1)}% | ${gpu.temperature}°C`);
                 });
             }
-            
+
             if (data.agent) {
                 this.addSystemMessage(`🤖 Agent: ${data.agent.status}`);
                 this.addSystemMessage(`🔧 Tools: ${data.agent.tools_count}`);
             }
-            
+
         } catch (error) {
             this.addSystemMessage(`❌ Failed to get system status: ${error.message}`);
         }
@@ -453,9 +453,9 @@ class UltronPokedexInterface {
 
     updateSystemStats(stats) {
         if (!stats) return;
-        
+
         console.log('📊 Updating system stats:', stats);
-        
+
         // Update internal stats
         if (stats.cpu) {
             this.systemStats.cpu = Math.round(stats.cpu.usage || stats.cpu || 0);
@@ -466,7 +466,7 @@ class UltronPokedexInterface {
         if (stats.disk) {
             this.systemStats.disk = Math.round(stats.disk.usage || stats.disk || 0);
         }
-        
+
         // Update DOM elements
         this.updateSystemDisplay();
         this.updateProgressBars();
@@ -477,11 +477,11 @@ class UltronPokedexInterface {
         const cpuElement = document.getElementById('cpu-usage');
         const memoryElement = document.getElementById('memory-usage');
         const diskElement = document.getElementById('disk-usage');
-        
+
         if (cpuElement) cpuElement.textContent = `${this.systemStats.cpu}%`;
         if (memoryElement) memoryElement.textContent = `${this.systemStats.memory}%`;
         if (diskElement) diskElement.textContent = `${this.systemStats.disk}%`;
-        
+
         // Update status indicators
         const statusElements = document.querySelectorAll('.status-indicator');
         statusElements.forEach(element => {
@@ -498,7 +498,7 @@ class UltronPokedexInterface {
         const cpuBar = document.querySelector('.progress-bar.cpu .progress-fill');
         const memoryBar = document.querySelector('.progress-bar.memory .progress-fill');
         const diskBar = document.querySelector('.progress-bar.disk .progress-fill');
-        
+
         if (cpuBar) cpuBar.style.width = `${this.systemStats.cpu}%`;
         if (memoryBar) memoryBar.style.width = `${this.systemStats.memory}%`;
         if (diskBar) diskBar.style.width = `${this.systemStats.disk}%`;
@@ -506,13 +506,13 @@ class UltronPokedexInterface {
 
     updateAgentStatus(statusData) {
         if (!statusData) return;
-        
+
         console.log('🤖 Updating agent status:', statusData);
-        
+
         // Update connection status
         this.isConnected = statusData.agent_available || false;
         this.updateConnectionStatus(this.isConnected);
-        
+
         // Update agent info display
         const agentStatus = document.getElementById('agent-status');
         if (agentStatus) {
@@ -524,15 +524,15 @@ class UltronPokedexInterface {
     updateConnectionStatus(connected) {
         const connectionIndicator = document.querySelector('.connection-status');
         const statusText = document.getElementById('connection-status-text');
-        
+
         if (connectionIndicator) {
             connectionIndicator.className = `connection-status ${connected ? 'connected' : 'disconnected'}`;
         }
-        
+
         if (statusText) {
             statusText.textContent = connected ? 'CONNECTED' : 'DISCONNECTED';
         }
-        
+
         // Update network status
         this.systemStats.network = connected ? 'CONNECTED' : 'DISCONNECTED';
     }
@@ -547,17 +547,17 @@ class UltronPokedexInterface {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.textContent = message;
-        
+
         // Add to page
         document.body.appendChild(notification);
-        
+
         // Auto remove after 3 seconds
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.parentNode.removeChild(notification);
             }
         }, 3000);
-        
+
         console.log(`📢 Notification (${type}): ${message}`);
     }
 
@@ -572,7 +572,7 @@ class UltronPokedexInterface {
                 });
             }
         }, 30000); // Ping every 30 seconds
-        
+
         // Fallback API polling if WebSocket fails
         setInterval(async () => {
             if (!this.isConnected) {
@@ -632,7 +632,7 @@ class UltronPokedexInterface {
         // Navigate between sections with D-pad
         const sections = ['console', 'system', 'vision', 'tasks', 'files', 'settings'];
         const currentIndex = sections.indexOf(this.currentSection);
-        
+
         let newIndex = currentIndex;
         switch (direction) {
             case 'up':
@@ -724,7 +724,7 @@ class UltronPokedexInterface {
             pokedexBody.className = `pokedex-body pokedex-${theme}`;
         }
         this.currentTheme = theme;
-        
+
         // Update theme selector
         const themeSelect = document.getElementById('theme-select');
         if (themeSelect) {
@@ -739,10 +739,10 @@ class UltronPokedexInterface {
             if (response.ok) {
                 const data = await response.json();
                 this.addSystemMessage('✅ Screen captured successfully');
-                
+
                 // Switch to vision section to show result
                 this.switchSection('vision');
-                
+
                 // Update vision display
                 const visionDisplay = document.getElementById('vision-display');
                 if (visionDisplay && data.image_path) {
@@ -780,7 +780,7 @@ class UltronPokedexInterface {
         if (voiceBtn) {
             voiceBtn.textContent = this.isListening ? '🎤 Disable' : '🎤 Enable';
         }
-        
+
         if (this.isListening) {
             this.addSystemMessage('🎤 Voice recognition enabled');
         } else {
@@ -799,7 +799,7 @@ class UltronPokedexInterface {
             const response = await fetch('/api/status');
             if (response.ok) {
                 const data = await response.json();
-                
+
                 if (data.system) {
                     this.systemStats.cpu = Math.round(data.system.cpu_percent || 0);
                     this.systemStats.memory = Math.round(data.system.memory_percent || 0);
@@ -830,7 +830,7 @@ class UltronPokedexInterface {
         const memoryElement = document.getElementById('memory-usage');
         const diskElement = document.getElementById('disk-usage');
         const networkElement = document.getElementById('network-status');
-        
+
         if (cpuElement) cpuElement.textContent = this.systemStats.cpu + '%';
         if (memoryElement) memoryElement.textContent = this.systemStats.memory + '%';
         if (diskElement) diskElement.textContent = this.systemStats.disk + '%';
@@ -843,7 +843,7 @@ class UltronPokedexInterface {
         const cpuBar = document.getElementById('cpu-bar');
         const memoryBar = document.getElementById('memory-bar');
         const diskBar = document.getElementById('disk-bar');
-        
+
         if (cpuBar) cpuBar.style.width = this.systemStats.cpu + '%';
         if (memoryBar) memoryBar.style.width = this.systemStats.memory + '%';
         if (diskBar) diskBar.style.width = this.systemStats.disk + '%';
@@ -854,7 +854,7 @@ class UltronPokedexInterface {
             processContent.textContent = `
 SYSTEM PROCESSES:
 • ultron.exe - ${this.systemStats.cpu > 20 ? '15.4%' : '12.4%'} CPU
-• chrome.exe - 8.2% CPU  
+• chrome.exe - 8.2% CPU
 • python.exe - 5.1% CPU
 • svchost.exe - 3.8% CPU
 • explorer.exe - 2.1% CPU
@@ -959,7 +959,7 @@ ${this.isConnected ? '• ultron_agent.py - 4.2% CPU' : '• [Agent Offline]'}
         // Function keys for section switching
         const fKeyMap = {
             'F1': 'console',
-            'F2': 'system', 
+            'F2': 'system',
             'F3': 'vision',
             'F4': 'tasks',
             'F5': 'files',

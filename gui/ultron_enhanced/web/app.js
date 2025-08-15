@@ -17,19 +17,19 @@ class UltronPokedexInterface {
             network: 'CONNECTED'
         };
         this.animationIntervals = [];
-        
+
         this.init();
     }
 
     init() {
-        console.log('🚀 Initializing ULTRON Pokedex Interface...');
+        console.log('🚀 Initializing ULTRON Pokedex Interface... - app.js:25');
         this.setupEventListeners();
         this.initializeTheme();
         this.startAnimations();
         this.loadConfiguration();
         this.startSystemMonitoring();
         this.showLoadingScreen();
-        
+
         // Simulate loading and then show main interface
         setTimeout(() => {
             this.hideLoadingScreen();
@@ -39,10 +39,10 @@ class UltronPokedexInterface {
     showLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
         const mainInterface = document.getElementById('main-interface');
-        
+
         if (loadingScreen) loadingScreen.classList.remove('hidden');
         if (mainInterface) mainInterface.classList.add('hidden');
-        
+
         // Animate loading progress
         const progressBar = document.querySelector('.loading-progress');
         if (progressBar) {
@@ -62,19 +62,19 @@ class UltronPokedexInterface {
     hideLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
         const mainInterface = document.getElementById('main-interface');
-        
+
         if (loadingScreen) {
             loadingScreen.classList.add('hidden');
         }
         if (mainInterface) {
             mainInterface.classList.remove('hidden');
         }
-        
+
         // Initialize the interface
         this.addSystemMessage('🔴 ULTRON AI System Online');
         this.addSystemMessage('🟢 All systems operational');
         this.addSystemMessage('📡 Awaiting commands...');
-        
+
         this.playSound('wake');
     }
 
@@ -197,7 +197,8 @@ class UltronPokedexInterface {
                 vision: '👁️ VISION',
                 tasks: '📋 TASKS',
                 files: '📁 FILES',
-                settings: '🔧 CONFIG'
+                settings: '🔧 CONFIG',
+                profile: '👤 PROFILE'
             };
             indicator.textContent = icons[sectionName] || '🖥️ CONSOLE';
         }
@@ -221,6 +222,9 @@ class UltronPokedexInterface {
                 break;
             case 'vision':
                 this.loadVisionSystem();
+                break;
+            case 'profile':
+                this.loadProfileData();
                 break;
         }
     }
@@ -301,7 +305,7 @@ class UltronPokedexInterface {
         // Try to send to backend
         try {
             this.addSystemMessage('🔄 Processing command...');
-            
+
             const response = await fetch('/api/command', {
                 method: 'POST',
                 headers: {
@@ -368,7 +372,7 @@ class UltronPokedexInterface {
         // Navigate between sections with D-pad
         const sections = ['console', 'system', 'vision', 'tasks', 'files', 'settings'];
         const currentIndex = sections.indexOf(this.currentSection);
-        
+
         let newIndex = currentIndex;
         switch (direction) {
             case 'up':
@@ -460,7 +464,7 @@ class UltronPokedexInterface {
             pokedexBody.className = `pokedex-body pokedex-${theme}`;
         }
         this.currentTheme = theme;
-        
+
         // Update theme selector
         const themeSelect = document.getElementById('theme-select');
         if (themeSelect) {
@@ -475,10 +479,10 @@ class UltronPokedexInterface {
             if (response.ok) {
                 const data = await response.json();
                 this.addSystemMessage('✅ Screen captured successfully');
-                
+
                 // Switch to vision section to show result
                 this.switchSection('vision');
-                
+
                 // Update vision display
                 const visionDisplay = document.getElementById('vision-display');
                 if (visionDisplay && data.image_path) {
@@ -516,7 +520,7 @@ class UltronPokedexInterface {
         if (voiceBtn) {
             voiceBtn.textContent = this.isListening ? '🎤 Disable' : '🎤 Enable';
         }
-        
+
         if (this.isListening) {
             this.addSystemMessage('🎤 Voice recognition enabled');
         } else {
@@ -552,7 +556,7 @@ class UltronPokedexInterface {
             processContent.textContent = `
 SYSTEM PROCESSES:
 • ultron.exe - 12.4% CPU
-• chrome.exe - 8.2% CPU  
+• chrome.exe - 8.2% CPU
 • python.exe - 5.1% CPU
 • svchost.exe - 3.8% CPU
 • explorer.exe - 2.1% CPU
@@ -598,6 +602,42 @@ SYSTEM PROCESSES:
                 </div>
             `;
         }
+    }
+
+    loadProfileData() {
+        // Profile data is static for now, but could be loaded from backend
+        // Update any dynamic elements if needed
+        const profileName = document.querySelector('.profile-name');
+        const profileEmail = document.querySelector('.profile-email');
+        const profileStatus = document.querySelector('.profile-status .status-online');
+
+        if (profileName) profileName.textContent = 'ULTRON Agent';
+        if (profileEmail) profileEmail.textContent = 'ultron.agent@example.com';
+        if (profileStatus) profileStatus.textContent = 'Online';
+
+        // Set up event listeners for profile buttons
+        this.setupProfileEventListeners();
+    }
+
+    setupProfileEventListeners() {
+        // Edit Profile button
+        document.getElementById('edit-profile-btn')?.addEventListener('click', () => {
+            this.addSystemMessage('📝 Profile edit feature coming soon');
+            this.playSound('button');
+        });
+
+        // Export Data button
+        document.getElementById('export-data-btn')?.addEventListener('click', () => {
+            this.addSystemMessage('📦 Data export feature coming soon');
+            this.playSound('button');
+        });
+
+        // Reset System button
+        document.getElementById('reset-system-btn')?.addEventListener('click', () => {
+            this.addSystemMessage('⚠️ System reset requested');
+            this.addSystemMessage('Use the power menu for system reset options');
+            this.playSound('button');
+        });
     }
 
     startAnimations() {
@@ -656,7 +696,7 @@ SYSTEM PROCESSES:
         // Function keys for section switching
         const fKeyMap = {
             'F1': 'console',
-            'F2': 'system', 
+            'F2': 'system',
             'F3': 'vision',
             'F4': 'tasks',
             'F5': 'files',
@@ -692,10 +732,10 @@ SYSTEM PROCESSES:
             const audio = document.getElementById(`audio-${soundName}`);
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(e => console.log('Audio play failed:', e));
+                audio.play().catch(e => console.log('Audio play failed: - app.js:735', e));
             }
         } catch (error) {
-            console.log('Sound play error:', error);
+            console.log('Sound play error: - app.js:738', error);
         }
     }
 
@@ -713,7 +753,7 @@ SYSTEM PROCESSES:
 
 // Initialize the interface when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎮 ULTRON Pokedex Interface loading...');
+    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:756');
     window.ultronInterface = new UltronPokedexInterface();
 });
 

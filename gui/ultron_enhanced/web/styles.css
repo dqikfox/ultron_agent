@@ -115,17 +115,17 @@ body {
     font-family: 'Orbitron', 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
-    
+
     color-scheme: dark;
     color: rgba(255, 255, 255, 0.87);
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-    
+
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
-    
+
     overflow-x: hidden;
     min-height: 100vh;
     display: flex;
@@ -224,7 +224,7 @@ body {
     background: linear-gradient(145deg, #dc2626, #991b1b);
     border-radius: 30px 30px 30px 30px;
     padding: 2rem;
-    box-shadow: 
+    box-shadow:
         0 20px 40px rgba(0,0,0,0.4),
         inset 0 2px 4px rgba(255,255,255,0.2),
         inset 0 -2px 4px rgba(0,0,0,0.3);
@@ -406,7 +406,7 @@ body {
     border-radius: 20px;
     padding: 1.5rem;
     border: 4px solid #374151;
-    box-shadow: 
+    box-shadow:
         inset 0 4px 8px rgba(0,0,0,0.6),
         0 4px 8px rgba(0,0,0,0.3);
 }
@@ -990,29 +990,29 @@ body {
         padding: 1rem;
         min-height: 600px;
     }
-    
+
     .pokedex-controls {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
     .nav-buttons-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .pokedex-title {
         font-size: 10px;
     }
-    
+
     .screen-content {
         padding: 1rem;
         min-height: 300px;
     }
-    
+
     .system-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .nav-header {
         flex-direction: column;
         align-items: center;
@@ -1023,24 +1023,24 @@ body {
     body {
         padding: 10px;
     }
-    
+
     .pokedex-body {
         padding: 0.5rem;
     }
-    
+
     .section-title {
         font-size: 14px;
     }
-    
+
     .nav-button {
         padding: 0.5rem;
         min-height: 50px;
     }
-    
+
     .nav-icon {
         font-size: 14px;
     }
-    
+
     .nav-label {
         font-size: 7px;
     }
@@ -1077,4 +1077,131 @@ select:focus-visible {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #10b981;
+}
+
+/* Profile Section Styles */
+.profile-content {
+    color: #e5e7eb;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #00ff41;
+    border-radius: 8px;
+}
+
+.profile-avatar {
+    font-size: 3rem;
+}
+
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #374151, #1f2937);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #00ff41;
+}
+
+.profile-info h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: #00ff41;
+    margin-bottom: 0.5rem;
+}
+
+.profile-info p {
+    margin: 0.25rem 0;
+    font-size: 14px;
+}
+
+.profile-status .status-online {
+    color: #10b981;
+    font-weight: bold;
+}
+
+.profile-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.detail-card {
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid #00ff41;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.detail-card h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: #00ff41;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: bold;
+}
+
+.detail-value {
+    color: #9ca3af;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.profile-btn {
+    background: linear-gradient(145deg, #059669, #047857);
+    border: 2px solid #10b981;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-btn:hover {
+    background: linear-gradient(145deg, #047857, #059669);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    transform: translateY(-2px);
+}
+
+.profile-btn.danger {
+    background: linear-gradient(145deg, #dc2626, #b91c1c);
+    border-color: #ef4444;
+}
+
+.profile-btn.danger:hover {
+    background: linear-gradient(145deg, #b91c1c, #dc2626);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
 }

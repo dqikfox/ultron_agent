@@ -7,7 +7,13 @@
 - `agent_core.py` - Core agent functionality and orchestration
 - `brain.py` - AI reasoning and decision-making engine
 - `config.py` - Configuration management with security enhancements
-- `gui_ultimate.py` - Advanced GUI interface with security fixes
+- `launch_gui.py` - GUI launcher for ULTRON Enhanced interface
+
+### GUI Interface
+- **ULTRON Enhanced GUI**: `gui/ultron_enhanced/web/index.html`
+- **Direct Access**: `file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html`
+- **Launcher Scripts**: `launch_gui.py` and `launch_gui.bat`
+- **Documentation**: `GUI_DOCUMENTATION.md`
 
 ### Security & Utilities
 - `security_utils.py` - Security utilities (XSS, path traversal, log injection prevention)
