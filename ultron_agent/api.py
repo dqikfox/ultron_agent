@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from contextlib import asynccontextmanager
 from typing import Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Depends, Request, Response
@@ -102,19 +103,16 @@ app.add_middleware(
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next):
     """Log all requests with timing and correlation."""
-    with LogContext(f"{request.method} {request.url.path}", logger) as ctx:
-        try:
-            response = await call_next(request)
-            ctx.log(f"Response: {response.status_code}", extra={
-                "status_code": response.status_code,
-                "method": request.method,
-                "path": request.url.path,
-                "client_host": request.client.host if request.client else "unknown"
-            })
-            return response
-        except Exception as e:
-            ctx.log(f"Request failed: {e}", level=logging.ERROR)
-            raise
+    start_time = time.time()
+    try:
+        response = await call_next(request)
+        duration = (time.time() - start_time) * 1000
+        logger.info(f"{request.method} {request.url.path} - {response.status_code} - {duration:.1f}ms")
+        return response
+    except Exception as e:
+        duration = (time.time() - start_time) * 1000
+        logger.error(f"{request.method} {request.url.path} - ERROR: {str(e)[:100]} - {duration:.1f}ms")
+        raise
 
 
 # Health endpoints
@@ -186,12 +184,12 @@ async def execute_command(
                 raise HTTPException(status_code=503, detail="Agent not initialized")
 
             ctx.log(f"Executing command: {request.command}")
-            
+
             # Execute command through agent
             start_time = asyncio.get_event_loop().time()
             result = _agent_instance.handle_text(request.command)
             end_time = asyncio.get_event_loop().time()
-            
+
             execution_time_ms = (end_time - start_time) * 1000
 
             return CommandResponse(
@@ -222,7 +220,7 @@ async def get_agent_status():
     """Get detailed agent status including all components."""
     if _agent_instance is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
-    
+
     return {
         "status": _agent_instance.status,
         "components": {
@@ -244,7 +242,7 @@ async def get_agent_tools():
     """Get list of available tools."""
     if _agent_instance is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
-    
+
     tools_info = []
     for tool in _agent_instance.tools:
         try:
@@ -263,7 +261,7 @@ async def get_agent_tools():
                 "class_name": tool.__class__.__name__,
                 "error": True
             })
-    
+
     return {
         "tools": tools_info,
         "total_count": len(_agent_instance.tools)
@@ -275,7 +273,7 @@ async def get_maverick_status():
     """Get Maverick auto-improvement engine status."""
     if _agent_instance is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
-    
+
     return _agent_instance.get_maverick_status()
 
 
@@ -284,10 +282,10 @@ async def trigger_maverick_analysis():
     """Trigger Maverick analysis manually."""
     if _agent_instance is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
-    
+
     if not _agent_instance.maverick:
         raise HTTPException(status_code=404, detail="Maverick engine not available")
-    
+
     try:
         result = await _agent_instance.handle_command("force maverick analysis")
         return {

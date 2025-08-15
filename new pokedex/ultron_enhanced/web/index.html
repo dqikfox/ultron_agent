@@ -34,10 +34,10 @@
         <!-- Main Pokedex Interface -->
         <div id="main-interface" class="main-interface hidden">
             <div class="pokedex-container">
-                
+
                 <!-- Main Pokédex Body -->
                 <div class="pokedex-body pokedex-red" id="pokedex-body">
-                    
+
                     <!-- Top Section - Control Panel -->
                     <div class="pokedex-top">
                         <!-- Status LEDs -->
@@ -62,7 +62,7 @@
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div class="nav-buttons-grid">
                                 <button class="nav-button active" data-section="console">
                                     <span class="nav-icon">🖥️</span>
@@ -97,7 +97,7 @@
                         <div class="screen-border">
                             <div class="screen-content">
                                 <div class="scan-lines"></div>
-                                
+
                                 <!-- Console Section -->
                                 <div id="console-section" class="section-content active">
                                     <div class="section-title">ULTRON CONSOLE</div>
@@ -188,7 +188,7 @@
                                     <div class="settings-grid">
                                         <div class="setting-group">
                                             <label>Theme</label>
-                                            <select id="theme-select">
+                                            <select id="theme-select" title="Theme">
                                                 <option value="red">Red Pokedex</option>
                                                 <option value="blue">Blue Pokedex</option>
                                             </select>
@@ -441,7 +441,7 @@ function initFloatingBall() {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initFloatingBall); 
+document.addEventListener('DOMContentLoaded', initFloatingBall);
 </script>
 
 </body>

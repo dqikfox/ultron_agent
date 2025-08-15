@@ -90,15 +90,15 @@ class UltronConfig(BaseModel):
     vision_enabled: bool = Field(default=True, description="Enable vision system")
     memory_enabled: bool = Field(default=True, description="Enable memory system")
     tools_enabled: bool = Field(default=True, description="Enable tools system")
-    
+
     # Maverick auto-improvement settings
     enable_maverick: bool = Field(default=True, description="Enable Maverick auto-improvement")
     maverick_analysis_interval: int = Field(default=30, ge=5, le=600, description="Maverick analysis interval (minutes)")
     maverick_auto_apply: bool = Field(default=False, description="Auto-apply Maverick suggestions")
-    
+
     # POCHI integration settings
     use_pochi: bool = Field(default=False, description="Enable POCHI integration")
-    
+
     # Voice boot message
     voice_boot_message: str = Field(default="There's No Strings On Me", description="Boot message for voice system")
 
@@ -178,7 +178,7 @@ class UltronConfig(BaseModel):
     def get(self, key: str, default=None):
         """Get configuration value by key (backward compatibility)."""
         return getattr(self, key, default)
-    
+
     @property
     def data(self):
         """Dictionary representation for backward compatibility."""
