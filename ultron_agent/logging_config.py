@@ -126,10 +126,17 @@ def setup_logging(
 
     # Console handler
     if enable_console:
-        console_handler = logging.StreamHandler(sys.stdout)
+        # Use UTF-8 encoding for Windows compatibility with emoji
+        if sys.platform == "win32":
+            import io
+            console_handler = logging.StreamHandler(
+                io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+            )
+        else:
+            console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(log_level_obj)
 
-        # Simple formatter for console
+        # Simple formatter for console (safe characters for Windows)
         console_formatter = logging.Formatter(
             fmt='%(asctime)s [%(levelname)8s] %(name)s: %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'

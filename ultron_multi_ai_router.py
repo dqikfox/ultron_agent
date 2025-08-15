@@ -248,6 +248,10 @@ class UltronMultiAIRouter:
             temperature=0.3,  # Lower temperature for more focused analysis
             max_tokens=2000
         )
+
+    async def get_improvement_suggestions(self, prompt: str) -> Dict[str, Any]:
+        """Get improvement suggestions (alias for auto_improve_system for backward compatibility)"""
+        return await self.auto_improve_system(prompt, "general")
         
         if "error" not in result:
             logger.info("✅ Auto-improvement analysis complete")

@@ -174,6 +174,16 @@ class UltronConfig(BaseModel):
 
         return data
 
+    # Backward compatibility methods for existing code
+    def get(self, key: str, default=None):
+        """Get configuration value by key (backward compatibility)."""
+        return getattr(self, key, default)
+    
+    @property
+    def data(self):
+        """Dictionary representation for backward compatibility."""
+        return self.dict()
+
 
 def load_config(config_path: Optional[Path] = None) -> UltronConfig:
     """
