@@ -5,6 +5,10 @@
 
 class UltronPokedexInterface {
     constructor() {
+        // API Configuration
+        this.API_BASE_URL = 'http://localhost:3000';
+        this.AGENT_BASE_URL = 'http://localhost:8000';
+
         this.currentSection = 'console';
         this.isListening = false;
         this.currentTheme = 'red';
@@ -17,12 +21,15 @@ class UltronPokedexInterface {
             network: 'CONNECTED'
         };
         this.animationIntervals = [];
+        this.apiCallCounts = {}; // Track API call attempts
 
         this.init();
     }
 
     init() {
-        console.log('🚀 Initializing ULTRON Pokedex Interface... - app.js:25');
+        console.log('🚀 Initializing ULTRON Pokedex Interface... - app.js:30');
+        console.log(`🔗 API Base URL: ${this.API_BASE_URL} - app.js:31`);
+        console.log(`🤖 Agent Base URL: ${this.AGENT_BASE_URL} - app.js:32`);
         this.setupEventListeners();
         this.initializeTheme();
         this.startAnimations();
@@ -34,6 +41,20 @@ class UltronPokedexInterface {
         setTimeout(() => {
             this.hideLoadingScreen();
         }, 3000);
+    }
+
+    // Helper method to make API calls with proper URL and logging
+    async apiCall(endpoint, options = {}) {
+        const url = `${this.API_BASE_URL}${endpoint}`;
+        console.log(`[API Call] ${url} - app.js:49`, options);
+        try {
+            const response = await fetch(url, options);
+            console.log(`[API Response] ${url}  Status: ${response.status} - app.js:52`);
+            return response;
+        } catch (error) {
+            console.error(`[API Error] ${url} - app.js:55`, error);
+            throw error;
+        }
     }
 
     showLoadingScreen() {
@@ -306,7 +327,10 @@ class UltronPokedexInterface {
         try {
             this.addSystemMessage('🔄 Processing command...');
 
-            const response = await fetch('/api/command', {
+            // Track API call
+            this.trackApiCall('/api/command');
+
+            const response = await fetch(`${this.API_BASE_URL}/api/command`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -431,7 +455,7 @@ class UltronPokedexInterface {
             case 'shutdown':
                 this.addSystemMessage('🔴 Initiating system shutdown...');
                 try {
-                    await fetch('/api/power/shutdown', { method: 'POST' });
+                    await this.apiCall('/api/power/shutdown', { method: 'POST' });
                 } catch (error) {
                     this.addErrorMessage('Shutdown request failed');
                 }
@@ -439,7 +463,7 @@ class UltronPokedexInterface {
             case 'restart':
                 this.addSystemMessage('🔄 Initiating system restart...');
                 try {
-                    await fetch('/api/power/restart', { method: 'POST' });
+                    await this.apiCall('/api/power/restart', { method: 'POST' });
                 } catch (error) {
                     this.addErrorMessage('Restart request failed');
                 }
@@ -447,7 +471,7 @@ class UltronPokedexInterface {
             case 'sleep':
                 this.addSystemMessage('💤 Entering sleep mode...');
                 try {
-                    await fetch('/api/power/sleep', { method: 'POST' });
+                    await this.apiCall('/api/power/sleep', { method: 'POST' });
                 } catch (error) {
                     this.addErrorMessage('Sleep request failed');
                 }
@@ -475,7 +499,7 @@ class UltronPokedexInterface {
     async captureScreen() {
         this.addSystemMessage('📷 Capturing screen...');
         try {
-            const response = await fetch('/api/vision/capture', { method: 'POST' });
+            const response = await this.apiCall('/api/vision/capture', { method: 'POST' });
             if (response.ok) {
                 const data = await response.json();
                 this.addSystemMessage('✅ Screen captured successfully');
@@ -501,7 +525,7 @@ class UltronPokedexInterface {
     async analyzeVision() {
         this.addSystemMessage('🔍 Analyzing screen...');
         try {
-            const response = await fetch('/api/vision/analyze', { method: 'POST' });
+            const response = await this.apiCall('/api/vision/analyze', { method: 'POST' });
             if (response.ok) {
                 const data = await response.json();
                 this.addSystemMessage('✅ Analysis complete');
@@ -732,10 +756,10 @@ SYSTEM PROCESSES:
             const audio = document.getElementById(`audio-${soundName}`);
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(e => console.log('Audio play failed: - app.js:735', e));
+                audio.play().catch(e => console.log('Audio play failed: - app.js:759', e));
             }
         } catch (error) {
-            console.log('Sound play error: - app.js:738', error);
+            console.log('Sound play error: - app.js:762', error);
         }
     }
 
@@ -753,7 +777,7 @@ SYSTEM PROCESSES:
 
 // Initialize the interface when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:756');
+    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:780');
     window.ultronInterface = new UltronPokedexInterface();
 });
 
