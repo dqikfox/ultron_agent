@@ -1,6 +1,5 @@
 @echo off
-chcp 65001 > nul
-title ULTRON Agent 3.0 - Complete System Launcher
+title ULTRON Agent 2.0 - Complete Launch System
 color 0A
 
 echo.
@@ -11,18 +10,18 @@ echo ██    ██ ██      ██    ██   ██ ██    ██ █
 echo  ██████  ███████ ██    ██   ██  ██████  ██   ████
 echo.
 echo ═══════════════════════════════════════════════════════════
-echo  ULTRON Agent 3.0 - Complete System Launcher
-echo  Frontend + Backend + Agent Core + Web Bridge + GUI API
+echo  ULTRON Agent 2.0 - Complete System Launcher
+echo  Launching: Frontend + Backend + Agent Core + Web Bridge
 echo ═══════════════════════════════════════════════════════════
 echo.
 
-:: Kill any existing processes
+REM Kill any existing processes
 echo 🔄 Cleaning up existing processes...
 taskkill /F /IM python.exe >nul 2>&1
 taskkill /F /IM node.exe >nul 2>&1
 timeout /t 2 >nul
 
-:: Check Python
+REM Check if Python is available
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ❌ Python not found! Please install Python 3.8+
@@ -30,9 +29,15 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: Check required files
+REM Check if required files exist
 if not exist "agent_core.py" (
     echo ❌ agent_core.py not found!
+    pause
+    exit /b 1
+)
+
+if not exist "web_bridge.py" (
+    echo ❌ web_bridge.py not found!
     pause
     exit /b 1
 )
@@ -43,46 +48,38 @@ if not exist "frontend_server.py" (
     exit /b 1
 )
 
-if not exist "gui_api_server.py" (
-    echo ❌ gui_api_server.py not found!
-    pause
-    exit /b 1
-)
-
 if not exist "gui\ultron_enhanced\web\index.html" (
-    echo ❌ Pokédx GUI not found!
+    echo ❌ Pokédex GUI not found at gui\ultron_enhanced\web\index.html
     pause
     exit /b 1
 )
 
-echo ✅ All components found, launching ULTRON system...
+echo ✅ All components found, starting launch sequence...
 echo.
 
-:: Create logs directory
+REM Create log directory
 if not exist "logs" mkdir logs
 
-:: Launch sequence
-echo 🎮 [1/5] Starting Frontend Server (Pokédx GUI)...
+REM Launch Frontend Server (localhost:5173) - Pokédex GUI
+echo 🎮 [1/4] Starting Frontend Server (Pokédx GUI)...
 echo      URL: http://localhost:5173
-start "ULTRON Frontend" cmd /c "python frontend_server.py > logs\frontend.log 2>&1"
+start "ULTRON Frontend Server" cmd /c "python frontend_server.py > logs\frontend.log 2>&1"
 timeout /t 3 >nul
 
-echo 🔌 [2/5] Starting GUI API Server...
-echo      URL: http://localhost:3000 (Handles GUI API calls)
-start "ULTRON GUI API" cmd /c "python gui_api_server.py > logs\gui_api.log 2>&1"
-timeout /t 3 >nul
-
-echo 🤖 [3/5] Starting Agent Core (NVIDIA Backend)...
+REM Launch Agent Core Server (localhost:8000) - NVIDIA API Backend
+echo 🤖 [2/4] Starting Agent Core (NVIDIA Backend)...
 echo      URL: http://localhost:8000
 start "ULTRON Agent Core" cmd /c "python agent_core.py > logs\agent_core.log 2>&1"
 timeout /t 5 >nul
 
-echo 🌉 [4/5] Starting Web Bridge (GUI ↔ Agent Connection)...
-start "ULTRON Web Bridge" cmd /c "python web_bridge.py > logs\web_bridge.log 2>&1"
+REM Launch Web Bridge (connects GUI to Agent)
+echo 🌉 [3/4] Starting Web Bridge (GUI ↔ Agent Connection)...
+start "ULTRON Web Bridge" cmd /c "python -c \"import asyncio; from web_bridge import UltronWebBridge; bridge = UltronWebBridge(); asyncio.run(bridge.bridge_connection())\" > logs\web_bridge.log 2>&1"
 timeout /t 3 >nul
 
-echo 🌐 [5/5] Starting HTTP Server (localhost:5000)...
-start "ULTRON HTTP" cmd /c "cd gui\ultron_enhanced\web && python -m http.server 5000 > ..\..\..\logs\http_server.log 2>&1"
+REM Launch Simple HTTP Server for additional resources (localhost:5000)
+echo 🌐 [4/4] Starting Additional HTTP Server (localhost:5000)...
+start "ULTRON HTTP Server" cmd /c "cd gui\ultron_enhanced\web && python -m http.server 5000 > ..\..\..\logs\http_server.log 2>&1"
 timeout /t 2 >nul
 
 echo.
@@ -90,7 +87,6 @@ echo ✅ ULTRON System Launch Complete!
 echo.
 echo 🔗 AVAILABLE ENDPOINTS:
 echo    🎮 Pokédx GUI:     http://localhost:5173  (Main Interface)
-echo    🔌 GUI API:        http://localhost:3000  (API Endpoints)
 echo    🤖 Agent Core:     http://localhost:8000  (NVIDIA Backend)
 echo    🌐 HTTP Server:    http://localhost:5000  (Static Files)
 echo    🌉 Web Bridge:     Background Service     (Connection Manager)
@@ -98,45 +94,43 @@ echo.
 echo 📊 MONITORING:
 echo    📝 Logs:          .\logs\*.log
 echo    ⚡ Agent Status:  http://localhost:8000/health
-echo    🔌 API Status:    http://localhost:3000/api/status
+echo    🖥️  Agent UI:      http://localhost:8000
 echo.
-echo 🎯 TESTING NOTES:
-echo    ✅ GUI loads and API calls work - All endpoints provided
-echo    ✅ Click tracking implemented with detailed logging
-echo    ✅ Power/Vision/Command APIs all functional
+echo 🎯 NEXT STEPS:
+echo    1. Open Pokédx GUI: http://localhost:5173
+echo    2. Test chat functionality in the GUI
+echo    3. Monitor logs for any errors
+echo.
+echo ⚠️  To stop all services: Close all command windows or run stop_ultron.bat
 echo.
 
-:: Wait and test
+REM Wait and show status
 echo 🔄 Checking service status...
 timeout /t 5 >nul
 
 echo.
 echo 🚀 ULTRON is now fully operational!
-echo 🎮 Opening main interface: http://localhost:5173
+echo 🎮 Main Interface: http://localhost:5173
 echo.
 
-:: Open main GUI
+REM Open main GUI in default browser
+echo 🌐 Opening main interface...
+timeout /t 2 >nul
 start http://localhost:5173
 
 echo.
-echo 📊 Press any key to open monitoring dashboard or CTRL+C to exit...
+echo 📊 System is running. Press any key to open monitoring dashboard...
 pause >nul
 
-:: Open monitoring
+REM Open monitoring URLs
+start http://localhost:8000
 start http://localhost:8000/health
-start http://localhost:3000/api/status
 start http://localhost:5000
 
 echo.
-echo ✨ ULTRON Agent 3.0 is fully operational!
-echo    All services running with comprehensive logging
-echo    GUI functionality restored with working API endpoints
+echo ✨ ULTRON Agent 2.0 is fully operational!
 echo.
 echo Keep this window open to maintain the system.
-echo Press any key to exit launcher (services will continue)...
-pause >nul
-
+echo Close this window to shutdown all services.
 echo.
-echo 👋 ULTRON Launcher closing - services remain active
-echo    Use Task Manager or taskkill to stop services if needed
-echo.
+pause
