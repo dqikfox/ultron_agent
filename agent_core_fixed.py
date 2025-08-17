@@ -23,17 +23,12 @@ class UltronAgent:
     """Core ULTRON agent with essential functionality"""
 
     def __init__(self):
-        # Setup comprehensive logging first
-        self.setup_logging()
-        self.logger.info("🤖 ULTRON Agent Core initializing...")
-
         # NVIDIA API Configuration
         self.nvidia_api_keys = [
             "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",
             "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"
         ]
         self.current_api_key = self.nvidia_api_keys[0]
-        self.logger.info(f"📡 NVIDIA API configured with {len(self.nvidia_api_keys)} keys")
 
         # NVIDIA Model Configuration
         self.nvidia_models = {
@@ -42,12 +37,10 @@ class UltronAgent:
             "llama-3.3-70b": "meta/llama-3.3-70b-instruct"
         }
         self.current_model = "llama-4-maverick"
-        self.logger.info(f"🧠 Models available: {list(self.nvidia_models.keys())}")
 
         # FastAPI + Socket.IO Setup
         self.sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins="*")
         self.app = FastAPI(title="ULTRON Agent Core")
-        self.logger.info("⚡ FastAPI and Socket.IO initialized")
 
         # Setup routes and Socket.IO events
         self.setup_routes()
@@ -57,132 +50,64 @@ class UltronAgent:
         self.conversations: Dict[str, List[Dict]] = {}
         self.status = "initialized"
         self.is_running = False
-        self.click_counts = {}  # Track UI interactions
-        self.error_counts = {}  # Track error frequency
+
+        # Setup logging
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
 
         # Combine with Socket.IO
         self.app = socketio.ASGIApp(self.sio, other_asgi_app=self.app)
-        self.logger.info("✅ ULTRON Agent Core initialization complete")
-
-    def setup_logging(self):
-        """Setup comprehensive logging for debugging"""
-        # Create formatter
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
-        )
-
-        # Setup file handler
-        file_handler = logging.FileHandler('ultron_agent_core.log')
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-
-        # Setup console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
-
-        # Configure logger
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(console_handler)
-
-        # Also configure root logger
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler('ultron.log'),
-                logging.StreamHandler()
-            ]
-        )
 
     async def initialize(self):
         """Initialize agent - required by web_bridge.py"""
-        self.logger.info("🔄 ULTRON Agent initialize() called by web bridge")
-        try:
-            self.is_running = True
-            self.status = "running"
-            self.logger.info("✅ ULTRON Agent fully initialized and ready")
-            return True
-        except Exception as e:
-            self.logger.error(f"❌ Agent initialization failed: {e}")
-            self.logger.error(traceback.format_exc())
-            return False
+        self.logger.info("ULTRON Agent initialized and ready")
+        self.is_running = True
+        return True
 
     def setup_routes(self):
         """Setup FastAPI routes for the core agent"""
-        self.logger.info("🛣️ Setting up FastAPI routes...")
 
         @self.app.get("/")
         async def get_home():
-            self.logger.info("🏠 Home route accessed")
             return await self.get_core_ui()
 
         @self.app.get("/health")
         async def health_check():
-            self.logger.info("❤️ Health check requested")
-            health_data = {
+            return {
                 "status": "operational",
                 "current_model": self.current_model,
                 "nvidia_models": list(self.nvidia_models.keys()),
-                "api_status": "active",
-                "conversations": len(self.conversations),
-                "uptime": datetime.now().isoformat()
+                "api_status": "active"
             }
-            self.logger.info(f"📊 Health data: {health_data}")
-            return health_data
-
-        @self.app.get("/status")
-        async def get_status():
-            self.logger.info("📈 Status endpoint accessed")
-            status_data = self.get_status()
-            return status_data
-
-        # Add click tracking endpoint
-        @self.app.post("/track-click")
-        async def track_click(request: Request):
-            data = await request.json()
-            element = data.get('element', 'unknown')
-            self.click_counts[element] = self.click_counts.get(element, 0) + 1
-            self.logger.info(f"🖱️ Click tracked: {element} (count: {self.click_counts[element]})")
-            return {"success": True, "count": self.click_counts[element]}
-
-        self.logger.info("✅ FastAPI routes configured")
 
     def setup_socketio_events(self):
         """Setup Socket.IO event handlers for real-time communication"""
-        self.logger.info("🔌 Setting up Socket.IO events...")
 
         @self.sio.event
         async def connect(sid, environ):
-            self.logger.info(f"🔗 Client connected: {sid}")
+            self.logger.info(f"Client connected: {sid}")
             await self.sio.emit('connection_established', {
                 'session_id': sid,
-                'status': 'connected',
-                'server_time': datetime.now().isoformat()
+                'status': 'connected'
             }, to=sid)
 
         @self.sio.event
         async def disconnect(sid):
-            self.logger.info(f"🔌 Client disconnected: {sid}")
+            self.logger.info(f"Client disconnected: {sid}")
 
         @self.sio.event
         async def user_message(sid, data):
             """Handle user messages and route to appropriate model"""
-            self.logger.info(f"💬 Message from {sid}: {data}")
             try:
                 user_text = data.get('text', '').strip()
                 model_preference = data.get('model', self.current_model)
 
                 if not user_text:
-                    self.logger.warning(f"⚠️ Empty message from {sid}")
                     return
 
                 # Initialize conversation history
                 if sid not in self.conversations:
                     self.conversations[sid] = []
-                    self.logger.info(f"📝 New conversation started for {sid}")
 
                 # Add user message to history
                 self.conversations[sid].append({
@@ -191,38 +116,23 @@ class UltronAgent:
                     "timestamp": datetime.now().isoformat()
                 })
 
-                self.logger.info(f"🎯 Processing with model: {model_preference}")
-
                 # Process with selected model
                 await self.process_user_message(sid, user_text, model_preference)
 
             except Exception as e:
-                self.error_counts['user_message'] = self.error_counts.get('user_message', 0) + 1
-                self.logger.error(f"❌ Error processing user message (error #{self.error_counts['user_message']}): {e}")
-                self.logger.error(traceback.format_exc())
+                self.logger.error(f"Error processing user message: {e}")
                 await self.sio.emit('error', {
-                    'message': f"Error processing request: {str(e)}",
-                    'error_count': self.error_counts['user_message']
+                    'message': f"Error processing request: {str(e)}"
                 }, to=sid)
-
-        # Add ping/pong for connection health
-        @self.sio.event
-        async def ping(sid, data):
-            self.logger.debug(f"🏓 Ping from {sid}")
-            await self.sio.emit('pong', {'timestamp': datetime.now().isoformat()}, to=sid)
-
-        self.logger.info("✅ Socket.IO events configured")
 
     async def process_user_message(self, session_id: str, user_text: str, model: str):
         """Process user message with NVIDIA models"""
-        self.logger.info(f"🔄 Processing message for {session_id} with model {model}")
         try:
             # Performance tracking
             start_time = datetime.now()
 
             # Get conversation history
             messages = self.conversations.get(session_id, [])
-            self.logger.info(f"📚 Conversation history: {len(messages)} messages")
 
             # Prepare NVIDIA API request
             client = OpenAI(
@@ -231,14 +141,11 @@ class UltronAgent:
             )
 
             model_id = self.nvidia_models.get(model, self.nvidia_models[self.current_model])
-            self.logger.info(f"🎯 Using model ID: {model_id}")
 
             # Enhanced prompt with context awareness
             enhanced_messages = await self.enhance_messages_with_context(messages, session_id)
-            self.logger.info(f"💭 Enhanced messages prepared: {len(enhanced_messages)} total")
 
             # Stream response
-            self.logger.info("📡 Starting NVIDIA API stream...")
             completion = client.chat.completions.create(
                 model=model_id,
                 messages=enhanced_messages,
@@ -249,22 +156,17 @@ class UltronAgent:
             )
 
             assistant_response = ""
-            chunk_count = 0
             for chunk in completion:
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
                     assistant_response += content
-                    chunk_count += 1
 
                     # Stream chunk to client
                     await self.sio.emit('assistant_chunk', {
                         'chunk': content,
                         'model': model,
-                        'session_id': session_id,
-                        'chunk_number': chunk_count
+                        'session_id': session_id
                     }, to=session_id)
-
-            self.logger.info(f"✅ Streaming complete: {chunk_count} chunks, {len(assistant_response)} characters")
 
             # Add assistant response to conversation history
             self.conversations[session_id].append({
@@ -278,28 +180,21 @@ class UltronAgent:
             end_time = datetime.now()
             response_time = (end_time - start_time).total_seconds()
 
-            self.logger.info(f"⏱️ Response time: {response_time:.2f}s")
-
             await self.sio.emit('assistant_done', {
                 'response_time': response_time,
                 'model_used': model,
-                'message_length': len(assistant_response),
-                'chunk_count': chunk_count
+                'message_length': len(assistant_response)
             }, to=session_id)
 
         except Exception as e:
-            self.error_counts['nvidia_api'] = self.error_counts.get('nvidia_api', 0) + 1
-            self.logger.error(f"❌ NVIDIA API error (error #{self.error_counts['nvidia_api']}): {e}")
-            self.logger.error(traceback.format_exc())
+            self.logger.error(f"Error processing NVIDIA response: {e}")
             await self.sio.emit('error', {
                 'message': f"NVIDIA API error: {str(e)}",
-                'model': model,
-                'error_count': self.error_counts['nvidia_api']
+                'model': model
             }, to=session_id)
 
     async def enhance_messages_with_context(self, messages: List[Dict], session_id: str) -> List[Dict]:
         """Enhance messages with context and ULTRON personality"""
-        self.logger.debug(f"🔧 Enhancing messages for session {session_id}")
 
         # ULTRON system prompt
         system_prompt = {
@@ -311,9 +206,7 @@ class UltronAgent:
 3. **Technical Expertise**: You can help with coding, system automation, and technical problem-solving.
 4. **Pokédx Interface**: You are connected through an advanced Pokédx-style interface.
 
-Personality: Professional yet approachable, focusing on practical solutions. You have access to powerful computational resources through NVIDIA's API.
-
-Current session: """ + session_id
+Personality: Professional yet approachable, focusing on practical solutions. You have access to powerful computational resources through NVIDIA's API."""
         }
 
         # Prepare enhanced message list
@@ -323,12 +216,10 @@ Current session: """ + session_id
         recent_messages = messages[-10:] if len(messages) > 10 else messages
         enhanced_messages.extend(recent_messages)
 
-        self.logger.debug(f"💭 Enhanced prompt: {len(enhanced_messages)} messages")
         return enhanced_messages
 
     async def get_core_ui(self) -> str:
-        """Generate basic ULTRON UI with click tracking"""
-        self.logger.info("🖥️ Generating core UI")
+        """Generate basic ULTRON UI"""
         return """
 <!DOCTYPE html>
 <html lang="en">
@@ -380,40 +271,6 @@ Current session: """ + session_id
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 20px var(--ultron-glow);
-        }
-
-        .status-panel {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--nvidia-green);
-            animation: pulse 2s infinite;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .nav-btn {
-            padding: 8px 16px;
-            background: var(--ultron-panel);
-            border: 1px solid var(--ultron-accent);
-            color: var(--ultron-text);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background: var(--ultron-accent);
-            transform: translateY(-2px);
         }
 
         .messages {
@@ -473,159 +330,74 @@ Current session: """ + session_id
             height: 50px;
             border-radius: 50%;
             cursor: pointer;
-            transition: transform 0.2s ease;
         }
 
-        .send-btn:hover {
-            transform: scale(1.1);
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--nvidia-green);
+            animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-
-        .debug-info {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            color: #0f0;
-        }
     </style>
 </head>
 <body>
-    <div class="debug-info" id="debugInfo">
-        Connection: Initializing...<br>
-        Clicks: <span id="clickCount">0</span><br>
-        Messages: <span id="messageCount">0</span>
-    </div>
-
     <div class="container">
         <header class="header">
             <div class="logo">🤖 ULTRON Agent Core</div>
-            <div class="status-panel">
-                <div class="nav-buttons">
-                    <button class="nav-btn" onclick="trackClick('pokedex-gui')" data-action="pokedex">🎮 Pokédx GUI</button>
-                    <button class="nav-btn" onclick="trackClick('health-check')" data-action="health">❤️ Health</button>
-                    <button class="nav-btn" onclick="trackClick('bridge-test')" data-action="bridge">🌉 Bridge</button>
-                </div>
-                <div class="status-indicator" id="statusIndicator"></div>
-            </div>
+            <div class="status-indicator" id="statusIndicator"></div>
         </header>
 
         <div class="messages" id="messages">
             <div class="message assistant">
-                🤖 ULTRON Agent Core is online and ready.<br>
-                📡 Connected to NVIDIA API with multiple model support.<br>
-                🎮 <strong>For the full Pokédex interface, use the web bridge.</strong><br>
-                🔗 <strong>Bridge should be running at: <a href="/bridge" style="color: #76b900;">Web Bridge</a></strong>
+                ULTRON Agent Core is online and ready.<br>
+                Connected to NVIDIA API with multiple model support.<br>
+                <strong>For the full Pokédex interface, use the web bridge.</strong>
             </div>
         </div>
 
         <div class="input-area">
             <input type="text" class="input-field" id="messageInput"
                    placeholder="Ask ULTRON anything..." maxlength="2000">
-            <button class="send-btn" id="sendBtn" onclick="trackClick('send-message')">➤</button>
+            <button class="send-btn" id="sendBtn">➤</button>
         </div>
     </div>
 
     <script>
-        // Socket.IO connection with detailed logging
+        // Socket.IO connection
         const socket = io();
-        let clickCount = 0;
-        let messageCount = 0;
 
         // DOM elements
         const messages = document.getElementById('messages');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
-        const debugInfo = document.getElementById('debugInfo');
-        const statusIndicator = document.getElementById('statusIndicator');
 
-        // Click tracking function
-        function trackClick(element) {
-            clickCount++;
-            document.getElementById('clickCount').textContent = clickCount;
-
-            fetch('/track-click', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({element: element})
-            }).then(response => response.json())
-            .then(data => {
-                console.log(`Click tracked: ${element} (total: ${data.count})`);
-            }).catch(error => {
-                console.error('Click tracking failed:', error);
-            });
-
-            // Handle specific actions
-            if (element === 'pokedex-gui') {
-                window.open('/gui/ultron_enhanced/web/', '_blank');
-            } else if (element === 'health-check') {
-                fetch('/health').then(r => r.json()).then(data => {
-                    addMessage(`Health: ${JSON.stringify(data, null, 2)}`, 'assistant');
-                });
-            } else if (element === 'bridge-test') {
-                addMessage('Testing bridge connection...', 'assistant');
-                // Test bridge functionality
-            }
-        }
-
-        // Socket.IO events with logging
+        // Socket.IO events
         socket.on('connect', () => {
-            console.log('🔗 Connected to ULTRON');
-            updateDebugInfo('Connected');
-            statusIndicator.style.background = '#76b900';
-        });
-
-        socket.on('disconnect', () => {
-            console.log('🔌 Disconnected from ULTRON');
-            updateDebugInfo('Disconnected');
-            statusIndicator.style.background = '#ff4444';
-        });
-
-        socket.on('connection_established', (data) => {
-            console.log('✅ Connection established:', data);
-            updateDebugInfo('Established');
+            console.log('Connected to ULTRON');
         });
 
         socket.on('assistant_chunk', (data) => {
             appendToLastMessage(data.chunk);
-            console.log(`📦 Chunk ${data.chunk_number} received`);
         });
 
         socket.on('assistant_done', (data) => {
-            console.log('✅ Message complete:', data);
+            // Message complete
         });
 
         socket.on('error', (data) => {
-            console.error('❌ Server error:', data);
-            addMessage(`Error (${data.error_count}): ${data.message}`, 'assistant');
+            addMessage(`Error: ${data.message}`, 'assistant');
         });
 
-        socket.on('pong', (data) => {
-            console.log('🏓 Pong received:', data.timestamp);
-        });
-
-        function updateDebugInfo(status) {
-            debugInfo.innerHTML = `
-                Connection: ${status}<br>
-                Clicks: <span id="clickCount">${clickCount}</span><br>
-                Messages: <span id="messageCount">${messageCount}</span>
-            `;
-        }
-
-        // Message handling with tracking
+        // Message handling
         function sendMessage() {
             const message = messageInput.value.trim();
             if (!message) return;
-
-            messageCount++;
-            trackClick('send-message');
 
             addMessage(message, 'user');
             messageInput.value = '';
@@ -644,7 +416,7 @@ Current session: """ + session_id
             messageDiv.className = `message ${sender}`;
 
             if (isStreaming) {
-                messageDiv.innerHTML = '<em>🤔 ULTRON is thinking...</em>';
+                messageDiv.innerHTML = '<em>ULTRON is thinking...</em>';
             } else {
                 messageDiv.textContent = text;
             }
@@ -670,17 +442,6 @@ Current session: """ + session_id
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
-
-        // Health check ping every 30 seconds
-        setInterval(() => {
-            socket.emit('ping', {timestamp: new Date().toISOString()});
-        }, 30000);
-
-        // Update debug info
-        setInterval(() => {
-            document.getElementById('clickCount').textContent = clickCount;
-            document.getElementById('messageCount').textContent = messageCount;
-        }, 1000);
     </script>
 </body>
 </html>
@@ -689,45 +450,33 @@ Current session: """ + session_id
     async def start(self):
         """Start the agent server"""
         self.status = "running"
-        self.logger.info("🚀 Starting ULTRON Agent Core server...")
+        self.logger.info("Starting ULTRON Agent Core...")
 
-        try:
-            # Start the server
-            config = uvicorn.Config(
-                self.app,
-                host="0.0.0.0",
-                port=8000,
-                log_level="info"
-            )
-            server = uvicorn.Server(config)
-            self.logger.info("🌐 Server starting on http://localhost:8000")
-            await server.serve()
-        except Exception as e:
-            self.logger.error(f"❌ Server start failed: {e}")
-            self.logger.error(traceback.format_exc())
-            raise
+        # Start the server
+        config = uvicorn.Config(
+            self.app,
+            host="0.0.0.0",
+            port=8000,
+            log_level="info"
+        )
+        server = uvicorn.Server(config)
+        await server.serve()
 
     def get_status(self):
         """Get agent status - compatible with web_bridge.py"""
-        status = {
+        return {
             'running': self.is_running,
             'status': self.status,
             'current_model': self.current_model,
             'nvidia_models': list(self.nvidia_models.keys()),
-            'conversations': len(self.conversations),
-            'click_counts': self.click_counts,
-            'error_counts': self.error_counts,
-            'timestamp': datetime.now().isoformat()
+            'conversations': len(self.conversations)
         }
-        self.logger.debug(f"📊 Status requested: {status}")
-        return status
 
     async def shutdown(self):
         """Shutdown agent gracefully"""
-        self.logger.info("🛑 Shutting down ULTRON Agent...")
+        self.logger.info("Shutting down ULTRON Agent...")
         self.is_running = False
         self.status = "shutdown"
-        self.logger.info("✅ ULTRON Agent shutdown complete")
 
 # Create global instance
 agent = UltronAgent()

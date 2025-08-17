@@ -1,17 +1,17 @@
 @echo off
 chcp 65001 > nul
-title ULTRON Agent 3.0 - Complete System Launcher
+title ULTRON Agent 2.0 - Complete Launch System
 color 0A
 
 echo.
-echo ██    ██ ██   ████████ ██████   ██████  ███    ██
-echo ██    ██ ██      ██    ██   ██ ██    ██ ████   ██
-echo ██    ██ ██      ██    ██████  ██    ██ ██ ██  ██
-echo ██    ██ ██      ██    ██   ██ ██    ██ ██  ██ ██
-echo  ██████  ███████ ██    ██   ██  ██████  ██   ████
+echo ██    ██ ██   ████████ ██████   ██████  ███    ██ 
+echo ██    ██ ██      ██    ██   ██ ██    ██ ████   ██ 
+echo ██    ██ ██      ██    ██████  ██    ██ ██ ██  ██ 
+echo ██    ██ ██      ██    ██   ██ ██    ██ ██  ██ ██ 
+echo  ██████  ███████ ██    ██   ██  ██████  ██   ████ 
 echo.
 echo ═══════════════════════════════════════════════════════════
-echo  ULTRON Agent 3.0 - Complete System Launcher
+echo  ULTRON Agent 2.0 - Complete System Launcher
 echo  Frontend + Backend + Agent Core + Web Bridge + GUI API
 echo ═══════════════════════════════════════════════════════════
 echo.
@@ -37,18 +37,6 @@ if not exist "agent_core.py" (
     exit /b 1
 )
 
-if not exist "frontend_server.py" (
-    echo ❌ frontend_server.py not found!
-    pause
-    exit /b 1
-)
-
-if not exist "gui_api_server.py" (
-    echo ❌ gui_api_server.py not found!
-    pause
-    exit /b 1
-)
-
 if not exist "gui\ultron_enhanced\web\index.html" (
     echo ❌ Pokédx GUI not found!
     pause
@@ -56,6 +44,19 @@ if not exist "gui\ultron_enhanced\web\index.html" (
 )
 
 echo ✅ All components found, launching ULTRON system...
+
+:error
+    echo [ERROR] %~1
+    pause
+    exit /b 1
+
+:success
+    echo [SUCCESS] %~1
+    goto :eof
+
+
+:: --- Main Script ---
+
 echo.
 
 :: Create logs directory
@@ -78,7 +79,7 @@ start "ULTRON Agent Core" cmd /c "python agent_core.py > logs\agent_core.log 2>&
 timeout /t 5 >nul
 
 echo 🌉 [4/5] Starting Web Bridge (GUI ↔ Agent Connection)...
-start "ULTRON Web Bridge" cmd /c "python web_bridge.py > logs\web_bridge.log 2>&1"
+start "ULTRON Web Bridge" cmd /c "python -c \"import asyncio; from web_bridge import UltronWebBridge; bridge = UltronWebBridge(); asyncio.run(bridge.bridge_connection())\" > logs\web_bridge.log 2>&1"
 timeout /t 3 >nul
 
 echo 🌐 [5/5] Starting HTTP Server (localhost:5000)...
@@ -90,7 +91,7 @@ echo ✅ ULTRON System Launch Complete!
 echo.
 echo 🔗 AVAILABLE ENDPOINTS:
 echo    🎮 Pokédx GUI:     http://localhost:5173  (Main Interface)
-echo    🔌 GUI API:        http://localhost:3000  (API Endpoints)
+echo    🔌 GUI API:        http://localhost:3000  (API Endpoints)  
 echo    🤖 Agent Core:     http://localhost:8000  (NVIDIA Backend)
 echo    🌐 HTTP Server:    http://localhost:5000  (Static Files)
 echo    🌉 Web Bridge:     Background Service     (Connection Manager)
@@ -101,7 +102,7 @@ echo    ⚡ Agent Status:  http://localhost:8000/health
 echo    🔌 API Status:    http://localhost:3000/api/status
 echo.
 echo 🎯 TESTING NOTES:
-echo    ✅ GUI loads and API calls work - All endpoints provided
+echo    ✅ GUI loads but API calls fail → All endpoints now provided
 echo    ✅ Click tracking implemented with detailed logging
 echo    ✅ Power/Vision/Command APIs all functional
 echo.
@@ -119,7 +120,7 @@ echo.
 start http://localhost:5173
 
 echo.
-echo 📊 Press any key to open monitoring dashboard or CTRL+C to exit...
+echo 📊 Press any key to open monitoring dashboard...
 pause >nul
 
 :: Open monitoring
@@ -128,15 +129,34 @@ start http://localhost:3000/api/status
 start http://localhost:5000
 
 echo.
-echo ✨ ULTRON Agent 3.0 is fully operational!
+echo ✨ ULTRON Agent 2.0 is fully operational!
 echo    All services running with comprehensive logging
 echo    GUI functionality restored with working API endpoints
 echo.
 echo Keep this window open to maintain the system.
-echo Press any key to exit launcher (services will continue)...
-pause >nul
+pause
 
-echo.
-echo 👋 ULTRON Launcher closing - services remain active
-echo    Use Task Manager or taskkill to stop services if needed
-echo.
+:: 3. Install/Upgrade Dependencies
+call :info "Checking and installing dependencies from requirements.txt..."
+%PYTHON_CMD% -m pip install -r requirements.txt
+if %errorlevel% neq 0 (
+    call :error "Failed to install dependencies. Please check requirements.txt and your network connection."
+)
+call :success "Dependencies are up to date."
+
+:: 4. Check for .env file
+if not exist ".env" (
+    call :warn ".env file not found. Copying from .env.example..."
+    call :warn "Please update .env with your API keys for full functionality."
+    copy .env.example .env > nul
+)
+
+:: 5. Run the Agent
+call :info "Launching Ultron Agent 3.0..."
+
+:: Add any command-line arguments here if needed
+:: For example: %PYTHON_CMD% main.py --mode cli
+%PYTHON_CMD% main.py %*
+
+
+endlocal
