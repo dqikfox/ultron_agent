@@ -72,8 +72,11 @@ class OpenAITools:
             
             messages.append({"role": "user", "content": prompt})
             
+            # Use best available model (GPT-5 if available)
+            model = await self._get_best_model()
+            
             response = await self.client.chat.completions.create(
-                model="gpt-4-turbo-preview",
+                model=model,
                 messages=messages,
                 tools=tools,
                 tool_choice="auto"
@@ -99,7 +102,7 @@ class OpenAITools:
                     })
                 
                 final_response = await self.client.chat.completions.create(
-                    model="gpt-4-turbo-preview",
+                    model=model,
                     messages=messages
                 )
                 return {
@@ -136,3 +139,24 @@ class OpenAITools:
         except Exception as e:
             logging.error(f"Tool execution error: {e} - openai_tools.py:137")
             raise
+    
+    async def _get_best_model(self) -> str:
+        """Get the best available model (GPT-5 if available)"""
+        try:
+            models = await self.client.models.list()
+            available_models = [model.id for model in models.data]
+            
+            # Preferred models in order
+            preferred = ["gpt-5-turbo", "gpt-5", "gpt-4o", "gpt-4-turbo", "gpt-4"]
+            
+            for model in preferred:
+                if model in available_models:
+                    logging.info(f"Using model: {model}")
+                    return model
+            
+            # Fallback
+            return "gpt-4-turbo-preview"
+            
+        except Exception as e:
+            logging.error(f"Error getting best model: {e}")
+            return "gpt-4-turbo-preview"
