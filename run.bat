@@ -1,9 +1,21 @@
 @echo off
 chcp 65001 > nul
-title ULTRON Agent 3.0 - Complete System Launcher
+title ULTRON Agent 3.0 - Complete Syst:: Launch sequence
+echo 🏠 [1/5] Starting Main Dashboecho.
+echo 🚀 ULTRON is now fully operational!
+echo 🏠 Opening MAIN DASHBOARD: http://localhost:5000
+echo 💬 Chat Engine available at: http://localhost:5173
+echo.(System Command Center)...
+echo      URL: http://localhost:5000 (MAIN ENTRY POINT)
+start "ULTRON Dashboard" cmd /c "python dashboard_server.py > logs\dashboard.log 2>&1"
+timeout /t 3 >nuluncher
 color 0A
-
-echo.
+echo 🔗 AVAILABLE ENDPOINTS:
+echo    🌐 Main Interface: http://localhost:5000  (ULTRON Home Page)
+echo    💬 Chat Engine:    http://localhost:5173  (NVIDIA AI Chat)
+echo    🔌 GUI API:        http://localhost:3000  (API Endpoints)
+echo    🤖 Agent Core:     http://localhost:8000  (NVIDIA Backend)
+echo    🌉 Web Bridge:     Background Service     (Connection Manager)
 echo ██    ██ ██   ████████ ██████   ██████  ███    ██
 echo ██    ██ ██      ██    ██   ██ ██    ██ ████   ██
 echo ██    ██ ██      ██    ██████  ██    ██ ██ ██  ██
@@ -62,37 +74,38 @@ echo.
 if not exist "logs" mkdir logs
 
 :: Launch sequence
-echo 🎮 [1/5] Starting Frontend Server (Pokédx GUI)...
-echo      URL: http://localhost:5173
-start "ULTRON Frontend" cmd /c "python frontend_server.py > logs\frontend.log 2>&1"
+echo � [1/5] Starting Main ULTRON Interface...
+echo      URL: http://localhost:5000 (Main Entry Point)
+start "ULTRON Main" cmd /c "python -m http.server 5000 > logs\main_server.log 2>&1"
 timeout /t 3 >nul
 
-echo 🔌 [2/5] Starting GUI API Server...
+echo 💬 [2/5] Starting Chat Engine (NVIDIA Integration)...
+echo      URL: http://localhost:5173 (Chat with AI Models)
+start "ULTRON Chat Engine" cmd /c "python frontend_server.py > logs\chat_engine.log 2>&1"
+timeout /t 3 >nul
+
+echo 🔌 [3/5] Starting GUI API Server...
 echo      URL: http://localhost:3000 (Handles GUI API calls)
 start "ULTRON GUI API" cmd /c "python gui_api_server.py > logs\gui_api.log 2>&1"
 timeout /t 3 >nul
 
-echo 🤖 [3/5] Starting Agent Core (NVIDIA Backend)...
+echo 🤖 [4/5] Starting Agent Core (NVIDIA Backend)...
 echo      URL: http://localhost:8000
 start "ULTRON Agent Core" cmd /c "python agent_core.py > logs\agent_core.log 2>&1"
 timeout /t 5 >nul
 
-echo 🌉 [4/5] Starting Web Bridge (GUI ↔ Agent Connection)...
+echo 🌉 [5/5] Starting Web Bridge (Connection Manager)...
 start "ULTRON Web Bridge" cmd /c "python web_bridge.py > logs\web_bridge.log 2>&1"
 timeout /t 3 >nul
-
-echo 🌐 [5/5] Starting HTTP Server (localhost:5000)...
-start "ULTRON HTTP" cmd /c "cd gui\ultron_enhanced\web && python -m http.server 5000 > ..\..\..\logs\http_server.log 2>&1"
-timeout /t 2 >nul
 
 echo.
 echo ✅ ULTRON System Launch Complete!
 echo.
 echo 🔗 AVAILABLE ENDPOINTS:
-echo    🎮 Pokédx GUI:     http://localhost:5173  (Main Interface)
-echo    🔌 GUI API:        http://localhost:3000  (API Endpoints)
+echo    � Main Dashboard: http://localhost:5000  (SYSTEM COMMAND CENTER)
+echo    � Chat Engine:    http://localhost:5173  (NVIDIA AI MODELS)
+echo    🔌 GUI API:        http://localhost:3000  (API Bridge)
 echo    🤖 Agent Core:     http://localhost:8000  (NVIDIA Backend)
-echo    🌐 HTTP Server:    http://localhost:5000  (Static Files)
 echo    🌉 Web Bridge:     Background Service     (Connection Manager)
 echo.
 echo 📊 MONITORING:
@@ -112,11 +125,11 @@ timeout /t 5 >nul
 
 echo.
 echo 🚀 ULTRON is now fully operational!
-echo 🎮 Opening main interface: http://localhost:5173
+echo � Opening main interface: http://localhost:5000
 echo.
 
-:: Open main GUI
-start http://localhost:5173
+:: Open main interface
+start http://localhost:5000
 
 echo.
 echo 📊 Press any key to open monitoring dashboard or CTRL+C to exit...

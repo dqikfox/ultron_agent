@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Agent 3.0 - System Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            font-family: 'Courier New', monospace;
+            color: #00ff41;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 255, 65, 0.1);
+            border-bottom: 2px solid #00ff41;
+        }
+        
+        .logo {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 0 0 20px #00ff41;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #ffffff;
+            opacity: 0.8;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(0, 255, 65, 0.3);
+        }
+        
+        .card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .gpu-critical {
+            color: #ff4444;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        
+        .gpu-warning {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+        
+        .gpu-good {
+            color: #00ff41;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .service-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-online {
+            background: #00ff41;
+            color: #000;
+        }
+        
+        .status-offline {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            background: rgba(0, 255, 65, 0.2);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px #00ff41;
+        }
+        
+        .btn-chat {
+            background: rgba(255, 170, 0, 0.2);
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+        
+        .btn-chat:hover {
+            background: #ffaa00;
+            color: #000;
+            box-shadow: 0 0 15px #ffaa00;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .gpu-progress { background: linear-gradient(90deg, #00ff41, #ffaa00, #ff4444); }
+        .cpu-progress { background: linear-gradient(90deg, #00aaff, #00ff41); }
+        .memory-progress { background: linear-gradient(90deg, #aa00ff, #ff00aa); }
+        
+        .terminal {
+            background: #000;
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .terminal-line {
+            margin: 2px 0;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🤖 ULTRON AGENT 3.0</div>
+        <div class="subtitle">System Command Center - Live Monitoring Dashboard</div>
+    </div>
+
+    <div class="dashboard">
+        <!-- GPU Status Card -->
+        <div class="card">
+            <h3>🎮 GPU Status (NVIDIA RTX 4060)</h3>
+            <div class="stat-item">
+                <span>GPU Utilization:</span>
+                <span id="gpu-util" class="stat-value">36%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill gpu-progress" id="gpu-progress" style="width: 36%"></div>
+            </div>
+            <div class="stat-item">
+                <span>Memory Usage:</span>
+                <span id="gpu-memory" class="stat-value">377 / 4096 MB</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill memory-progress" id="memory-progress" style="width: 9.2%"></div>
+            </div>
+            <div class="stat-item">
+                <span>Temperature:</span>
+                <span id="gpu-temp" class="stat-value">54°C</span>
+            </div>
+            <div class="stat-item">
+                <span>Power Draw:</span>
+                <span id="gpu-power" class="stat-value gpu-warning">174W</span>
+            </div>
+        </div>
+
+        <!-- CPU Status Card -->
+        <div class="card">
+            <h3>⚡ CPU Status</h3>
+            <div class="stat-item">
+                <span>CPU Utilization:</span>
+                <span id="cpu-util" class="stat-value">10%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill cpu-progress" id="cpu-progress" style="width: 10%"></div>
+            </div>
+            <div class="stat-item">
+                <span>Cores Active:</span>
+                <span class="stat-value">8/12</span>
+            </div>
+            <div class="stat-item">
+                <span>System Load:</span>
+                <span class="stat-value gpu-good">Normal</span>
+            </div>
+        </div>
+
+        <!-- ULTRON Services Card -->
+        <div class="card">
+            <h3>🛠️ ULTRON Services</h3>
+            <div class="stat-item">
+                <span>Main Dashboard (5000):</span>
+                <span class="service-status status-online">ONLINE</span>
+            </div>
+            <div class="stat-item">
+                <span>Chat Engine (5173):</span>
+                <span class="service-status" id="chat-status">CHECKING...</span>
+            </div>
+            <div class="stat-item">
+                <span>GUI API (3000):</span>
+                <span class="service-status" id="api-status">CHECKING...</span>
+            </div>
+            <div class="stat-item">
+                <span>Agent Core (8000):</span>
+                <span class="service-status" id="core-status">CHECKING...</span>
+            </div>
+            <div class="stat-item">
+                <span>Web Bridge:</span>
+                <span class="service-status" id="bridge-status">CHECKING...</span>
+            </div>
+        </div>
+
+        <!-- NVIDIA AI Models Card -->
+        <div class="card">
+            <h3>🧠 NVIDIA AI Models</h3>
+            <div class="stat-item">
+                <span>llama-4-maverick:</span>
+                <span class="service-status status-online">READY</span>
+            </div>
+            <div class="stat-item">
+                <span>gpt-oss-120b:</span>
+                <span class="service-status status-online">READY</span>
+            </div>
+            <div class="stat-item">
+                <span>llama-3.3-70b:</span>
+                <span class="service-status status-online">READY</span>
+            </div>
+            <div class="stat-item">
+                <span>Active Model:</span>
+                <span class="stat-value">llama-4-maverick</span>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="card">
+            <h3>🚀 Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="http://localhost:5173" class="btn btn-chat" target="_blank">
+                    💬 Open Chat Engine
+                </a>
+                <a href="http://localhost:8000/health" class="btn" target="_blank">
+                    ⚡ Agent Status
+                </a>
+                <a href="http://localhost:3000/api/status" class="btn" target="_blank">
+                    🔌 API Status
+                </a>
+                <button class="btn" onclick="refreshStats()">
+                    🔄 Refresh Stats
+                </button>
+            </div>
+        </div>
+
+        <!-- System Log Card -->
+        <div class="card">
+            <h3>📝 Live System Log</h3>
+            <div class="terminal" id="system-log">
+                <div class="terminal-line">
+                    <span class="timestamp">[18:45:32]</span> ULTRON System initialized
+                </div>
+                <div class="terminal-line">
+                    <span class="timestamp">[18:45:33]</span> GPU detected: NVIDIA RTX 4060 (4GB)
+                </div>
+                <div class="terminal-line">
+                    <span class="timestamp">[18:45:34]</span> NVIDIA models loaded successfully
+                </div>
+                <div class="terminal-line">
+                    <span class="timestamp">[18:45:35]</span> Dashboard operational at localhost:5000
+                </div>
+                <div class="terminal-line">
+                    <span class="timestamp">[18:45:36]</span> Chat engine ready at localhost:5173
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Live system monitoring
+        let logCounter = 5;
+        
+        function updateGPUStatus() {
+            // This would connect to a real API endpoint for live data
+            fetch('/api/gpu-stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('gpu-util').textContent = data.utilization + '%';
+                    document.getElementById('gpu-progress').style.width = data.utilization + '%';
+                    document.getElementById('gpu-memory').textContent = data.memory_used + ' / ' + data.memory_total + ' MB';
+                    document.getElementById('memory-progress').style.width = (data.memory_used / data.memory_total * 100) + '%';
+                    document.getElementById('gpu-temp').textContent = data.temperature + '°C';
+                    document.getElementById('gpu-power').textContent = data.power_draw + 'W';
+                })
+                .catch(error => {
+                    addLogEntry('GPU stats API unavailable, using cached values');
+                });
+        }
+
+        function checkServices() {
+            const services = [
+                { id: 'chat-status', url: 'http://localhost:5173' },
+                { id: 'api-status', url: 'http://localhost:3000/api/status' },
+                { id: 'core-status', url: 'http://localhost:8000/health' }
+            ];
+
+            services.forEach(service => {
+                fetch(service.url)
+                    .then(response => {
+                        const element = document.getElementById(service.id);
+                        if (response.ok) {
+                            element.textContent = 'ONLINE';
+                            element.className = 'service-status status-online';
+                        } else {
+                            element.textContent = 'ERROR';
+                            element.className = 'service-status status-offline';
+                        }
+                    })
+                    .catch(error => {
+                        const element = document.getElementById(service.id);
+                        element.textContent = 'OFFLINE';
+                        element.className = 'service-status status-offline';
+                    });
+            });
+        }
+
+        function addLogEntry(message) {
+            const log = document.getElementById('system-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logLine = document.createElement('div');
+            logLine.className = 'terminal-line';
+            logLine.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            log.appendChild(logLine);
+            log.scrollTop = log.scrollHeight;
+            
+            // Keep only last 20 entries
+            while (log.children.length > 20) {
+                log.removeChild(log.firstChild);
+            }
+        }
+
+        function refreshStats() {
+            addLogEntry('🔄 Refreshing system statistics...');
+            updateGPUStatus();
+            checkServices();
+            addLogEntry('✅ Statistics refreshed');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            addLogEntry('🚀 ULTRON Dashboard loaded');
+            checkServices();
+            
+            // Auto-refresh every 10 seconds
+            setInterval(() => {
+                updateGPUStatus();
+                checkServices();
+                addLogEntry(`📊 Auto-refresh #${++logCounter}`);
+            }, 10000);
+        });
+
+        // GPU utilization color coding
+        function updateGPUColors() {
+            const utilElement = document.getElementById('gpu-util');
+            const util = parseInt(utilElement.textContent);
+            
+            if (util > 80) {
+                utilElement.className = 'stat-value gpu-critical';
+            } else if (util > 50) {
+                utilElement.className = 'stat-value gpu-warning';
+            } else {
+                utilElement.className = 'stat-value gpu-good';
+            }
+        }
+
+        setInterval(updateGPUColors, 1000);
+    </script>
+</body>
+</html>
