@@ -32,13 +32,13 @@ class UltronDashboardHandler(http.server.SimpleHTTPRequestHandler):
         try:
             with open('dashboard.html', 'r', encoding='utf-8') as f:
                 content = f.read()
-            
+
             self.send_response(200)
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(content.encode('utf-8'))
-            
+
         except FileNotFoundError:
             self.send_error(404, "Dashboard not found")
 
@@ -47,16 +47,16 @@ class UltronDashboardHandler(http.server.SimpleHTTPRequestHandler):
         try:
             # Get NVIDIA GPU stats
             result = subprocess.run([
-                'nvidia-smi', 
+                'nvidia-smi',
                 '--query-gpu=utilization.gpu,utilization.memory,temperature.gpu,power.draw,memory.used,memory.total',
                 '--format=csv,noheader,nounits'
             ], capture_output=True, text=True, timeout=5)
-            
+
             if result.returncode == 0:
                 stats = result.stdout.strip().split(', ')
                 gpu_data = {
                     'utilization': int(stats[0]),
-                    'memory_utilization': int(stats[1]), 
+                    'memory_utilization': int(stats[1]),
                     'temperature': int(stats[2]),
                     'power_draw': float(stats[3]),
                     'memory_used': int(stats[4]),
@@ -75,7 +75,7 @@ class UltronDashboardHandler(http.server.SimpleHTTPRequestHandler):
                     'timestamp': time.time(),
                     'error': 'nvidia-smi unavailable'
                 }
-                
+
         except Exception as e:
             gpu_data = {
                 'error': str(e),
@@ -100,7 +100,7 @@ class UltronDashboardHandler(http.server.SimpleHTTPRequestHandler):
             },
             'nvidia_models': [
                 'llama-4-maverick',
-                'gpt-oss-120b', 
+                'gpt-oss-120b',
                 'llama-3.3-70b'
             ],
             'active_model': 'llama-4-maverick',
@@ -125,7 +125,7 @@ def start_dashboard_server(port=5000):
     print(f"🎮 GPU Stats API: http://localhost:{port}/api/gpu-stats")
     print(f"⚙️ System Status API: http://localhost:{port}/api/system-status")
     print("=" * 60)
-    
+
     try:
         with socketserver.TCPServer(("", port), UltronDashboardHandler) as httpd:
             print(f"✅ ULTRON Dashboard serving at http://localhost:{port}")
