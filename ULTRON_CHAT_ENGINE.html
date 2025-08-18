@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ULTRON Agent 2.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Background Layer (Underneath) */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #000, #111);
+      font-family: 'Orbitron', sans-serif;
+      color: #00ff00;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .background-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0.3; /* Subtle to keep focus on foreground */
+    }
+
+    .robotic-head {
+      max-width: 50%;
+      max-height: 50%;
+      filter: drop-shadow(0 0 10px #ff0000); /* Glowing red eyes effect */
+    }
+
+    .glowing-circles {
+      position: absolute;
+      top: 20%;
+      display: flex;
+      gap: 20px;
+    }
+
+    .circle {
+      border-radius: 50%;
+      background-color: #00ff00;
+      box-shadow: 0 0 15px #00ff00;
+    }
+
+    .large { width: 60px; height: 60px; }
+    .small { width: 40px; height: 40px; }
+
+    /* Foreground Interface */
+    .interface-container {
+      display: grid;
+      grid-template-areas:
+        "header header header"
+        "left central right";
+      height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      grid-area: header;
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .header h1 {
+      font-size: 48px;
+      color: #00ff00;
+      text-shadow: 0 0 10px #00ff00;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; }
+      to { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; }
+    }
+
+    .left-panel, .right-panel {
+      width: 250px;
+      padding: 20px;
+      background-color: rgba(17, 17, 17, 0.9);
+      overflow-y: auto;
+    }
+
+    .left-panel { grid-area: left; }
+    .right-panel { grid-area: right; }
+
+    .central-area {
+      grid-area: central;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .setting { margin-bottom: 15px; }
+    input[type="checkbox"] { margin-right: 10px; }
+
+    select, input[type="text"], button {
+      background-color: #222;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      padding: 5px;
+      font-family: 'Orbitron', sans-serif;
+      margin-top: 5px;
+    }
+
+    button {
+      background-color: #ff0000;
+      border: none;
+      padding: 10px 20px;
+      color: #fff;
+      text-shadow: 0 0 5px #ff0000;
+      cursor: pointer;
+    }
+
+    button:hover { box-shadow: 0 0 10px #ff0000; }
+
+    .command-input {
+      display: flex;
+      width: 80%;
+      margin-bottom: 20px;
+    }
+
+    #command-entry { flex: 1; margin-right: 10px; }
+
+    .response-area {
+      width: 80%;
+      background-color: #111;
+      padding: 20px;
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #00ff00;
+      box-shadow: 0 0 10px #00ff00;
+    }
+
+    #tool-select {
+      width: 100%;
+      background-color: #222;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+    }
+
+    #tool-details {
+      margin-top: 10px;
+      height: 100px;
+      overflow-y: auto;
+      background-color: #222;
+      padding: 10px;
+      border: 1px solid #00ff00;
+    }
+
+    #tool-invoke { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <!-- Background Layer (Underneath) -->
+  <div class="background-layer">
+    <!-- Placeholder for robotic head; replace with actual image if available -->
+    <img src="https://via.placeholder.com/400x400?text=Robotic+Head" alt="Robotic Head" class="robotic-head">
+    <div class="glowing-circles">
+      <div class="circle large"></div>
+      <div class="circle small"></div>
+    </div>
+  </div>
+
+  <!-- Foreground Interface -->
+  <div class="interface-container">
+    <div class="header">
+      <h1>ULTRON AI SYSTEM</h1>
+      <div style="margin-top: 15px;">
+        <a href="http://localhost:5173" target="_blank" 
+           style="background: linear-gradient(45deg, #ff0040, #ff8000); color: white; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(255, 0, 64, 0.3); display: inline-block; transition: all 0.3s ease;">
+          💬 Launch NVIDIA Chat Engine
+        </a>
+        <p style="margin: 10px 0 0 0; font-size: 12px; color: #888;">
+          Advanced AI chat with NVIDIA models • http://localhost:5173
+        </p>
+      </div>
+    </div>
+    <div class="left-panel">
+      <h2>Settings</h2>
+      <div class="setting">
+        <label><input type="checkbox" id="voice-check"> Voice</label>
+      </div>
+      <div class="setting">
+        <label><input type="checkbox" id="vision-check"> Vision</label>
+      </div>
+      <div class="setting">
+        <label><input type="checkbox" id="api-check"> API</label>
+      </div>
+      <div class="setting">
+        <label for="voice-engine">Voice Engine:</label>
+        <select id="voice-engine">
+          <option value="pyttsx3">pyttsx3</option>
+          <option value="elevenlabs">elevenlabs</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label for="llm-model">LLM Model:</label>
+        <select id="llm-model">
+          <option value="llama3.2:latest">llama3.2:latest</option>
+          <!-- Add more model options here -->
+        </select>
+      </div>
+      <button id="apply-settings">Apply</button>
+      
+      <h3 style="margin-top: 20px;">Git Operations</h3>
+      <div class="setting">
+        <button id="git-status">Git Status</button>
+      </div>
+      <div class="setting">
+        <button id="git-add">Git Add All</button>
+      </div>
+      <div class="setting">
+        <input type="text" id="commit-message" placeholder="Commit message" style="width: 100%; margin-bottom: 5px;">
+        <button id="git-commit">Commit</button>
+      </div>
+      <div class="setting">
+        <button id="git-push">Push</button>
+      </div>
+      <div class="setting">
+        <button id="git-pull">Pull</button>
+      </div>
+    </div>
+    <div class="central-area">
+      <div class="command-input">
+        <input type="text" id="command-entry" placeholder="Enter command">
+        <button id="send-command">Send</button>
+      </div>
+      <div class="response-area">
+        <h2>Agent Response</h2>
+        <div id="response-text"></div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <h2>Tool Explorer</h2>
+      <select id="tool-select" size="6">
+        <option value="FileTool">FileTool</option>
+        <option value="SystemTool">SystemTool</option>
+        <option value="WebSearchTool">WebSearchTool</option>
+        <option value="ScreenReaderTool">ScreenReaderTool</option>
+      </select>
+      <div id="tool-details"></div>
+      <div id="tool-invoke">
+        <button id="invoke-tool">Invoke Tool</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let socket;
+
+    function appendMessage(sender, message) {
+      const responseText = document.getElementById('response-text');
+      responseText.innerHTML += `<p><strong>${sender}:</strong> ${message}</p>`;
+      responseText.scrollTop = responseText.scrollHeight;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize WebSocket
+      socket = new WebSocket("ws://localhost:8000/ws");
+
+      socket.onopen = function(event) {
+        console.log("Connected to the WebSocket server.");
+        appendMessage("System", "Connected to Ultron Agent backend.");
+      };
+
+      socket.onmessage = function(event) {
+        appendMessage("Ultron", event.data);
+      };
+
+      socket.onerror = function(event) {
+        appendMessage("System", "WebSocket error. Please check backend.");
+      };
+
+      socket.onclose = function(event) {
+        appendMessage("System", "WebSocket connection closed.");
+      };
+
+      // Handle send command
+      document.getElementById('send-command').addEventListener('click', () => {
+        const command = document.getElementById('command-entry').value;
+        if (command && socket && socket.readyState === WebSocket.OPEN) {
+          appendMessage("User", command);
+          socket.send(command);
+          document.getElementById('command-entry').value = '';
+        } else {
+          appendMessage("System", "Not connected to backend.");
+        }
+      });
+
+      // Handle apply settings
+      document.getElementById('apply-settings').addEventListener('click', () => {
+        const settings = {
+          use_voice: document.getElementById('voice-check').checked,
+          use_vision: document.getElementById('vision-check').checked,
+          use_api: document.getElementById('api-check').checked,
+          voice_engine: document.getElementById('voice-engine').value,
+          llm_model: document.getElementById('llm-model').value
+        };
+        console.log('Settings applied:', settings);
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'settings', data: settings}));
+        }
+      });
+
+      // Handle tool selection
+      document.getElementById('tool-select').addEventListener('change', () => {
+        const selectedTool = document.getElementById('tool-select').value;
+        document.getElementById('tool-details').textContent = `Details for ${selectedTool}`;
+        // Optionally fetch tool details from backend here
+      });
+
+      // Handle invoke tool
+      document.getElementById('invoke-tool').addEventListener('click', () => {
+        const selectedTool = document.getElementById('tool-select').value;
+        console.log(`Invoking tool: ${selectedTool}`);
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'invoke_tool', tool: selectedTool}));
+        }
+      });
+
+      // Handle Git operations
+      document.getElementById('git-status').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git status'}));
+        }
+      });
+
+      document.getElementById('git-add').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git add .'}));
+        }
+      });
+
+      document.getElementById('git-commit').addEventListener('click', () => {
+        const message = document.getElementById('commit-message').value;
+        if (message && socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: `git commit -m "${message}"`}));
+          document.getElementById('commit-message').value = '';
+        } else {
+          appendMessage("System", "Please enter a commit message.");
+        }
+      });
+
+      document.getElementById('git-push').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git push'}));
+        }
+      });
+
+      document.getElementById('git-pull').addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({type: 'git_command', command: 'git pull'}));
+        }
+      });
+
+      // Add keyboard shortcuts for accessibility
+      document.addEventListener('keydown', (event) => {
+        // Ctrl+Enter to send command
+        if (event.ctrlKey && event.key === 'Enter') {
+          document.getElementById('send-command').click();
+        }
+        // Alt+G for git status (hands-free)
+        if (event.altKey && event.key === 'g') {
+          document.getElementById('git-status').click();
+        }
+        // Alt+C to focus commit message
+        if (event.altKey && event.key === 'c') {
+          document.getElementById('commit-message').focus();
+        }
+        // Alt+P for push
+        if (event.altKey && event.key === 'p') {
+          document.getElementById('git-push').click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
