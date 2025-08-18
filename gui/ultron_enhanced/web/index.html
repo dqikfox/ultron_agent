@@ -92,7 +92,7 @@
                                     <span class="nav-icon">👤</span>
                                     <span class="nav-label">PROFILE</span>
                                 </button>
-                                <button class="nav-button" data-section="assistant" onclick="window.open('http://localhost:5173', '_blank')">
+                                <button class="nav-button" data-section="assistant" onclick="window.open('http://localhost:5000/chat', '_blank')">
                                     <span class="nav-icon">🤖</span>
                                     <span class="nav-label">AI CHAT</span>
                                 </button>
@@ -315,8 +315,8 @@
                                 </button>
                             </div>
                             <div class="control-labels">
-                                <span>A: SELECT</span>
-                                <span>B: BACK</span>
+                                <span>A: DASHBOARD</span>
+                                <span>B: AI CHAT</span>
                             </div>
                         </div>
 
@@ -409,6 +409,96 @@
 
     <script src="assets/sounds.js"></script>
     <script src="app.js"></script>
+
+    <!-- ULTRON Interaction Logging System -->
+    <script>
+    // Enhanced GUI Interaction Logging
+    function logInteraction(action, element, details = {}) {
+        const timestamp = new Date().toISOString();
+        const logData = {
+            timestamp,
+            action,
+            element: element?.tagName || 'unknown',
+            elementId: element?.id || 'no-id',
+            elementClass: element?.className || 'no-class',
+            details
+        };
+
+        console.log('[GUI-LOG]', logData);
+
+        // Send to server for logging
+        fetch('/api/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(logData)
+        }).catch(e => console.log('Logging failed:', e));
+    }
+
+    // Enhanced event listeners for comprehensive logging
+    document.addEventListener('DOMContentLoaded', function() {
+        logInteraction('page_loaded', document, { url: window.location.href });
+
+        // Log all button clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                const button = e.target.closest('button') || e.target;
+                logInteraction('button_click', button, {
+                    text: button.textContent?.trim(),
+                    dataSection: button.dataset?.section
+                });
+
+                // Special handling for A button -> Dashboard.html
+                if (button.id === 'btn-a') {
+                    logInteraction('a_button_dashboard_launch', button);
+                    setTimeout(() => {
+                        window.open('/dashboard.html', '_blank');
+                    }, 100);
+                }
+
+                // Special handling for B button -> ULTRON Chat Engine
+                if (button.id === 'btn-b') {
+                    logInteraction('b_button_chat_launch', button);
+                    setTimeout(() => {
+                        window.open('/ULTRON_CHAT_ENGINE.html', '_blank');
+                    }, 100);
+                }
+            }
+        });
+
+        // Log navigation changes
+        const navButtons = document.querySelectorAll('.nav-button');
+        navButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                logInteraction('navigation', this, {
+                    section: this.dataset?.section,
+                    label: this.querySelector('.nav-label')?.textContent
+                });
+            });
+        });
+
+        // Log console input
+        const consoleInput = document.getElementById('console-input');
+        if (consoleInput) {
+            consoleInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim()) {
+                    logInteraction('console_command', this, {
+                        command: this.value.trim()
+                    });
+                }
+            });
+        }
+
+        // Log system control clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('system-btn')) {
+                logInteraction('system_control', e.target, {
+                    control: e.target.id,
+                    title: e.target.title
+                });
+            }
+        });
+    });
+    </script>
 
 <style>
 #minimax-floating-ball {

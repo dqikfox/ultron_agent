@@ -10,7 +10,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
             font-family: 'Courier New', monospace;
@@ -18,27 +18,27 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-        
+
         .header {
             text-align: center;
             padding: 20px;
             background: rgba(0, 255, 65, 0.1);
             border-bottom: 2px solid #00ff41;
         }
-        
+
         .logo {
             font-size: 3em;
             font-weight: bold;
             text-shadow: 0 0 20px #00ff41;
             margin-bottom: 10px;
         }
-        
+
         .subtitle {
             font-size: 1.2em;
             color: #ffffff;
             opacity: 0.8;
         }
-        
+
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -47,7 +47,7 @@
             max-width: 1400px;
             margin: 0 auto;
         }
-        
+
         .card {
             background: rgba(0, 255, 65, 0.05);
             border: 1px solid #00ff41;
@@ -56,12 +56,12 @@
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
             transition: transform 0.3s ease;
         }
-        
+
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 25px rgba(0, 255, 65, 0.3);
         }
-        
+
         .card h3 {
             font-size: 1.3em;
             margin-bottom: 15px;
@@ -69,7 +69,7 @@
             color: #00ff41;
             text-shadow: 0 0 10px #00ff41;
         }
-        
+
         .stat-item {
             display: flex;
             justify-content: space-between;
@@ -78,57 +78,57 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
         }
-        
+
         .stat-value {
             font-weight: bold;
             color: #ffffff;
         }
-        
+
         .gpu-critical {
             color: #ff4444;
             font-weight: bold;
             animation: pulse 1s infinite;
         }
-        
+
         .gpu-warning {
             color: #ffaa00;
             font-weight: bold;
         }
-        
+
         .gpu-good {
             color: #00ff41;
             font-weight: bold;
         }
-        
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
         }
-        
+
         .service-status {
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.9em;
             font-weight: bold;
         }
-        
+
         .status-online {
             background: #00ff41;
             color: #000;
         }
-        
+
         .status-offline {
             background: #ff4444;
             color: #fff;
         }
-        
+
         .action-buttons {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 20px;
         }
-        
+
         .btn {
             padding: 12px 20px;
             background: rgba(0, 255, 65, 0.2);
@@ -141,25 +141,25 @@
             font-weight: bold;
             cursor: pointer;
         }
-        
+
         .btn:hover {
             background: #00ff41;
             color: #000;
             box-shadow: 0 0 15px #00ff41;
         }
-        
+
         .btn-chat {
             background: rgba(255, 170, 0, 0.2);
             border-color: #ffaa00;
             color: #ffaa00;
         }
-        
+
         .btn-chat:hover {
             background: #ffaa00;
             color: #000;
             box-shadow: 0 0 15px #ffaa00;
         }
-        
+
         .progress-bar {
             width: 100%;
             height: 20px;
@@ -168,17 +168,17 @@
             overflow: hidden;
             margin: 5px 0;
         }
-        
+
         .progress-fill {
             height: 100%;
             transition: width 0.5s ease;
             border-radius: 10px;
         }
-        
+
         .gpu-progress { background: linear-gradient(90deg, #00ff41, #ffaa00, #ff4444); }
         .cpu-progress { background: linear-gradient(90deg, #00aaff, #00ff41); }
         .memory-progress { background: linear-gradient(90deg, #aa00ff, #ff00aa); }
-        
+
         .terminal {
             background: #000;
             border: 1px solid #00ff41;
@@ -190,11 +190,11 @@
             overflow-y: auto;
             margin-top: 10px;
         }
-        
+
         .terminal-line {
             margin: 2px 0;
         }
-        
+
         .timestamp {
             color: #888;
             font-size: 0.8em;
@@ -346,7 +346,7 @@
     <script>
         // Live system monitoring
         let logCounter = 5;
-        
+
         function updateGPUStatus() {
             // This would connect to a real API endpoint for live data
             fetch('/api/gpu-stats')
@@ -399,7 +399,7 @@
             logLine.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
             log.appendChild(logLine);
             log.scrollTop = log.scrollHeight;
-            
+
             // Keep only last 20 entries
             while (log.children.length > 20) {
                 log.removeChild(log.firstChild);
@@ -417,7 +417,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             addLogEntry('🚀 ULTRON Dashboard loaded');
             checkServices();
-            
+
             // Auto-refresh every 10 seconds
             setInterval(() => {
                 updateGPUStatus();
@@ -430,7 +430,7 @@
         function updateGPUColors() {
             const utilElement = document.getElementById('gpu-util');
             const util = parseInt(utilElement.textContent);
-            
+
             if (util > 80) {
                 utilElement.className = 'stat-value gpu-critical';
             } else if (util > 50) {
