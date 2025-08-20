@@ -77,5 +77,6 @@
     "github.copilot.advanced.debug.testOverrideProxyUrl": "",
     "github.copilot.advanced.debug.filterLogCategories": [],
     "github.copilot.editor.enableAutoCompletions": true,
-    "CodeGPT.apiKey": "Anthropic"
+    "CodeGPT.apiKey": "Anthropic",
+    "coderabbit.autoReviewMode": "auto"
 }

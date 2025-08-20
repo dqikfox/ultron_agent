@@ -96,30 +96,30 @@ async def stream_response(messages, sid, conversation_id="default"):
         # Store conversation
         if conversation_id not in conversations:
             conversations[conversation_id] = []
-        
+
         # Add system prompt to identify the model if not already present
         if not messages or messages[0].get("role") != "system":
             system_message = {
                 "role": "system",
-                "content": "You are Qwen2.5-VL, a multimodal AI assistant created by Alibaba Cloud. You can process both text and images. You are part of the Ultron Assistant system, providing intelligent responses with voice interaction capabilities. Always identify yourself as Qwen2.5-VL when asked about your identity."
+                "content": "You are ULTRON, an advanced AI created by Tony Stark. Respond concisely and professionally. Do not repeat words unnecessarily. Provide direct, helpful answers without excessive verbosity."
             }
             messages = [system_message] + messages
-        
+
         full_response = ""
         async for chunk in ollama_chat(messages):
             full_response += chunk
             await sio.emit('assistant_chunk', {'chunk': chunk}, to=sid)
-        
+
         # Speak the response aloud
         if full_response.strip():
             speaker.say(full_response)
-        
+
         # Store the complete response
         conversations[conversation_id].append({
-            "role": "assistant", 
+            "role": "assistant",
             "content": full_response
         })
-        
+
         await sio.emit('assistant_done', {}, to=sid)
     except Exception as e:
         await sio.emit('error', {'message': f"Error: {str(e)}"}, to=sid)
@@ -146,7 +146,7 @@ async def user_message(sid, data):
     try:
         user_text = data.get('text', '').strip()
         conversation_id = data.get('conversation_id', 'default')
-        
+
         if not user_text:
             return
 
@@ -168,7 +168,7 @@ async def user_message(sid, data):
                 speaker.say(result)
                 await sio.emit('assistant_chunk', {'chunk': result}, to=sid)
                 await sio.emit('assistant_done', {}, to=sid)
-                
+
                 # Store automation result
                 conversations[conversation_id].append({"role": "assistant", "content": result})
                 return
@@ -216,36 +216,36 @@ async def start_continuous_voice(sid, data):
         if not mic:
             await sio.emit('error', {'message': 'No microphone available'}, to=sid)
             return
-        
+
         conversation_id = data.get('conversation_id', 'default')
-        
+
         # Stop existing session if any
         if sid in continuous_voice_sessions:
             await stop_continuous_voice(sid, {})
-        
+
         # Create stop event
         stop_event = threading.Event()
         voice_stop_events[sid] = stop_event
-        
+
         # Start continuous listening in background thread
         def voice_handler(text):
             """Handle recognized voice input."""
             asyncio.create_task(process_voice_message(sid, text, conversation_id))
-        
+
         def continuous_listen():
             """Continuous listening loop."""
             from voice import recognizer_instance
             recognizer_instance.listen_continuously(voice_handler, stop_event)
-        
+
         voice_thread = threading.Thread(target=continuous_listen, daemon=True)
         continuous_voice_sessions[sid] = voice_thread
         voice_thread.start()
-        
+
         await sio.emit('continuous_voice_started', {
             'message': 'Continuous voice mode started. Speak naturally and I will respond.',
             'conversation_id': conversation_id
         }, to=sid)
-        
+
     except Exception as e:
         await sio.emit('error', {'message': f"Error starting continuous voice: {str(e)}"}, to=sid)
 
@@ -257,14 +257,14 @@ async def stop_continuous_voice(sid, data):
         if sid in voice_stop_events:
             voice_stop_events[sid].set()
             del voice_stop_events[sid]
-        
+
         if sid in continuous_voice_sessions:
             del continuous_voice_sessions[sid]
-        
+
         await sio.emit('continuous_voice_stopped', {
             'message': 'Continuous voice mode stopped.'
         }, to=sid)
-        
+
     except Exception as e:
         await sio.emit('error', {'message': f"Error stopping continuous voice: {str(e)}"}, to=sid)
 
@@ -276,10 +276,10 @@ async def process_voice_message(sid, text, conversation_id):
             'text': text,
             'conversation_id': conversation_id
         }, to=sid)
-        
+
         # Process like a regular message
         await user_message(sid, {'text': text, 'conversation_id': conversation_id})
-        
+
     except Exception as e:
         await sio.emit('error', {'message': f"Error processing voice message: {str(e)}"}, to=sid)
 
@@ -287,12 +287,12 @@ async def process_voice_message(sid, text, conversation_id):
 async def disconnect(sid):
     """Handle client disconnect - cleanup voice sessions."""
     print(f"❌ Client disconnected: {sid} - app.py:135")
-    
+
     # Cleanup continuous voice session
     if sid in voice_stop_events:
         voice_stop_events[sid].set()
         del voice_stop_events[sid]
-    
+
     if sid in continuous_voice_sessions:
         del continuous_voice_sessions[sid]
 
@@ -309,7 +309,7 @@ async def voice_input():
     """Handle voice input via HTTP."""
     if not mic:
         return JSONResponse({"error": "No microphone available"}, status_code=400)
-    
+
     try:
         text = listen_once(recognizer, mic)
         if text:
@@ -328,10 +328,10 @@ async def get_status():
         "main_agent_available": ultron_agent is not None,
         "conversations": len(conversations)
     }
-    
+
     if ultron_agent:
         status["agent_status"] = getattr(ultron_agent, 'status', 'unknown')
-    
+
     return JSONResponse(status)
 
 @fastapi_app.get("/conversations")
@@ -363,23 +363,23 @@ def launch_desktop_gui():
         from PySide6.QtWebEngineWidgets import QWebEngineView
         from PySide6.QtCore import QUrl
         import sys
-        
+
         class UltronDesktopApp(QMainWindow):
             def __init__(self):
                 super().__init__()
                 self.setWindowTitle("Ultron Assistant")
                 self.setGeometry(100, 100, 1200, 800)
-                
+
                 # Create web engine view
                 self.browser = QWebEngineView()
                 self.browser.setUrl(QUrl("http://127.0.0.1:8000"))
                 self.setCentralWidget(self.browser)
-        
+
         app = QApplication(sys.argv)
         window = UltronDesktopApp()
         window.show()
         app.exec()
-        
+
     except ImportError:
         print("PySide6 not available, opening in browser instead - app.py:287")
         webbrowser.open("http://127.0.0.1:8000")
@@ -389,18 +389,18 @@ def launch_desktop_gui():
 # -------------------------------------------------
 def run_server(host="127.0.0.1", port=8000, use_gui=True):
     """Run the FastAPI server and optionally launch GUI."""
-    
+
     # Start server in background thread
     def start_server():
         uvicorn.run(app, host=host, port=port, log_level="info")
-    
+
     server_thread = threading.Thread(target=start_server, daemon=True)
     server_thread.start()
-    
+
     # Wait a moment for server to start
     import time
     time.sleep(2)
-    
+
     if use_gui:
         # Try desktop GUI first, fallback to browser
         try:
@@ -420,12 +420,12 @@ def run_server(host="127.0.0.1", port=8000, use_gui=True):
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Ultron Assistant Server")
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
     parser.add_argument("--no-gui", action="store_true", help="Run without GUI")
-    
+
     args = parser.parse_args()
-    
+
     run_server(host=args.host, port=args.port, use_gui=not args.no_gui)

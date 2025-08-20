@@ -39,15 +39,42 @@ class VoiceAssistant:
         except Exception as e:
             logging.error(f"pyttsx3 initialization failed: {e} - voice.py:40")
 
+    def _clean_speech_text(self, text: str) -> str:
+        """Clean text to prevent repetitive speech."""
+        if not text:
+            return text
+        
+        # Remove excessive word repetition
+        words = text.split()
+        cleaned_words = []
+        last_word = None
+        repeat_count = 0
+        
+        for word in words:
+            word_clean = word.lower().strip('.,!?;:')
+            if word_clean == last_word:
+                repeat_count += 1
+                if repeat_count < 2:  # Allow max 1 repetition
+                    cleaned_words.append(word)
+            else:
+                cleaned_words.append(word)
+                repeat_count = 0
+            last_word = word_clean
+        
+        return ' '.join(cleaned_words)
+    
     async def speak(self, text: str) -> None:
         if not text:
             return
-
+        
+        # Clean text to prevent repetition
+        cleaned_text = self._clean_speech_text(text)
+        
         # Try ElevenLabs first (TTS)
         if self.elevenlabs:
             try:
                 agent_id = self.config.data.get("elevenlabs_agent_id")
-                audio = self.elevenlabs.text_to_speech(text, voice_id=agent_id)
+                audio = self.elevenlabs.text_to_speech(cleaned_text, voice_id=agent_id)
                 temp_audio = Path("temp_audio.mp3")
                 with open(temp_audio, "wb") as f:
                     f.write(audio.read())
@@ -60,16 +87,16 @@ class VoiceAssistant:
         # Fallback to pyttsx3 for direct speech
         if self.tts_engine:
             try:
-                self.tts_engine.say(text)
+                self.tts_engine.say(cleaned_text)
                 self.tts_engine.runAndWait()
-                logging.info(f"Used pyttsx3 direct speech for: {text[:50]}... - voice.py:65")
+                logging.info(f"Used pyttsx3 direct speech for: {cleaned_text[:50]}... - voice.py:65")
                 return
             except Exception as e:
                 logging.error(f"pyttsx3 direct speech error: {e} - voice.py:68")
 
         # Final fallback - text output
-        print(f"[Voice]: {text} - voice.py:71")
-        logging.warning(f"Voice output failed, using text fallback: {text[:50]}... - voice.py:72")
+        print(f"[Voice]: {cleaned_text} - voice.py:71")
+        logging.warning(f"Voice output failed, using text fallback: {cleaned_text[:50]}... - voice.py:72")
 
     def listen(self, timeout: int = 10, phrase_time_limit: int = 10) -> str:
         """
