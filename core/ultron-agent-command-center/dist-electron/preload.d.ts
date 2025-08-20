@@ -1,0 +1,28 @@
+declare const api: {
+    getOllamaModels: () => Promise<any>;
+    chatWithModel: (modelName: string, messages: any[]) => Promise<any>;
+    getElevenLabsVoices: () => Promise<any>;
+    textToSpeech: (text: string, voiceId: string, settings?: any) => Promise<any>;
+    speechToText: (audioData: ArrayBuffer) => Promise<any>;
+    getElevenLabsUsage: () => Promise<any>;
+    getElevenLabsConnectionStatus: () => Promise<any>;
+    testElevenLabsConnection: () => Promise<any>;
+    saveConversation: (conversation: any) => Promise<any>;
+    loadConversations: () => Promise<any>;
+    executeTool: (toolName: string, params: any) => Promise<any>;
+    getSystemMetrics: () => Promise<any>;
+    getCpuInfo: () => Promise<any>;
+    getMemoryInfo: () => Promise<any>;
+    getPlatformInfo: () => Promise<any>;
+    checkResourceAlerts: () => Promise<any>;
+    getSecurityEvents: (limit?: number) => Promise<any>;
+    addSecurityEvent: (event: string, level: string, details?: any) => Promise<any>;
+    clearSecurityEvents: () => Promise<any>;
+    exportData: () => Promise<any>;
+    importData: (data: any) => Promise<any>;
+    getConversationStats: () => Promise<any>;
+    getStoragePaths: () => Promise<any>;
+    platform: NodeJS.Platform;
+};
+export type ElectronAPI = typeof api;
+export {};

@@ -188,6 +188,43 @@ class Speaker:
         """Check if TTS is available."""
         return self.engine is not None
     
+    def _clean_text_for_speech(self, text: str) -> str:
+        """Clean text to prevent repetitive speech issues."""
+        if not text:
+            return text
+        
+        # Remove excessive repetition of words
+        words = text.split()
+        cleaned_words = []
+        last_word = None
+        repeat_count = 0
+        
+        for word in words:
+            word_clean = word.lower().strip('.,!?;:')
+            if word_clean == last_word:
+                repeat_count += 1
+                if repeat_count < 2:  # Allow max 1 repetition
+                    cleaned_words.append(word)
+            else:
+                cleaned_words.append(word)
+                repeat_count = 0
+            last_word = word_clean
+        
+        cleaned_text = ' '.join(cleaned_words)
+        
+        # Remove common problematic patterns
+        problematic_patterns = [
+            'assistant assistant',
+            'ultron ultron',
+            'system system',
+            'response response'
+        ]
+        
+        for pattern in problematic_patterns:
+            cleaned_text = cleaned_text.replace(pattern, pattern.split()[0])
+        
+        return cleaned_text
+    
     def say(self, text: str, block: bool = False):
         """
         Speak the given text.
@@ -203,16 +240,20 @@ class Speaker:
         if not text or not text.strip():
             return
         
+        # Clean text to prevent repetition issues
+        cleaned_text = self._clean_text_for_speech(text)
+        
         with self.lock:
             if self.is_speaking:
-                logger.info("Already speaking, queuing text...")
+                logger.info("Already speaking, skipping duplicate request")
+                return
         
         def _speak():
             try:
                 with self.lock:
                     self.is_speaking = True
-                    logger.info(f"Speaking: {text[:50]}{'...' if len(text) > 50 else ''}")
-                    self.engine.say(text)
+                    logger.info(f"Speaking: {cleaned_text[:50]}{'...' if len(cleaned_text) > 50 else ''}")
+                    self.engine.say(cleaned_text)
                     self.engine.runAndWait()
             except Exception as e:
                 logger.error(f"Error during speech: {e}")
