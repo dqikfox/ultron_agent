@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 # ---------- Speech-to-Text ----------
 class VoiceRecognizer:
     """Enhanced speech recognition with multiple engine support."""
-    
+
     def __init__(self):
         self.recognizer = sr.Recognizer()
         self.microphone = None
         self.is_listening = False
         self._setup_microphone()
-    
+
     def _setup_microphone(self):
         """Setup microphone with error handling."""
         try:
@@ -35,44 +35,44 @@ class VoiceRecognizer:
         except Exception as e:
             logger.error(f"Error setting up microphone: {e}")
             self.microphone = None
-    
+
     def is_available(self) -> bool:
         """Check if voice recognition is available."""
         return self.microphone is not None
-    
+
     def listen_once(self, timeout: int = 10, phrase_time_limit: int = 10) -> Optional[str]:
         """
         Listen for speech and return recognized text.
-        
+
         Args:
             timeout: Maximum time to wait for speech to start
             phrase_time_limit: Maximum time to record phrase
-            
+
         Returns:
             str: Recognized text or None if failed
         """
         if not self.is_available():
             logger.warning("Microphone not available")
             return None
-        
+
         try:
             self.is_listening = True
             logger.info("Listening for speech...")
-            
+
             with self.microphone as source:
                 # Listen for audio with timeout
                 audio = self.recognizer.listen(
-                    source, 
-                    timeout=timeout, 
+                    source,
+                    timeout=timeout,
                     phrase_time_limit=phrase_time_limit
                 )
-            
+
             logger.info("Processing speech...")
             # Try to recognize speech using Google's service
             text = self.recognizer.recognize_google(audio)
             logger.info(f"Recognized: {text}")
             return text
-            
+
         except sr.WaitTimeoutError:
             logger.warning("Listening timeout - no speech detected")
             return None
@@ -87,11 +87,11 @@ class VoiceRecognizer:
             return None
         finally:
             self.is_listening = False
-    
+
     def listen_continuously(self, callback: Callable[[str], None], stop_event: threading.Event):
         """
         Continuously listen for speech and call callback with recognized text.
-        
+
         Args:
             callback: Function to call with recognized text
             stop_event: Event to signal when to stop listening
@@ -99,9 +99,9 @@ class VoiceRecognizer:
         if not self.is_available():
             logger.error("Cannot start continuous listening - microphone not available")
             return
-        
+
         logger.info("Starting continuous speech recognition...")
-        
+
         while not stop_event.is_set():
             try:
                 text = self.listen_once(timeout=1, phrase_time_limit=5)
@@ -110,7 +110,7 @@ class VoiceRecognizer:
             except Exception as e:
                 logger.error(f"Error in continuous listening: {e}")
                 time.sleep(1)  # Brief pause before retrying
-        
+
         logger.info("Stopped continuous speech recognition")
 
 # Global recognizer instance
@@ -127,13 +127,13 @@ def listen_once(recognizer: sr.Recognizer = None, mic: sr.Microphone = None, tim
 # ---------- Text-to-Speech ----------
 class Speaker:
     """Enhanced text-to-speech with multiple voice options and thread safety."""
-    
+
     def __init__(self):
         self.engine = None
         self.lock = Lock()
         self.is_speaking = False
         self._initialize_engine()
-    
+
     def _initialize_engine(self):
         """Initialize the TTS engine with error handling."""
         try:
@@ -143,24 +143,24 @@ class Speaker:
         except Exception as e:
             logger.error(f"Failed to initialize TTS engine: {e}")
             self.engine = None
-    
+
     def _configure_voice(self):
         """Configure voice properties for Ultron-like speech."""
         if not self.engine:
             return
-        
+
         try:
             voices = self.engine.getProperty('voices')
-            
+
             # Try to find a suitable voice (prefer male, deeper voices)
             selected_voice = None
             voice_preferences = [
                 "Microsoft David Desktop",
-                "Microsoft Mark Desktop", 
+                "Microsoft Mark Desktop",
                 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech\\Voices\\Tokens\\TTS_MS_EN-US_DAVID_11.0",
                 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech\\Voices\\Tokens\\TTS_MS_EN-US_ZIRA_11.0"
             ]
-            
+
             for voice in voices:
                 for preferred in voice_preferences:
                     if preferred.lower() in voice.name.lower():
@@ -168,40 +168,41 @@ class Speaker:
                         break
                 if selected_voice:
                     break
-            
+
             # Use the first available voice if no preferred voice found
             if not selected_voice and voices:
                 selected_voice = voices[0]
-            
+
             if selected_voice:
                 self.engine.setProperty('voice', selected_voice.id)
                 logger.info(f"Selected voice: {selected_voice.name}")
-            
+
             # Configure speech rate and volume for Ultron-like delivery
             self.engine.setProperty('rate', 170)    # words per minute (slightly slower)
             self.engine.setProperty('volume', 1.0)  # maximum volume
-            
+
         except Exception as e:
             logger.error(f"Error configuring voice: {e}")
-    
+
     def is_available(self) -> bool:
         """Check if TTS is available."""
         return self.engine is not None
-    
+
     def _clean_text_for_speech(self, text: str) -> str:
         """Clean text to prevent repetitive speech issues."""
+        import re
         if not text:
             return text
-        
-        # Remove excessive repetition of words
-        words = text.split()
+
+        # Remove excessive repetition of words (including punctuation/newlines)
+        words = re.split(r'[\s.,!?;:\n]+', text)
         cleaned_words = []
         last_word = None
         repeat_count = 0
-        
+
         for word in words:
-            word_clean = word.lower().strip('.,!?;:')
-            if word_clean == last_word:
+            word_clean = word.lower().strip()
+            if word_clean == last_word and word_clean in ['assistant', 'ultron', 'system', 'response']:
                 repeat_count += 1
                 if repeat_count < 2:  # Allow max 1 repetition
                     cleaned_words.append(word)
@@ -209,26 +210,23 @@ class Speaker:
                 cleaned_words.append(word)
                 repeat_count = 0
             last_word = word_clean
-        
+
         cleaned_text = ' '.join(cleaned_words)
-        
-        # Remove common problematic patterns
-        problematic_patterns = [
-            'assistant assistant',
-            'ultron ultron',
-            'system system',
-            'response response'
-        ]
-        
-        for pattern in problematic_patterns:
-            cleaned_text = cleaned_text.replace(pattern, pattern.split()[0])
-        
+
+        # Remove problematic patterns (catch edge cases)
+        for token in ['assistant', 'ultron', 'system', 'response']:
+            cleaned_text = re.sub(rf'({token})(\s+\1)+', token, cleaned_text, flags=re.IGNORECASE)
+
+        # Remove any trailing/leading repeated tokens
+        cleaned_text = re.sub(r'^(assistant\s*)+', '', cleaned_text, flags=re.IGNORECASE)
+        cleaned_text = re.sub(r'(\s*assistant)+$', '', cleaned_text, flags=re.IGNORECASE)
+
         return cleaned_text
-    
+
     def say(self, text: str, block: bool = False):
         """
         Speak the given text.
-        
+
         Args:
             text: Text to speak
             block: Whether to block until speech is complete
@@ -236,18 +234,18 @@ class Speaker:
         if not self.is_available():
             logger.warning("TTS engine not available")
             return
-        
+
         if not text or not text.strip():
             return
-        
+
         # Clean text to prevent repetition issues
         cleaned_text = self._clean_text_for_speech(text)
-        
+
         with self.lock:
             if self.is_speaking:
                 logger.info("Already speaking, skipping duplicate request")
                 return
-        
+
         def _speak():
             try:
                 with self.lock:
@@ -260,13 +258,13 @@ class Speaker:
             finally:
                 with self.lock:
                     self.is_speaking = False
-        
+
         if block:
             _speak()
         else:
             # Run in background thread
             Thread(target=_speak, daemon=True).start()
-    
+
     def stop(self):
         """Stop current speech."""
         if self.engine:
@@ -276,32 +274,32 @@ class Speaker:
                     self.is_speaking = False
             except Exception as e:
                 logger.error(f"Error stopping speech: {e}")
-    
+
     def get_available_voices(self) -> list:
         """Get list of available voices."""
         if not self.engine:
             return []
-        
+
         try:
             voices = self.engine.getProperty('voices')
             return [{"id": v.id, "name": v.name, "age": getattr(v, 'age', 'unknown')} for v in voices]
         except Exception as e:
             logger.error(f"Error getting voices: {e}")
             return []
-    
+
     def set_voice(self, voice_id: str) -> bool:
         """
         Set the voice by ID.
-        
+
         Args:
             voice_id: Voice ID to use
-            
+
         Returns:
             bool: True if successful
         """
         if not self.engine:
             return False
-        
+
         try:
             self.engine.setProperty('voice', voice_id)
             logger.info(f"Voice changed to: {voice_id}")
@@ -309,20 +307,20 @@ class Speaker:
         except Exception as e:
             logger.error(f"Error setting voice: {e}")
             return False
-    
+
     def set_rate(self, rate: int) -> bool:
         """
         Set speech rate.
-        
+
         Args:
             rate: Words per minute (typically 150-200)
-            
+
         Returns:
             bool: True if successful
         """
         if not self.engine:
             return False
-        
+
         try:
             self.engine.setProperty('rate', rate)
             logger.info(f"Speech rate set to: {rate}")
@@ -334,7 +332,7 @@ class Speaker:
 # ---------- Enhanced Voice Assistant Class ----------
 class UltronVoiceAssistant:
     """Complete voice assistant combining speech recognition and synthesis."""
-    
+
     def __init__(self):
         self.recognizer = VoiceRecognizer()
         self.speaker = Speaker()
@@ -342,34 +340,34 @@ class UltronVoiceAssistant:
         self.stop_listening_event = threading.Event()
         self.listening_thread = None
         self.callback = None
-    
+
     def is_available(self) -> bool:
         """Check if both speech recognition and synthesis are available."""
         return self.recognizer.is_available() and self.speaker.is_available()
-    
+
     def speak(self, text: str, block: bool = False):
         """Speak text using the TTS engine."""
         self.speaker.say(text, block)
-    
+
     def listen(self, timeout: int = 10) -> Optional[str]:
         """Listen for a single phrase."""
         return self.recognizer.listen_once(timeout=timeout)
-    
+
     def start_continuous_listening(self, callback: Callable[[str], None]):
         """
         Start continuous listening mode.
-        
+
         Args:
             callback: Function to call with recognized speech
         """
         if self.continuous_listening:
             logger.warning("Continuous listening already active")
             return
-        
+
         self.callback = callback
         self.continuous_listening = True
         self.stop_listening_event.clear()
-        
+
         self.listening_thread = threading.Thread(
             target=self.recognizer.listen_continuously,
             args=(self._handle_speech, self.stop_listening_event),
@@ -377,20 +375,20 @@ class UltronVoiceAssistant:
         )
         self.listening_thread.start()
         logger.info("Started continuous listening")
-    
+
     def stop_continuous_listening(self):
         """Stop continuous listening mode."""
         if not self.continuous_listening:
             return
-        
+
         self.continuous_listening = False
         self.stop_listening_event.set()
-        
+
         if self.listening_thread:
             self.listening_thread.join(timeout=2)
-        
+
         logger.info("Stopped continuous listening")
-    
+
     def _handle_speech(self, text: str):
         """Handle recognized speech in continuous mode."""
         if self.callback:
@@ -398,7 +396,7 @@ class UltronVoiceAssistant:
                 self.callback(text)
             except Exception as e:
                 logger.error(f"Error in speech callback: {e}")
-    
+
     def get_status(self) -> Dict[str, Any]:
         """Get voice assistant status."""
         return {
@@ -425,22 +423,22 @@ if __name__ == "__main__":
     # Test the voice system
     def test_voice_system():
         assistant = UltronVoiceAssistant()
-        
+
         print("Voice System Status:")
         status = assistant.get_status()
         for key, value in status.items():
             print(f"  {key}: {value}")
-        
+
         if assistant.speaker.is_available():
             print("\nTesting TTS...")
             assistant.speak("Hello, I am Ultron. Voice system is operational.")
-            
+
             # List available voices
             voices = assistant.speaker.get_available_voices()
             print(f"\nAvailable voices: {len(voices)}")
             for voice in voices[:3]:  # Show first 3
                 print(f"  - {voice['name']}")
-        
+
         if assistant.recognizer.is_available():
             print("\nTesting speech recognition...")
             print("Say something (5 second timeout):")
@@ -450,5 +448,5 @@ if __name__ == "__main__":
                 assistant.speak(f"You said: {text}")
             else:
                 print("No speech detected")
-    
+
     test_voice_system()
