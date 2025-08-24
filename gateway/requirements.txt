@@ -1,0 +1,3 @@
+Flask>=2.2
+python-dotenv>=1.0
+gitpython>=3.1
