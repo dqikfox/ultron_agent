@@ -1,92 +1,34 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
+env/
+bin/
 lib/
 lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual environments
-venv/
-env/
-ENV/
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
 
-# IDE
-.vscode/settings.json
-.continue/
-*.code-search
+# pyenv
+.python-version
 
-# Logs and caches
-*.log
-ultron*.log
-startup.log
-error.log
-ultron_gui.log
-system_automation.log
-actions_*.json
-*_log.txt
-cache.json
-scheduled_tasks.json
+# mypy
+.mypy_cache/
 
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*~
-temp_audio.*
-speech_*.mp3
-screenshot_*.png
-ultron_screenshot_*.png
+# pytest
+.cache/
 
-# Secrets and config
-.env
-.env.local
-.env.production
-ultron_config.json
-!ultron_config.json.example
-keys.txt
-*-credentials.json
-*-service-account.json
+# Coverage
+.coverage
+coverage.xml
 
-# Model cache
-models/
-model_cache/
-*.bin
-*.safetensors
-*.gguf
-
-# Audio/video temp files
-*.wav
-*.mp3
-*.mp4
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# IDE extended
-.idea/
-*.swp
-*.swo
-
-# Project specific
-ultron_region_screenshot_*.png
-package-lock.json
-node_modules/
-resources/java/
-tools/agent_workspace*/
+# Jupyter Notebook
+.ipynb_checkpoints/
