@@ -23,13 +23,11 @@
 - **Tool Loading**: Tools are dynamically discovered from the `tools/` package. Each tool must be a class with `match` and `execute` methods, and a static `schema()` method for metadata.
 - **Event System**: Use `EventSystem` for cross-component communication. Subscribe to events like `command_start`, `command_complete`, and `error`.
 - **Async/Sync Handling**: Most core logic is async, but sync wrappers are provided for GUI and CLI compatibility.
-- **Voice**: Voice system uses a fallback chain: Enhanced → pyttsx3 → OpenAI → Console.
+ **Voice**: Voice system uses a fallback chain: ElevenLabs (TTS) → pyttsx3 (TTS) → Console (TTS). STT uses local recognition (`speech_recognition`) with robust error handling and fallback to text input if microphone or recognition fails. API keys for ElevenLabs are loaded from Windows environment variables (`ELEVENLABS_API_KEY`) or from `ultron_config.json`. All voice operations are thread-safe and support async mode. The system will never perform network calls unless an API key is present.
 - **GUI**: The GUI runs in a background thread and interacts with the agent via method calls and event system.
 - **Testing**: Tests use heavy mocking for config, brain, and tools. See `tests/test_agent_core.py` for patterns.
-- **Startup**: `run.bat` performs system checks, diagnostics, and launches the agent.
 
 ## Integration Points & External Dependencies
-- **Ollama**: Required for model management. Must be running (`ollama serve`).
 - **OpenAI**: API key required for some features. Set in `ultron_config.json` or as an environment variable.
 - **Python 3.10+**: Required for all features.
 - **ShellCheck**: Used for shell script linting (Windows support via bundled binary).
@@ -50,3 +48,7 @@ https://pyautogui.readthedocs.io/en/latest/tests.html
 ---
 
 If any section is unclear or missing, please provide feedback for further refinement.
+
+## Contributor note
+- Before making behavioral changes, read `DEVELOPER_QUICKSTART.md` for repository conventions, local env setup, and testing expectations.
+- Keep changes small and well-tested; run `pytest` and `python -m py_compile` on modified modules before opening a PR.
