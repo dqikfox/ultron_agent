@@ -1,175 +1,165 @@
-﻿# Ultron Agent 2 - Development Guide
+﻿# Ultron Agent 2
 
 ## Overview
 
-This is the Ultron Agent 2 project workspace, configured with advanced AI development tools and extensions.
+Ultron Agent 2 is a local voice-first AI assistant with multi-model support. It features a Python backend with web and GUI interfaces, designed for AI-enhanced development workflows. The project integrates multiple AI tools and provides a comprehensive development environment with NVIDIA enhanced AI capabilities and a Pokédex-style GUI.
 
-## AI Tools Enabled
+## 🚀 Quick Start
 
-### Active AI Extensions
+### Running the Application
 
-- **Amazon Q (CodeWhisperer)** - AWS AI coding assistant
-- **GitHub Copilot** - GitHub's AI pair programmer
-- **Sixth AI** - Advanced inline completions (with proposed API)
-- **Pochi/Tabby** - MCP-enabled AI assistant
-- **IDL for VS Code** - Specialized development environment
+The easiest way to run Ultron Agent 2 is using the unified launcher:
 
-## Quick Start
-
-### 1. Launch with AI Extensions
-
-```powershell
-# Use the custom launch script
-& "$env:USERPROFILE\launch-vscode-ai.ps1" -WorkspacePath "C:\Projects\ultron_agent_2" -WithProposedAPIs
-
-# Or manually
-code --enable-proposed-api sixth.sixth-ai "C:\Projects\ultron_agent_2"
+```bash
+# Launch the unified menu
+run_unified.bat
 ```
 
-### 2. Verify AI Tools
+This will present a menu with the following options:
+1. Full System (NVIDIA AI + Web GUI + API Server + Command Center)
+2. NVIDIA Enhanced AI Only
+3. Web GUI Only
+4. Pokédex GUI
+5. Development Mode (with debug logging)
+6. Clean Logs
+7. Exit
 
-- Press `Ctrl+Shift+P` and type "Amazon Q" to access Q Chat
-- Start typing code to see GitHub Copilot suggestions
-- Use `Ctrl+I` for inline AI assistance
-- Check status bar for active AI services
+### Installation
 
-## Configuration Features
+```bash
+# Python environment setup
+python -m venv .venv
+.venv\Scripts\activate
+pip install -e .
 
-### AI Optimizations
+# For development
+pip install -e ".[dev]"
 
-- Proposed APIs enabled for Sixth AI
-- Network proxy configuration for connectivity
-- Performance optimizations for file watching
-- Memory usage optimizations
+# For GUI features
+pip install -e ".[gui]"
 
-### Development Settings
-
-- **Python**: Strict type checking, Black formatting
-- **Editor**: Format on save, trim whitespace
-- **Terminal**: PowerShell default
-- **Theme**: Neon IDL with IDL icons
-
-## AI Usage Tips
-
-### Amazon Q
-
-- Use `/help` in Q Chat for guidance
-- Ask questions about your code
-- Request code reviews and optimizations
-
-### GitHub Copilot
-
-- Tab to accept suggestions
-- `Ctrl+Right Arrow` to accept word-by-word
-- `Alt+]` and `Alt+[` to cycle through suggestions
-
-### Sixth AI
-
-- Advanced context-aware completions
-- Supports inline editing capabilities
-- Works with proposed VS Code APIs
-
-## Project Structure
-
-```
-ultron_agent_2/
- .vscode/
-    settings.json     # AI-optimized workspace settings
-    launch.json       # Debug configurations
- assistant/           # AI Assistant Web Application
-    ai-assistant/     # React TypeScript web app
-    main.py          # Python backend integration
-    todo.md          # Project tasks
-    *.md, *.pdf      # Project documentation
- docs/
-    README.md         # This guide
-    API.md           # API documentation
-    DEVELOPMENT.md   # Development workflow
- src/                  # Source code
- tests/               # Test files
- requirements.txt     # Python dependencies
- pyproject.toml      # Python project configuration
+# For ML features
+pip install -e ".[ml]"
 ```
 
-## Troubleshooting
+## 🏗️ Architecture
 
-### Common Issues
+Ultron Agent 2 consists of several server components:
 
-1. **Sixth AI API Error**: Ensure VS Code launched with `--enable-proposed-api sixth.sixth-ai`
-2. **Amazon Q Connectivity**: Check network settings and proxy configuration
-3. **Copilot Not Working**: Verify authentication in VS Code settings
-4. **Performance Issues**: Review file watcher exclusions
+- **NVIDIA Enhanced AI Chat Server** (port 8000)
+- **Web GUI Server** (port 8080)
+- **API Server** (port 5000)
+- **Command Center GUI** (Electron application)
 
-### Quick Fixes
+## 🧠 Features
 
-```powershell
-# Restart with all AI tools
-& "$env:USERPROFILE\launch-vscode-ai.ps1" -WorkspacePath "." -WithProposedAPIs
+- **Multiple AI Personalities**: General, Creative, Technical, Productivity, Research
+- **Real-time Chat Interface**: Conversation history with context management
+- **File Processing**: PDF, DOC, images with AI analysis
+- **Web Search Integration**: AI-enhanced web search capabilities
+- **Voice Recognition**: Speech-to-text and text-to-speech
+- **Modern UI**: Responsive design with dark/light themes
+- **Memory System**: Short-term and long-term memory with Google Drive integration
+- **NVIDIA Enhanced AI**: Advanced AI capabilities powered by NVIDIA models
 
-# Check extension status
-code --list-extensions --show-versions | findstr -i "amazon\|github\|sixth"
-```
+## 🖥️ GUI Interfaces
 
-## Customization
-
-### Adding New AI Tools
-
-1. Install extension via VS Code marketplace
-2. Add configuration to `.vscode/settings.json`
-3. Update launch script if needed
-4. Test functionality
-
-### Performance Tuning
-
-- Adjust `files.watcherExclude` for your project structure
-- Modify `python.analysis.typeCheckingMode` as needed
-- Configure additional formatters/linters
-
-## ULTRON Enhanced GUI Interface
+### Pokédex-style GUI
 
 The project includes a fully functional Pokédex-style GUI interface:
 
 - **Location**: `gui/ultron_enhanced/web/`
 - **Main File**: `file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html`
 - **Technology**: HTML5 + CSS3 + JavaScript
-- **Status**: ✅ Fully Functional
 - **Features**: Console, System Monitor, Vision, Tasks, Files, Settings, Profile
 
-### Features
+### Command Center
 
-- 🤖 Multiple AI personalities (General, Creative, Technical, Productivity, Research)
-- 💬 Real-time chat interface with conversation history
-- 📁 File processing (PDF, DOC, images) with AI analysis
-- 🔍 Web search integration with AI insights
-- 📝 Productivity suite (notes, tasks, reminders)
-- 🎨 Modern responsive UI with dark/light themes
+An Electron-based GUI application:
 
-### Quick Start - GUI Interface
+- **Location**: `core/ultron-agent-command-center/`
+- **Executable**: `core/ultron-agent-command-center/release/win-unpacked/Ultron Agent Command Center.exe`
+
+### Web Interface
+
+- **URL**: http://localhost:8000
+- **Alternative**: http://localhost:8080
+
+## 🧪 Testing
 
 ```bash
-# Open the ULTRON Enhanced GUI directly in browser
-start file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html
+# Run all tests
+pytest
 
-# Or launch via Python server
-cd gui/ultron_enhanced
-python ultron_main.py
+# Run specific test categories
+pytest -m unit         # Unit tests only
+pytest -m integration  # Integration tests only
+pytest -m gui          # GUI tests only
 ```
 
-## Commands Reference
+## 🛠️ Development
 
-### AI Assistant Commands
+### VS Code Integration
 
-- `Ctrl+Shift+P`  "Amazon Q: Open Chat"
-- `Ctrl+I`  Inline AI editing
-- `Alt+/`  Trigger completions
-- `F1`  Command palette (all AI commands)
+This project is configured with advanced AI development tools and extensions:
 
-### Development Commands
+- **Amazon Q (CodeWhisperer)** - AWS AI coding assistant
+- **GitHub Copilot** - GitHub's AI pair programmer
+- **Sixth AI** - Advanced inline completions
 
-- `Ctrl+K, Ctrl+F`  Format document
-- `Ctrl+Shift+I`  Organize imports
+To launch VS Code with AI extensions:
+
+```powershell
+code --enable-proposed-api sixth.sixth-ai "C:\Projects\ultron_agent_2"
+```
+
+### Development Settings
+
+- **Python**: Strict type checking, Black formatting
+- **Editor**: Format on save, trim whitespace
+- **Terminal**: PowerShell default
+
+## 📁 Project Structure
+
+```
+ultron_agent_2/
+ .vscode/            # VS Code workspace settings
+ assistant/          # AI Assistant Web Application (React/TypeScript)
+ core/               # Electron-based Command Center GUI
+ gui/                # GUI interfaces including Pokédex-style UI
+ logs/               # Log files for various services
+ tests/              # Test files for various components (pytest)
+ docs/               # Documentation files
+ config.py           # Configuration management
+ memory.py           # Memory system with Google Drive integration
+ nvidia_enhanced_ultron.py  # NVIDIA AI server
+ web_gui_server.py   # Web GUI server
+ api_server.py       # API server
+ run_unified.bat     # Unified launcher script
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Servers not starting**: Check logs in the `logs/` directory
+2. **GUI not showing**: Verify the correct ports are being used (8000, 8080, 5000)
+3. **Voice recognition issues**: Check microphone permissions and settings
+4. **Performance issues**: Adjust memory settings in configuration
+
+### Log Files
+
+Log files are stored in the `logs/` directory:
+- `nvidia_chat.log` - NVIDIA AI server logs
+- `web_gui_server.log` - Web GUI server logs
+- `api_server.log` - API server logs
+
+## 📚 Documentation
+
+- **PROJECT_STATUS.md** - Current project status and issues
+- **API.md** - API documentation
+- **DEVELOPMENT.md** - Development workflow
 
 ---
-**Ready to code with AI assistance!**
-
+**Ultron Agent 2 - Your AI-powered development assistant**
 

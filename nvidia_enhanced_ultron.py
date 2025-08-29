@@ -170,7 +170,7 @@ class NVIDIAEnhancedUltron:
     async def process_websocket_message(self, websocket, session_id, message_data):
         response = await self.process_data(message_data)
         await websocket.send_json(response)
-working
+
     async def broadcast_model_change(self, model_name: str):
         """Broadcast model change to all connected clients"""
         await self.sio.emit('model_switched', {
