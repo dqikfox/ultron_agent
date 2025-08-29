@@ -3,30 +3,30 @@
     "configurations": [
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/src"
+                "PYTHONPATH": "${workspaceFolder}"
             }
         },
         {
             "name": "Ultron Agent: Main",
-            "type": "python",
+                "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/main.py",
+            "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/src",
+                "PYTHONPATH": "${workspaceFolder}",
                 "DEBUG": "true"
             }
         },
         {
             "name": "Python: Test Suite",
-            "type": "python",
+                "type": "debugpy",
             "request": "launch",
             "module": "pytest",
             "args": [
@@ -37,11 +37,11 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/src"
+                "PYTHONPATH": "${workspaceFolder}"
             }
         },
         {
-            "type": "pwa-msedge",
+                "type": "msedge",
             "name": "Launch Microsoft Edge",
             "request": "launch",
             "runtimeArgs": [
@@ -53,14 +53,14 @@
             }
         },
         {
-            "type": "pwa-msedge",
+                "type": "msedge",
             "name": "Launch Microsoft Edge in headless mode",
             "request": "launch",
             "runtimeArgs": [
                 "--headless",
                 "--remote-debugging-port=9222"
             ],
-            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.9\\out\\startpage\\index.html", // Provide your project's url to finish configuring
+            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.9.0\\out\\startpage\\index.html", // Provide your project's url to finish configuring
             "presentation": {
                 "hidden": true
             }
@@ -69,7 +69,7 @@
             "type": "vscode-edge-devtools.debug",
             "name": "Open Edge DevTools",
             "request": "attach",
-            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.9\\out\\startpage\\index.html", // Provide your project's url to finish configuring
+            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.9.0\\out\\startpage\\index.html", // Provide your project's url to finish configuring
             "presentation": {
                 "hidden": true
             }
