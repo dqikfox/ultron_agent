@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Enhanced - Pokédex Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+    <div id="pokedex-container">
+        <!-- Top Section -->
+        <div class="pokedex-top">
+            <!-- Power Indicator -->
+            <div class="power-section">
+                <div class="power-light" id="power-light"></div>
+                <div class="status-lights">
+                    <div class="status-light red" id="status-red"></div>
+                    <div class="status-light yellow" id="status-yellow"></div>
+                    <div class="status-light green" id="status-green"></div>
+                </div>
+            </div>
+            
+            <!-- Main Screen -->
+            <div class="main-screen">
+                <div class="screen-border">
+                    <div class="screen-content" id="main-screen">
+                        <div class="boot-sequence" id="boot-sequence">
+                            <div class="boot-text">ULTRON ENHANCED v3.0</div>
+                            <div class="boot-text">Initializing Systems...</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="boot-progress"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Main Interface (hidden initially) -->
+                        <div class="main-interface" id="main-interface" style="display: none;">
+                            <!-- Navigation Tabs -->
+                            <div class="nav-tabs">
+                                <button class="nav-tab active" data-tab="console">CONSOLE</button>
+                                <button class="nav-tab" data-tab="system">SYSTEM</button>
+                                <button class="nav-tab" data-tab="vision">VISION</button>
+                                <button class="nav-tab" data-tab="tasks">TASKS</button>
+                                <button class="nav-tab" data-tab="files">FILES</button>
+                                <button class="nav-tab" data-tab="config">CONFIG</button>
+                            </div>
+                            
+                            <!-- Tab Content -->
+                            <div class="tab-content">
+                                <!-- Console Tab -->
+                                <div class="tab-panel active" id="console-panel">
+                                    <div class="chat-messages" id="chat-messages">
+                                        <div class="system-message">
+                                            <span class="timestamp">[SYSTEM]</span>
+                                            ULTRON Enhanced AI System Ready
+                                        </div>
+                                    </div>
+                                    <div class="chat-input-section">
+                                        <input type="text" id="chat-input" placeholder="Enter command or message..." autocomplete="off">
+                                        <button id="send-button">SEND</button>
+                                        <button id="voice-button" class="voice-btn">🎤</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- System Tab -->
+                                <div class="tab-panel" id="system-panel">
+                                    <div class="system-stats">
+                                        <div class="stat-group">
+                                            <h3>System Performance</h3>
+                                            <div class="stat-item">
+                                                <span class="stat-label">CPU:</span>
+                                                <div class="stat-bar">
+                                                    <div class="stat-fill" id="cpu-bar" style="width: 0%"></div>
+                                                </div>
+                                                <span class="stat-value" id="cpu-value">0%</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">Memory:</span>
+                                                <div class="stat-bar">
+                                                    <div class="stat-fill" id="memory-bar" style="width: 0%"></div>
+                                                </div>
+                                                <span class="stat-value" id="memory-value">0%</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">Disk:</span>
+                                                <div class="stat-bar">
+                                                    <div class="stat-fill" id="disk-bar" style="width: 0%"></div>
+                                                </div>
+                                                <span class="stat-value" id="disk-value">0%</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-group">
+                                            <h3>Active Processes</h3>
+                                            <div class="process-list" id="process-list">
+                                                <div class="process-item">Loading processes...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Vision Tab -->
+                                <div class="tab-panel" id="vision-panel">
+                                    <div class="vision-controls">
+                                        <button class="vision-btn" id="screenshot-btn">Take Screenshot</button>
+                                        <button class="vision-btn" id="ocr-btn">Extract Text (OCR)</button>
+                                        <button class="vision-btn" id="analyze-btn">Analyze Screen</button>
+                                    </div>
+                                    <div class="vision-display">
+                                        <div class="vision-placeholder" id="vision-placeholder">
+                                            No image captured yet. Click "Take Screenshot" to begin.
+                                        </div>
+                                        <img id="vision-image" style="display: none;" alt="Screen capture">
+                                    </div>
+                                    <div class="vision-results" id="vision-results"></div>
+                                </div>
+                                
+                                <!-- Tasks Tab -->
+                                <div class="tab-panel" id="tasks-panel">
+                                    <div class="task-controls">
+                                        <input type="text" id="new-task-input" placeholder="Enter new task...">
+                                        <button id="add-task-btn">Add Task</button>
+                                    </div>
+                                    <div class="task-list" id="task-list">
+                                        <div class="task-item example">
+                                            <div class="task-content">
+                                                <div class="task-title">Example Task</div>
+                                                <div class="task-description">This is an example automated task</div>
+                                            </div>
+                                            <div class="task-status completed">✓</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Files Tab -->
+                                <div class="tab-panel" id="files-panel">
+                                    <div class="file-controls">
+                                        <button class="file-btn" id="organize-files-btn">Organize Files</button>
+                                        <button class="file-btn" id="cleanup-temp-btn">Cleanup Temp</button>
+                                        <button class="file-btn" id="scan-directory-btn">Scan Directory</button>
+                                    </div>
+                                    <div class="file-browser" id="file-browser">
+                                        <div class="file-item folder">
+                                            <span class="file-icon">📁</span>
+                                            <span class="file-name">Documents</span>
+                                            <span class="file-size">--</span>
+                                        </div>
+                                        <div class="file-item folder">
+                                            <span class="file-icon">📁</span>
+                                            <span class="file-name">Screenshots</span>
+                                            <span class="file-size">--</span>
+                                        </div>
+                                        <div class="file-item file">
+                                            <span class="file-icon">📄</span>
+                                            <span class="file-name">README.md</span>
+                                            <span class="file-size">12KB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Config Tab -->
+                                <div class="tab-panel" id="config-panel">
+                                    <div class="config-sections">
+                                        <div class="config-group">
+                                            <h3>AI Models</h3>
+                                            <div class="config-item">
+                                                <label>Primary Model:</label>
+                                                <select id="primary-model">
+                                                    <option value="ollama:qwen2.5-coder">Qwen 2.5 Coder (Local)</option>
+                                                    <option value="openai:gpt-4">GPT-4 (OpenAI)</option>
+                                                    <option value="anthropic:claude-3">Claude 3 (Anthropic)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="config-group">
+                                            <h3>Voice Settings</h3>
+                                            <div class="config-item">
+                                                <label>Voice Speed:</label>
+                                                <input type="range" id="voice-speed" min="50" max="300" value="150">
+                                                <span id="voice-speed-value">150</span>
+                                            </div>
+                                            <div class="config-item">
+                                                <label>Wake Word:</label>
+                                                <input type="text" id="wake-word" value="ultron">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="config-group">
+                                            <h3>Automation</h3>
+                                            <div class="config-item">
+                                                <label>Safety Mode:</label>
+                                                <input type="checkbox" id="safety-mode" checked>
+                                            </div>
+                                            <div class="config-item">
+                                                <label>Auto-save Screenshots:</label>
+                                                <input type="checkbox" id="auto-save-screenshots" checked>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Section -->
+        <div class="pokedex-bottom">
+            <!-- Control Pad -->
+            <div class="control-pad">
+                <div class="d-pad">
+                    <button class="d-pad-btn up" data-direction="up">▲</button>
+                    <button class="d-pad-btn left" data-direction="left">◀</button>
+                    <button class="d-pad-btn center" data-direction="center">●</button>
+                    <button class="d-pad-btn right" data-direction="right">▶</button>
+                    <button class="d-pad-btn down" data-direction="down">▼</button>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" id="action-a">A</button>
+                <button class="action-btn" id="action-b">B</button>
+            </div>
+            
+            <!-- Speaker Grilles -->
+            <div class="speaker-section">
+                <div class="speaker-grille">
+                    <div class="grille-line"></div>
+                    <div class="grille-line"></div>
+                    <div class="grille-line"></div>
+                    <div class="grille-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Connection Status -->
+    <div class="connection-status" id="connection-status">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Connecting...</span>
+    </div>
+    
+    <!-- Audio Context for Sounds -->
+    <audio id="beep-sound" preload="auto" style="display: none;">
+        <source src="/assets/beep.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- JavaScript -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/assets/sounds.js"></script>
+    <script src="/assets/app.js"></script>
+</body>
+</html>
