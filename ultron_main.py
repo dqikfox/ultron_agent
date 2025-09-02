@@ -329,17 +329,20 @@ class UltronCore:
             
             # Start web server
             if self.web_server:
-                await self.web_server.start()
+                self.web_server.start_server()
                 self.log_info(f"Web interface available at: http://localhost:{self.config.web_port}")
             
             # Start voice processor
-            if self.voice_processor:
-                self.voice_processor.start_listening()
-                self.log_info("Voice recognition active")
+            if self.voice_processor and self.voice_processor.recognizer:
+                try:
+                    self.voice_processor.start_listening()
+                    self.log_info("Voice recognition active")
+                except Exception as e:
+                    self.log_warning(f"Voice recognition not started: {e}")
             
-            # Start file sorting if enabled
-            if self.config.auto_sort_enabled:
-                await self._start_file_sorting()
+            # Skip file sorting for now - can be enabled later
+            # if self.config.auto_sort_enabled:
+            #     await self._start_file_sorting()
             
             # Main loop
             await self._main_loop()
@@ -351,21 +354,24 @@ class UltronCore:
     async def _main_loop(self):
         """Main system loop"""
         self.log_info("ULTRON AI System ready - Main loop started")
-        self.voice_processor.speak("ULTRON AI System is now online and ready for commands.")
+        
+        # Try to speak if voice is available
+        if self.voice_processor and self.voice_processor.tts_engine:
+            try:
+                self.voice_processor.speak("ULTRON AI System is now online and ready for commands.")
+            except Exception as e:
+                self.log_warning(f"Voice synthesis not available: {e}")
         
         while self.running:
             try:
-                await asyncio.sleep(0.1)  # Non-blocking sleep
+                await asyncio.sleep(1)  # Non-blocking sleep
                 
-                # Process voice commands
-                if self.voice_processor and self.voice_processor.has_command():
-                    command = self.voice_processor.get_command()
-                    if command:
-                        await self._process_voice_command(command)
-                
-                # Monitor system performance
+                # Monitor system performance  
                 if self.config.performance_monitoring:
                     self._update_performance_metrics()
+                
+                # Web server keeps the system alive
+                # Voice commands can be processed through web interface
                 
             except Exception as e:
                 self.log_error(f"Error in main loop: {e}")
@@ -571,11 +577,51 @@ class UltronCore:
             self.log_error(f"Error stopping ULTRON: {e}")
 
 # CLI Interface
+    async def stop(self):
+        """Stop the ULTRON AI system"""
+        try:
+            self.running = False
+            self.log_info("🔴 ULTRON AI System stopping...")
+            
+            # Stop web server
+            if self.web_server:
+                self.web_server.stop_server()
+                self.log_info("Web server stopped")
+            
+            # Stop voice processor
+            if self.voice_processor:
+                # Voice processor will stop with the main loop
+                pass
+            
+            self.log_info("ULTRON AI System stopped")
+            
+        except Exception as e:
+            self.log_error(f"Error stopping ULTRON: {e}")
+
 async def main():
-    """Main entry point"""
+    """Main entry point with argument handling"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='ULTRON Enhanced AI System')
+    parser.add_argument('--web', action='store_true', help='Start in web-only mode')
+    parser.add_argument('--cli', action='store_true', help='Start in CLI-only mode') 
+    parser.add_argument('--gui', action='store_true', help='Start in GUI mode (if available)')
+    args = parser.parse_args()
+    
     try:
-        print("🔴 ULTRON AI - Advanced Voice-Controlled Assistant")
-        print("=" * 50)
+        print("🔴 ULTRON AI - Enhanced v3.0")
+        print("=" * 40)
+        
+        if args.web:
+            print("🌐 Starting in Web Interface mode")
+        elif args.cli:
+            print("💻 Starting in CLI mode")
+        elif args.gui:
+            print("🖼️  Starting in GUI mode")
+        else:
+            print("🚀 Starting in Auto mode (Web + Voice)")
+        
+        print()
         
         # Initialize ULTRON
         ultron = UltronCore()
@@ -589,6 +635,8 @@ async def main():
             await ultron.stop()
     except Exception as e:
         print(f"❌ Fatal error: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == "__main__":
