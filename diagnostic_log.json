@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-09-02T08:23:58.504013",
+  "diagnostics": [
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service ollama is not healthy",
+      "details": {
+        "name": "ollama",
+        "description": "Ollama AI Model Server",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": 11434,
+        "pid": null,
+        "last_checked": "2025-09-02T08:23:57.987464",
+        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f964ca90da0>: Failed to establish a new connection: [Errno 111] Connection refused'))",
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 08:23:58.320096",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service agent_core is not healthy",
+      "details": {
+        "name": "agent_core",
+        "description": "ULTRON Agent Core System",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": null,
+        "pid": null,
+        "last_checked": "2025-09-02T08:23:58.154841",
+        "error": null,
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 08:23:58.320103",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 08:23:58.320249",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 08:23:58.320254",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service ollama is not healthy",
+      "details": {
+        "name": "ollama",
+        "description": "Ollama AI Model Server",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": 11434,
+        "pid": null,
+        "last_checked": "2025-09-02T08:23:58.330475",
+        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f964c7fcbf0>: Failed to establish a new connection: [Errno 111] Connection refused'))",
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 08:23:58.360330",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service agent_core is not healthy",
+      "details": {
+        "name": "agent_core",
+        "description": "ULTRON Agent Core System",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": null,
+        "pid": null,
+        "last_checked": "2025-09-02T08:23:58.344903",
+        "error": null,
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 08:23:58.360334",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 08:23:58.360458",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 08:23:58.360462",
+      "resolved": false
+    }
+  ]
+}
