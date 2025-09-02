@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-02T08:26:21.930136",
+  "timestamp": "2025-09-02T08:27:22.100574",
   "diagnostics": [
     {
       "category": "service_health",
@@ -231,6 +231,64 @@
         "key": "anthropic_api_key"
       },
       "timestamp": "2025-09-02 08:26:21.929902",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service ollama is not healthy",
+      "details": {
+        "name": "ollama",
+        "description": "Ollama AI Model Server",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": 11434,
+        "pid": null,
+        "last_checked": "2025-09-02T08:27:22.071435",
+        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f49f6b7dc40>: Failed to establish a new connection: [Errno 111] Connection refused'))",
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 08:27:22.100221",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service agent_core is not healthy",
+      "details": {
+        "name": "agent_core",
+        "description": "ULTRON Agent Core System",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": null,
+        "pid": null,
+        "last_checked": "2025-09-02T08:27:22.085896",
+        "error": null,
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 08:27:22.100225",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 08:27:22.100340",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 08:27:22.100344",
       "resolved": false
     }
   ]
