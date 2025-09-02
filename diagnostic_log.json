@@ -1,336 +1,6 @@
 {
-  "timestamp": "2025-09-02T08:55:07.018827",
+  "timestamp": "2025-09-02T09:16:19.587653",
   "diagnostics": [
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service ollama is not healthy",
-      "details": {
-        "name": "ollama",
-        "description": "Ollama AI Model Server",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": 11434,
-        "pid": null,
-        "last_checked": "2025-09-02T08:23:57.987464",
-        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f964ca90da0>: Failed to establish a new connection: [Errno 111] Connection refused'))",
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:23:58.320096",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service agent_core is not healthy",
-      "details": {
-        "name": "agent_core",
-        "description": "ULTRON Agent Core System",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": null,
-        "pid": null,
-        "last_checked": "2025-09-02T08:23:58.154841",
-        "error": null,
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:23:58.320103",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: openai_api_key",
-      "details": {
-        "key": "openai_api_key"
-      },
-      "timestamp": "2025-09-02 08:23:58.320249",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: anthropic_api_key",
-      "details": {
-        "key": "anthropic_api_key"
-      },
-      "timestamp": "2025-09-02 08:23:58.320254",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service ollama is not healthy",
-      "details": {
-        "name": "ollama",
-        "description": "Ollama AI Model Server",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": 11434,
-        "pid": null,
-        "last_checked": "2025-09-02T08:23:58.330475",
-        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f964c7fcbf0>: Failed to establish a new connection: [Errno 111] Connection refused'))",
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:23:58.360330",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service agent_core is not healthy",
-      "details": {
-        "name": "agent_core",
-        "description": "ULTRON Agent Core System",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": null,
-        "pid": null,
-        "last_checked": "2025-09-02T08:23:58.344903",
-        "error": null,
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:23:58.360334",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: openai_api_key",
-      "details": {
-        "key": "openai_api_key"
-      },
-      "timestamp": "2025-09-02 08:23:58.360458",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: anthropic_api_key",
-      "details": {
-        "key": "anthropic_api_key"
-      },
-      "timestamp": "2025-09-02 08:23:58.360462",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service ollama is not healthy",
-      "details": {
-        "name": "ollama",
-        "description": "Ollama AI Model Server",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": 11434,
-        "pid": null,
-        "last_checked": "2025-09-02T08:26:21.160034",
-        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f49fc521e80>: Failed to establish a new connection: [Errno 111] Connection refused'))",
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:26:21.496867",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service agent_core is not healthy",
-      "details": {
-        "name": "agent_core",
-        "description": "ULTRON Agent Core System",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": null,
-        "pid": null,
-        "last_checked": "2025-09-02T08:26:21.320056",
-        "error": null,
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:26:21.496872",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: openai_api_key",
-      "details": {
-        "key": "openai_api_key"
-      },
-      "timestamp": "2025-09-02 08:26:21.497073",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: anthropic_api_key",
-      "details": {
-        "key": "anthropic_api_key"
-      },
-      "timestamp": "2025-09-02 08:26:21.497078",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service ollama is not healthy",
-      "details": {
-        "name": "ollama",
-        "description": "Ollama AI Model Server",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": 11434,
-        "pid": null,
-        "last_checked": "2025-09-02T08:26:21.590142",
-        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f49f6fc71a0>: Failed to establish a new connection: [Errno 111] Connection refused'))",
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:26:21.929724",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service agent_core is not healthy",
-      "details": {
-        "name": "agent_core",
-        "description": "ULTRON Agent Core System",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": null,
-        "pid": null,
-        "last_checked": "2025-09-02T08:26:21.769374",
-        "error": null,
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:26:21.929729",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: openai_api_key",
-      "details": {
-        "key": "openai_api_key"
-      },
-      "timestamp": "2025-09-02 08:26:21.929898",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: anthropic_api_key",
-      "details": {
-        "key": "anthropic_api_key"
-      },
-      "timestamp": "2025-09-02 08:26:21.929902",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service ollama is not healthy",
-      "details": {
-        "name": "ollama",
-        "description": "Ollama AI Model Server",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": 11434,
-        "pid": null,
-        "last_checked": "2025-09-02T08:27:22.071435",
-        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f49f6b7dc40>: Failed to establish a new connection: [Errno 111] Connection refused'))",
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:27:22.100221",
-      "resolved": false
-    },
-    {
-      "category": "service_health",
-      "severity": "error",
-      "message": "Service agent_core is not healthy",
-      "details": {
-        "name": "agent_core",
-        "description": "ULTRON Agent Core System",
-        "required": true,
-        "running": false,
-        "healthy": false,
-        "port": null,
-        "pid": null,
-        "last_checked": "2025-09-02T08:27:22.085896",
-        "error": null,
-        "startup_time": null
-      },
-      "timestamp": "2025-09-02 08:27:22.100225",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: openai_api_key",
-      "details": {
-        "key": "openai_api_key"
-      },
-      "timestamp": "2025-09-02 08:27:22.100340",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: anthropic_api_key",
-      "details": {
-        "key": "anthropic_api_key"
-      },
-      "timestamp": "2025-09-02 08:27:22.100344",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: openai_api_key",
-      "details": {
-        "key": "openai_api_key"
-      },
-      "timestamp": "2025-09-02 08:53:05.467276",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: anthropic_api_key",
-      "details": {
-        "key": "anthropic_api_key"
-      },
-      "timestamp": "2025-09-02 08:53:05.467281",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: openai_api_key",
-      "details": {
-        "key": "openai_api_key"
-      },
-      "timestamp": "2025-09-02 08:53:05.956237",
-      "resolved": false
-    },
-    {
-      "category": "configuration",
-      "severity": "info",
-      "message": "API key not configured: anthropic_api_key",
-      "details": {
-        "key": "anthropic_api_key"
-      },
-      "timestamp": "2025-09-02 08:53:05.956243",
-      "resolved": false
-    },
     {
       "category": "dependencies",
       "severity": "warning",
@@ -449,6 +119,422 @@
         "package": "psutil"
       },
       "timestamp": "2025-09-02 08:55:07.018787",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:07:57.567349",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:07:57.567356",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:07:58.053198",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:07:58.053204",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:07:58.275487",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:07:58.276010",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 09:07:58.299759",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 09:07:58.301818",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:08:59.027326",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:08:59.027333",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:08:59.039243",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 09:08:59.049797",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:09:59.052614",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:09:59.052622",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:09:59.067796",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 09:09:59.078485",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service ollama is not healthy",
+      "details": {
+        "name": "ollama",
+        "description": "Ollama AI Model Server",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": 11434,
+        "pid": null,
+        "last_checked": "2025-09-02T09:11:17.321132",
+        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f6363b66780>: Failed to establish a new connection: [Errno 111] Connection refused'))",
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 09:11:17.586991",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service agent_core is not healthy",
+      "details": {
+        "name": "agent_core",
+        "description": "ULTRON Agent Core System",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": null,
+        "pid": null,
+        "last_checked": "2025-09-02T09:11:17.444868",
+        "error": null,
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 09:11:17.586996",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:11:17.587234",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:11:17.587239",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:11:17.723244",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service ollama is not healthy",
+      "details": {
+        "name": "ollama",
+        "description": "Ollama AI Model Server",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": 11434,
+        "pid": null,
+        "last_checked": "2025-09-02T09:11:17.709562",
+        "error": "HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/tags (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f636153a450>: Failed to establish a new connection: [Errno 111] Connection refused'))",
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 09:11:17.920093",
+      "resolved": false
+    },
+    {
+      "category": "service_health",
+      "severity": "error",
+      "message": "Service agent_core is not healthy",
+      "details": {
+        "name": "agent_core",
+        "description": "ULTRON Agent Core System",
+        "required": true,
+        "running": false,
+        "healthy": false,
+        "port": null,
+        "pid": null,
+        "last_checked": "2025-09-02T09:11:17.774744",
+        "error": null,
+        "startup_time": null
+      },
+      "timestamp": "2025-09-02 09:11:17.920096",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:11:17.920242",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:11:17.920246",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:11:18.033795",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:14:17.982997",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:14:17.983004",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:14:18.115038",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:14:18.308769",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:14:18.308774",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:14:18.416943",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:16:19.175162",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:16:19.175168",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:16:19.267175",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 09:16:19.486587",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 09:16:19.486595",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 09:16:19.587409",
       "resolved": false
     }
   ]

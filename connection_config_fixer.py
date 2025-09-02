@@ -180,7 +180,7 @@ class ConnectionConfigurationFixer:
             path = Path(gui_file)
             if path.exists():
                 try:
-                    content = path.read_text()
+                    content = path.read_text(encoding='utf-8', errors='ignore')
                     
                     # Check for common GUI connection issues
                     if "localhost:11435" in content:
@@ -198,7 +198,8 @@ class ConnectionConfigurationFixer:
                         })
                         
                 except Exception as e:
-                    logger.error(f"Error checking GUI file {gui_file}: {e}")
+                    if "codec can't decode" not in str(e):
+                        logger.error(f"Error checking GUI file {gui_file}: {e}")
         
         return issues
 
@@ -229,8 +230,21 @@ class ConnectionConfigurationFixer:
 
     def _check_tamagotchi_file(self, file_path: Path, issues: List[Dict[str, Any]]):
         """Check a specific Tamagotchi-related file"""
+        # Skip binary files
+        text_extensions = {'.py', '.js', '.json', '.html', '.css', '.txt', '.md', '.yml', '.yaml', '.xml', '.cfg', '.ini'}
+        if file_path.suffix.lower() not in text_extensions:
+            return
+            
+        # Skip if file is too large (likely binary)
+        if file_path.stat().st_size > 1024 * 1024:  # 1MB limit
+            return
+            
+        # Skip our own fixer files to avoid detecting example patterns
+        if file_path.name in ['connection_config_fixer.py', 'enhancement_manager.py', 'test_ultron_enhancements.py']:
+            return
+            
         try:
-            content = file_path.read_text()
+            content = file_path.read_text(encoding='utf-8', errors='ignore')
             
             # Check for MiniMax connection issues
             if "minimax" in content.lower():
@@ -249,7 +263,9 @@ class ConnectionConfigurationFixer:
                     })
                     
         except Exception as e:
-            logger.error(f"Error checking Tamagotchi file {file_path}: {e}")
+            # Only log if it's not a common binary file error
+            if "codec can't decode" not in str(e):
+                logger.error(f"Error checking Tamagotchi file {file_path}: {e}")
 
     def _generate_fix_recommendations(self, diagnosis: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate specific fix recommendations based on diagnosis"""
