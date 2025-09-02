@@ -1,0 +1,118 @@
+{
+  "version": "3.0.0",
+  "name": "ULTRON Enhanced Agent v3.0",
+  "system": {
+    "mode": "enhanced",
+    "debug": false,
+    "log_level": "INFO",
+    "max_log_size": "10MB",
+    "auto_backup": true,
+    "backup_interval": 24,
+    "first_run": true,
+    "setup_completed": false
+  },
+  "interfaces": {
+    "use_gui": true,
+    "use_voice": true,
+    "use_vision": true,
+    "use_web": true,
+    "auto_launch_web": true,
+    "web_port": 8080,
+    "pokedex_mode": true
+  },
+  "ai_integration": {
+    "openai_api_key": "",
+    "anthropic_api_key": "",
+    "gemini_api_key": "",
+    "elevenlabs_api_key": "",
+    "model": "gpt-3.5-turbo",
+    "max_tokens": 512,
+    "temperature": 0.7,
+    "timeout": 30,
+    "ollama_enabled": true,
+    "local_model": "qwen2.5-coder:1.5b"
+  },
+  "voice_settings": {
+    "engine": "pyttsx3",
+    "stt_engine": "whisper",
+    "voice": "male",
+    "rate": 150,
+    "volume": 0.8,
+    "wake_words": [
+      "ultron",
+      "jarvis",
+      "computer",
+      "ai",
+      "assistant"
+    ],
+    "continuous_listening": false,
+    "voice_activation": true
+  },
+  "vision_settings": {
+    "enabled": true,
+    "auto_analyze": false,
+    "save_screenshots": true,
+    "screenshot_quality": "high",
+    "analysis_detail": "medium",
+    "ocr_enabled": true,
+    "object_detection": true
+  },
+  "ui_settings": {
+    "theme": "red",
+    "animation_speed": "normal",
+    "sound_effects": true,
+    "auto_scroll": true,
+    "max_messages": 100,
+    "led_indicators": true,
+    "scan_lines": true
+  },
+  "automation_settings": {
+    "task_scheduling": true,
+    "auto_maintenance": false,
+    "smart_suggestions": true,
+    "learning_mode": false,
+    "file_organization": true,
+    "process_monitoring": true
+  },
+  "security_settings": {
+    "require_confirmation": true,
+    "safe_mode": false,
+    "allowed_commands": [
+      "system_info",
+      "screenshot",
+      "file_operations",
+      "process_list",
+      "voice_commands",
+      "vision_analysis"
+    ],
+    "restricted_commands": [
+      "system_shutdown",
+      "registry_edit",
+      "file_delete",
+      "network_access"
+    ]
+  },
+  "hotkeys": {
+    "wake": "ctrl+shift+u",
+    "toggle_listening": "ctrl+shift+l",
+    "emergency_stop": "ctrl+shift+x",
+    "screenshot": "ctrl+shift+s",
+    "power_menu": "ctrl+shift+p",
+    "web_interface": "ctrl+shift+w"
+  },
+  "nvidia_nim": {
+    "enabled": true,
+    "api_key": "",
+    "base_url": "https://integrate.api.nvidia.com/v1",
+    "model": "meta/llama-3.1-8b-instruct"
+  },
+  "advanced": {
+    "maverick_engine": true,
+    "analysis_interval": 300,
+    "auto_apply_threshold": 0.9,
+    "multi_threading": true,
+    "async_operations": true,
+    "cache_enabled": true,
+    "performance_monitoring": true
+  }
+}

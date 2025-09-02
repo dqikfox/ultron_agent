@@ -15,10 +15,12 @@ from .voice_processor import VoiceProcessor
 from .system_automation import SystemAutomation
 from .vision_system import VisionSystem
 from .web_server import UltronWebServer
+from .file_sorter import FileSorter
 
 __all__ = [
     'VoiceProcessor',
     'SystemAutomation', 
     'VisionSystem',
-    'UltronWebServer'
+    'UltronWebServer',
+    'FileSorter'
 ]

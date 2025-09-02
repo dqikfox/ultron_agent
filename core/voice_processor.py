@@ -44,17 +44,30 @@ class VoiceProcessor:
         self.config = config or {}
         self.logger = logging.getLogger(__name__)
         
+        # Initialize defaults
+        self.recognizer = None
+        self.microphone = None
+        self.tts_engine = None
+        self.porcupine = None
+        
         # Voice recognition setup
-        self.recognizer = sr.Recognizer()
-        self.microphone = sr.Microphone()
+        try:
+            self.recognizer = sr.Recognizer()
+            self.microphone = sr.Microphone()
+            self.logger.info("Speech recognition initialized")
+        except Exception as e:
+            self.logger.warning(f"Speech recognition not available: {e}")
         
         # TTS setup
-        self.tts_engine = pyttsx3.init()
-        self._setup_tts()
+        try:
+            self.tts_engine = pyttsx3.init()
+            self._setup_tts()
+            self.logger.info("Text-to-speech initialized")
+        except Exception as e:
+            self.logger.warning(f"Text-to-speech not available: {e}")
         
         # Wake word detection
-        self.wake_words = self.config.get('wake_words', ['ultron', 'hello', 'computer'])
-        self.porcupine = None
+        self.wake_words = self.config.wake_words if hasattr(self.config, 'wake_words') else ['ultron', 'hello', 'computer']
         self._setup_wake_word_detection()
         
         # Threading and state
@@ -64,10 +77,11 @@ class VoiceProcessor:
         self.command_callbacks: List[Callable] = []
         
         # Performance optimization
-        self.recognizer.energy_threshold = 4000
-        self.recognizer.dynamic_energy_threshold = True
-        self.recognizer.pause_threshold = 0.8
-        self.recognizer.operation_timeout = 1
+        if self.recognizer:
+            self.recognizer.energy_threshold = 4000
+            self.recognizer.dynamic_energy_threshold = True
+            self.recognizer.pause_threshold = 0.8
+            self.recognizer.operation_timeout = 1
         
         self.logger.info("Voice processor initialized")
     

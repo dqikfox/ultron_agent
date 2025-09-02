@@ -158,13 +158,13 @@ echo [%date% %time%] ULTRON Enhanced startup initiated >> logs\startup.log
 REM Launch main application with error handling
 if "%LAUNCH_MODE%"=="web" (
     echo Starting in Web Mode...
-    python main.py --web
+    python ultron_main.py --web
 ) else if "%LAUNCH_MODE%"=="cli" (
     echo Starting in CLI Mode...
-    python main.py --cli
+    python ultron_main.py --cli
 ) else (
     echo Starting in Auto Mode...
-    python main.py
+    python ultron_main.py
 )
 
 REM Handle exit codes

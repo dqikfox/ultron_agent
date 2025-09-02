@@ -28,14 +28,21 @@ except ImportError:
     OCR_AVAILABLE = False
     print("OCR capabilities limited. Install with: pip install pillow pytesseract")
 
-# Screen capture
+# Screen capture (conditional for headless environments)
 try:
+    import os
+    if 'DISPLAY' not in os.environ:
+        os.environ['DISPLAY'] = ':0'
+    
     import pyautogui
+    pyautogui.FAILSAFE = False
     import mss
     SCREEN_CAPTURE_AVAILABLE = True
-except ImportError:
+except Exception:
     SCREEN_CAPTURE_AVAILABLE = False
-    print("Screen capture not available. Install with: pip install pyautogui mss")
+    pyautogui = None
+    mss = None
+    print("Screen capture not available (headless mode)")
 
 # AI Vision integration
 try:

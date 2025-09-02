@@ -20,7 +20,20 @@ from datetime import datetime, timedelta
 
 # System automation imports
 try:
+    # Handle headless environments
+    import os
+    if 'DISPLAY' not in os.environ:
+        os.environ['DISPLAY'] = ':0'
+    
     import pyautogui
+    pyautogui.FAILSAFE = False
+    GUI_AUTOMATION = True
+except Exception:
+    GUI_AUTOMATION = False
+    pyautogui = None
+
+# Windows-specific automation
+try:
     import win32gui
     import win32process
     import win32api
@@ -48,9 +61,9 @@ class SystemAutomation:
         self.logger = logging.getLogger(__name__)
         
         # PyAutoGUI configuration
-        if 'pyautogui' in globals():
+        if GUI_AUTOMATION and pyautogui:
             pyautogui.FAILSAFE = True
-            pyautogui.PAUSE = self.config.get('automation_pause', 0.1)
+            pyautogui.PAUSE = getattr(config, 'automation_pause', 0.1)
         
         # System monitoring
         self.monitor_active = False
@@ -62,8 +75,8 @@ class SystemAutomation:
         self.process_filters = []
         
         # Automation safety
-        self.safety_enabled = self.config.get('safety_enabled', True)
-        self.confirmation_required = self.config.get('confirmation_required', True)
+        self.safety_enabled = getattr(config, 'safety_enabled', True)
+        self.confirmation_required = getattr(config, 'confirmation_required', True)
         
         self.logger.info("System automation initialized")
     
