@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-02T08:27:22.100574",
+  "timestamp": "2025-09-02T08:55:07.018827",
   "diagnostics": [
     {
       "category": "service_health",
@@ -289,6 +289,166 @@
         "key": "anthropic_api_key"
       },
       "timestamp": "2025-09-02 08:27:22.100344",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 08:53:05.467276",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 08:53:05.467281",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 08:53:05.956237",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 08:53:05.956243",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 08:53:06.213871",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 08:53:06.214620",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 08:53:06.238346",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 08:53:06.258407",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 08:54:06.973823",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 08:54:06.973830",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 08:54:06.984573",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 08:54:06.995106",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: openai_api_key",
+      "details": {
+        "key": "openai_api_key"
+      },
+      "timestamp": "2025-09-02 08:55:06.997633",
+      "resolved": false
+    },
+    {
+      "category": "configuration",
+      "severity": "info",
+      "message": "API key not configured: anthropic_api_key",
+      "details": {
+        "key": "anthropic_api_key"
+      },
+      "timestamp": "2025-09-02 08:55:06.997639",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: pyautogui",
+      "details": {
+        "package": "pyautogui"
+      },
+      "timestamp": "2025-09-02 08:55:07.008443",
+      "resolved": false
+    },
+    {
+      "category": "dependencies",
+      "severity": "warning",
+      "message": "Missing dependency: psutil",
+      "details": {
+        "package": "psutil"
+      },
+      "timestamp": "2025-09-02 08:55:07.018787",
       "resolved": false
     }
   ]
