@@ -207,6 +207,14 @@ class MaverickEngine:
     async def _analyze_file(self, file_path: Path):
         """Analyze a single file for improvement opportunities"""
         try:
+            # Circuit breaker: Check if we've had too many consecutive failures
+            if hasattr(self, '_consecutive_failures'):
+                if self._consecutive_failures > 5:
+                    self.logger.warning(f"Circuit breaker active: skipping analysis for {file_path}")
+                    return
+            else:
+                self._consecutive_failures = 0
+
             # Read file content
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -217,8 +225,22 @@ class MaverickEngine:
             # Build analysis prompt
             prompt = self._build_analysis_prompt(file_path, content)
 
-            # Get AI analysis using Llama 4 Maverick
-            response = await self.ai_router.get_improvement_suggestions(prompt)
+            # Check if ai_router has the required method
+            if not hasattr(self.ai_router, 'get_improvement_suggestions'):
+                self.logger.warning(f"AI router does not support improvement suggestions - skipping analysis for {file_path}")
+                return
+
+            # Get AI analysis using available method
+            try:
+                response = await self.ai_router.get_improvement_suggestions(prompt)
+            except AttributeError as e:
+                self.logger.warning(f"AI router method not available: {e} - using fallback")
+                # Reset consecutive failures and skip this round
+                self._consecutive_failures = 0
+                return
+
+            # Reset failure counter on successful call
+            self._consecutive_failures = 0
 
             if not response or not response.get('suggestions'):
                 return
@@ -240,7 +262,16 @@ class MaverickEngine:
             self._save_suggestions()
 
         except Exception as e:
+            # Increment failure counter
+            if not hasattr(self, '_consecutive_failures'):
+                self._consecutive_failures = 0
+            self._consecutive_failures += 1
+            
             self.logger.error(f"Failed to analyze {file_path}: {e}")
+            
+            # If we've had too many failures, pause analysis
+            if self._consecutive_failures > 10:
+                self.logger.warning("Too many consecutive failures - pausing Maverick analysis")
 
     def _build_analysis_prompt(self, file_path: Path, content: str) -> str:
         """Build the analysis prompt for AI"""

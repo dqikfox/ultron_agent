@@ -1,15 +1,33 @@
 {
-    "extensions.experimental.affinity": {
-        "sixth.sixth-ai": 1
-    },
-    "amazonQ.telemetry": true,
-    "amazonQ.shareCodeWhispererContentWithAWS": true,
-    "amazonQ.suppressPrompts": {
-        "amazonQChatDisclaimer": true,
-        "amazonQChatPairProgramming": true
-    },
     "editor.inlineSuggest.enabled": true,
     "editor.suggest.preview": true,
+    "http.proxySupport": "override",
+    "http.systemCertificates": true,
+    "search.followSymlinks": false,
+    
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/venv/**": true,
+        "**/__pycache__/**": true,
+        "**/logs/**": true,
+        "**/cache/**": true,
+        "**/.cache/**": true,
+        "**/screenshots/**": true,
+        "**/*.png": true,
+        "**/*.jpg": true,
+        "**/*.jpeg": true,
+        "**/*.mp3": true,
+        "**/resources/agent workspaces/**": true,
+        "**/ultron_addons/**": true,
+        "**/Oracle_JDK-24/**": true
+    },
+    
+    "typescript.preferences.maxTsServerMemory": 4096,
+    "typescript.tsserver.maxTsServerMemory": 4096,
+    "python.analysis.memory.keepLibraryAst": false,
+    
     "github.copilot.enable": {
         "*": true,
         "plaintext": false,
@@ -24,58 +42,32 @@
         "sql": true,
         "shellscript": true
     },
-    "github.copilot.nextEditSuggestions.enabled": true,
-    "github.copilot.advanced": {
-        "secret_key": "github-copilot",
-        "length": 500,
-        "temperature": "",
-        "top_p": "",
-        "stops": {
-            "*": [
-                "\n\n\n"
-            ],
-            "python": [
-                "\ndef ",
-                "\nclass ",
-                "\nif ",
-                "\n#"
-            ]
-        }
-    },
     "github.copilot.chat.enabled": true,
     "github.copilot.inlineSuggest.enable": true,
-    "http.proxySupport": "override",
-    "http.systemCertificates": true,
-    "search.followSymlinks": false,
-    "files.watcherExclude": {
-        "**/.git/objects/**": true,
-        "**/.git/subtree-cache/**": true,
-        "**/node_modules/**": true,
-        "**/venv/**": true,
-        "**/__pycache__/**": true
-    },
+    "github.copilot.editor.enableAutoCompletions": true,
+    
+    "amazonQ.telemetry": false,
+    "amazonQ.shareCodeWhispererContentWithAWS": false,
+    "ai-toolkit.enabled": false,
+    "CodeGPT.enabled": false,
+    
     "python.defaultInterpreterPath": "python",
-    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.typeCheckingMode": "basic",
     "python.formatting.provider": "black",
-    "editor.formatOnSave": true,
+    "python.analysis.autoImportCompletions": false,
+    "python.analysis.indexing": false,
+    
+    "editor.formatOnSave": false,
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    "python.pythonPath": ".venv\\Scripts\\python.exe",
+    "editor.minimap.enabled": false,
+    "editor.codeLens": false,
+    "editor.hover.delay": 1000,
+    
+    "chat.agent.maxRequests": 10,
+    
     "files.readonlyInclude": {
-        "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true
-    },
-    "chat.agent.maxRequests": 50,
-    // AI Toolkit Configuration
-    "ai-toolkit.enabled": true,
-    "ai-toolkit.openai.apiKey": "${env:OPENAI_API_KEY}",
-    "ai-toolkit.preferredModel": "gpt-4o-mini",
-    "ai-toolkit.fallbackModel": "gpt-3.5-turbo",
-    "ai-toolkit.features.codeCompletion": true,
-    "ai-toolkit.features.chatAssistant": true,
-    // Copilot Monitoring
-    "github.copilot.advanced.debug.overrideEngine": "copilot",
-    "github.copilot.advanced.debug.testOverrideProxyUrl": "",
-    "github.copilot.advanced.debug.filterLogCategories": [],
-    "github.copilot.editor.enableAutoCompletions": true,
-    "CodeGPT.apiKey": "Anthropic"
+        "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true,
+        "**/logs/**": true
+    }
 }
