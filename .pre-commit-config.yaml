@@ -1,0 +1,88 @@
+# Pre-commit hooks for ULTRON Agent
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Code formatting
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        language_version: python3.10
+
+  # Import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Linting and code quality
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.11
+    hooks:
+      - id: ruff
+        args: [--fix]
+
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.0
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]
+        exclude: tests/.*
+
+  # Dependency vulnerability scanning
+  - repo: https://github.com/pyupio/safety
+    rev: 3.1.0
+    hooks:
+      - id: safety
+        args: ["--short-report"]
+        stages: [manual]
+
+  # YAML formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        types_or: [yaml, markdown]
+
+  # General pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-toml
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Python-specific checks
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-use-type-annotations
+      - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+
+# Configuration for different file types
+default_stages: [commit]
+fail_fast: false
+
+# Define additional configurations
+ci:
+  autofix_commit_msg: "🎨 Auto-format code with pre-commit"
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "📦 Update pre-commit hooks"
+  autoupdate_schedule: monthly
+  skip: [safety]  # Skip safety in CI due to API limits
