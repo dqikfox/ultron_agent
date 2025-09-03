@@ -1,6 +1,6 @@
 """
 ULTRON Agent Core System
-Main agent initialization and core functionality
+Main agent initialization and core functionality with performance optimizations
 """
 
 import asyncio
@@ -19,13 +19,26 @@ import uuid
 import traceback
 import uvicorn
 
+# Import performance optimizations
+from cache_manager import cache_manager
+from http_manager import http_manager
+from async_task_queue import task_queue, TaskPriority
+from performance_optimizer import PerformanceOptimizer
+
 class UltronAgent:
-    """Core ULTRON agent with essential functionality"""
+    """Core ULTRON agent with essential functionality and performance optimizations"""
 
     def __init__(self):
         # Setup comprehensive logging first
         self.setup_logging()
-        self.logger.info("🤖 ULTRON Agent Core initializing...")
+        self.logger.info("🤖 ULTRON Agent Core initializing with performance optimizations...")
+
+        # Initialize performance optimizer
+        self.performance_optimizer = PerformanceOptimizer()
+        self.performance_optimizer.start_monitoring()
+        
+        # Initialize task queue for background processing
+        self._task_queue_initialized = False
 
         # NVIDIA API Configuration
         self.nvidia_api_keys = [
@@ -727,7 +740,110 @@ Current session: """ + session_id
         self.logger.info("🛑 Shutting down ULTRON Agent...")
         self.is_running = False
         self.status = "shutdown"
+        
+        # Cleanup performance components
+        if self.performance_optimizer:
+            self.performance_optimizer.stop_monitoring()
+        
+        # Stop task queue
+        if self._task_queue_initialized:
+            await task_queue.stop()
+        
+        # Close HTTP connections
+        await http_manager.close()
+        
         self.logger.info("✅ ULTRON Agent shutdown complete")
+    
+    async def initialize_async_components(self):
+        """Initialize async performance components."""
+        if not self._task_queue_initialized:
+            await task_queue.start()
+            self._task_queue_initialized = True
+            self.logger.info("🔄 Async task queue initialized")
+    
+    async def process_with_caching(self, key: str, processor: callable, *args, **kwargs):
+        """Process data with intelligent caching."""
+        # Check cache first
+        cached_result = await cache_manager.get(key)
+        if cached_result is not None:
+            self.logger.debug(f"📋 Cache hit for key: {key}")
+            return cached_result
+        
+        # Process and cache result
+        result = await processor(*args, **kwargs)
+        await cache_manager.set(key, result, ttl=3600)  # Cache for 1 hour
+        self.logger.debug(f"💾 Cached result for key: {key}")
+        return result
+    
+    async def add_background_task(self, func: callable, *args, priority=TaskPriority.NORMAL, **kwargs):
+        """Add task to background processing queue."""
+        await self.initialize_async_components()
+        
+        task_id = await task_queue.add_task(
+            func, *args,
+            priority=priority,
+            **kwargs
+        )
+        self.logger.debug(f"⚡ Added background task: {task_id}")
+        return task_id
+    
+    async def get_performance_metrics(self):
+        """Get comprehensive performance metrics."""
+        metrics = {}
+        
+        # System metrics
+        if self.performance_optimizer:
+            current_metrics = self.performance_optimizer.get_current_metrics()
+            if current_metrics:
+                metrics['system'] = {
+                    'cpu_percent': current_metrics.cpu_percent,
+                    'memory_percent': current_metrics.memory_percent,
+                    'disk_usage': current_metrics.disk_usage
+                }
+        
+        # Cache metrics
+        cache_stats = cache_manager.get_statistics()
+        metrics['cache'] = {
+            'memory_hit_rate': cache_stats['memory'].hit_rate,
+            'disk_hit_rate': cache_stats['disk'].hit_rate,
+            'combined_hit_rate': cache_stats['combined'].hit_rate,
+            'total_size_mb': cache_stats['combined'].total_size / (1024 * 1024)
+        }
+        
+        # HTTP metrics
+        http_metrics = http_manager.get_metrics_summary()
+        metrics['http'] = http_metrics
+        
+        # Task queue metrics
+        if self._task_queue_initialized:
+            queue_status = task_queue.get_queue_status()
+            metrics['tasks'] = queue_status
+        
+        return metrics
+    
+    async def optimize_performance(self):
+        """Trigger performance optimizations."""
+        optimizations = []
+        
+        # System optimizations
+        if self.performance_optimizer:
+            system_opts = self.performance_optimizer.optimize_system()
+            optimizations.extend(system_opts)
+        
+        # Cache cleanup
+        try:
+            if self._task_queue_initialized:
+                cleaned = await task_queue.clear_completed(keep_recent=50)
+                if cleaned > 0:
+                    optimizations.append(f"Cleared {cleaned} completed tasks")
+        except Exception as e:
+            self.logger.error(f"Task cleanup failed: {e}")
+        
+        # HTTP connection optimization
+        await http_manager.close()  # Close and recreate connections
+        optimizations.append("Reset HTTP connection pool")
+        
+        return optimizations
 
 # Create global instance
 agent = UltronAgent()

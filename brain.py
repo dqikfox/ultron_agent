@@ -349,6 +349,32 @@ ULTRON:"""
             return response.status_code == 200
         except Exception:
             return False
+    
+    async def _test_ollama_connection_async(self) -> bool:
+        """Async test if Ollama is accessible with caching."""
+        from cache_manager import cache_manager
+        from http_manager import http_manager
+        
+        # Check cache first (cache for 30 seconds)
+        cache_key = "ollama_connection_status"
+        cached_status = await cache_manager.get(cache_key)
+        if cached_status is not None:
+            return cached_status
+        
+        try:
+            ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
+            
+            async with await http_manager.get(f"{ollama_base_url}/api/tags") as response:
+                is_connected = response.status == 200
+                
+                # Cache the result
+                await cache_manager.set(cache_key, is_connected, ttl=30)
+                return is_connected
+                
+        except Exception:
+            # Cache negative result for shorter time
+            await cache_manager.set(cache_key, False, ttl=5)
+            return False
 
         issues_found = []
         fixes_applied = []

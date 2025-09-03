@@ -181,9 +181,25 @@ class PerformanceOptimizer:
             # Memory optimization
             if current.memory_percent > 70:
                 try:
-                    # Force garbage collection
+                    # Force garbage collection with all generations
                     gc.collect()
+                    gc.collect()  # Second pass for circular references
                     optimizations.append("Performed aggressive garbage collection")
+                    
+                    # Clear import caches
+                    import sys
+                    if hasattr(sys, 'modules'):
+                        # Clear module cache for unused modules
+                        unused_modules = [name for name, module in sys.modules.items() 
+                                        if module and hasattr(module, '__file__') and 
+                                        getattr(module, '__file__', '').endswith('.pyc')]
+                        for module_name in unused_modules[:10]:  # Limit to 10 modules
+                            if module_name not in ['sys', 'gc', 'os', 'logging']:
+                                sys.modules.pop(module_name, None)
+                        
+                        if unused_modules:
+                            optimizations.append(f"Cleared {min(10, len(unused_modules))} unused module caches")
+                    
                 except Exception as e:
                     logger.error(f"Memory optimization failed: {sanitize_log_input(str(e))}")
                     
@@ -191,11 +207,43 @@ class PerformanceOptimizer:
             if current.cpu_percent > 60:
                 optimizations.append("Consider reducing concurrent operations")
                 
+            # Advanced optimizations
+            optimizations.extend(await self._advanced_optimizations())
+                
             return optimizations
             
         except Exception as e:
             logger.error(f"System optimization failed: {sanitize_log_input(str(e))}")
             return ["Optimization failed - check logs"]
+    
+    async def _advanced_optimizations(self) -> List[str]:
+        """Perform advanced system optimizations."""
+        optimizations = []
+        
+        try:
+            # Cache optimization
+            from cache_manager import cache_manager
+            stats = cache_manager.get_statistics()
+            combined_stats = stats['combined']
+            
+            if combined_stats.hit_rate < 50 and combined_stats.hits + combined_stats.misses > 100:
+                optimizations.append(f"Cache hit rate low ({combined_stats.hit_rate:.1f}%) - consider cache warming")
+            
+            # Connection pool optimization
+            import aiohttp
+            if hasattr(aiohttp, 'ClientSession'):
+                optimizations.append("HTTP connection pooling available for async requests")
+            
+            # Async I/O recommendations
+            current_threads = threading.active_count()
+            if current_threads > 10:
+                optimizations.append(f"High thread count ({current_threads}) - consider async patterns")
+            
+            return optimizations
+            
+        except Exception as e:
+            logger.error(f"Advanced optimizations failed: {sanitize_log_input(str(e))}")
+            return []
             
     def get_system_info(self) -> Dict[str, str]:
         """Get detailed system information."""
