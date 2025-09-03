@@ -5060,3 +5060,6 @@
 {"timestamp": "2025-08-14T19:45:16.004672", "name": "root", "levelname": "ERROR", "message": "GUI monitoring error: main thread is not in main loop", "correlation_id": "957ae984", "source": "core"}
 {"timestamp": "2025-08-14T19:45:19.010312", "name": "root", "levelname": "ERROR", "message": "GUI monitoring error: main thread is not in main loop", "correlation_id": "957ae984", "source": "core"}
 {"timestamp": "2025-08-14T19:45:22.016502", "name": "root", "levelname": "ERROR", "message": "GUI monitoring error: main thread is not in main loop", "correlation_id": "957ae984", "source": "core"}
+{"timestamp": "2025-09-03T16:42:36.219264", "name": "ultron.logging", "levelname": "INFO", "message": "Logging initialized - Level: INFO, JSON: True, Console: True", "correlation_id": "7c24e5ab", "source": "logging"}
+{"timestamp": "2025-09-03T16:42:36.219441", "name": "ultron.logging", "levelname": "INFO", "message": "Log directory: /home/runner/work/ultron_agent/ultron_agent/logs", "correlation_id": "7c24e5ab", "source": "logging"}
+{"timestamp": "2025-09-03T16:42:36.219542", "name": "ultron.logging", "levelname": "INFO", "message": "Correlation ID: 7c24e5ab", "correlation_id": "7c24e5ab", "source": "logging"}
