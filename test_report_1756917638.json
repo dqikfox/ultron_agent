@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "total_tests": 2,
+    "passed": 0,
+    "failed": 2,
+    "success_rate": 0.0,
+    "total_time": 0.5086274147033691
+  },
+  "results": {
+    "security": {
+      "passed": 0,
+      "failed": 2,
+      "errors": [
+        "test_security.py: ERROR: Unknown config option: asyncio_mode\n\n\n",
+        "test_accessible_gui_validation.py: ERROR: Unknown config option: asyncio_mode\n\n\n"
+      ]
+    },
+    "unit": {
+      "passed": 0,
+      "failed": 0,
+      "errors": []
+    },
+    "integration": {
+      "passed": 0,
+      "failed": 0,
+      "errors": []
+    },
+    "performance": {
+      "passed": 0,
+      "failed": 0,
+      "errors": []
+    }
+  },
+  "timestamp": 1756917638.0002537
+}
