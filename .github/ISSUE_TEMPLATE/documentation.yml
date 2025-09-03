@@ -1,83 +1,141 @@
----
 name: 📚 Documentation
-about: Report issues with documentation or suggest improvements
+description: Report issues with documentation or suggest improvements
 title: '[DOCS] '
 labels: ['documentation', 'needs-triage']
-assignees: ''
----
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Please provide details about the documentation issue.
 
-## 📚 Documentation Issue Type
-<!-- Select the type of documentation issue -->
-- [ ] Missing documentation
-- [ ] Incorrect/outdated information
-- [ ] Unclear instructions
-- [ ] Broken links
-- [ ] Typos/grammar
-- [ ] Code examples don't work
-- [ ] Missing examples
-- [ ] Accessibility improvements
-- [ ] Translation needed
+  - type: checkboxes
+    id: doc-issue-type
+    attributes:
+      label: 📚 Documentation Issue Type
+      options:
+        - label: Missing documentation
+        - label: Incorrect/outdated information
+        - label: Unclear instructions
+        - label: Broken links
+        - label: Typos/grammar
+        - label: Code examples don't work
+        - label: Missing examples
+        - label: Accessibility improvements
+        - label: Translation needed
+    validations:
+      required: true
 
-## 📍 Location
-<!-- Where is the documentation issue located? -->
-**File/Page:** [e.g., README.md, CONTRIBUTING.md, API docs]
-**Section:** [e.g., "Installation", "Configuration", "API Reference"]
-**URL:** [if applicable]
+  - type: input
+    id: location-file
+    attributes:
+      label: File/Page
+      placeholder: e.g., README.md, CONTRIBUTING.md, API docs
+    validations:
+      required: true
 
-## ❌ Current Problem
-<!-- What's wrong with the current documentation? -->
+  - type: input
+    id: location-section
+    attributes:
+      label: Section
+      placeholder: e.g., "Installation", "Configuration", "API Reference"
 
-## ✅ Suggested Improvement
-<!-- How should the documentation be improved? -->
+  - type: input
+    id: location-url
+    attributes:
+      label: URL (if applicable)
+      placeholder: https://...
 
-## 👥 Target Audience
-<!-- Who would benefit from this documentation improvement? -->
-- [ ] New users/beginners
-- [ ] Experienced developers
-- [ ] Contributors
-- [ ] System administrators
-- [ ] All users
+  - type: textarea
+    id: current-problem
+    attributes:
+      label: ❌ Current Problem
+      description: What's wrong with the current documentation?
+    validations:
+      required: true
 
-## 📝 Content Type Needed
-<!-- What type of documentation content is needed? -->
-- [ ] Step-by-step tutorial
-- [ ] API reference
-- [ ] Code examples
-- [ ] Troubleshooting guide
-- [ ] Architecture explanation
-- [ ] Configuration guide
-- [ ] FAQ entry
-- [ ] Video/visual content
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: ✅ Suggested Improvement
+      description: How should the documentation be improved?
+    validations:
+      required: true
 
-## 🔧 Technical Details
-**Component Related:**
-- [ ] Installation/Setup
-- [ ] Configuration
-- [ ] Agent Core
-- [ ] Brain/AI Logic
-- [ ] Voice System
-- [ ] GUI Interface
-- [ ] Tools Development
-- [ ] API Usage
-- [ ] Deployment
-- [ ] Troubleshooting
+  - type: checkboxes
+    id: target-audience
+    attributes:
+      label: 👥 Target Audience
+      description: Who would benefit from this documentation improvement?
+      options:
+        - label: New users/beginners
+        - label: Experienced developers
+        - label: Contributors
+        - label: System administrators
+        - label: All users
 
-## 💡 Additional Context
-<!-- Any additional information that would help improve the documentation -->
+  - type: checkboxes
+    id: content-type
+    attributes:
+      label: 📝 Content Type Needed
+      options:
+        - label: Step-by-step tutorial
+        - label: API reference
+        - label: Code examples
+        - label: Troubleshooting guide
+        - label: Architecture explanation
+        - label: Configuration guide
+        - label: FAQ entry
+        - label: Video/visual content
 
-## 🔗 Related Resources
-<!-- Links to existing resources, discussions, or examples -->
+  - type: checkboxes
+    id: component-related
+    attributes:
+      label: 🔧 Component Related
+      options:
+        - label: Installation/Setup
+        - label: Configuration
+        - label: Agent Core
+        - label: Brain/AI Logic
+        - label: Voice System
+        - label: GUI Interface
+        - label: Tools Development
+        - label: API Usage
+        - label: Deployment
+        - label: Troubleshooting
 
-## ✅ Checklist
-- [ ] I have checked existing documentation to avoid duplicates
-- [ ] I have identified the specific documentation that needs improvement
-- [ ] I have provided clear suggestions for improvement
-- [ ] I have considered the target audience
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 💡 Additional Context
+      description: Any additional information that would help improve the documentation
 
-## 🎯 Priority
-- [ ] Critical (blocks user onboarding)
-- [ ] High (significantly improves user experience)
-- [ ] Medium (nice to have improvement)
-- [ ] Low (minor enhancement)
+  - type: textarea
+    id: related-resources
+    attributes:
+      label: 🔗 Related Resources
+      description: Links to existing resources, discussions, or examples
 
-<!-- Thank you for helping improve ULTRON Agent documentation! -->
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🎯 Priority
+      options:
+        - Critical (blocks user onboarding)
+        - High (significantly improves user experience)
+        - Medium (nice to have improvement)
+        - Low (minor enhancement)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Checklist
+      options:
+        - label: I have checked existing documentation to avoid duplicates
+          required: true
+        - label: I have identified the specific documentation that needs improvement
+          required: true
+        - label: I have provided clear suggestions for improvement
+          required: true
+        - label: I have considered the target audience

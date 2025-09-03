@@ -1,112 +1,176 @@
----
 name: 🔧 Tool Development
-about: Request a new tool or report issues with existing tools
+description: Request a new tool or report issues with existing tools
 title: '[TOOL] '
 labels: ['tool', 'enhancement', 'needs-triage']
-assignees: ''
----
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in tool development! Please provide details about your tool request.
 
-## 🔧 Tool Request Type
-<!-- Select the type of tool request -->
-- [ ] New tool development
-- [ ] Existing tool improvement
-- [ ] Tool bug fix
-- [ ] Tool documentation
+  - type: checkboxes
+    id: tool-request-type
+    attributes:
+      label: 🔧 Tool Request Type
+      options:
+        - label: New tool development
+        - label: Existing tool improvement
+        - label: Tool bug fix
+        - label: Tool documentation
+    validations:
+      required: true
 
-## 🎯 Tool Purpose
-<!-- What should this tool accomplish? -->
+  - type: textarea
+    id: tool-purpose
+    attributes:
+      label: 🎯 Tool Purpose
+      description: What should this tool accomplish?
+    validations:
+      required: true
 
-## 🔄 Use Cases
-<!-- How would users interact with this tool? -->
-1. User types: `[trigger command]`
-2. Tool performs: `[action]`
-3. Tool returns: `[result]`
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 🔄 Use Cases
+      description: How would users interact with this tool?
+      placeholder: |
+        1. User types: `[trigger command]`
+        2. Tool performs: `[action]`
+        3. Tool returns: `[result]`
+    validations:
+      required: true
 
-## ⚙️ Tool Specifications
-**Tool Name:** [e.g., "WebSearchTool", "FileManagerTool"]
-**Trigger Words:** [e.g., "search", "find", "web"]
-**Categories:** [e.g., "productivity", "information", "automation"]
+  - type: input
+    id: tool-name
+    attributes:
+      label: Tool Name
+      placeholder: e.g., "WebSearchTool", "FileManagerTool"
+    validations:
+      required: true
 
-## 🔌 Integration Requirements
-**External APIs:** [e.g., Google Search API, Weather API]
-**Dependencies:** [e.g., requests, beautifulsoup4]
-**Permissions:** [e.g., file system access, network access]
+  - type: input
+    id: trigger-words
+    attributes:
+      label: Trigger Words
+      placeholder: e.g., "search", "find", "web"
+    validations:
+      required: true
 
-## 💻 Technical Implementation
-**Input Format:**
-```python
-# Example of expected input
-command = "search for python tutorials"
-context = {"user_preferences": {...}}
-```
+  - type: input
+    id: categories
+    attributes:
+      label: Categories
+      placeholder: e.g., "productivity", "information", "automation"
 
-**Output Format:**
-```python
-# Example of expected output
-{
-    "success": True,
-    "result": "Found 10 Python tutorials...",
-    "data": {...}
-}
-```
+  - type: textarea
+    id: external-apis
+    attributes:
+      label: External APIs
+      placeholder: e.g., Google Search API, Weather API
 
-## 🛠️ Tool Structure
-```python
-class YourTool:
-    @staticmethod
-    def match(command: str) -> bool:
-        # Implementation needed
-        pass
-    
-    async def execute(self, command: str, context: Dict) -> str:
-        # Implementation needed
-        pass
-    
-    @staticmethod
-    def schema() -> Dict:
-        return {
-            "name": "YourTool",
-            "description": "Tool description",
-            "triggers": ["trigger1", "trigger2"],
-            "category": "category_name"
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      placeholder: e.g., requests, beautifulsoup4
+
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Permissions
+      placeholder: e.g., file system access, network access
+
+  - type: textarea
+    id: input-format
+    attributes:
+      label: 💻 Input Format
+      description: Example of expected input
+      placeholder: |
+        ```python
+        # Example of expected input
+        command = "search for python tutorials"
+        context = {"user_preferences": {...}}
+        ```
+
+  - type: textarea
+    id: output-format
+    attributes:
+      label: Output Format
+      description: Example of expected output
+      placeholder: |
+        ```python
+        # Example of expected output
+        {
+            "success": True,
+            "result": "Found 10 Python tutorials...",
+            "data": {...}
         }
-```
+        ```
 
-## 🔍 Error Handling
-**Expected Errors:**
-- Network connectivity issues
-- API rate limits
-- Invalid input formats
-- Permission errors
+  - type: textarea
+    id: expected-errors
+    attributes:
+      label: 🔍 Expected Errors
+      description: What errors might occur?
+      placeholder: |
+        - Network connectivity issues
+        - API rate limits
+        - Invalid input formats
+        - Permission errors
 
-**Fallback Behavior:**
-<!-- What should happen when the tool fails? -->
+  - type: textarea
+    id: fallback-behavior
+    attributes:
+      label: Fallback Behavior
+      description: What should happen when the tool fails?
 
-## ✅ Testing Requirements
-- [ ] Unit tests for tool logic
-- [ ] Integration tests with agent core
-- [ ] Error handling tests
-- [ ] Performance tests (if applicable)
+  - type: checkboxes
+    id: testing-requirements
+    attributes:
+      label: ✅ Testing Requirements
+      options:
+        - label: Unit tests for tool logic
+        - label: Integration tests with agent core
+        - label: Error handling tests
+        - label: Performance tests (if applicable)
 
-## 📚 Documentation Needs
-- [ ] Tool usage examples
-- [ ] Configuration instructions
-- [ ] Troubleshooting guide
-- [ ] API documentation (if applicable)
+  - type: checkboxes
+    id: documentation-needs
+    attributes:
+      label: 📚 Documentation Needs
+      options:
+        - label: Tool usage examples
+        - label: Configuration instructions
+        - label: Troubleshooting guide
+        - label: API documentation (if applicable)
 
-## 🔗 Related Tools
-<!-- Any existing tools that are similar or related -->
+  - type: textarea
+    id: related-tools
+    attributes:
+      label: 🔗 Related Tools
+      description: Any existing tools that are similar or related
 
-## 🎯 Priority
-- [ ] Critical (core functionality)
-- [ ] High (important feature)
-- [ ] Medium (nice to have)
-- [ ] Low (convenience feature)
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🎯 Priority
+      options:
+        - Critical (core functionality)
+        - High (important feature)
+        - Medium (nice to have)
+        - Low (convenience feature)
+    validations:
+      required: true
 
-## ✅ Checklist
-- [ ] I have searched existing tools to avoid duplicates
-- [ ] I have provided clear specifications
-- [ ] I have considered error handling
-- [ ] I have outlined testing requirements
-
-<!-- Thank you for helping expand ULTRON Agent's capabilities! -->
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Checklist
+      options:
+        - label: I have searched existing tools to avoid duplicates
+          required: true
+        - label: I have provided clear specifications
+          required: true
+        - label: I have considered error handling
+          required: true
+        - label: I have outlined testing requirements

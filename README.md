@@ -169,7 +169,30 @@ python ultron_main.py
 - `Ctrl+K, Ctrl+F`  Format document
 - `Ctrl+Shift+I`  Organize imports
 
+## 🤝 Community & Contributing
+
+We welcome contributions from the community! Here are the key resources:
+
+### 📋 Guidelines & Policies
+- **[Contributing Guide](CONTRIBUTING.md)** - Development workflow, coding standards, and contribution guidelines
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards and behavior expectations
+- **[Security Policy](SECURITY.md)** - Reporting security vulnerabilities
+- **[Support Guide](SUPPORT.md)** - Getting help and community resources
+
+### 🐛 Issues & Discussions
+- **[Report Bugs](https://github.com/dqikfox/ultron_agent/issues/new?template=bug_report.yml)** - Bug reports with detailed templates
+- **[Request Features](https://github.com/dqikfox/ultron_agent/issues/new?template=feature_request.yml)** - Suggest new features and enhancements
+- **[Community Discussions](https://github.com/dqikfox/ultron_agent/discussions)** - Ask questions, share ideas, and connect with the community
+- **[Tool Development](https://github.com/dqikfox/ultron_agent/issues/new?template=tool_request.yml)** - Request or contribute new tools
+
+### 🚀 Quick Contribution Steps
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Follow our [coding standards](CONTRIBUTING.md#coding-standards)
+4. Test your changes thoroughly
+5. Submit a pull request using our [PR template](.github/pull_request_template.md)
+
 ---
-**Ready to code with AI assistance!**
+**Ready to code with AI assistance and contribute to the community!** 🚀
 
 

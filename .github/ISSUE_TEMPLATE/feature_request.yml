@@ -1,82 +1,149 @@
----
 name: 🚀 Feature Request
-about: Suggest a new feature or enhancement for ULTRON Agent
+description: Suggest a new feature or enhancement for ULTRON Agent
 title: '[FEATURE] '
 labels: ['enhancement', 'needs-triage']
-assignees: ''
----
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide detailed information to help us understand your idea.
 
-## 🚀 Feature Summary
-<!-- A clear and concise description of the feature you'd like to see -->
+  - type: textarea
+    id: feature-summary
+    attributes:
+      label: 🚀 Feature Summary
+      description: A clear and concise description of the feature you'd like to see
+    validations:
+      required: true
 
-## 🎯 Problem Statement
-<!-- What problem does this feature solve? What use case does it address? -->
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: 🎯 Problem Statement
+      description: What problem does this feature solve? What use case does it address?
+    validations:
+      required: true
 
-## 💡 Proposed Solution
-<!-- Describe your preferred solution or approach -->
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: Describe your preferred solution or approach
+    validations:
+      required: true
 
-## 🔄 User Stories
-<!-- Describe how users would interact with this feature -->
-- As a [user type], I want to [action] so that [benefit]
-- As a [user type], I want to [action] so that [benefit]
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: 🔄 User Stories
+      description: Describe how users would interact with this feature
+      placeholder: |
+        - As a [user type], I want to [action] so that [benefit]
+        - As a [user type], I want to [action] so that [benefit]
 
-## 🎨 UI/UX Considerations (if applicable)
-<!-- How should this feature be presented to users? -->
+  - type: textarea
+    id: ui-ux-considerations
+    attributes:
+      label: 🎨 UI/UX Considerations (if applicable)
+      description: How should this feature be presented to users?
 
-## 🔧 Technical Considerations
-**Component Impact:**
-- [ ] Agent Core
-- [ ] Brain/AI Logic  
-- [ ] Voice System
-- [ ] GUI Interface
-- [ ] Tools System
-- [ ] Configuration
-- [ ] Documentation
-- [ ] Other: ___________
+  - type: checkboxes
+    id: component-impact
+    attributes:
+      label: 🔧 Component Impact
+      options:
+        - label: Agent Core
+        - label: Brain/AI Logic
+        - label: Voice System
+        - label: GUI Interface
+        - label: Tools System
+        - label: Configuration
+        - label: Documentation
+        - label: Other
 
-**Implementation Approach:**
-<!-- Any technical details or implementation ideas -->
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: Implementation Approach
+      description: Any technical details or implementation ideas
 
-## 📋 Acceptance Criteria
-<!-- What defines "done" for this feature? -->
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 📋 Acceptance Criteria
+      description: What defines "done" for this feature?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
 
-## 🔍 Alternative Solutions
-<!-- Other approaches you've considered -->
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: 🔍 Alternative Solutions
+      description: Other approaches you've considered
 
-## 📚 Additional Context
-<!-- Add any other context, mockups, references, or examples -->
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📚 Additional Context
+      description: Add any other context, mockups, references, or examples
 
-## 🔗 Related Issues/PRs
-<!-- Link any related issues or pull requests -->
-- Related to #___
-- Depends on #___
-- Blocks #___
+  - type: textarea
+    id: related-issues
+    attributes:
+      label: 🔗 Related Issues/PRs
+      description: Link any related issues or pull requests
+      placeholder: |
+        - Related to #___
+        - Depends on #___
+        - Blocks #___
 
-## ✅ Checklist
-- [ ] I have searched existing issues to avoid duplicates
-- [ ] I have provided a clear problem statement
-- [ ] I have described the proposed solution
-- [ ] I have considered the impact on existing features
-- [ ] This is not a bug report (use Bug Report template instead)
+  - type: dropdown
+    id: business-value
+    attributes:
+      label: 📊 Business Value
+      options:
+        - High (core functionality)
+        - Medium (nice to have)
+        - Low (convenience feature)
+    validations:
+      required: true
 
-## 📊 Priority/Impact
-**Business Value:**
-- [ ] High (core functionality)
-- [ ] Medium (nice to have)
-- [ ] Low (convenience feature)
+  - type: dropdown
+    id: implementation-effort
+    attributes:
+      label: Implementation Effort
+      options:
+        - Small (few hours)
+        - Medium (few days)
+        - Large (weeks)
+        - Extra Large (months)
+    validations:
+      required: true
 
-**Implementation Effort:**
-- [ ] Small (few hours)
-- [ ] Medium (few days)
-- [ ] Large (weeks)
-- [ ] Extra Large (months)
+  - type: dropdown
+    id: breaking-changes
+    attributes:
+      label: Breaking Changes
+      options:
+        - No breaking changes
+        - Minor breaking changes
+        - Major breaking changes
+    validations:
+      required: true
 
-**Breaking Changes:**
-- [ ] No breaking changes
-- [ ] Minor breaking changes
-- [ ] Major breaking changes
-
-<!-- Thank you for helping make ULTRON Agent better! -->
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have provided a clear problem statement
+          required: true
+        - label: I have described the proposed solution
+          required: true
+        - label: I have considered the impact on existing features
+        - label: This is not a bug report (use Bug Report template instead)
+          required: true

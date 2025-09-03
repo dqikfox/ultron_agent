@@ -1,52 +1,96 @@
----
 name: ❓ Question
-about: Ask a question about ULTRON Agent
+description: Ask a question about ULTRON Agent
 title: '[QUESTION] '
 labels: ['question', 'needs-triage']
-assignees: ''
----
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask your question here! Please provide context to help us give you the best answer.
 
-## ❓ Question
-<!-- Ask your question clearly and concisely -->
+  - type: textarea
+    id: question
+    attributes:
+      label: ❓ Question
+      description: Ask your question clearly and concisely
+    validations:
+      required: true
 
-## 🎯 Context
-<!-- What are you trying to accomplish? -->
+  - type: textarea
+    id: context
+    attributes:
+      label: 🎯 Context
+      description: What are you trying to accomplish?
+    validations:
+      required: true
 
-## 🔧 What I've Tried
-<!-- What have you already attempted? -->
+  - type: textarea
+    id: what-tried
+    attributes:
+      label: 🔧 What I've Tried
+      description: What have you already attempted?
 
-## 📚 Research Done
-<!-- What documentation have you checked? -->
-- [ ] README.md
-- [ ] CONTRIBUTING.md
-- [ ] FAQ.md
-- [ ] Existing Issues
-- [ ] Discussions
-- [ ] Other: ___________
+  - type: checkboxes
+    id: research-done
+    attributes:
+      label: 📚 Research Done
+      description: What documentation have you checked?
+      options:
+        - label: README.md
+        - label: CONTRIBUTING.md
+        - label: FAQ.md
+        - label: Existing Issues
+        - label: Discussions
+        - label: Other (please specify below)
 
-## 🖥️ Environment (if relevant)
-**System Information:**
-- OS: [e.g., Windows 11, Ubuntu 22.04, macOS 13.0]
-- Python Version: [e.g., 3.10.8]
-- ULTRON Agent Version: [e.g., 3.0.1]
+  - type: input
+    id: os
+    attributes:
+      label: Operating System (if relevant)
+      placeholder: e.g., Windows 11, Ubuntu 22.04, macOS 13.0
 
-## 💡 Expected Answer Type
-<!-- What type of answer would be most helpful? -->
-- [ ] Step-by-step instructions
-- [ ] Code example
-- [ ] Conceptual explanation
-- [ ] Link to documentation
-- [ ] Troubleshooting steps
-- [ ] Best practices
-- [ ] Other: ___________
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version (if relevant)
+      placeholder: e.g., 3.10.8
 
-## 🔗 Related Information
-<!-- Any relevant links, error messages, or context -->
+  - type: input
+    id: ultron-version
+    attributes:
+      label: ULTRON Agent Version (if relevant)
+      placeholder: e.g., 3.0.1
 
-## ✅ Checklist
-- [ ] I have searched existing issues and discussions
-- [ ] I have checked the documentation
-- [ ] I have provided sufficient context
-- [ ] This is a question, not a bug report or feature request
+  - type: checkboxes
+    id: answer-type
+    attributes:
+      label: 💡 Expected Answer Type
+      description: What type of answer would be most helpful?
+      options:
+        - label: Step-by-step instructions
+        - label: Code example
+        - label: Conceptual explanation
+        - label: Link to documentation
+        - label: Troubleshooting steps
+        - label: Best practices
+        - label: Other (please specify below)
 
-<!-- Thank you for engaging with the ULTRON Agent community! -->
+  - type: textarea
+    id: related-info
+    attributes:
+      label: 🔗 Related Information
+      description: Any relevant links, error messages, or context
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Checklist
+      options:
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: I have checked the documentation
+          required: true
+        - label: I have provided sufficient context
+          required: true
+        - label: This is a question, not a bug report or feature request
+          required: true
