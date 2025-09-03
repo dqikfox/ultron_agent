@@ -1,0 +1,83 @@
+---
+name: 📚 Documentation
+about: Report issues with documentation or suggest improvements
+title: '[DOCS] '
+labels: ['documentation', 'needs-triage']
+assignees: ''
+---
+
+## 📚 Documentation Issue Type
+<!-- Select the type of documentation issue -->
+- [ ] Missing documentation
+- [ ] Incorrect/outdated information
+- [ ] Unclear instructions
+- [ ] Broken links
+- [ ] Typos/grammar
+- [ ] Code examples don't work
+- [ ] Missing examples
+- [ ] Accessibility improvements
+- [ ] Translation needed
+
+## 📍 Location
+<!-- Where is the documentation issue located? -->
+**File/Page:** [e.g., README.md, CONTRIBUTING.md, API docs]
+**Section:** [e.g., "Installation", "Configuration", "API Reference"]
+**URL:** [if applicable]
+
+## ❌ Current Problem
+<!-- What's wrong with the current documentation? -->
+
+## ✅ Suggested Improvement
+<!-- How should the documentation be improved? -->
+
+## 👥 Target Audience
+<!-- Who would benefit from this documentation improvement? -->
+- [ ] New users/beginners
+- [ ] Experienced developers
+- [ ] Contributors
+- [ ] System administrators
+- [ ] All users
+
+## 📝 Content Type Needed
+<!-- What type of documentation content is needed? -->
+- [ ] Step-by-step tutorial
+- [ ] API reference
+- [ ] Code examples
+- [ ] Troubleshooting guide
+- [ ] Architecture explanation
+- [ ] Configuration guide
+- [ ] FAQ entry
+- [ ] Video/visual content
+
+## 🔧 Technical Details
+**Component Related:**
+- [ ] Installation/Setup
+- [ ] Configuration
+- [ ] Agent Core
+- [ ] Brain/AI Logic
+- [ ] Voice System
+- [ ] GUI Interface
+- [ ] Tools Development
+- [ ] API Usage
+- [ ] Deployment
+- [ ] Troubleshooting
+
+## 💡 Additional Context
+<!-- Any additional information that would help improve the documentation -->
+
+## 🔗 Related Resources
+<!-- Links to existing resources, discussions, or examples -->
+
+## ✅ Checklist
+- [ ] I have checked existing documentation to avoid duplicates
+- [ ] I have identified the specific documentation that needs improvement
+- [ ] I have provided clear suggestions for improvement
+- [ ] I have considered the target audience
+
+## 🎯 Priority
+- [ ] Critical (blocks user onboarding)
+- [ ] High (significantly improves user experience)
+- [ ] Medium (nice to have improvement)
+- [ ] Low (minor enhancement)
+
+<!-- Thank you for helping improve ULTRON Agent documentation! -->

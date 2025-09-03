@@ -1,0 +1,52 @@
+---
+name: ❓ Question
+about: Ask a question about ULTRON Agent
+title: '[QUESTION] '
+labels: ['question', 'needs-triage']
+assignees: ''
+---
+
+## ❓ Question
+<!-- Ask your question clearly and concisely -->
+
+## 🎯 Context
+<!-- What are you trying to accomplish? -->
+
+## 🔧 What I've Tried
+<!-- What have you already attempted? -->
+
+## 📚 Research Done
+<!-- What documentation have you checked? -->
+- [ ] README.md
+- [ ] CONTRIBUTING.md
+- [ ] FAQ.md
+- [ ] Existing Issues
+- [ ] Discussions
+- [ ] Other: ___________
+
+## 🖥️ Environment (if relevant)
+**System Information:**
+- OS: [e.g., Windows 11, Ubuntu 22.04, macOS 13.0]
+- Python Version: [e.g., 3.10.8]
+- ULTRON Agent Version: [e.g., 3.0.1]
+
+## 💡 Expected Answer Type
+<!-- What type of answer would be most helpful? -->
+- [ ] Step-by-step instructions
+- [ ] Code example
+- [ ] Conceptual explanation
+- [ ] Link to documentation
+- [ ] Troubleshooting steps
+- [ ] Best practices
+- [ ] Other: ___________
+
+## 🔗 Related Information
+<!-- Any relevant links, error messages, or context -->
+
+## ✅ Checklist
+- [ ] I have searched existing issues and discussions
+- [ ] I have checked the documentation
+- [ ] I have provided sufficient context
+- [ ] This is a question, not a bug report or feature request
+
+<!-- Thank you for engaging with the ULTRON Agent community! -->
