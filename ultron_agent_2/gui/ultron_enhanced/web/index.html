@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<<<<<<< ours
+  <meta charset="UTF-8" />
+  <title>Ultron Enhanced Chat</title>
+  <script src="https://js.elevenlabs.io/v1"></script>
+</head>
+<body>
+  <h1>Ultron Enhanced Chat</h1>
+  <div id="messages"></div>
+  <button id="record-btn">🎤 Speak</button>
+  <input id="text-input" type="text" placeholder="Type message" />
+  <button id="send-btn">Send</button>
+  <audio id="tts-audio" autoplay></audio>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const supabaseUrl = window.SUPABASE_URL || 'https://YOUR_PROJECT.supabase.co';
+    const supabaseKey = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const messagesEl = document.getElementById('messages');
+
+    async function saveMessage(role, content) {
+      const { error } = await supabase.from('messages').insert([{ role, content }]);
+      if (error) console.error('Supabase insert error', error);
+    }
+
+    function renderMessage(role, content) {
+      const p = document.createElement('p');
+      p.textContent = `${role}: ${content}`;
+      messagesEl.appendChild(p);
+    }
+
+    async function sendToOllama(prompt) {
+      const response = await fetch('http://localhost:11434/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'llama3', prompt })
+      });
+      const reader = response.body.getReader();
+      let result = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        result += new TextDecoder().decode(value);
+      }
+      try {
+        const json = JSON.parse(result.trim().split('\n').pop());
+        return json.response || '';
+      } catch (e) {
+        return result;
+      }
+    }
+
+    async function speakText(text) {
+      const voiceId = window.ELEVENLABS_VOICE_ID || 'YOUR_VOICE_ID';
+      const apiKey = window.ELEVENLABS_API_KEY || 'YOUR_ELEVENLABS_API_KEY';
+      const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey
+        },
+        body: JSON.stringify({ text })
+      });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      document.getElementById('tts-audio').src = url;
+    }
+
+    async function handleSend(text) {
+      if (!text) return;
+      renderMessage('User', text);
+      await saveMessage('user', text);
+      const reply = await sendToOllama(text);
+      renderMessage('Ollama', reply);
+      await saveMessage('bot', reply);
+      await speakText(reply);
+    }
+
+    document.getElementById('send-btn').addEventListener('click', async () => {
+      const input = document.getElementById('text-input');
+      const text = input.value;
+      input.value = '';
+      await handleSend(text);
+    });
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognizer = new SpeechRecognition();
+      recognizer.continuous = false;
+      recognizer.lang = 'en-US';
+      document.getElementById('record-btn').addEventListener('click', () => recognizer.start());
+      recognizer.onresult = async (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('text-input').value = transcript;
+        await handleSend(transcript);
+      };
+    }
+=======
+  <meta charset="UTF-8">
+  <title>Ultron Enhanced Chat</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h1>Ultron Enhanced Chat</h1>
+  <div id="conversation"></div>
+  <button id="mic">🎤 Start Chat</button>
+  <script>
+    const { createClient } = supabase;
+    const supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
+    const supabaseKey = 'YOUR_PUBLIC_ANON_KEY';
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+    const ELEVEN_API_KEY = 'YOUR_ELEVENLABS_API_KEY';
+    const OLLAMA_URL = 'http://localhost:11434/api/chat';
+    let mediaRecorder;
+    let audioChunks = [];
+
+    async function startRecording() {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => handleAudio(new Blob(audioChunks, { type: 'audio/webm' }));
+      mediaRecorder.start();
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+
+    async function handleAudio(blob) {
+      const text = await transcribeAudio(blob);
+      appendMessage('user', text);
+      const reply = await chatWithOllama(text);
+      appendMessage('assistant', reply);
+      await speak(reply);
+      await logChat(text, reply);
+    }
+
+    async function transcribeAudio(blob) {
+      const formData = new FormData();
+      formData.append('audio', blob, 'input.webm');
+      const resp = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+        method: 'POST',
+        headers: { 'xi-api-key': ELEVEN_API_KEY },
+        body: formData
+      });
+      const data = await resp.json();
+      return data.text;
+    }
+
+    async function chatWithOllama(text) {
+      const resp = await fetch(OLLAMA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'llama3',
+          messages: [{ role: 'user', content: text }]
+        })
+      });
+      const data = await resp.json();
+      return data.message.content;
+    }
+
+    async function speak(text) {
+      const resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech', {
+        method: 'POST',
+        headers: {
+          'xi-api-key': ELEVEN_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text })
+      });
+      const buffer = await resp.arrayBuffer();
+      const audio = new Audio(URL.createObjectURL(new Blob([buffer])));
+      await audio.play();
+    }
+
+    async function logChat(userText, botText) {
+      await supabaseClient.from('messages').insert({ user_text: userText, bot_text: botText });
+    }
+
+    function appendMessage(role, text) {
+      const div = document.createElement('div');
+      div.className = role;
+      div.textContent = `${role}: ${text}`;
+      document.getElementById('conversation').appendChild(div);
+    }
+
+    const micButton = document.getElementById('mic');
+    micButton.addEventListener('mousedown', startRecording);
+    micButton.addEventListener('mouseup', stopRecording);
+>>>>>>> theirs
+  </script>
+</body>
+</html>
