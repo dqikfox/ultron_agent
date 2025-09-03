@@ -1,10 +1,28 @@
-﻿# Ultron Agent 2 - Development Guide
+﻿# Ultron Agent 3.0 - AI-Powered Development Platform
 
-## Overview
+## 🚀 Overview
 
-This is the Ultron Agent 2 project workspace, configured with advanced AI development tools and extensions.
+Ultron Agent 3.0 is a comprehensive multi-modal agent framework featuring voice interaction, GUI interfaces, web APIs, multi-LLM routing, and enterprise-grade security automation.
 
-## AI Tools Enabled
+## 🛡️ Security & Automation (NEW)
+
+### Automated Security Features
+- **Dependabot**: Weekly dependency updates with intelligent grouping
+- **Pre-commit Hooks**: Security scanning, code formatting, and secret detection
+- **CI/CD Security**: Bandit, Safety, Semgrep, and OWASP dependency scanning
+- **Scheduled Audits**: Weekly vulnerability scans with automated issue creation
+- **Secret Protection**: Prevents accidental commit of sensitive data
+
+**Quick Security Setup:**
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files  # Test all security hooks
+```
+
+See [Security Documentation](docs/SECURITY_AUTOMATION.md) for complete details.
+
+## 🤖 AI Tools Enabled
 
 ### Active AI Extensions
 
