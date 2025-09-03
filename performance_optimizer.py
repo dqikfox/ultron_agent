@@ -207,8 +207,8 @@ class PerformanceOptimizer:
             if current.cpu_percent > 60:
                 optimizations.append("Consider reducing concurrent operations")
                 
-            # Advanced optimizations
-            optimizations.extend(await self._advanced_optimizations())
+            # Advanced optimizations (sync version)
+            optimizations.extend(self._advanced_optimizations())
                 
             return optimizations
             
@@ -216,18 +216,13 @@ class PerformanceOptimizer:
             logger.error(f"System optimization failed: {sanitize_log_input(str(e))}")
             return ["Optimization failed - check logs"]
     
-    async def _advanced_optimizations(self) -> List[str]:
-        """Perform advanced system optimizations."""
+    def _advanced_optimizations(self) -> List[str]:
+        """Perform advanced system optimizations (synchronous version)."""
         optimizations = []
         
         try:
             # Cache optimization
-            from cache_manager import cache_manager
-            stats = cache_manager.get_statistics()
-            combined_stats = stats['combined']
-            
-            if combined_stats.hit_rate < 50 and combined_stats.hits + combined_stats.misses > 100:
-                optimizations.append(f"Cache hit rate low ({combined_stats.hit_rate:.1f}%) - consider cache warming")
+            optimizations.append("Cache optimization available - use async version for full benefits")
             
             # Connection pool optimization
             import aiohttp
@@ -244,6 +239,25 @@ class PerformanceOptimizer:
         except Exception as e:
             logger.error(f"Advanced optimizations failed: {sanitize_log_input(str(e))}")
             return []
+    
+    async def optimize_system_async(self) -> List[str]:
+        """Async version of system optimization with full features."""
+        optimizations = self.optimize_system()  # Get base optimizations
+        
+        try:
+            # Async-specific optimizations
+            from cache_manager import cache_manager
+            stats = cache_manager.get_statistics()
+            combined_stats = stats['combined']
+            
+            if combined_stats.hit_rate < 50 and combined_stats.hits + combined_stats.misses > 100:
+                optimizations.append(f"Cache hit rate low ({combined_stats.hit_rate:.1f}%) - consider cache warming")
+            
+            return optimizations
+            
+        except Exception as e:
+            logger.error(f"Async optimizations failed: {sanitize_log_input(str(e))}")
+            return optimizations
             
     def get_system_info(self) -> Dict[str, str]:
         """Get detailed system information."""

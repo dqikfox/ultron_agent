@@ -32,3 +32,36 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints/
+
+# Cache directories and files - Performance optimization caches
+cache/
+*.cache
+.cache/
+
+# Logs
+*.log
+logs/
+
+# Configuration files (keep examples)
+*.env
+config.json
+!*.example.*
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Screenshots (except docs)
+*.png
+!docs/*.png
