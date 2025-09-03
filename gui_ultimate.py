@@ -408,20 +408,26 @@ class UltimateAgentGUI:
 
     def _start_monitoring(self):
         def update_stats():
-            while True:
-                try:
-                    cpu = cpu_percent()
-                    ram = virtual_memory().percent
-                    self.root.after(0, self.cpu_label.config, {'text': f"CPU: {cpu:.1f}%"})
-                    self.root.after(0, self.ram_label.config, {'text': f"RAM: {ram:.1f}%"})
-                except (NoSuchProcess, AccessDenied):
-                    pass # Ignore errors if process closes during monitoring
-                except Exception as e:
-                    error(f"GUI monitoring error: {sanitize_log_input(str(e))}")
-                sleep(2)
+            try:
+                cpu = cpu_percent()
+                ram = virtual_memory().percent
+                # Safely update GUI from main thread
+                if hasattr(self, 'cpu_label') and self.cpu_label:
+                    self.cpu_label.config(text=f"CPU: {cpu:.1f}%")
+                if hasattr(self, 'ram_label') and self.ram_label:
+                    self.ram_label.config(text=f"RAM: {ram:.1f}%")
+            except (NoSuchProcess, AccessDenied):
+                pass # Ignore errors if process closes during monitoring
+            except Exception as e:
+                error(f"GUI monitoring error: {sanitize_log_input(str(e))}")
+            finally:
+                # Schedule next update on main thread
+                if hasattr(self, 'root') and self.root:
+                    self.root.after(2000, update_stats)  # Update every 2 seconds
 
-        monitor_thread = Thread(target=update_stats, daemon=True)
-        monitor_thread.start()
+        # Start the first update on main thread
+        if not self.test_mode and hasattr(self, 'root') and self.root:
+            self.root.after(100, update_stats)  # Start after 100ms
 
     def run(self):
         if not self.test_mode:
