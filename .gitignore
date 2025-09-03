@@ -32,3 +32,48 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints/
+node_modules
+
+# Electron releases
+core/ultron-agent-command-center/release/
+*.exe
+*.AppImage
+*.snap
+*.dmg
+*.deb
+*.rpm
+
+# Large binary files
+*.zip
+*.tar.gz
+*.7z
+
+# Logs
+*.log
+logs/
+
+# Screenshots
+screenshot_*.png
+ultron_screenshot_*.png
+
+# Cache files
+cache/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# IDE files
+.vscode/settings_backup.json
+.vscode/settings_clean.json
+.github/copilot-instructions.md.bak
+
+# Python virtual environments
+venv/
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
