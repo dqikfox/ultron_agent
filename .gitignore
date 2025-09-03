@@ -32,3 +32,49 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints/
+
+# Environment and secrets - CRITICAL SECURITY
+.env
+.env.*
+!.env.example
+keys.txt
+*.key
+*.pem
+ultron-project-*.json
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+
+# Node
+node_modules/
+.vite/
+
+# Editors / IDE
+.vscode/
+.idea/
+*.vsix
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+cache/
+cache.json
+
+# Build artifacts  
+dist/
+build/
+*.egg-info/
+
+# Misc
+*.mp3
+screenshot_*.png
+ultron_screenshot_*.png
+desktop.ini

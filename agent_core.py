@@ -27,12 +27,23 @@ class UltronAgent:
         self.setup_logging()
         self.logger.info("🤖 ULTRON Agent Core initializing...")
 
-        # NVIDIA API Configuration
-        self.nvidia_api_keys = [
-            "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",
-            "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"
-        ]
-        self.current_api_key = self.nvidia_api_keys[0]
+        # NVIDIA API Configuration - Load from environment variables
+        import os
+        nvidia_keys_env = os.getenv('NVIDIA_API_KEYS', '')
+        self.nvidia_api_keys = [key.strip() for key in nvidia_keys_env.split(',') if key.strip()] if nvidia_keys_env else []
+        
+        # Fallback to single key if comma-separated not provided
+        if not self.nvidia_api_keys:
+            single_key = os.getenv('NVIDIA_API_KEY', '')
+            if single_key:
+                self.nvidia_api_keys = [single_key]
+        
+        if not self.nvidia_api_keys:
+            self.logger.warning("⚠️ No NVIDIA API keys found in environment variables!")
+            self.nvidia_api_keys = []
+            self.current_api_key = None
+        else:
+            self.current_api_key = self.nvidia_api_keys[0]
         self.logger.info(f"📡 NVIDIA API configured with {len(self.nvidia_api_keys)} keys")
 
         # NVIDIA Model Configuration
