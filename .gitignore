@@ -77,3 +77,6 @@ venv/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Java resources (long paths)
+resources/java/
