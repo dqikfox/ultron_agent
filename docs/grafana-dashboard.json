@@ -1,0 +1,221 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "ULTRON Agent Monitoring Dashboard",
+    "tags": ["ultron", "agent", "monitoring"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "schemaVersion": 16,
+    "version": 1,
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "ultron_commands_total",
+            "legendFormat": "Total Commands"
+          },
+          {
+            "expr": "rate(ultron_commands_total[5m]) * 60",
+            "legendFormat": "Commands/min"
+          },
+          {
+            "expr": "ultron_error_rate",
+            "legendFormat": "Error Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Response Time Percentiles",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ultron_response_time_seconds",
+            "legendFormat": "Average"
+          },
+          {
+            "expr": "ultron_response_time_p95_seconds",
+            "legendFormat": "95th Percentile"
+          },
+          {
+            "expr": "ultron_response_time_p99_seconds",
+            "legendFormat": "99th Percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Seconds",
+            "min": 0
+          },
+          {
+            "show": false
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "System Resources",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ultron_cpu_percent",
+            "legendFormat": "CPU %"
+          },
+          {
+            "expr": "ultron_memory_percent",
+            "legendFormat": "Memory %"
+          },
+          {
+            "expr": "ultron_disk_percent",
+            "legendFormat": "Disk %"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Percentage",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "show": false
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Component Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "ultron_component_health",
+            "legendFormat": "{{component}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"type": "value", "value": "1", "text": "Healthy"},
+              {"type": "value", "value": "0", "text": "Unhealthy"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "API Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ultron_api_requests_total[5m]) * 60",
+            "legendFormat": "Requests/min"
+          },
+          {
+            "expr": "rate(ultron_api_errors_total[5m]) * 60",
+            "legendFormat": "Errors/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Requests per minute",
+            "min": 0
+          },
+          {
+            "show": false
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Feature Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ultron_voice_commands_total[5m]) * 60",
+            "legendFormat": "Voice Commands/min"
+          },
+          {
+            "expr": "rate(ultron_gui_interactions_total[5m]) * 60",
+            "legendFormat": "GUI Interactions/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events per minute",
+            "min": 0
+          },
+          {
+            "show": false
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "GPU Metrics (if available)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ultron_gpu_percent",
+            "legendFormat": "GPU Usage %"
+          },
+          {
+            "expr": "ultron_gpu_memory_percent",
+            "legendFormat": "GPU Memory %"
+          },
+          {
+            "expr": "ultron_gpu_temperature_celsius",
+            "legendFormat": "GPU Temp °C"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Usage % / Temperature",
+            "min": 0
+          },
+          {
+            "show": false
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24}
+      }
+    ]
+  }
+}

@@ -49,6 +49,28 @@ class SystemMetrics:
     gpu_temperature: Optional[float] = None
 
 
+@dataclass
+class UsageMetrics:
+    """Usage and performance tracking metrics."""
+    commands_executed: int = 0
+    total_execution_time: float = 0.0
+    error_count: int = 0
+    session_count: int = 0
+    api_requests: int = 0
+    api_errors: int = 0
+    last_activity: Optional[datetime] = None
+    
+    # Performance tracking
+    avg_response_time: float = 0.0
+    p95_response_time: float = 0.0
+    p99_response_time: float = 0.0
+    
+    # Feature usage
+    voice_commands: int = 0
+    gui_interactions: int = 0
+    api_calls: int = 0
+
+
 class HealthChecker:
     """Central health checking and metrics collection."""
 
@@ -58,11 +80,96 @@ class HealthChecker:
         self.max_history_size = 1000
         self.circuit_breakers: Dict[str, Dict[str, Any]] = {}
         self.custom_checks: Dict[str, callable] = {}
+        
+        # Usage tracking
+        self.usage_metrics = UsageMetrics()
+        self.response_times: List[float] = []
+        self.max_response_times = 1000
+        self.custom_metrics: Dict[str, Any] = {}
 
     def register_check(self, name: str, check_function: callable) -> None:
         """Register a custom health check function."""
         self.custom_checks[name] = check_function
         logger.debug(f"Registered health check: {name}")
+    
+    def record_command_execution(self, command: str, execution_time: float, success: bool = True) -> None:
+        """Record a command execution for usage metrics."""
+        self.usage_metrics.commands_executed += 1
+        self.usage_metrics.total_execution_time += execution_time
+        self.usage_metrics.last_activity = datetime.utcnow()
+        
+        if not success:
+            self.usage_metrics.error_count += 1
+        
+        # Track response times for percentile calculation
+        self.response_times.append(execution_time)
+        if len(self.response_times) > self.max_response_times:
+            self.response_times.pop(0)
+        
+        # Update performance metrics
+        self._update_performance_metrics()
+        
+        logger.info(f"Command executed: {command}", extra={
+            "command": command,
+            "execution_time_ms": execution_time * 1000,
+            "success": success,
+            "source": "metrics"
+        })
+    
+    def record_api_request(self, endpoint: str, method: str, response_time: float, status_code: int) -> None:
+        """Record an API request for monitoring."""
+        self.usage_metrics.api_requests += 1
+        
+        if status_code >= 400:
+            self.usage_metrics.api_errors += 1
+        
+        # Track response times
+        self.response_times.append(response_time)
+        if len(self.response_times) > self.max_response_times:
+            self.response_times.pop(0)
+        
+        self._update_performance_metrics()
+        
+        logger.info(f"API request: {method} {endpoint}", extra={
+            "endpoint": endpoint,
+            "method": method,
+            "response_time_ms": response_time * 1000,
+            "status_code": status_code,
+            "source": "api"
+        })
+    
+    def record_voice_command(self) -> None:
+        """Record a voice command usage."""
+        self.usage_metrics.voice_commands += 1
+        self.usage_metrics.last_activity = datetime.utcnow()
+    
+    def record_gui_interaction(self) -> None:
+        """Record a GUI interaction."""
+        self.usage_metrics.gui_interactions += 1
+        self.usage_metrics.last_activity = datetime.utcnow()
+    
+    def record_session_start(self) -> None:
+        """Record a new session start."""
+        self.usage_metrics.session_count += 1
+        
+    def set_custom_metric(self, name: str, value: Any) -> None:
+        """Set a custom metric value."""
+        self.custom_metrics[name] = value
+        logger.debug(f"Custom metric set: {name} = {value}")
+    
+    def _update_performance_metrics(self) -> None:
+        """Update performance percentiles from response times."""
+        if not self.response_times:
+            return
+            
+        sorted_times = sorted(self.response_times)
+        n = len(sorted_times)
+        
+        # Calculate percentiles
+        if n > 0:
+            self.usage_metrics.avg_response_time = sum(sorted_times) / n
+            self.usage_metrics.p95_response_time = sorted_times[int(n * 0.95)] if n > 1 else sorted_times[0]
+            self.usage_metrics.p99_response_time = sorted_times[int(n * 0.99)] if n > 1 else sorted_times[0]
 
     async def check_basic_health(self) -> Dict[str, Any]:
         """
@@ -143,6 +250,71 @@ class HealthChecker:
                     f"# HELP ultron_gpu_temperature_celsius GPU temperature in Celsius",
                     f"# TYPE ultron_gpu_temperature_celsius gauge",
                     f"ultron_gpu_temperature_celsius {metrics.gpu_temperature}",
+                ])
+
+        # Usage and performance metrics
+        prometheus_metrics.extend([
+            "",
+            "# HELP ultron_commands_total Total number of commands executed",
+            "# TYPE ultron_commands_total counter",
+            f"ultron_commands_total {self.usage_metrics.commands_executed}",
+            "",
+            "# HELP ultron_command_errors_total Total number of command errors",
+            "# TYPE ultron_command_errors_total counter",
+            f"ultron_command_errors_total {self.usage_metrics.error_count}",
+            "",
+            "# HELP ultron_sessions_total Total number of sessions started",
+            "# TYPE ultron_sessions_total counter",
+            f"ultron_sessions_total {self.usage_metrics.session_count}",
+            "",
+            "# HELP ultron_api_requests_total Total number of API requests",
+            "# TYPE ultron_api_requests_total counter",
+            f"ultron_api_requests_total {self.usage_metrics.api_requests}",
+            "",
+            "# HELP ultron_api_errors_total Total number of API errors",
+            "# TYPE ultron_api_errors_total counter",
+            f"ultron_api_errors_total {self.usage_metrics.api_errors}",
+            "",
+            "# HELP ultron_voice_commands_total Total number of voice commands",
+            "# TYPE ultron_voice_commands_total counter",
+            f"ultron_voice_commands_total {self.usage_metrics.voice_commands}",
+            "",
+            "# HELP ultron_gui_interactions_total Total number of GUI interactions",
+            "# TYPE ultron_gui_interactions_total counter",
+            f"ultron_gui_interactions_total {self.usage_metrics.gui_interactions}",
+        ])
+        
+        # Performance metrics
+        if self.usage_metrics.commands_executed > 0:
+            prometheus_metrics.extend([
+                "",
+                "# HELP ultron_response_time_seconds Average response time in seconds",
+                "# TYPE ultron_response_time_seconds gauge",
+                f"ultron_response_time_seconds {self.usage_metrics.avg_response_time}",
+                "",
+                "# HELP ultron_response_time_p95_seconds 95th percentile response time in seconds",
+                "# TYPE ultron_response_time_p95_seconds gauge",
+                f"ultron_response_time_p95_seconds {self.usage_metrics.p95_response_time}",
+                "",
+                "# HELP ultron_response_time_p99_seconds 99th percentile response time in seconds",
+                "# TYPE ultron_response_time_p99_seconds gauge",
+                f"ultron_response_time_p99_seconds {self.usage_metrics.p99_response_time}",
+                "",
+                "# HELP ultron_error_rate Error rate as a percentage",
+                "# TYPE ultron_error_rate gauge",
+                f"ultron_error_rate {(self.usage_metrics.error_count / self.usage_metrics.commands_executed) * 100}",
+            ])
+        
+        # Custom metrics
+        if self.custom_metrics:
+            prometheus_metrics.append("")
+            for metric_name, metric_value in self.custom_metrics.items():
+                # Sanitize metric name
+                safe_name = metric_name.replace('-', '_').replace(' ', '_').lower()
+                prometheus_metrics.extend([
+                    f"# HELP ultron_custom_{safe_name} Custom metric: {metric_name}",
+                    f"# TYPE ultron_custom_{safe_name} gauge",
+                    f"ultron_custom_{safe_name} {metric_value}",
                 ])
 
         # Component health metrics

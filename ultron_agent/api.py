@@ -104,14 +104,35 @@ app.add_middleware(
 async def logging_middleware(request: Request, call_next):
     """Log all requests with timing and correlation."""
     start_time = time.time()
+    
     try:
         response = await call_next(request)
-        duration = (time.time() - start_time) * 1000
-        logger.info(f"{request.method} {request.url.path} - {response.status_code} - {duration:.1f}ms")
+        duration = time.time() - start_time
+        
+        # Record metrics
+        health_checker = get_health_checker()
+        health_checker.record_api_request(
+            endpoint=request.url.path,
+            method=request.method,
+            response_time=duration,
+            status_code=response.status_code
+        )
+        
+        logger.info(f"{request.method} {request.url.path} - {response.status_code} - {duration * 1000:.1f}ms")
         return response
     except Exception as e:
-        duration = (time.time() - start_time) * 1000
-        logger.error(f"{request.method} {request.url.path} - ERROR: {str(e)[:100]} - {duration:.1f}ms")
+        duration = time.time() - start_time
+        
+        # Record error metrics
+        health_checker = get_health_checker()
+        health_checker.record_api_request(
+            endpoint=request.url.path,
+            method=request.method,
+            response_time=duration,
+            status_code=500  # Assume server error for exceptions
+        )
+        
+        logger.error(f"{request.method} {request.url.path} - ERROR: {str(e)[:100]} - {duration * 1000:.1f}ms")
         raise
 
 
