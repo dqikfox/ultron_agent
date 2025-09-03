@@ -5060,3 +5060,29 @@
 {"timestamp": "2025-08-14T19:45:16.004672", "name": "root", "levelname": "ERROR", "message": "GUI monitoring error: main thread is not in main loop", "correlation_id": "957ae984", "source": "core"}
 {"timestamp": "2025-08-14T19:45:19.010312", "name": "root", "levelname": "ERROR", "message": "GUI monitoring error: main thread is not in main loop", "correlation_id": "957ae984", "source": "core"}
 {"timestamp": "2025-08-14T19:45:22.016502", "name": "root", "levelname": "ERROR", "message": "GUI monitoring error: main thread is not in main loop", "correlation_id": "957ae984", "source": "core"}
+{"timestamp": "2025-09-03T16:53:04.273289", "name": "ultron.logging", "levelname": "INFO", "message": "Logging initialized - Level: INFO, JSON: True, Console: True", "correlation_id": "fd873d32", "source": "logging"}
+{"timestamp": "2025-09-03T16:53:04.273551", "name": "ultron.logging", "levelname": "INFO", "message": "Log directory: /home/runner/work/ultron_agent/ultron_agent/logs", "correlation_id": "fd873d32", "source": "logging"}
+{"timestamp": "2025-09-03T16:53:04.273715", "name": "ultron.logging", "levelname": "INFO", "message": "Correlation ID: fd873d32", "correlation_id": "fd873d32", "source": "logging"}
+{"timestamp": "2025-09-03T16:53:04.273908", "name": "test", "levelname": "INFO", "message": "Config loaded: Ultron Agent v3.0.0", "source": "demo", "correlation_id": "fd873d32"}
+{"timestamp": "2025-09-03T16:53:04.274095", "name": "ultron_agent.storage.memory", "levelname": "INFO", "message": "No existing long-term memory file, starting fresh", "correlation_id": "fd873d32", "source": "memory"}
+{"timestamp": "2025-09-03T16:53:04.274225", "name": "ultron_agent.storage.memory", "levelname": "INFO", "message": "Memory initialized with short-term limit: 3", "correlation_id": "fd873d32", "source": "memory"}
+{"timestamp": "2025-09-03T16:53:04.276308", "name": "ultron_agent.interfaces.voice", "levelname": "WARNING", "message": "Audio manager not available", "correlation_id": "fd873d32", "source": "voice"}
+{"timestamp": "2025-09-03T16:53:04.276505", "name": "ultron_agent.interfaces.vision", "levelname": "WARNING", "message": "PIL/Pillow not available - screen capture disabled", "correlation_id": "fd873d32", "source": "vision"}
+{"timestamp": "2025-09-03T16:53:04.276644", "name": "ultron_agent.interfaces.vision", "levelname": "WARNING", "message": "pytesseract not available - OCR disabled", "correlation_id": "fd873d32", "source": "vision"}
+{"timestamp": "2025-09-03T16:53:04.276805", "name": "ultron_agent.interfaces.vision", "levelname": "INFO", "message": "Vision subsystem initialized", "correlation_id": "fd873d32", "source": "vision"}
+{"timestamp": "2025-09-03T16:53:04.277227", "name": "ultron_agent.ai.brain", "levelname": "INFO", "message": "Cache loaded successfully", "correlation_id": "fd873d32", "source": "brain"}
+{"timestamp": "2025-09-03T16:53:04.279438", "name": "ultron_agent.ai.brain", "levelname": "WARNING", "message": "Agent network not available", "correlation_id": "fd873d32", "source": "brain"}
+{"timestamp": "2025-09-03T16:53:04.279849", "name": "ultron_agent.ai.brain", "levelname": "WARNING", "message": "OpenAI tools not available", "correlation_id": "fd873d32", "source": "brain"}
+{"timestamp": "2025-09-03T16:54:38.578455", "name": "ultron.logging", "levelname": "INFO", "message": "Logging initialized - Level: INFO, JSON: True, Console: True", "correlation_id": "19ee899f", "source": "logging"}
+{"timestamp": "2025-09-03T16:54:38.578732", "name": "ultron.logging", "levelname": "INFO", "message": "Log directory: /home/runner/work/ultron_agent/ultron_agent/logs", "correlation_id": "19ee899f", "source": "logging"}
+{"timestamp": "2025-09-03T16:54:38.578916", "name": "ultron.logging", "levelname": "INFO", "message": "Correlation ID: 19ee899f", "correlation_id": "19ee899f", "source": "logging"}
+{"timestamp": "2025-09-03T16:54:38.579088", "name": "test", "levelname": "INFO", "message": "Config loaded: Ultron Agent v3.0.0", "source": "demo", "correlation_id": "19ee899f"}
+{"timestamp": "2025-09-03T16:54:38.579289", "name": "ultron_agent.storage.memory", "levelname": "INFO", "message": "No existing long-term memory file, starting fresh", "correlation_id": "19ee899f", "source": "memory"}
+{"timestamp": "2025-09-03T16:54:38.579412", "name": "ultron_agent.storage.memory", "levelname": "INFO", "message": "Memory initialized with short-term limit: 3", "correlation_id": "19ee899f", "source": "memory"}
+{"timestamp": "2025-09-03T16:54:38.580075", "name": "ultron_agent.interfaces.voice", "levelname": "WARNING", "message": "Audio manager not available", "correlation_id": "19ee899f", "source": "voice"}
+{"timestamp": "2025-09-03T16:54:38.580262", "name": "ultron_agent.interfaces.vision", "levelname": "WARNING", "message": "PIL/Pillow not available - screen capture disabled", "correlation_id": "19ee899f", "source": "vision"}
+{"timestamp": "2025-09-03T16:54:38.580404", "name": "ultron_agent.interfaces.vision", "levelname": "WARNING", "message": "pytesseract not available - OCR disabled", "correlation_id": "19ee899f", "source": "vision"}
+{"timestamp": "2025-09-03T16:54:38.580531", "name": "ultron_agent.interfaces.vision", "levelname": "INFO", "message": "Vision subsystem initialized", "correlation_id": "19ee899f", "source": "vision"}
+{"timestamp": "2025-09-03T16:54:38.582647", "name": "ultron_agent.ai.brain", "levelname": "INFO", "message": "Cache loaded successfully", "correlation_id": "19ee899f", "source": "brain"}
+{"timestamp": "2025-09-03T16:54:38.583198", "name": "ultron_agent.ai.brain", "levelname": "WARNING", "message": "Agent network not available", "correlation_id": "19ee899f", "source": "brain"}
+{"timestamp": "2025-09-03T16:54:38.583565", "name": "ultron_agent.ai.brain", "levelname": "WARNING", "message": "OpenAI tools not available", "correlation_id": "19ee899f", "source": "brain"}

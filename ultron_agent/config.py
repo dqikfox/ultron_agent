@@ -67,6 +67,11 @@ class UltronConfig(BaseModel):
     ollama_base_url: str = Field(default="http://localhost:11434", description="Ollama server URL")
     model_switch_timeout: int = Field(default=30, ge=5, le=120, description="Model switch timeout")
     max_context_length: int = Field(default=4096, ge=512, le=32768, description="Max context tokens")
+    
+    @property
+    def llm_model(self) -> str:
+        """Backward compatibility property for old config access."""
+        return self.default_model_name
 
     # GUI settings
     gui_enabled: bool = Field(default=True, description="Enable GUI")
