@@ -29,6 +29,64 @@ pip-delete-this-directory.txt
 # Coverage
 .coverage
 coverage.xml
+htmlcov/
 
 # Jupyter Notebook
 .ipynb_checkpoints/
+
+# Security and dependency scan reports
+bandit-report.json
+bandit-report.txt
+safety-report.json
+safety-report.txt
+semgrep-results.json
+dependency-check-report.html
+dependency-check-report.xml
+dependency-check-report.json
+reports/
+security-reports/
+.secrets.baseline.tmp
+.detect-secrets-scan.log
+
+# Pre-commit
+.pre-commit-config.yaml.bak
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+keys.txt
+*.key
+*.pem
+ultron-project-*.json
+
+# Logs
+*.log
+logs/
+log/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (for any JS components)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.wheel/

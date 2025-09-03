@@ -50,10 +50,15 @@ dev = [
     "pytest>=7.4.0,<8.0.0",
     "pytest-asyncio>=0.21.0,<0.22.0",
     "pytest-cov>=4.1.0,<5.0.0",
+    "pytest-security>=0.2.0,<0.3.0",
     "black>=23.0.0,<24.0.0",
     "ruff>=0.1.0,<0.2.0",
     "mypy>=1.7.0,<2.0.0",
     "pre-commit>=3.5.0,<4.0.0",
+    "bandit[toml]>=1.7.5,<2.0.0",
+    "safety>=3.0.0,<4.0.0",
+    "semgrep>=1.45.0,<2.0.0",
+    "detect-secrets>=1.4.0,<2.0.0",
 ]
 gui = [
     "tkinter-native>=1.0.0,<2.0.0",
@@ -143,3 +148,17 @@ python_classes = "Test*"
 python_functions = "test_*"
 addopts = "--cov=ultron_agent --cov-report=html --cov-report=term-missing"
 asyncio_mode = "auto"
+
+[tool.bandit]
+exclude_dirs = ["tests", "docs", "build", "dist", ".venv", "venv"]
+skips = [
+    "B101",  # assert_used - we use asserts in tests
+    "B601",  # paramiko_calls - if we use paramiko, it's intentional
+]
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "test_*.py"]
+
+[tool.safety]
+ignore = []  # Add CVE IDs to ignore specific vulnerabilities if needed
+full_report = true

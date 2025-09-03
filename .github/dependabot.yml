@@ -1,0 +1,116 @@
+# Dependabot configuration for automated dependency updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "dqikfox"
+    assignees:
+      - "dqikfox"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "python"
+    groups:
+      # Group AI/ML dependencies together
+      ai-ml-dependencies:
+        patterns:
+          - "openai*"
+          - "elevenlabs*"
+          - "transformers*"
+          - "torch*"
+          - "numpy*"
+      # Group web/API dependencies together
+      web-api-dependencies:
+        patterns:
+          - "fastapi*"
+          - "uvicorn*"
+          - "aiohttp*"
+          - "requests*"
+          - "websockets*"
+      # Group development tools together
+      dev-tools:
+        patterns:
+          - "pytest*"
+          - "black*"
+          - "ruff*"
+          - "mypy*"
+          - "pre-commit*"
+        dependency-type: "development"
+      # Group security tools together
+      security-tools:
+        patterns:
+          - "bandit*"
+          - "safety*"
+          - "cryptography*"
+    ignore:
+      # Ignore major version updates for critical dependencies
+      - dependency-name: "torch*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "transformers*"
+        update-types: ["version-update:semver-major"]
+
+  # Node.js dependencies (for frontend components)
+  - package-ecosystem: "npm"
+    directory: "/react/ultron_agent"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "dqikfox"
+    assignees:
+      - "dqikfox"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "javascript"
+    groups:
+      frontend-dependencies:
+        patterns:
+          - "react*"
+          - "@types/*"
+          - "typescript*"
+          - "vite*"
+
+  # Docker dependencies (if any Dockerfiles exist)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "dqikfox"
+    commit-message:
+      prefix: "deps"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "dqikfox"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"
+      - "github-actions"

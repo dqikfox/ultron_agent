@@ -1,0 +1,168 @@
+name: Security Audit
+
+on:
+  schedule:
+    # Run security audit every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger
+  push:
+    paths:
+      - 'requirements*.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/security-audit.yml'
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install audit tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety bandit[toml] semgrep pip-audit
+
+    - name: Install project dependencies  
+      run: |
+        pip install -e ".[dev]"
+
+    - name: Run pip-audit
+      id: pip-audit
+      run: |
+        pip-audit --format=json --output=pip-audit-report.json || echo "vulnerabilities_found=true" >> $GITHUB_OUTPUT
+        pip-audit --format=cyclonedx-json --output=sbom.json || true
+        pip-audit
+
+    - name: Run Safety check
+      id: safety
+      run: |
+        safety check --json --output=safety-report.json || echo "vulnerabilities_found=true" >> $GITHUB_OUTPUT  
+        safety check
+
+    - name: Run Bandit security linter
+      id: bandit
+      run: |
+        bandit -r . -f json -o bandit-report.json || echo "vulnerabilities_found=true" >> $GITHUB_OUTPUT
+        bandit -r .
+
+    - name: Run Semgrep security scan
+      uses: semgrep/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/python
+          p/owasp-top-ten
+          p/cwe-top-25
+        generateSarif: "1"
+      env:
+        SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+    - name: Upload SARIF results to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: semgrep.sarif
+      continue-on-error: true
+
+    - name: Generate Security Report
+      if: always()
+      run: |
+        echo "# Security Audit Report - $(date)" > security-report.md
+        echo "" >> security-report.md
+        echo "## Summary" >> security-report.md
+        echo "- **Date**: $(date)" >> security-report.md
+        echo "- **Repository**: ${{ github.repository }}" >> security-report.md
+        echo "- **Branch**: ${{ github.ref_name }}" >> security-report.md
+        echo "- **Commit**: ${{ github.sha }}" >> security-report.md
+        echo "" >> security-report.md
+        
+        echo "## Tools Run" >> security-report.md
+        echo "- ✅ pip-audit (dependency vulnerability scanning)" >> security-report.md
+        echo "- ✅ Safety (Python package vulnerability scanner)" >> security-report.md  
+        echo "- ✅ Bandit (Python security linter)" >> security-report.md
+        echo "- ✅ Semgrep (static analysis security scanner)" >> security-report.md
+        echo "" >> security-report.md
+        
+        if [ -f pip-audit-report.json ]; then
+          echo "## Pip-Audit Results" >> security-report.md
+          echo '```json' >> security-report.md
+          head -20 pip-audit-report.json >> security-report.md
+          echo '```' >> security-report.md
+          echo "" >> security-report.md
+        fi
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-audit-reports
+        path: |
+          pip-audit-report.json
+          safety-report.json
+          bandit-report.json
+          security-report.md
+          sbom.json
+        retention-days: 30
+
+    - name: Create issue for vulnerabilities
+      if: steps.pip-audit.outputs.vulnerabilities_found == 'true' || steps.safety.outputs.vulnerabilities_found == 'true' || steps.bandit.outputs.vulnerabilities_found == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const title = `🚨 Security vulnerabilities detected - ${new Date().toISOString().split('T')[0]}`;
+          const body = `
+          ## Security Alert
+          
+          Our automated security audit has detected potential vulnerabilities in the project.
+          
+          **Audit Date**: ${new Date().toISOString()}
+          **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          ### Next Steps
+          1. Review the security audit reports in the workflow artifacts
+          2. Investigate each finding and determine if it's a false positive
+          3. Update vulnerable dependencies where possible
+          4. Apply security patches or workarounds
+          5. Close this issue once all vulnerabilities are addressed
+          
+          ### Resources
+          - [Security Policy](https://github.com/${{ github.repository }}/security/policy)
+          - [Security Audit Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          
+          **This issue was automatically created by the security audit workflow.**
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['security', 'automated', 'vulnerability']
+          });
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: high
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, GPL-3.0
