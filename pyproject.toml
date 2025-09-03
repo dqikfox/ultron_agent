@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ultron-agent"
-version = "3.0.0"
+dynamic = ["version"]
 description = "Local voice-first AI assistant with multi-model support"
 authors = [
     {name = "dqikfox", email = "dqikst@gmail.com"}
@@ -22,6 +22,12 @@ classifiers = [
 ]
 
 dependencies = [
+    "typing-extensions>=4.0.0",
+]
+
+[project.optional-dependencies]
+# Core server and API dependencies
+server = [
     "fastapi>=0.104.0,<0.105.0",
     "uvicorn[standard]>=0.24.0,<0.25.0",
     "pydantic>=2.5.0,<3.0.0",
@@ -31,21 +37,29 @@ dependencies = [
     "aiohttp>=3.9.0,<4.0.0",
     "asyncio-mqtt>=0.16.0,<0.17.0",
     "websockets>=12.0,<13.0",
+]
+# Voice and audio processing
+audio = [
     "pyttsx3>=2.90,<3.0",
     "SpeechRecognition>=3.10.0,<4.0.0",
     "PyAudio>=0.2.11,<0.3.0",
     "elevenlabs>=1.0.0,<2.0.0",
     "openai>=1.0.0,<2.0.0",
+]
+# Computer vision and automation
+vision = [
     "Pillow>=10.0.0,<11.0.0",
     "opencv-python>=4.8.0,<5.0.0",
     "pyautogui>=0.9.54,<0.10.0",
+]
+# System monitoring
+monitoring = [
     "psutil>=5.9.0,<6.0.0",
     "GPUtil>=1.4.0,<2.0.0",
     "python-json-logger>=2.0.7,<3.0.0",
     "prometheus-client>=0.19.0,<0.20.0",
 ]
-
-[project.optional-dependencies]
+# Development dependencies
 dev = [
     "pytest>=7.4.0,<8.0.0",
     "pytest-asyncio>=0.21.0,<0.22.0",
@@ -55,14 +69,20 @@ dev = [
     "mypy>=1.7.0,<2.0.0",
     "pre-commit>=3.5.0,<4.0.0",
 ]
+# GUI dependencies  
 gui = [
     "tkinter-native>=1.0.0,<2.0.0",
     "customtkinter>=5.2.0,<6.0.0",
 ]
+# Machine learning
 ml = [
     "torch>=2.1.0,<3.0.0",
     "transformers>=4.35.0,<5.0.0",
     "numpy>=1.24.0,<2.0.0",
+]
+# Full installation with all features
+all = [
+    "ultron-agent[server,audio,vision,monitoring,gui,ml]",
 ]
 
 [project.urls]
@@ -76,6 +96,9 @@ ultron = "ultron_agent.main:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["ultron_agent*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ultron_agent.__version__.__version__"}
 
 [tool.black]
 line-length = 88

@@ -20,7 +20,11 @@ def run_command(command):
 
 def install_dependencies():
     logging.info("Installing Python dependencies...")
-    run_command(r'C:/Python310/python.exe -m pip install -r requirements.txt')
+    # Use current Python interpreter instead of hardcoded path
+    python_exe = sys.executable
+    # Use minimal requirements for basic functionality
+    req_file = "requirements_minimal.txt" if os.path.exists("requirements_minimal.txt") else "requirements.txt"
+    run_command(f'{python_exe} -m pip install -r {req_file}')
 
 def main():
     install_dependencies()

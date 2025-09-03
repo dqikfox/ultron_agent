@@ -1,8 +1,13 @@
 {
-  "name": "ultron-agent-2",
-  "version": "1.0.0",
-  "description": "Ultron Agent 2 - AI Development Workspace with Web Assistant",
+  "name": "ultron-agent",
+  "version": "3.0.0",
+  "description": "ULTRON Agent - Local voice-first AI assistant with multi-model support",
   "scripts": {
+    "version": "python version_manager.py show",
+    "release:patch": "python release_manager.py patch",
+    "release:minor": "python release_manager.py minor", 
+    "release:major": "python release_manager.py major",
+    "release:dry-run": "python release_manager.py --dry-run patch",
     "assistant:dev": "cd assistant/ai-assistant && npm run dev",
     "assistant:build": "cd assistant/ai-assistant && npm run build",
     "assistant:preview": "cd assistant/ai-assistant && npm run preview",
@@ -13,13 +18,25 @@
   "keywords": [
     "ai",
     "assistant",
+    "voice",
+    "automation",
+    "python",
+    "ollama",
+    "fastapi",
     "react",
     "typescript",
-    "vite",
     "development"
   ],
-  "author": "Ultron Agent 2",
+  "author": "dqikfox",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dqikfox/ultron_agent.git"
+  },
+  "homepage": "https://github.com/dqikfox/ultron_agent",
+  "bugs": {
+    "url": "https://github.com/dqikfox/ultron_agent/issues"
+  },
   "workspaces": [
     "assistant/ai-assistant"
   ]

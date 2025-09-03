@@ -1,0 +1,2 @@
+# Core dependencies for build - no audio/system deps
+typing-extensions>=4.0.0

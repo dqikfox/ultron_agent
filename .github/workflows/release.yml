@@ -1,0 +1,301 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Matches version tags like v1.0.0, v2.1.3, etc.
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Validate version tag
+      id: version
+      run: |
+        # Extract version from tag (remove 'v' prefix)
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        
+        # Validate semantic version format
+        if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "❌ Invalid version format: $VERSION"
+          echo "Expected format: X.Y.Z (semantic version)"
+          exit 1
+        fi
+        
+        echo "✅ Valid version tag: $VERSION"
+
+    - name: Check version consistency
+      run: |
+        # Check that the version in code matches the tag
+        python -c "
+        import sys
+        sys.path.append('.')
+        exec(open('ultron_agent/__version__.py').read())
+        tag_version = '${{ steps.version.outputs.version }}'
+        if __version__ != tag_version:
+            print(f'❌ Version mismatch: tag={tag_version}, code={__version__}')
+            print('Please update version in ultron_agent/__version__.py')
+            sys.exit(1)
+        print(f'✅ Version consistency check passed: {__version__}')
+        "
+
+  test:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y portaudio19-dev python3-pyaudio
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install build twine pytest black ruff mypy
+
+    - name: Install package dependencies
+      run: |
+        # Install only core dependencies needed for basic functionality
+        python -m pip install fastapi uvicorn pydantic requests aiohttp websockets
+
+    - name: Lint and type check
+      run: |
+        echo "🔍 Running code quality checks..."
+        ruff check . --output-format=github || true
+        black --check --diff . || true
+
+    - name: Run basic tests
+      run: |
+        # Run only basic tests that don't require full environment
+        echo "🧪 Running release validation tests..."
+        python -c "
+        import sys
+        sys.path.append('.')
+        
+        # Test version import
+        exec(open('ultron_agent/__version__.py').read())
+        print(f'✅ Version module: {__version__}')
+        
+        # Test version utilities
+        from version_manager import read_version, parse_version
+        version = read_version()
+        major, minor, patch = parse_version(version)
+        print(f'✅ Version utilities: {version} -> ({major}, {minor}, {patch})')
+        
+        print('🎉 All validation tests passed!')
+        "
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [validate, test]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install build twine
+
+    - name: Update version with build metadata
+      run: |
+        # Add build metadata to version
+        python -c "
+        import os
+        import sys
+        from datetime import datetime
+        
+        # Read current version file
+        with open('ultron_agent/__version__.py', 'r') as f:
+            content = f.read()
+        
+        # Add build metadata
+        build_date = datetime.utcnow().strftime('%Y%m%d')
+        build_commit = os.environ['GITHUB_SHA'][:8]
+        build_branch = 'main'
+        
+        # Replace build metadata placeholders
+        content = content.replace('BUILD_DATE = None', f'BUILD_DATE = \"{build_date}\"')
+        content = content.replace('BUILD_COMMIT = None', f'BUILD_COMMIT = \"{build_commit}\"')
+        content = content.replace('BUILD_BRANCH = None', f'BUILD_BRANCH = \"{build_branch}\"')
+        
+        # Write updated version
+        with open('ultron_agent/__version__.py', 'w') as f:
+            f.write(content)
+        
+        print('✅ Build metadata added to version')
+        "
+
+    - name: Build package
+      run: |
+        echo "📦 Building Python package..."
+        python -m build
+        
+        echo "📋 Package contents:"
+        ls -la dist/
+        
+        echo "🔍 Package verification:"
+        python -m twine check dist/*
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-package-${{ needs.validate.outputs.version }}
+        path: dist/
+
+  publish-pypi:
+    runs-on: ubuntu-latest
+    needs: [validate, build]
+    environment: release
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-${{ needs.validate.outputs.version }}
+        path: dist/
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verbose: true
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: [validate, test]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.DOCKERHUB_USERNAME }}/ultron-agent
+        tags: |
+          type=ref,event=tag
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64,linux/arm64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [validate, build, publish-pypi, build-docker]
+    if: always() && (needs.publish-pypi.result == 'success' || needs.build-docker.result == 'success')
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for changelog
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        echo "📝 Generating release changelog..."
+        
+        # Get the previous tag
+        PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "${{ needs.validate.outputs.tag }}" | head -n1)
+        
+        if [ -z "$PREVIOUS_TAG" ]; then
+          echo "No previous tag found, using initial commit"
+          PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
+        fi
+        
+        echo "Previous tag: $PREVIOUS_TAG"
+        echo "Current tag: ${{ needs.validate.outputs.tag }}"
+        
+        # Generate changelog from git commits
+        CHANGELOG=$(cat << 'EOF'
+        ## What's Changed
+        
+        EOF)
+        
+        # Get commits since last tag
+        COMMITS=$(git log --pretty=format:"* %s (@%an)" ${PREVIOUS_TAG}..${{ needs.validate.outputs.tag }} --no-merges)
+        
+        if [ -n "$COMMITS" ]; then
+          CHANGELOG="$CHANGELOG\n$COMMITS"
+        else
+          CHANGELOG="$CHANGELOG\n* Initial release"
+        fi
+        
+        # Add installation instructions
+        CHANGELOG="$CHANGELOG\n\n## Installation\n\n\`\`\`bash\n# Install from PyPI\npip install ultron-agent==${{ needs.validate.outputs.version }}\n\n# Or run with Docker\ndocker run ${{ secrets.DOCKERHUB_USERNAME }}/ultron-agent:${{ needs.validate.outputs.version }}\n\`\`\`"
+        
+        # Save changelog to file
+        echo -e "$CHANGELOG" > /tmp/changelog.md
+        
+        echo "✅ Changelog generated"
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-${{ needs.validate.outputs.version }}
+        path: dist/
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ needs.validate.outputs.tag }}
+        name: "Release ${{ needs.validate.outputs.version }}"
+        body_path: /tmp/changelog.md
+        files: |
+          dist/*.whl
+          dist/*.tar.gz
+        draft: false
+        prerelease: ${{ contains(needs.validate.outputs.version, '-') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

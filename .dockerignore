@@ -1,0 +1,108 @@
+# Git and version control
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project specific
+logs/
+cache/
+*.log
+screenshot_*.png
+speech_*.mp3
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# CI/CD
+.github/
+.codecov.yml
+
+# Development files
+tests/
+test_*.py
+*_test.py
+conftest.py
+pytest.ini
+.pre-commit-config.yaml
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Temporary files
+tmp/
+temp/
+.tmp
+
+# Package files that shouldn't be in container
+setup.py
+version_manager.py
+release_manager.py
+requirements_*.txt
+!requirements.txt
+
+# Large directories that may exist
+Oracle_JDK-24/
+resources/
+new pokedex/
+pokedex-portfolio/
+react/
+supabase/
+assistant/
+addons/
+ultron_addons/
+automated_files/
+nuluncher/
+public/
+static/
+web_gui/
+
+# Scripts and batch files
+*.bat
+*.sh
+!scripts/docker-entrypoint.sh
+
+# Configuration examples (keep only example)
+ultron_config.json
+!ultron_config.json.example
