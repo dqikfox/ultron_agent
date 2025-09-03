@@ -99,6 +99,9 @@ from core.voice_processor import VoiceProcessor
 from core.vision_system import VisionSystem  
 from core.system_automation import SystemAutomation
 from core.web_server import UltronWebServer
+from core.nvidia_nim_integration import NVIDIANIMClient, MultiLLMRouter
+from core.enhanced_voice_system import EnhancedVoiceSystem, VoiceConfig, WakeWordDetector
+from core.performance_optimizer import SystemResourceMonitor, PerformanceOptimizer, RealTimeAnalytics
 
 # Constants
 ULTRON_ROOT = Path.cwd()  # Use current directory instead of hardcoded D:/ULTRON
@@ -141,11 +144,15 @@ class UltronCore:
         self.config = self._load_config()
         self.running = False
         self.voice_processor = None
+        self.enhanced_voice_system = None
         self.vision_system = None
         self.system_automation = None
         self.web_server = None
         self.openai_client = None
+        self.multi_llm_router = None
+        self.nvidia_nim_client = None
         self.local_llm = None
+        self.performance_monitor = None
         self.conversation_history = []
         self.performance_metrics = {}
         self.error_count = 0
@@ -233,14 +240,44 @@ class UltronCore:
     def _initialize_components(self):
         """Initialize all ULTRON components"""
         try:
-            # Initialize OpenAI client
+            # Initialize Performance Monitor first
+            self.performance_monitor = SystemResourceMonitor()
+            self.performance_monitor.start_monitoring()
+            self.log_info("Performance monitoring initialized")
+            
+            # Initialize Multi-LLM Router
+            llm_config = {
+                'openai_api_key': self.config.openai_api_key,
+                'nvidia_api_key': getattr(self.config, 'nvidia_api_key', ''),
+                'anthropic_api_key': getattr(self.config, 'anthropic_api_key', ''),
+                'google_api_key': getattr(self.config, 'google_api_key', '')
+            }
+            self.multi_llm_router = MultiLLMRouter(llm_config)
+            self.log_info("Multi-LLM router initialized")
+            
+            # Initialize NVIDIA NIM Client if available
+            if llm_config.get('nvidia_api_key'):
+                self.nvidia_nim_client = NVIDIANIMClient(llm_config)
+                self.log_info("NVIDIA NIM client initialized")
+            
+            # Initialize OpenAI client (fallback)
             if OPENAI_AVAILABLE and self.config.openai_api_key:
                 self.openai_client = OpenAI(api_key=self.config.openai_api_key)
                 self.log_info("OpenAI client initialized")
             
-            # Initialize Voice Processor
+            # Initialize Enhanced Voice System
+            voice_config = VoiceConfig(
+                wake_words=getattr(self.config, 'wake_words', WAKE_WORDS),
+                continuous_listening=True,
+                noise_reduction=True,
+                voice_feedback=True,
+                preferred_voice=self.config.voice_gender
+            )
+            self.enhanced_voice_system = EnhancedVoiceSystem(voice_config)
+            
+            # Initialize legacy Voice Processor (fallback)
             self.voice_processor = VoiceProcessor(self.config)
-            self.log_info("Voice processor initialized")
+            self.log_info("Voice systems initialized")
             
             # Initialize Vision System
             if self.config.vision_enabled:
@@ -325,20 +362,33 @@ class UltronCore:
         """Start the ULTRON AI system"""
         try:
             self.running = True
-            self.log_info("🔴 ULTRON AI System starting...")
+            self.log_info("🔴 ULTRON Enhanced v3.0 - System starting...")
             
             # Start web server
             if self.web_server:
                 self.web_server.start_server()
-                self.log_info(f"Web interface available at: http://localhost:{self.config.web_port}")
+                self.log_info(f"🌐 Pokédx Interface: http://localhost:{self.config.web_port}")
             
-            # Start voice processor
-            if self.voice_processor and self.voice_processor.recognizer:
+            # Start enhanced voice system
+            if self.enhanced_voice_system:
                 try:
-                    self.voice_processor.start_listening()
-                    self.log_info("Voice recognition active")
+                    # Add voice command callback
+                    self.enhanced_voice_system.add_voice_callback(self._process_voice_command_enhanced)
+                    await self.enhanced_voice_system.start_continuous_listening()
+                    self.log_info("🎤 Enhanced voice system active with wake word detection")
                 except Exception as e:
-                    self.log_warning(f"Voice recognition not started: {e}")
+                    self.log_warning(f"Enhanced voice system not started: {e}")
+                    # Fallback to legacy voice processor
+                    if self.voice_processor and self.voice_processor.recognizer:
+                        try:
+                            self.voice_processor.start_listening()
+                            self.log_info("🎤 Legacy voice recognition active")
+                        except Exception as e2:
+                            self.log_warning(f"Legacy voice recognition not started: {e2}")
+            
+            # Start performance monitoring
+            if self.performance_monitor:
+                self.log_info("📊 Performance monitoring and analytics active")
             
             # Skip file sorting for now - can be enabled later
             # if self.config.auto_sort_enabled:
@@ -353,12 +403,17 @@ class UltronCore:
     
     async def _main_loop(self):
         """Main system loop"""
-        self.log_info("ULTRON AI System ready - Main loop started")
+        self.log_info("🤖 ULTRON Enhanced v3.0 ready - Main loop started")
         
         # Try to speak if voice is available
-        if self.voice_processor and self.voice_processor.tts_engine:
+        voice_system = self.enhanced_voice_system or self.voice_processor
+        if voice_system:
             try:
-                self.voice_processor.speak("ULTRON AI System is now online and ready for commands.")
+                if hasattr(voice_system, 'speak'):
+                    await voice_system.speak("ULTRON Enhanced version 3.0 is now online and ready for commands.")
+                elif hasattr(voice_system, 'tts_engine') and voice_system.tts_engine:
+                    voice_system.tts_engine.say("ULTRON Enhanced version 3.0 is now online and ready for commands.")
+                    voice_system.tts_engine.runAndWait()
             except Exception as e:
                 self.log_warning(f"Voice synthesis not available: {e}")
         
@@ -366,28 +421,38 @@ class UltronCore:
             try:
                 await asyncio.sleep(1)  # Non-blocking sleep
                 
-                # Monitor system performance  
-                if self.config.performance_monitoring:
-                    self._update_performance_metrics()
+                # Monitor system performance with new analytics
+                if self.performance_monitor and hasattr(self.performance_monitor, 'analytics'):
+                    dashboard_data = self.performance_monitor.get_real_time_data()
+                    
+                    # Update internal performance metrics
+                    if dashboard_data:
+                        self.performance_metrics.update({
+                            'health_score': dashboard_data.get('health_score', 0),
+                            'performance_grade': dashboard_data.get('performance_grade', 'F'),
+                            'cpu_percent': dashboard_data.get('current_metrics', {}).get('cpu_percent', 0),
+                            'memory_percent': dashboard_data.get('current_metrics', {}).get('memory_percent', 0),
+                            'timestamp': time.time()
+                        })
                 
-                # Web server keeps the system alive
-                # Voice commands can be processed through web interface
+                # Web server and enhanced voice system keep the system alive
+                # Voice commands can be processed through web interface or wake word detection
                 
             except Exception as e:
                 self.log_error(f"Error in main loop: {e}")
                 await asyncio.sleep(1)  # Prevent rapid error loops
     
-    async def _process_voice_command(self, command: str):
-        """Process voice command through AI"""
+    async def _process_voice_command_enhanced(self, command: str, confidence: float):
+        """Process voice command through enhanced system with Multi-LLM routing"""
         try:
             start_time = time.time()
-            self.log_info(f"Processing command: {command}")
+            self.log_info(f"🎤 Processing voice command: {command} (confidence: {confidence:.2f})")
             
             # Add to conversation history
             self.conversation_history.append({"role": "user", "content": command})
             
-            # Get AI response
-            response = await self._get_ai_response(command)
+            # Get AI response using Multi-LLM Router
+            response = await self._get_enhanced_ai_response(command)
             
             # Add AI response to history
             self.conversation_history.append({"role": "assistant", "content": response})
@@ -395,37 +460,80 @@ class UltronCore:
             # Execute any actions if needed
             await self._execute_ai_actions(response, command)
             
-            # Speak response
-            if self.voice_processor:
+            # Speak response using enhanced voice system
+            if self.enhanced_voice_system:
+                await self.enhanced_voice_system.speak(response)
+            elif self.voice_processor:
                 self.voice_processor.speak(response)
             
-            # Log performance
+            # Log performance with enhanced metrics
             processing_time = time.time() - start_time
+            if self.performance_monitor:
+                self.performance_monitor.add_processing_time("voice", processing_time)
+            
             self.performance_metrics['last_command_time'] = processing_time
-            self.log_info(f"Command processed in {processing_time:.2f}s")
+            self.log_info(f"✅ Voice command processed in {processing_time:.2f}s")
             
         except Exception as e:
-            self.log_error(f"Error processing voice command: {e}")
-            if self.voice_processor:
-                self.voice_processor.speak("Sorry, I encountered an error processing that command.")
+            self.log_error(f"Error processing enhanced voice command: {e}")
+            error_response = "I encountered an error processing that command. Please try again."
+            if self.enhanced_voice_system:
+                await self.enhanced_voice_system.speak(error_response)
+            elif self.voice_processor:
+                self.voice_processor.speak(error_response)
     
-    async def _get_ai_response(self, command: str) -> str:
-        """Get AI response from OpenAI or local LLM"""
+    async def _get_enhanced_ai_response(self, command: str) -> str:
+        """Get AI response using Multi-LLM Router with intelligent provider selection"""
         try:
-            # Try OpenAI first
-            if self.openai_client and not self.config.offline_mode:
-                return await self._get_openai_response(command)
+            start_time = time.time()
             
-            # Fallback to local LLM
-            elif self.local_llm:
-                return self._get_local_llm_response(command)
+            # Prepare conversation context
+            messages = [{"role": "system", "content": SYSTEM_ROLE}]
             
-            else:
-                return "I'm sorry, no AI engine is available at the moment."
+            # Add recent conversation history (last 10 exchanges)
+            recent_history = self.conversation_history[-20:] if len(self.conversation_history) > 20 else self.conversation_history
+            messages.extend(recent_history)
+            
+            # Determine task type for optimal routing
+            task_type = self._classify_command(command)
+            
+            # Route to best available AI provider
+            if self.multi_llm_router:
+                result = await self.multi_llm_router.route_completion(
+                    messages=messages,
+                    task_type=task_type
+                )
                 
+                if result and "content" in result:
+                    processing_time = time.time() - start_time
+                    if self.performance_monitor:
+                        self.performance_monitor.add_processing_time("ai", processing_time)
+                    
+                    provider = result.get("provider", "unknown")
+                    self.log_info(f"🤖 AI Response from {provider} in {processing_time:.2f}s")
+                    return result["content"]
+            
+            # Fallback to original method
+            return await self._get_ai_response(command)
+            
         except Exception as e:
-            self.log_error(f"AI response error: {e}")
-            return "I encountered an error while thinking. Please try again."
+            self.log_error(f"Enhanced AI response error: {e}")
+            return "I encountered an error while processing your request. Please try again."
+    
+    def _classify_command(self, command: str) -> str:
+        """Classify command type for optimal AI routing"""
+        command_lower = command.lower()
+        
+        if any(word in command_lower for word in ["analyze", "think", "reason", "explain", "why", "how"]):
+            return "reasoning"
+        elif any(word in command_lower for word in ["write", "create", "story", "poem", "creative"]):
+            return "creative"
+        elif any(word in command_lower for word in ["code", "program", "script", "python", "javascript"]):
+            return "coding"
+        elif any(word in command_lower for word in ["private", "confidential", "local", "secure"]):
+            return "local"
+        else:
+            return "general"
     
     async def _get_openai_response(self, command: str) -> str:
         """Get response from OpenAI API"""
