@@ -1,8 +1,26 @@
-﻿# Ultron Agent 2 - Development Guide
+# Ultron Agent 3.0 - Advanced AI Agent Platform
 
 ## Overview
 
-This is the Ultron Agent 2 project workspace, configured with advanced AI development tools and extensions.
+Ultron Agent 3.0 is a sophisticated AI agent platform that combines autonomous workflow execution, comprehensive tool integration, and multi-modal interaction capabilities. Built with a modular architecture, it provides an extensible foundation for AI-driven automation and intelligent assistance.
+
+## 🌟 Key Features
+
+- **Agent-Based Workflow Engine**: Event-driven task orchestration with intelligent planning
+- **Sandboxed Code Interpreter**: Secure Python execution environment with safety measures  
+- **Dual-Layer Memory System**: Short-term context and long-term knowledge management
+- **Multi-Modal Interfaces**: Voice, vision, GUI, CLI, and API access
+- **OpenAI-Compatible API**: Standard REST and WebSocket endpoints with function calling
+- **Comprehensive Tool Ecosystem**: 15+ built-in tools for system control, web access, and AI operations
+- **Real-Time Monitoring**: Performance metrics, health checks, and instrumentation
+- **State Persistence**: Serialization and resume capabilities for continuous operation
+
+## 📚 Documentation
+
+- **[📖 Major Components & Features](docs/major_components_and_features.md)** - Comprehensive technical documentation
+- **[🏗️ Project Overview](docs/project_overview.md)** - Architecture and system design
+- **[📋 Component Specifications](COMPONENT_SPECIFICATIONS.md)** - Detailed technical specifications
+- **[📂 Documentation Index](docs/README.md)** - Complete documentation guide
 
 ## AI Tools Enabled
 
@@ -16,22 +34,39 @@ This is the Ultron Agent 2 project workspace, configured with advanced AI develo
 
 ## Quick Start
 
-### 1. Launch with AI Extensions
+### 1. Installation
+```bash
+# Clone the repository
+git clone https://github.com/dqikfox/ultron_agent.git
+cd ultron_agent
 
-```powershell
-# Use the custom launch script
-& "$env:USERPROFILE\launch-vscode-ai.ps1" -WorkspacePath "C:\Projects\ultron_agent_2" -WithProposedAPIs
-
-# Or manually
-code --enable-proposed-api sixth.sixth-ai "C:\Projects\ultron_agent_2"
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### 2. Verify AI Tools
+### 2. Configuration
+```bash
+# Copy configuration template
+cp ultron_config.json.example ultron_config.json
 
-- Press `Ctrl+Shift+P` and type "Amazon Q" to access Q Chat
-- Start typing code to see GitHub Copilot suggestions
-- Use `Ctrl+I` for inline AI assistance
-- Check status bar for active AI services
+# Edit configuration with your API keys
+# Set OpenAI, Anthropic, or other API keys as needed
+```
+
+### 3. Launch
+```bash
+# Start the agent
+python main.py
+
+# Or use the enhanced launcher
+./run.bat
+```
+
+### 4. Access Interfaces
+- **GUI**: Launches automatically with the agent
+- **CLI**: Interactive command-line interface
+- **API**: HTTP endpoints on `http://localhost:8000`
+- **WebSocket**: Real-time communication for chat applications
 
 ## Configuration Features
 
