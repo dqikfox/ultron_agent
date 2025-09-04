@@ -32,3 +32,21 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints/
+
+
+# Orphan detection and fix tool outputs
+ORPHAN_ANALYSIS_REPORT.md
+orphan_analysis_results.json
+.orphan_fixes_backup/
+# Common orphan file patterns
+*.tmp
+*screenshot_*.png
+*backup*
+.snapshots/
+*.log
+*.pyc
+# Development artifacts
+.pytest_cache/
+*.swp
+*.swo
+*~
