@@ -1,0 +1,21 @@
+# Production deployment dependencies for ULTRON Agent 3.0
+
+# All core dependencies
+-r requirements.txt
+
+# Production monitoring & logging
+structlog==23.2.0
+sentry-sdk==1.38.0
+
+# Production server
+gunicorn==21.2.0
+
+# Database (if needed in production)
+sqlalchemy==2.0.23
+alembic==1.13.0
+
+# Redis/Cache (optional)
+redis==5.0.1
+
+# Production security
+certifi==2023.11.17

@@ -1,3 +1,12 @@
+# Environment and secrets - SECURITY CRITICAL
+.env
+.env.*
+keys.txt
+*.key
+*.pem
+secrets/
+*.secrets
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -12,23 +21,94 @@ env/
 bin/
 lib/
 lib64/
+build/
+dist/
+*.egg-info/
 
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Virtual environments
+env/
+venv/
+.venv/
+.virtualenv/
+
 # pyenv
 .python-version
 
-# mypy
+# Development tools
 .mypy_cache/
+.ruff_cache/
 
-# pytest
+# Testing
 .cache/
-
-# Coverage
+.pytest_cache/
 .coverage
 coverage.xml
+htmlcov/
+.tox/
 
 # Jupyter Notebook
 .ipynb_checkpoints/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+*.out
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Node.js (if any frontend components)
+node_modules/
+.vite/
+.vue/
+
+# Docker
+.dockerignore
+
+# Misc
+*.vsix
+*.bak
+*_backup.*
+*_fixed.*
+*.orig
+
+# AI/ML artifacts that shouldn't be tracked
+models/
+checkpoints/
+weights/
+
+# Large binary files and vendor artifacts
+Oracle_JDK-24/
+*.exe
+*.msi
+*.dmg
+*.tar.gz
+*.zip

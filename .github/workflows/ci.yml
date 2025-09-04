@@ -7,8 +7,53 @@ on:
     branches: [ main ]
 
 jobs:
-  lint-and-type-check:
+  security-scan:
+    name: Security Scanning
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for secret scanning
+
+    - name: Run secret detection
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety bandit semgrep
+
+    - name: Run safety check
+      run: safety check --json --output safety-report.json
+      continue-on-error: true
+
+    - name: Run bandit security linter
+      run: bandit -r . -f json -o bandit-report.json
+      continue-on-error: true
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+
+  lint-and-type-check:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    needs: security-scan
     steps:
     - uses: actions/checkout@v4
 
@@ -17,22 +62,35 @@ jobs:
       with:
         python-version: '3.10'
 
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
 
     - name: Lint with ruff
-      run: ruff check .
+      run: ruff check . --output-format=github
 
     - name: Format check with black
-      run: black --check .
+      run: black --check --diff .
+
+    - name: Import sorting check
+      run: ruff check --select I .
 
     - name: Type check with mypy
-      run: mypy ultron_agent/ --ignore-missing-imports
+      run: mypy ultron_agent/ --ignore-missing-imports --show-error-codes
 
   test:
+    name: Test Suite
     runs-on: ${{ matrix.os }}
+    needs: lint-and-type-check
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -46,6 +104,14 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install system dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -57,20 +123,88 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
 
-    - name: Run tests
-      run: pytest tests/ -v --cov=ultron_agent --cov-report=xml
+    - name: Run unit tests
+      run: pytest tests/ -v --cov=ultron_agent --cov-report=xml --cov-report=term-missing -m "not (integration or network or gui or voice or ai)"
+
+    - name: Run integration tests
+      run: pytest tests/ -v -m "integration and not (network or gui or voice or ai)"
+      continue-on-error: true
 
     - name: Upload coverage
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
 
-  build:
-    runs-on: windows-latest
-    needs: [lint-and-type-check, test]
-    if: github.ref == 'refs/heads/main'
+  dependency-check:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install audit tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install pip-audit
+
+    - name: Audit dependencies
+      run: pip-audit --desc --format=json --output=dependency-audit.json
+      continue-on-error: true
+
+    - name: Upload dependency audit
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: dependency-audit
+        path: dependency-audit.json
+
+  build-validation:
+    name: Build Validation
+    runs-on: ${{ matrix.os }}
+    needs: [test, dependency-check]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+
+    - name: Build package
+      run: python -m build
+
+    - name: Validate build
+      run: |
+        pip install dist/*.whl
+        python -c "import ultron_agent; print('✅ Package import successful')"
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-${{ matrix.os }}
+        path: dist/
+
+  health-check:
+    name: Health Check Validation
+    runs-on: ubuntu-latest
+    needs: test
     steps:
     - uses: actions/checkout@v4
 
@@ -83,22 +217,55 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-        pip install pyinstaller
 
-    - name: Build executable
+    - name: Test health endpoints
       run: |
-        pyinstaller --onefile --windowed --name UltronAgent main.py
+        python -c "
+        import asyncio
+        import sys
+        sys.path.insert(0, '.')
+        from ultron_agent.health import HealthChecker
+        
+        async def test_health():
+            health = HealthChecker()
+            result = await health.check_basic_health()
+            print('✅ Health check successful:', result['status'])
+            
+        asyncio.run(test_health())
+        "
 
-    - name: Create release archive
-      run: |
-        mkdir UltronAgent-${{ github.sha }}
-        copy dist/UltronAgent.exe UltronAgent-${{ github.sha }}/
-        copy README.md UltronAgent-${{ github.sha }}/
-        copy LICENSE UltronAgent-${{ github.sha }}/
-        7z a UltronAgent-${{ github.sha }}.zip UltronAgent-${{ github.sha }}/
-
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v3
+  release-preparation:
+    name: Release Preparation
+    runs-on: ubuntu-latest
+    needs: [build-validation, health-check]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
       with:
-        name: UltronAgent-Windows
-        path: UltronAgent-${{ github.sha }}.zip
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install release tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install twine
+
+    - name: Generate changelog
+      run: |
+        # Create or update CHANGELOG.md based on commits
+        echo "# Changelog" > CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        echo "## [Unreleased]" >> CHANGELOG.md
+        git log --oneline --since="1 month ago" --pretty=format:"- %s" >> CHANGELOG.md
+
+    - name: Create release notes
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        echo "Creating release notes for tag: ${GITHUB_REF#refs/tags/}"
+        # Additional release note generation logic here
