@@ -11,6 +11,9 @@
 8. [Development Guidelines](#development-guidelines)
 9. [Troubleshooting](#troubleshooting)
 
+## 📚 Additional Documentation
+- **[Major Components & Features](major_components_and_features.md)** - Comprehensive guide to agent-based workflow engine, built-in tools, sandboxed code interpreter, memory strategies, serialization/resume capabilities, instrumentation, caching, OpenAI-compatible API, and chat UI
+
 ## Project Description
 
 **Ultron Agent 2.0** is an advanced, modular AI assistant framework that combines multiple AI services, voice interaction, computer vision, and extensive tool integration. Built with Python, it supports both local (Ollama) and cloud-based (OpenAI, Anthropic) language models, providing a flexible and powerful platform for AI-driven automation and interaction.
@@ -25,6 +28,18 @@
 - 🔒 **Security**: Encrypted API key storage and validation
 - 📊 **Performance Monitoring**: Built-in metrics and logging
 - ⚡ **Async Architecture**: Non-blocking operations and real-time updates
+
+### 🌟 Advanced Capabilities
+- **Agent-Based Workflow Engine**: Event-driven task orchestration with intelligent planning and execution
+- **Sandboxed Code Interpreter**: Secure Python code execution with comprehensive safety measures
+- **Dual-Layer Memory System**: Short-term context management and long-term knowledge retention
+- **Comprehensive Caching**: Multi-level caching for performance optimization and cost reduction
+- **OpenAI-Compatible API**: Standard-compliant REST and WebSocket endpoints with function calling
+- **Real-Time Instrumentation**: Performance monitoring, health checks, and automated alerting
+- **State Persistence**: Serialization and resume capabilities for seamless operation continuity
+- **Multi-Modal Interfaces**: Voice, vision, GUI, CLI, and web-based interaction options
+
+> 📖 **For detailed information about these features, see [Major Components & Features](major_components_and_features.md)**
 
 ## Architecture Overview
 
