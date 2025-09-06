@@ -6,8 +6,8 @@
 class UltronPokedexInterface {
     constructor() {
         // API Configuration
-        this.API_BASE_URL = 'http://localhost:3000';
-        this.AGENT_BASE_URL = 'http://localhost:8000';
+        this.API_BASE_URL = 'http://localhost:8080';
+        this.AGENT_BASE_URL = 'http://localhost:8080';
 
         this.currentSection = 'console';
         this.isListening = false;
@@ -219,7 +219,9 @@ class UltronPokedexInterface {
                 tasks: '📋 TASKS',
                 files: '📁 FILES',
                 settings: '🔧 CONFIG',
-                profile: '👤 PROFILE'
+                profile: '👤 PROFILE',
+                dashboard: '📊 DASHBOARD',
+                nvidia: '🎯 NVIDIA'
             };
             indicator.textContent = icons[sectionName] || '🖥️ CONSOLE';
         }
@@ -246,6 +248,12 @@ class UltronPokedexInterface {
                 break;
             case 'profile':
                 this.loadProfileData();
+                break;
+            case 'dashboard':
+                this.loadSystemInfo();
+                break;
+            case 'nvidia':
+                this.loadNvidiaStatus();
                 break;
         }
     }
@@ -420,17 +428,15 @@ class UltronPokedexInterface {
 
     handleActionButton(button) {
         if (button === 'A') {
-            // Execute current selection or enter
-            if (this.currentSection === 'console') {
-                const input = document.getElementById('console-input');
-                if (input && input.value.trim()) {
-                    this.handleConsoleCommand(input.value);
-                    input.value = '';
-                }
-            }
+            // Dashboard - Show system overview and stats
+            this.switchSection('dashboard');
+            this.addSystemMessage('📊 Opening Dashboard...');
+            this.updateSystemStats();
         } else if (button === 'B') {
-            // Back or cancel
-            this.switchSection('console');
+            // Nvidia Interface - Show AI/ML controls and NVIDIA integration
+            this.switchSection('nvidia');
+            this.addSystemMessage('🎯 Opening NVIDIA Interface...');
+            this.loadNvidiaStatus();
         }
     }
 
@@ -522,19 +528,86 @@ class UltronPokedexInterface {
         }
     }
 
-    async analyzeVision() {
-        this.addSystemMessage('🔍 Analyzing screen...');
+    async updateSystemStats() {
         try {
-            const response = await this.apiCall('/api/vision/analyze', { method: 'POST' });
+            const response = await this.apiCall('/api/status');
             if (response.ok) {
                 const data = await response.json();
-                this.addSystemMessage('✅ Analysis complete');
-                this.addSystemMessage('👁️ ' + (data.analysis || 'No analysis available'));
-            } else {
-                this.addErrorMessage('Vision analysis failed');
+                this.systemStats.cpu = data.system.cpu_percent;
+                this.systemStats.memory = data.system.memory_percent;
+                this.systemStats.disk = data.system.disk_percent;
+                this.updateStatsDisplay();
             }
         } catch (error) {
-            this.addErrorMessage('Vision analysis error: ' + error.message);
+            console.error('Failed to update system stats:', error);
+        }
+    }
+
+    updateStatsDisplay() {
+        // Update CPU display
+        const cpuDisplay = document.getElementById('cpu-display');
+        if (cpuDisplay) {
+            cpuDisplay.textContent = `${this.systemStats.cpu.toFixed(1)}%`;
+        }
+
+        // Update Memory display
+        const memDisplay = document.getElementById('memory-display');
+        if (memDisplay) {
+            memDisplay.textContent = `${this.systemStats.memory.toFixed(1)}%`;
+        }
+
+        // Update Disk display
+        const diskDisplay = document.getElementById('disk-display');
+        if (diskDisplay) {
+            diskDisplay.textContent = `${this.systemStats.disk.toFixed(1)}%`;
+        }
+    }
+
+    async loadNvidiaStatus() {
+        try {
+            const response = await this.apiCall('/api/nvidia/status');
+            if (response.status === 200) {
+                const data = await response.json();
+                this.addSystemMessage('🎯 NVIDIA Status: ' + (data.status || 'Available'));
+                if (data.models) {
+                    this.addSystemMessage('🤖 Available Models: ' + data.models.length);
+                }
+                // Update UI with NVIDIA data
+                this.updateNvidiaUI(data);
+            } else {
+                this.addSystemMessage('⚠️ NVIDIA service not available');
+            }
+        } catch (error) {
+            this.addSystemMessage('⚠️ NVIDIA integration offline');
+        }
+    }
+
+    updateNvidiaUI(data) {
+        // Update NVIDIA metrics
+        const metricsElement = document.getElementById('nvidia-metrics');
+        if (metricsElement && data.system) {
+            metricsElement.innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">GPU Memory:</span>
+                    <span class="metric-value">${data.system.memory_used || 'N/A'} / ${data.system.memory_total || 'N/A'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Temperature:</span>
+                    <span class="metric-value">${data.system.temperature || 'N/A'}°C</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Status:</span>
+                    <span class="metric-value">${data.status || 'Unknown'}</span>
+                </div>
+            `;
+        }
+
+        // Update model list
+        const modelListElement = document.getElementById('model-list');
+        if (modelListElement && data.models) {
+            modelListElement.innerHTML = data.models.map(model =>
+                `<div class="model-item">${model.name || model}</div>`
+            ).join('');
         }
     }
 
@@ -557,34 +630,34 @@ class UltronPokedexInterface {
         this.addSystemMessage('🔊 Sound toggled');
     }
 
-    updateSystemInfo() {
-        // Simulate system stats updates
-        this.systemStats.cpu = Math.floor(Math.random() * 30) + 10;
-        this.systemStats.memory = Math.floor(Math.random() * 40) + 30;
-        this.systemStats.disk = Math.floor(Math.random() * 20) + 60;
+    async loadSystemInfo() {
+        try {
+            const response = await this.apiCall('/api/status');
+            if (response.ok) {
+                const data = await response.json();
 
-        // Update UI
-        document.getElementById('cpu-usage').textContent = this.systemStats.cpu + '%';
-        document.getElementById('memory-usage').textContent = this.systemStats.memory + '%';
-        document.getElementById('disk-usage').textContent = this.systemStats.disk + '%';
-        document.getElementById('network-status').textContent = this.systemStats.network;
+                // Update dashboard metrics
+                const overallStatus = document.getElementById('overall-status');
+                if (overallStatus) {
+                    overallStatus.textContent = data.overall_status.toUpperCase();
+                    overallStatus.className = data.overall_status === 'operational' ? 'status-operational' : 'status-degraded';
+                }
 
-        // Update progress bars
-        document.getElementById('cpu-bar').style.width = this.systemStats.cpu + '%';
-        document.getElementById('memory-bar').style.width = this.systemStats.memory + '%';
-        document.getElementById('disk-bar').style.width = this.systemStats.disk + '%';
+                const agentStatus = document.getElementById('agent-status');
+                if (agentStatus && data.agent) {
+                    agentStatus.textContent = data.agent.status.toUpperCase();
+                }
 
-        // Update process list
-        const processContent = document.querySelector('.process-content');
-        if (processContent) {
-            processContent.textContent = `
-SYSTEM PROCESSES:
-• ultron.exe - 12.4% CPU
-• chrome.exe - 8.2% CPU
-• python.exe - 5.1% CPU
-• svchost.exe - 3.8% CPU
-• explorer.exe - 2.1% CPU
-            `.trim();
+                const systemUptime = document.getElementById('system-uptime');
+                if (systemUptime && data.agent) {
+                    systemUptime.textContent = data.agent.uptime;
+                }
+
+                this.addSystemMessage('📊 Dashboard updated with latest system information');
+            }
+        } catch (error) {
+            console.error('Failed to load system info:', error);
+            this.addErrorMessage('Failed to load dashboard information');
         }
     }
 

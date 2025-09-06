@@ -20,6 +20,7 @@ from security_utils import sanitize_log_input
 
 def setup_signal_handlers() -> None:
     """Setup graceful shutdown on signals."""
+
     def signal_handler(signum, frame):
         print(f"\nReceived signal {signum}, shutting down gracefully...")
         sys.exit(0)
@@ -34,7 +35,7 @@ def main() -> int:
         # Setup basic logging
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         )
         logger = logging.getLogger(__name__)
 
@@ -48,10 +49,11 @@ def main() -> int:
         logger.info(f"Agent initialized with status: {agent.status}")
 
         # Check for GUI mode preference
-        if len(sys.argv) > 1 and sys.argv[1] == '--web':
+        if len(sys.argv) > 1 and sys.argv[1] == "--web":
             # Force web GUI mode
             logger.info("Starting in Web GUI mode (forced)...")
             from web_gui_server import UltronWebServer
+
             web_server = UltronWebServer(agent_ref=agent, port=8080)
             if web_server.start_server():
                 try:
@@ -64,6 +66,7 @@ def main() -> int:
             # Web GUI mode - preferred if web_gui folder exists
             logger.info("Starting in Web GUI mode (web_gui folder detected)...")
             from web_gui_server import UltronWebServer
+
             web_server = UltronWebServer(agent_ref=agent, port=8080)
             if web_server.start_server():
                 try:
@@ -72,7 +75,7 @@ def main() -> int:
                     logger.info("Shutdown requested by user")
                     web_server.stop_server()
 
-        elif agent.gui and hasattr(agent.gui, 'run_gui'):
+        elif agent.gui and hasattr(agent.gui, "run_gui"):
             # New Pokédx GUI mode - run in main thread
             logger.info("Starting in Pokédx GUI mode...")
             agent.start_gui()  # This blocks in main thread
@@ -98,10 +101,6 @@ def main() -> int:
         return 1
 
 
-
-
-
 if __name__ == "__main__":
     exit_code = main()
     sys.exit(exit_code)
-

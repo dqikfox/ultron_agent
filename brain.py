@@ -6,7 +6,7 @@ Handles AI reasoning, planning, and communication with Ollama models
 from logging import getLogger, info, error, warning
 from os import path as os_path, listdir
 from re import sub as re_sub
-from json import loads as json_loads, dumps as json_dumps, JSONDecodeError
+from json import loads as json_loads, dumps as json_dumps, load as json_load, dump as json_dump, JSONDecodeError
 from requests import get as requests_get
 from asyncio import new_event_loop, set_event_loop, TimeoutError as AsyncTimeoutError
 from aiohttp import ClientSession, ClientError, ClientTimeout
@@ -45,7 +45,7 @@ class UltronBrain:
         try:
             if os.path.exists(self.cache_file):
                 with open(self.cache_file, 'r', encoding='utf-8') as f:
-                    self.cache = json.load(f)
+                    self.cache = json_load(f)
             else:
                 self.cache = {}
         except Exception as e:
@@ -56,7 +56,7 @@ class UltronBrain:
         """Save responses to cache"""
         try:
             with open(self.cache_file, 'w', encoding='utf-8') as f:
-                json.dump(self.cache, f, indent=2, ensure_ascii=False)
+                json_dump(self.cache, f, indent=2, ensure_ascii=False)
         except Exception as e:
             error(f"Error saving cache: {sanitize_log_input(str(e))}")
 
@@ -166,8 +166,8 @@ class UltronBrain:
         """Process a message and generate a response using Ollama"""
         try:
             # Run async direct_chat in sync context
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+            loop = new_event_loop()
+            set_event_loop(loop)
             try:
                 response = loop.run_until_complete(self.direct_chat(message))
                 return response
@@ -258,7 +258,7 @@ You should respond helpfully, accurately, and in character as ULTRON."""
                 if recent_context:
                     memory_context = f"\n\nRecent conversation context:\n{recent_context}"
             except Exception as e:
-                logging.warning(f"Could not retrieve memory context: {e}")
+                warning(f"Could not retrieve memory context: {e}")
 
         # Add available tools context
         tools_context = ""

@@ -254,7 +254,7 @@ class UltronWebServer:
             return True
 
         except Exception as e:
-            self.logger.error(f"❌ Failed to start web server: {e}")
+            self.logger.error(f"Failed to start web server: {e}")
             return False
 
     def _run_server(self):
@@ -289,37 +289,39 @@ class UltronWebServer:
 
 def main():
     """Main entry point for web GUI"""
-    print("🤖 ULTRON Agent 3.0 - Web GUI Server")
+    print("ULTRON Agent 3.0 - Web GUI Server")
     print("=" * 50)
 
     # Initialize agent if available
     agent = None
     if AGENT_AVAILABLE:
         try:
-            print("🧠 Initializing ULTRON Agent...")
+            print("Initializing ULTRON Agent...")
             agent = UltronAgent()
-            print(f"✅ Agent initialized with status: {agent.status}")
+            # Use asyncio to properly initialize the agent
+            asyncio.run(agent.initialize())
+            print(f"Agent initialized with status: {agent.status}")
         except Exception as e:
-            print(f"⚠️ Agent initialization failed: {e}")
-            print("🌐 Starting web server without agent backend")
+            print(f"Agent initialization failed: {e}")
+            print("Starting web server without agent backend")
     else:
-        print("🌐 Starting web server in standalone mode")
+        print("Starting web server in standalone mode")
 
     # Create and start web server
     server = UltronWebServer(agent_ref=agent, port=8080)
 
     if server.start_server():
-        print("\n🎉 ULTRON Web GUI is now running!")
-        print(f"🌐 Open your browser to: http://localhost:8080")
-        print("🔴 Press Ctrl+C to stop")
+        print("\nULTRON Web GUI is now running!")
+        print(f"Open your browser to: http://localhost:8080")
+        print("Press Ctrl+C to stop")
 
         try:
             server.wait_for_shutdown()
         except KeyboardInterrupt:
-            print("\n🛑 Shutting down...")
+            print("\nShutting down...")
             server.stop_server()
     else:
-        print("❌ Failed to start web server")
+        print("Failed to start web server")
         return 1
 
     return 0
