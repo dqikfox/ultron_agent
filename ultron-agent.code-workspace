@@ -16,7 +16,8 @@
       "typescript": true,
       "css": true,
       "sql": true,
-      "shellscript": true
+      "shellscript": true,
+      "plaintext": true
     },
     "github.copilot.advanced": {
       "secret_key": "github-copilot",
@@ -24,7 +25,9 @@
       "temperature": "",
       "top_p": "",
       "stops": {
-        "*": ["\\n\\n\\n"],
+        "*": [
+          "\\n\\n\\n"
+        ],
         "python": [
           "\\ndef ",
           "\\nclass ",
@@ -37,7 +40,6 @@
     "github.copilot.chat.enabled": true,
     "github.copilot.inlineSuggest.enable": true,
     "github.copilot.nextEditSuggestions.enabled": true,
-    
     "python.analysis.extraPaths": [
       "./",
       "./tests/",
@@ -49,7 +51,6 @@
     "python.analysis.typeCheckingMode": "strict",
     "python.analysis.autoSearchPaths": true,
     "python.analysis.diagnosticMode": "workspace",
-    
     "editor.suggest.showWords": false,
     "editor.inlineSuggest.enabled": true,
     "editor.suggest.preview": true,
@@ -58,7 +59,6 @@
       "comments": true,
       "strings": true
     },
-    
     "files.associations": {
       "*.py": "python",
       "*.pyi": "python",
@@ -67,7 +67,6 @@
       "*.yaml": "yaml",
       "*.yml": "yaml"
     },
-    
     "search.exclude": {
       "**/__pycache__": true,
       "**/node_modules": true,
@@ -76,7 +75,6 @@
       "**/env": true,
       "**/*.pyc": true
     },
-    
     "files.watcherExclude": {
       "**/.git/objects/**": true,
       "**/.git/subtree-cache/**": true,
@@ -85,32 +83,27 @@
       "**/__pycache__/**": true,
       "**/*.pyc": true
     },
-    
     "python.defaultInterpreterPath": "python",
     "python.formatting.provider": "black",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
-    
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": true
+      "source.organizeImports": "explicit"
     },
-    
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    
     "workbench.colorTheme": "Default Dark+",
     "workbench.iconTheme": "vs-seti",
-    
     "terminal.integrated.defaultProfile.windows": "PowerShell",
-    
     "amazonQ.telemetry": true,
     "amazonQ.shareCodeWhispererContentWithAWS": true,
-    
     "extensions.experimental.affinity": {
       "sixth.sixth-ai": 1
-    }
+    },
+    "amazonQ.showCodeWithReferences": true,
+    "chat.agent.maxRequests": 100
   },
   "extensions": {
     "recommendations": [
@@ -133,7 +126,9 @@
         "label": "Initialize Copilot Integration",
         "type": "shell",
         "command": "python",
-        "args": ["copilot_integration.py"],
+        "args": [
+          "copilot_integration.py"
+        ],
         "group": "build",
         "presentation": {
           "echo": true,
@@ -147,7 +142,12 @@
         "label": "Run Security Tests",
         "type": "shell",
         "command": "python",
-        "args": ["-m", "pytest", "test_security.py", "-v"],
+        "args": [
+          "-m",
+          "pytest",
+          "test_security.py",
+          "-v"
+        ],
         "group": "test",
         "presentation": {
           "echo": true,
@@ -160,7 +160,9 @@
         "label": "Start ULTRON Agent",
         "type": "shell",
         "command": "python",
-        "args": ["main.py"],
+        "args": [
+          "main.py"
+        ],
         "group": "build",
         "presentation": {
           "echo": true,

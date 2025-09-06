@@ -284,6 +284,65 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Dashboard Section -->
+                                <div id="dashboard-section" class="section-content">
+                                    <div class="section-title">SYSTEM DASHBOARD</div>
+                                    <div class="dashboard-content">
+                                        <div class="dashboard-grid">
+                                            <div class="dashboard-card">
+                                                <h3>System Overview</h3>
+                                                <div class="dashboard-metrics">
+                                                    <div class="metric">
+                                                        <span class="metric-label">Status:</span>
+                                                        <span class="metric-value" id="overall-status">Loading...</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Agent:</span>
+                                                        <span class="metric-value" id="agent-status">Loading...</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Uptime:</span>
+                                                        <span class="metric-value" id="system-uptime">00:00:00</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="dashboard-card">
+                                                <h3>Quick Actions</h3>
+                                                <div class="dashboard-actions">
+                                                    <button class="action-btn" onclick="ultronInterface.loadSystemInfo()">Refresh Status</button>
+                                                    <button class="action-btn" onclick="ultronInterface.loadNvidiaStatus()">Check NVIDIA</button>
+                                                    <button class="action-btn" onclick="ultronInterface.switchSection('system')">View Details</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- NVIDIA Section -->
+                                <div id="nvidia-section" class="section-content">
+                                    <div class="section-title">NVIDIA AI INTERFACE</div>
+                                    <div class="nvidia-content">
+                                        <div class="nvidia-status">
+                                            <div class="status-card">
+                                                <h3>GPU Status</h3>
+                                                <div class="nvidia-metrics" id="nvidia-metrics">
+                                                    <div class="metric">Loading NVIDIA information...</div>
+                                                </div>
+                                            </div>
+                                            <div class="status-card">
+                                                <h3>Available Models</h3>
+                                                <div class="model-list" id="model-list">
+                                                    <div class="model-item">Loading models...</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="nvidia-actions">
+                                            <button class="action-btn primary" onclick="ultronInterface.loadNvidiaStatus()">Refresh Status</button>
+                                            <button class="action-btn" onclick="window.open('http://localhost:5173', '_blank')">Open NVIDIA Chat</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

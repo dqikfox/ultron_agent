@@ -2,10 +2,42 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "Start Ollama Service",
 			"type": "shell",
-			"label": "Run Ultron Agent 2",
-			"command": "python main.py",
+			"command": "ollama",
+			"args": [
+				"serve"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Pull Models",
+			"type": "shell",
+			"command": "ollama",
+			"args": [
+				"pull",
+				"llama3.1"
+			],
 			"group": "build"
+		},
+		{
+			"label": "Run Ultron Assistant",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"ultron_assistant.py"
+			],
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always"
+			}
 		}
 	]
 }

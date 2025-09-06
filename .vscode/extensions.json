@@ -1,8 +1,9 @@
 {
   "recommendations": [
-    "ms-vscode.vscode-ai-toolkit",
-    "github.copilot",
-    "amazonwebservices.amazon-q-vscode",
-    "sixth.sixth-ai"
+    "ms-python.python",
+    "ms-toolsai.jupyter",
+    "ms-vscode.vscode-json",
+    "tongjiege.vscode-ollama",
+    "ms-vscode-remote.remote-wsl"
   ]
 }

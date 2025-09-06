@@ -199,6 +199,10 @@ def load_config(config_path: Optional[Path] = None) -> UltronConfig:
         ValueError: If configuration is invalid
         FileNotFoundError: If config file is required but missing
     """
+    # Load environment variables from .env file
+    from dotenv import load_dotenv
+    load_dotenv()
+
     if config_path is None:
         config_path = Path("ultron_config.json")
 
