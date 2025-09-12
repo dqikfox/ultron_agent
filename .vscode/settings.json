@@ -1,25 +1,73 @@
 {
-  "ollama.url": "http://localhost:11434",
-  "files.associations": {
-    "*.py": "python",
-    "*.md": "markdown"
-  },
-  "python.defaultInterpreterPath": "./venv/Scripts/python.exe",
-  "editor.formatOnSave": true,
-  "files.autoSave": "onFocusChange",
-  "search.exclude": {
-    "**/__pycache__": true,
-    "**/*.pyc": true
-  },
-  "python-envs.pythonProjects": [
-    {
-      "path": "",
-      "envManager": "ms-python.python:system",
-      "packageManager": "ms-python.python:pip"
+    "editor.inlineSuggest.enabled": true,
+    "editor.suggest.preview": true,
+    "http.proxySupport": "override",
+    "http.systemCertificates": true,
+    "search.followSymlinks": false,
+
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/venv/**": true,
+        "**/__pycache__/**": true,
+        "**/logs/**": true,
+        "**/cache/**": true,
+        "**/.cache/**": true,
+        "**/screenshots/**": true,
+        "**/*.png": true,
+        "**/*.jpg": true,
+        "**/*.jpeg": true,
+        "**/*.mp3": true,
+        "**/resources/agent workspaces/**": true,
+        "**/ultron_addons/**": true,
+        "**/Oracle_JDK-24/**": true
+    },
+
+    "typescript.preferences.maxTsServerMemory": 4096,
+    "typescript.tsserver.maxTsServerMemory": 4096,
+    "python.analysis.memory.keepLibraryAst": false,
+
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "python": true,
+        "javascript": true,
+        "typescript": true,
+        "json": true,
+        "yaml": true,
+        "html": true,
+        "css": true,
+        "sql": true,
+        "shellscript": true
+    },
+    "github.copilot.chat.enabled": true,
+    "github.copilot.inlineSuggest.enable": true,
+    "github.copilot.editor.enableAutoCompletions": true,
+
+    "amazonQ.telemetry": false,
+    "amazonQ.shareCodeWhispererContentWithAWS": false,
+    "ai-toolkit.enabled": false,
+    "CodeGPT.enabled": false,
+
+    "python.defaultInterpreterPath": "python",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.formatting.provider": "black",
+    "python.analysis.autoImportCompletions": false,
+    "python.analysis.indexing": false,
+
+    "editor.formatOnSave": false,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "editor.minimap.enabled": false,
+    "editor.codeLens": false,
+    "editor.hover.delay": 1000,
+
+    "chat.agent.maxRequests": 10,
+
+    "files.readonlyInclude": {
+        "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true,
+        "**/logs/**": true
     }
-  ],
-  "python.linting.enabled": true,
-  "python.testing.pytestEnabled": true,
-  "python.envFile": "${workspaceFolder}/.env",
-  "python.pythonPath": "C:\\Python310\\python.exe"
 }
