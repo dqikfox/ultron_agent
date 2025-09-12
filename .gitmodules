@@ -1,0 +1,15 @@
+[submodule "Oasis"]
+path = Oasis
+url = https://havikz:acspwsS32kOXDDs1GHigipvj@git.us-west-2.codecatalyst.aws/v1/oasisx/oasis/customized-coding-companion
+
+[submodule "OasisChatbot"]
+path = OasisChatbot
+url = https://havikz:acspMrJtH4lH55NJemq1HAcp@git.us-west-2.codecatalyst.aws/v1/oasisx/oasis/chatbot
+
+[submodule "bindmount-apps"]
+path = bindmount-apps
+url = https://github.com/docker/bindmount-apps
+
+[submodule "scout-demo-service"]
+path = scout-demo-service
+url = https://github.com/docker/scout-demo-service.git
