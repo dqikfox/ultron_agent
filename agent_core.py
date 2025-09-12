@@ -118,6 +118,28 @@ class UltronAgent:
             log_info("agent_core", f"Click tracked: {element} (count: {self.click_counts[element]})")
             return {"success": True, "count": self.click_counts[element]}
 
+        # Add GUI logging endpoint per copilot instructions
+        @self.app.post("/api/log")
+        async def gui_log(request: Request):
+            """Handle GUI logging requests and integrate with centralized logging"""
+            try:
+                data = await request.json()
+                event_type = data.get('eventType', 'gui_event')
+                element_id = data.get('elementId', 'unknown')
+                element_class = data.get('elementClass', 'unknown')
+                details = data.get('details', {})
+                timestamp = data.get('timestamp', datetime.now().isoformat())
+                
+                # Log GUI interaction using centralized system
+                log_info("gui", f"GUI Event: {event_type} on {element_id}", 
+                        event_type=event_type, element_id=element_id, 
+                        element_class=element_class, details=details, timestamp=timestamp)
+                
+                return {"success": True, "logged": True}
+            except Exception as e:
+                log_error("gui", f"Failed to process GUI log: {e}", error=e)
+                return {"success": False, "error": str(e)}
+
         log_info("agent_core", "FastAPI routes configured")
 
     def setup_socketio_events(self):

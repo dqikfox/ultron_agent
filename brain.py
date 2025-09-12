@@ -1,9 +1,9 @@
 """
 ULTRON Agent 3.0 - Brain Module with Ollama Integration
 Handles AI reasoning, planning, and communication with Ollama models
+Following copilot instructions architecture patterns.
 """
 
-from logging import getLogger, info, error, warning
 from os import path as os_path, listdir
 from re import sub as re_sub
 from json import loads as json_loads, dumps as json_dumps, JSONDecodeError
@@ -12,6 +12,10 @@ from asyncio import new_event_loop, set_event_loop, TimeoutError as AsyncTimeout
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
 from security_utils import sanitize_log_input, sanitize_html_output, validate_file_path
+
+# MANDATORY: Use centralized logging system per copilot instructions
+from utils.ultron_logger import log_info, log_error, log_ai_decision, log_file_operation
+from utils.model_awareness import should_modify_file, check_file_context
 
 from tools.openai_tools import OpenAITools
 
@@ -30,15 +34,15 @@ class UltronBrain:
         try:
             from tools.agent_network import AgentNetwork
             self.agent_network = AgentNetwork(config)
-            info("Agent network initialized")
+            log_info("brain", "Agent network initialized")
         except ImportError:
-            warning("Agent network not available")
+            log_error("brain", "Agent network not available - ImportError")
 
         try:
             self.openai_tools = OpenAITools(config)
-            info("OpenAI tools initialized")
+            log_info("brain", "OpenAI tools initialized")
         except Exception as e:
-            warning(f"OpenAI tools not available: {sanitize_log_input(str(e))}")
+            log_error("brain", f"OpenAI tools not available: {sanitize_log_input(str(e))}", error=e)
 
     def load_cache(self):
         """Load cached responses"""
@@ -46,10 +50,12 @@ class UltronBrain:
             if os.path.exists(self.cache_file):
                 with open(self.cache_file, 'r', encoding='utf-8') as f:
                     self.cache = json.load(f)
+                log_file_operation("brain", f"Cache loaded from {self.cache_file}", self.cache_file, "read")
             else:
                 self.cache = {}
+                log_info("brain", "No cache file found, starting with empty cache")
         except Exception as e:
-            error(f"Error loading cache: {sanitize_log_input(str(e))}")
+            log_error("brain", f"Error loading cache: {sanitize_log_input(str(e))}", error=e)
             self.cache = {}
 
     def save_cache(self):
@@ -57,18 +63,21 @@ class UltronBrain:
         try:
             with open(self.cache_file, 'w', encoding='utf-8') as f:
                 json.dump(self.cache, f, indent=2, ensure_ascii=False)
+            log_file_operation("brain", f"Cache saved to {self.cache_file}", self.cache_file, "write")
         except Exception as e:
-            error(f"Error saving cache: {sanitize_log_input(str(e))}")
+            log_error("brain", f"Error saving cache: {sanitize_log_input(str(e))}", error=e)
 
     async def direct_chat(self, prompt: str, progress_callback=None) -> str:
         """Send a direct message to the LLM via Ollama API."""
         if not prompt or not prompt.strip():
+            log_error("brain", "Empty prompt provided to direct_chat")
             return "Empty prompt provided."
 
         ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
         model = self.config.get("llm_model", "qwen2.5:latest")
 
-        info(f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}")
+        log_ai_decision("brain", f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}", 
+                       ai_model=model, confidence_score=0.8)
 
         try:
             headers = {}
@@ -123,10 +132,10 @@ class UltronBrain:
                                 break
 
                         except JSONDecodeError as e:
-                            warning(f"Failed to parse JSON chunk: {sanitize_log_input(str(e))}")
+                            log_error("brain", f"Failed to parse JSON chunk: {sanitize_log_input(str(e))}", error=e)
                             continue
                         except Exception as e:
-                            warning(f"Error processing chunk: {sanitize_log_input(str(e))}")
+                            log_error("brain", f"Error processing chunk: {sanitize_log_input(str(e))}", error=e)
                             continue
 
             reply = "".join(reply_parts).strip()
@@ -134,11 +143,12 @@ class UltronBrain:
             if reply:
                 if progress_callback:
                     progress_callback(100, "Response complete.")
-                info(f"Successfully received response from {sanitize_log_input(model)} ({len(reply)} chars)")
+                log_ai_decision("brain", f"Successfully received response from {sanitize_log_input(model)} ({len(reply)} chars)", 
+                               ai_model=model, confidence_score=1.0)
                 return reply
             else:
                 error_msg = "No content received from LLM"
-                error(error_msg)
+                log_error("brain", error_msg)
                 if progress_callback:
                     progress_callback(0, error_msg, error=True)
                 return f"[LLM error: {sanitize_html_output(error_msg)}]"
@@ -336,7 +346,7 @@ ULTRON:"""
 
         except Exception as e:
             error_msg = f"Error analyzing project: {e}"
-            error(sanitize_log_input(error_msg))
+            log_error("brain", sanitize_log_input(error_msg), error=e)
             if progress_callback:
                 progress_callback(0, error_msg, error=True)
             return error_msg
@@ -346,8 +356,11 @@ ULTRON:"""
         try:
             ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
             response = requests_get(f"{ollama_base_url}/api/tags", timeout=5)
-            return response.status_code == 200
-        except Exception:
+            is_connected = response.status_code == 200
+            log_info("brain", f"Ollama connection test: {'success' if is_connected else 'failed'}")
+            return is_connected
+        except Exception as e:
+            log_error("brain", f"Ollama connection test failed: {sanitize_log_input(str(e))}", error=e)
             return False
 
         issues_found = []
@@ -363,11 +376,12 @@ ULTRON:"""
             if progress_callback:
                 progress_callback(100, f"Analysis complete. Found {len(python_files)} Python files.")
 
+            log_info("brain", f"Project analysis complete. Found {len(python_files)} Python files to analyze.")
             return f"Project analysis complete. Found {len(python_files)} Python files to analyze."
 
         except Exception as e:
             error_msg = f"Error during project analysis: {str(e)}"
-            error(sanitize_log_input(error_msg))
+            log_error("brain", sanitize_log_input(error_msg), error=e)
             if progress_callback:
                 progress_callback(0, error_msg, error=True)
             return error_msg
