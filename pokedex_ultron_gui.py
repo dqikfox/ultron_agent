@@ -204,6 +204,25 @@ class PokedexUltronGUI:
         for widget in self.tools_frame.winfo_children():
             widget.destroy()
         
+        # Add Stable Diffusion Studio button (featured prominently)
+        sd_btn = tk.Button(
+            self.tools_frame,
+            text="🎨 Stable Diffusion Studio",
+            command=self._launch_stable_diffusion_gui,
+            bg='#e74c3c',  # Special red color to stand out
+            fg='white',
+            font=("Orbitron", 10, "bold"),
+            relief=tk.RAISED,
+            bd=2,
+            padx=10,
+            pady=5
+        )
+        sd_btn.pack(fill=tk.X, pady=(0, 10))
+        
+        # Add separator
+        separator = tk.Frame(self.tools_frame, height=2, bg='#7f8c8d')
+        separator.pack(fill=tk.X, pady=5)
+        
         # Add tools
         for i, tool in enumerate(tools):
             tool_name = tool.get('name', 'Unknown Tool')
@@ -227,6 +246,47 @@ class PokedexUltronGUI:
         command = f"execute the {tool_name} tool"
         self.add_message("User (Tool)", command)
         threading.Thread(target=self._get_agent_response, args=(command,), daemon=True).start()
+
+    def _launch_stable_diffusion_gui(self):
+        """Launch the Stable Diffusion GUI interface"""
+        try:
+            self.add_message("ULTRON", "🎨 Launching Stable Diffusion Studio...")
+            
+            # Import and launch the Stable Diffusion GUI
+            from stable_diffusion_gui import launch_stable_diffusion_gui
+            
+            # Launch in a separate thread to avoid blocking the main GUI
+            def launch_worker():
+                try:
+                    launch_stable_diffusion_gui(agent_ref=self.agent_handle)
+                except Exception as e:
+                    logging.error(f"Stable Diffusion GUI error: {e}")
+                    # Schedule UI update in main thread
+                    self.root.after(0, lambda: self.add_message("ULTRON", f"❌ Failed to launch Stable Diffusion Studio: {e}"))
+            
+            threading.Thread(target=launch_worker, daemon=True).start()
+            
+            # Add info message
+            self.add_message("ULTRON", 
+                           "🎨 Stable Diffusion Studio is starting up!\n\n"
+                           "Features:\n"
+                           "• High-quality AI image generation\n"
+                           "• Multiple style presets and quality settings\n"
+                           "• Colab notebook integration\n"
+                           "• Image gallery and history management\n\n"
+                           "📝 You can also use text commands like:\n"
+                           "• 'generate image of a sunset'\n"
+                           "• 'create cyberpunk robot art'\n"
+                           "• 'stable diffusion realistic portrait'")
+                           
+        except ImportError:
+            self.add_message("ULTRON", 
+                           "❌ Stable Diffusion Studio not available.\n\n"
+                           "Please ensure the stable_diffusion_gui.py module is installed.\n"
+                           "You can still use text commands for image generation.")
+        except Exception as e:
+            logging.error(f"Error launching Stable Diffusion GUI: {e}")
+            self.add_message("ULTRON", f"❌ Error launching Stable Diffusion Studio: {e}")
 
     def _create_conversation_panel(self, parent):
         """Create conversation display panel"""
