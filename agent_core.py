@@ -1,6 +1,7 @@
 """
 ULTRON Agent Core System
 Main agent initialization and core functionality
+Following copilot instructions architecture patterns.
 """
 
 import asyncio
@@ -19,13 +20,16 @@ import uuid
 import traceback
 import uvicorn
 
+# MANDATORY: Use centralized logging system per copilot instructions
+from utils.ultron_logger import log_info, log_error, log_ai_decision, log_file_operation
+from utils.model_awareness import should_modify_file, check_file_context
+
 class UltronAgent:
     """Core ULTRON agent with essential functionality"""
 
     def __init__(self):
-        # Setup comprehensive logging first
-        self.setup_logging()
-        self.logger.info("🤖 ULTRON Agent Core initializing...")
+        # Initialize using centralized logging per copilot instructions
+        log_info("agent_core", "ULTRON Agent Core initializing...")
 
         # NVIDIA API Configuration
         self.nvidia_api_keys = [
@@ -33,7 +37,7 @@ class UltronAgent:
             "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"
         ]
         self.current_api_key = self.nvidia_api_keys[0]
-        self.logger.info(f"📡 NVIDIA API configured with {len(self.nvidia_api_keys)} keys")
+        log_info("agent_core", f"NVIDIA API configured with {len(self.nvidia_api_keys)} keys")
 
         # NVIDIA Model Configuration
         self.nvidia_models = {
@@ -42,12 +46,12 @@ class UltronAgent:
             "llama-3.3-70b": "meta/llama-3.3-70b-instruct"
         }
         self.current_model = "llama-4-maverick"
-        self.logger.info(f"🧠 Models available: {list(self.nvidia_models.keys())}")
+        log_info("agent_core", f"Models available: {list(self.nvidia_models.keys())}")
 
         # FastAPI + Socket.IO Setup
         self.sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins="*")
         self.app = FastAPI(title="ULTRON Agent Core")
-        self.logger.info("⚡ FastAPI and Socket.IO initialized")
+        log_info("agent_core", "FastAPI and Socket.IO initialized")
 
         # Setup routes and Socket.IO events
         self.setup_routes()
@@ -62,66 +66,32 @@ class UltronAgent:
 
         # Combine with Socket.IO
         self.app = socketio.ASGIApp(self.sio, other_asgi_app=self.app)
-        self.logger.info("✅ ULTRON Agent Core initialization complete")
-
-    def setup_logging(self):
-        """Setup comprehensive logging for debugging"""
-        # Create formatter
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
-        )
-
-        # Setup file handler
-        file_handler = logging.FileHandler('ultron_agent_core.log')
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-
-        # Setup console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
-
-        # Configure logger
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(console_handler)
-
-        # Also configure root logger
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler('ultron.log'),
-                logging.StreamHandler()
-            ]
-        )
+        log_info("agent_core", "ULTRON Agent Core initialization complete")
 
     async def initialize(self):
         """Initialize agent - required by web_bridge.py"""
-        self.logger.info("🔄 ULTRON Agent initialize() called by web bridge")
+        log_info("agent_core", "ULTRON Agent initialize() called by web bridge")
         try:
             self.is_running = True
             self.status = "running"
-            self.logger.info("✅ ULTRON Agent fully initialized and ready")
+            log_info("agent_core", "ULTRON Agent fully initialized and ready")
             return True
         except Exception as e:
-            self.logger.error(f"❌ Agent initialization failed: {e}")
-            self.logger.error(traceback.format_exc())
+            log_error("agent_core", f"Agent initialization failed: {e}", error=e)
             return False
 
     def setup_routes(self):
         """Setup FastAPI routes for the core agent"""
-        self.logger.info("🛣️ Setting up FastAPI routes...")
+        log_info("agent_core", "Setting up FastAPI routes...")
 
         @self.app.get("/")
         async def get_home():
-            self.logger.info("🏠 Home route accessed")
+            log_info("agent_core", "Home route accessed")
             return await self.get_core_ui()
 
         @self.app.get("/health")
         async def health_check():
-            self.logger.info("❤️ Health check requested")
+            log_info("agent_core", "Health check requested")
             health_data = {
                 "status": "operational",
                 "current_model": self.current_model,
@@ -130,12 +100,12 @@ class UltronAgent:
                 "conversations": len(self.conversations),
                 "uptime": datetime.now().isoformat()
             }
-            self.logger.info(f"📊 Health data: {health_data}")
+            log_info("agent_core", f"Health data generated with {len(self.conversations)} conversations")
             return health_data
 
         @self.app.get("/status")
         async def get_status():
-            self.logger.info("📈 Status endpoint accessed")
+            log_info("agent_core", "Status endpoint accessed")
             status_data = self.get_status()
             return status_data
 
@@ -145,18 +115,40 @@ class UltronAgent:
             data = await request.json()
             element = data.get('element', 'unknown')
             self.click_counts[element] = self.click_counts.get(element, 0) + 1
-            self.logger.info(f"🖱️ Click tracked: {element} (count: {self.click_counts[element]})")
+            log_info("agent_core", f"Click tracked: {element} (count: {self.click_counts[element]})")
             return {"success": True, "count": self.click_counts[element]}
 
-        self.logger.info("✅ FastAPI routes configured")
+        # Add GUI logging endpoint per copilot instructions
+        @self.app.post("/api/log")
+        async def gui_log(request: Request):
+            """Handle GUI logging requests and integrate with centralized logging"""
+            try:
+                data = await request.json()
+                event_type = data.get('eventType', 'gui_event')
+                element_id = data.get('elementId', 'unknown')
+                element_class = data.get('elementClass', 'unknown')
+                details = data.get('details', {})
+                timestamp = data.get('timestamp', datetime.now().isoformat())
+                
+                # Log GUI interaction using centralized system
+                log_info("gui", f"GUI Event: {event_type} on {element_id}", 
+                        event_type=event_type, element_id=element_id, 
+                        element_class=element_class, details=details, timestamp=timestamp)
+                
+                return {"success": True, "logged": True}
+            except Exception as e:
+                log_error("gui", f"Failed to process GUI log: {e}", error=e)
+                return {"success": False, "error": str(e)}
+
+        log_info("agent_core", "FastAPI routes configured")
 
     def setup_socketio_events(self):
         """Setup Socket.IO event handlers for real-time communication"""
-        self.logger.info("🔌 Setting up Socket.IO events...")
+        log_info("agent_core", "Setting up Socket.IO events...")
 
         @self.sio.event
         async def connect(sid, environ):
-            self.logger.info(f"🔗 Client connected: {sid}")
+            log_info("agent_core", f"Client connected: {sid}")
             await self.sio.emit('connection_established', {
                 'session_id': sid,
                 'status': 'connected',
@@ -165,24 +157,24 @@ class UltronAgent:
 
         @self.sio.event
         async def disconnect(sid):
-            self.logger.info(f"🔌 Client disconnected: {sid}")
+            log_info("agent_core", f"Client disconnected: {sid}")
 
         @self.sio.event
         async def user_message(sid, data):
             """Handle user messages and route to appropriate model"""
-            self.logger.info(f"💬 Message from {sid}: {data}")
+            log_info("agent_core", f"Message from {sid}: {data}")
             try:
                 user_text = data.get('text', '').strip()
                 model_preference = data.get('model', self.current_model)
 
                 if not user_text:
-                    self.logger.warning(f"⚠️ Empty message from {sid}")
+                    log_error("agent_core", f"Empty message received from {sid}")
                     return
 
                 # Initialize conversation history
                 if sid not in self.conversations:
                     self.conversations[sid] = []
-                    self.logger.info(f"📝 New conversation started for {sid}")
+                    log_info("agent_core", f"New conversation started for {sid}")
 
                 # Add user message to history
                 self.conversations[sid].append({
@@ -191,15 +183,16 @@ class UltronAgent:
                     "timestamp": datetime.now().isoformat()
                 })
 
-                self.logger.info(f"🎯 Processing with model: {model_preference}")
+                log_ai_decision("agent_core", f"Processing with model: {model_preference}", 
+                               ai_model=model_preference, confidence_score=0.9)
 
                 # Process with selected model
                 await self.process_user_message(sid, user_text, model_preference)
 
             except Exception as e:
                 self.error_counts['user_message'] = self.error_counts.get('user_message', 0) + 1
-                self.logger.error(f"❌ Error processing user message (error #{self.error_counts['user_message']}): {e}")
-                self.logger.error(traceback.format_exc())
+                log_error("agent_core", f"Error processing user message (error #{self.error_counts['user_message']}): {e}", 
+                         error=e)
                 await self.sio.emit('error', {
                     'message': f"Error processing request: {str(e)}",
                     'error_count': self.error_counts['user_message']
@@ -208,10 +201,10 @@ class UltronAgent:
         # Add ping/pong for connection health
         @self.sio.event
         async def ping(sid, data):
-            self.logger.debug(f"🏓 Ping from {sid}")
+            log_info("agent_core", f"Ping from {sid}", session_id=sid)
             await self.sio.emit('pong', {'timestamp': datetime.now().isoformat()}, to=sid)
 
-        self.logger.info("✅ Socket.IO events configured")
+        log_info("agent_core", "Socket.IO events configured")
 
     async def process_user_message(self, session_id: str, user_text: str, model: str):
         """Process user message with NVIDIA models"""

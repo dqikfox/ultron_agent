@@ -1,10 +1,10 @@
 """
 Enhanced Voice System Integration for ULTRON Agent 3.0
 Fixes all threading and API issues with proper fallback mechanisms
+Following copilot instructions architecture patterns.
 """
 
 from asyncio import run as asyncio_run, run_coroutine_threadsafe
-from logging import getLogger, info, error, warning
 from os import name as os_name, unlink
 from threading import Thread
 from time import sleep
@@ -13,6 +13,9 @@ from tempfile import NamedTemporaryFile
 from subprocess import run as subprocess_run, DEVNULL
 from sys import platform
 from pathlib import Path
+
+# MANDATORY: Use centralized logging system per copilot instructions
+from utils.ultron_logger import log_info, log_error, log_ai_decision
 
 # Import original voice module
 try:
@@ -66,16 +69,16 @@ class UltronVoiceManager:
         
     def _initialize_engines(self):
         """Initialize all available voice engines"""
-        info("Initializing ULTRON voice engines...")
+        log_info("voice", "Initializing ULTRON voice engines...")
         
         # Enhanced Engine (Process-based pyttsx3)
         if UltronVoiceEngine:
             try:
                 self.voice_engines['enhanced'] = UltronVoiceEngine()
-                info("Enhanced voice engine initialized")
+                log_info("voice", "Enhanced voice engine initialized")
             except Exception as e:
                 from security_utils import sanitize_log_input
-                error(f"Enhanced voice engine failed: {sanitize_log_input(str(e))}")
+                log_error("voice", f"Enhanced voice engine failed: {sanitize_log_input(str(e))}", error=e)
         
         # Direct pyttsx3
         if PYTTSX3_AVAILABLE:
