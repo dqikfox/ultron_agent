@@ -1,0 +1,35 @@
+# ULTRON Enhanced - Web Assets Directory
+
+This directory contains web assets for the ULTRON Pokedex interface:
+
+## Audio Files (Placeholder)
+- wake.wav - Wake word activation sound
+- confirm.wav - Action confirmation sound  
+- error.wav - Error notification sound
+- button_press.wav - Button press feedback
+- pokedex_open.wav - Interface startup sound
+
+## Image Files (Placeholder)
+- ultron_icon.png - Main ULTRON icon
+- pokedex_bg.jpg - Background texture
+- led_glow.png - LED light effects
+- scan_lines.png - Screen scan line effects
+
+## Installation Notes
+- Replace placeholder files with actual audio/image assets
+- Audio files should be in WAV format for best compatibility
+- Image files should be in PNG/JPG format
+- Keep file sizes reasonable for fast loading
+
+## Asset Requirements
+- Audio: 16-bit WAV, 44.1kHz sample rate recommended
+- Images: PNG with transparency support preferred
+- Icons: 32x32, 64x64, 128x128 pixel variants
+
+To add custom assets:
+1. Replace placeholder files with actual assets
+2. Maintain same filenames for compatibility
+3. Test audio playback in web interface
+4. Verify image loading and transparency
+
+The web interface will automatically use these assets when available.

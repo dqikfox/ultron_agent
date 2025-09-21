@@ -1,0 +1,26 @@
+{
+  "name": "ultron-agent-2",
+  "version": "1.0.0",
+  "description": "Ultron Agent 2 - AI Development Workspace with Web Assistant",
+  "scripts": {
+    "assistant:dev": "cd assistant/ai-assistant && npm run dev",
+    "assistant:build": "cd assistant/ai-assistant && npm run build",
+    "assistant:preview": "cd assistant/ai-assistant && npm run preview",
+    "assistant:install": "cd assistant/ai-assistant && npm install",
+    "setup": "npm run assistant:install",
+    "dev": "npm run assistant:dev"
+  },
+  "keywords": [
+    "ai",
+    "assistant",
+    "react",
+    "typescript",
+    "vite",
+    "development"
+  ],
+  "author": "Ultron Agent 2",
+  "license": "MIT",
+  "workspaces": [
+    "assistant/ai-assistant"
+  ]
+}

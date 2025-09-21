@@ -51,7 +51,7 @@
     "ai-toolkit.enabled": false,
     "CodeGPT.enabled": false,
 
-    "python.defaultInterpreterPath": "python",
+    "python.defaultInterpreterPath": ".venv-1/Scripts/python.exe",
     "python.analysis.typeCheckingMode": "basic",
     "python.formatting.provider": "black",
     "python.analysis.autoImportCompletions": false,
@@ -70,5 +70,13 @@
     "files.readonlyInclude": {
         "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true,
         "**/logs/**": true
-    }
+    },
+    "python-envs.pythonProjects": [
+        {
+            "path": "",
+            "envManager": "ms-python.python:system",
+            "packageManager": "ms-python.python:pip"
+        }
+    ],
+    "python.pythonPath": ".venv-1/Scripts/python.exe"
 }

@@ -5,19 +5,14 @@
     }
   ],
   "settings": {
-    // Performance and stability optimizations
     "editor.inlineSuggest.enabled": true,
     "editor.suggest.preview": true,
     "http.proxySupport": "override",
     "http.systemCertificates": true,
     "search.followSymlinks": false,
-    
-    // Memory and resource limits
     "typescript.preferences.maxTsServerMemory": 2048,
     "typescript.tsserver.maxTsServerMemory": 2048,
     "python.analysis.memory.keepLibraryAst": false,
-    
-    // Primary AI Assistant - GitHub Copilot only (disable others to prevent conflicts)
     "github.copilot.enable": {
       "*": true,
       "python": true,
@@ -34,12 +29,8 @@
     "github.copilot.chat.enabled": true,
     "github.copilot.inlineSuggest.enable": true,
     "github.copilot.editor.enableAutoCompletions": true,
-    
-    // Disable conflicting extensions
     "amazonQ.telemetry": false,
     "amazonQ.shareCodeWhispererContentWithAWS": false,
-    
-    // Python analysis optimization
     "python.analysis.extraPaths": [
       "./"
     ],
@@ -48,8 +39,6 @@
     "python.analysis.autoSearchPaths": false,
     "python.analysis.diagnosticMode": "openFilesOnly",
     "python.analysis.indexing": false,
-    
-    // Editor optimizations
     "editor.suggest.showWords": false,
     "editor.minimap.enabled": false,
     "editor.codeLens": false,
@@ -59,15 +48,11 @@
       "comments": false,
       "strings": false
     },
-    
-    // File associations (minimal)
     "files.associations": {
       "*.py": "python",
       "*.json": "jsonc",
       "*.yaml": "yaml"
     },
-    
-    // Extensive exclusions to reduce file watching overhead
     "search.exclude": {
       "**/__pycache__": true,
       "**/node_modules": true,
@@ -85,7 +70,7 @@
       "**/resources/agent workspaces/**": true,
       "**/Oracle_JDK-24/**": true
     },
-    
+
     "files.watcherExclude": {
       "**/.git/objects/**": true,
       "**/.git/subtree-cache/**": true,
@@ -105,26 +90,18 @@
       "**/ultron_addons/**": true,
       "**/Oracle_JDK-24/**": true
     },
-    
-    // Python settings
     "python.defaultInterpreterPath": "python",
     "python.formatting.provider": "black",
     "python.linting.enabled": false,
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": false,
-    
-    // Save settings (reduce I/O)
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {},
-    
+
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    
-    // Theme (lightweight)
     "workbench.colorTheme": "Default Dark+",
     "workbench.iconTheme": "vs-seti",
-    
-    // Terminal
     "terminal.integrated.defaultProfile.windows": "PowerShell"
   },
   "extensions": {
@@ -157,7 +134,7 @@
     "configurations": [
       {
         "name": "ULTRON Agent Debug",
-        "type": "python",
+        "type": "debugpy",
         "request": "launch",
         "program": "${workspaceFolder}/main.py",
         "console": "integratedTerminal",

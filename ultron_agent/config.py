@@ -11,6 +11,15 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+# Import secrets manager for secure API key handling
+try:
+    from utils.secrets_manager import SecretsManager
+    SECRETS_MANAGER_AVAILABLE = True
+    logger.debug("Secrets manager imported successfully")
+except ImportError as e:
+    logger.warning(f"Secrets manager not available: {e}. Using fallback methods.")
+    SECRETS_MANAGER_AVAILABLE = False
+
 
 class LogLevel(str, Enum):
     """Supported logging levels."""
@@ -99,6 +108,33 @@ class UltronConfig(BaseModel):
     # POCHI integration settings
     use_pochi: bool = Field(default=False, description="Enable POCHI integration")
 
+    # AutoGen Studio integration settings
+    autogen_studio_enabled: bool = Field(
+        default=False, description="Enable AutoGen Studio integration"
+    )
+    autogen_studio_port: int = Field(
+        default=8081, ge=1024, le=65535,
+        description="AutoGen Studio server port"
+    )
+    autogen_studio_host: str = Field(
+        default="127.0.0.1", description="AutoGen Studio server host"
+    )
+    autogen_studio_database_url: str = Field(
+        default="sqlite:///autogen_studio.db",
+        description="AutoGen Studio database URL"
+    )
+    autogen_studio_default_llm: str = Field(
+        default="gpt-4", description="Default LLM for AutoGen Studio"
+    )
+    autogen_studio_max_agents: int = Field(
+        default=10, ge=1, le=50,
+        description="Maximum number of agents in AutoGen Studio"
+    )
+    autogen_studio_session_timeout: int = Field(
+        default=3600, ge=300, le=86400,
+        description="AutoGen Studio session timeout (seconds)"
+    )
+
     # Voice boot message
     voice_boot_message: str = Field(default="There's No Strings On Me", description="Boot message for voice system")
 
@@ -120,6 +156,108 @@ class UltronConfig(BaseModel):
         validate_assignment = True
         extra = "ignore"  # Ignore extra fields for backward compatibility
 
+    def get_secure_api_key(self, key_name: str, env_var: str = None) -> Optional[str]:
+        """
+        Get API key securely using secrets manager, with fallback to environment.
+
+        Args:
+            key_name: Name of the secret in the secrets manager
+            env_var: Environment variable name for fallback
+
+        Returns:
+            API key if found, None otherwise
+        """
+        if SECRETS_MANAGER_AVAILABLE:
+            try:
+                secrets_manager = SecretsManager()
+                if secrets_manager.secret_exists(key_name):
+                    return secrets_manager.get_secret(key_name)
+                logger.debug(f"Secret '{key_name}' not found in secrets manager")
+            except Exception as e:
+                logger.warning(f"Failed to retrieve secret '{key_name}': {e}")
+
+        # Fallback to environment variable
+        if env_var:
+            value = os.getenv(env_var)
+            if value:
+                logger.debug(f"Loaded {key_name} from environment variable {env_var}")
+                return value
+
+        return None
+
+    def store_secure_api_key(self, key_name: str, value: str, description: str = None) -> bool:
+        """
+        Store API key securely using secrets manager.
+
+        Args:
+            key_name: Name of the secret
+            value: API key value
+            description: Optional description
+
+        Returns:
+            True if stored successfully, False otherwise
+        """
+        if not SECRETS_MANAGER_AVAILABLE:
+            logger.warning("Secrets manager not available, cannot store secure API key")
+            return False
+
+        try:
+            secrets_manager = SecretsManager()
+            secrets_manager.store_secret(key_name, value, description or f"API key for {key_name}")
+            logger.info(f"Successfully stored secure API key: {key_name}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to store secure API key '{key_name}': {e}")
+            return False
+
+    def migrate_api_keys_to_secrets(self) -> Dict[str, bool]:
+        """
+        Migrate existing API keys from environment/config to secrets manager.
+
+        Returns:
+            Dictionary mapping key names to migration success status
+        """
+        if not SECRETS_MANAGER_AVAILABLE:
+            logger.warning("Secrets manager not available, cannot migrate API keys")
+            return {}
+
+        migration_results = {}
+        secrets_manager = SecretsManager()
+
+        # API key mappings
+        key_mappings = {
+            'openai_api_key': ('OPENAI_API_KEY', 'OpenAI API key for GPT models'),
+            'elevenlabs_api_key': ('ELEVENLABS_API_KEY', 'ElevenLabs API key for voice synthesis'),
+            'elevenlabs_agent_id': ('ELEVENLABS_AGENT_ID', 'ElevenLabs agent/voice ID'),
+            'nvidia_api_key': ('NVIDIA_API_KEY', 'NVIDIA NIM API key'),
+            'together_api_key': ('TOGETHER_API_KEY', 'Together.xyz API key'),
+        }
+
+        for config_field, (env_var, description) in key_mappings.items():
+            try:
+                # Check if we have the key from current config or environment
+                current_value = getattr(self, config_field, None) or os.getenv(env_var)
+
+                if current_value and not secrets_manager.secret_exists(config_field):
+                    # Store in secrets manager
+                    success = self.store_secure_api_key(config_field, current_value, description)
+                    migration_results[config_field] = success
+
+                    if success:
+                        # Clear from current config to avoid plaintext storage
+                        setattr(self, config_field, None)
+                        logger.info(f"Migrated {config_field} to secrets manager")
+                    else:
+                        logger.error(f"Failed to migrate {config_field}")
+                else:
+                    migration_results[config_field] = True  # Already migrated or no value
+
+            except Exception as e:
+                logger.error(f"Error migrating {config_field}: {e}")
+                migration_results[config_field] = False
+
+        return migration_results
+
     @validator('voice_fallback_chain')
     def validate_fallback_chain(cls, v, values):
         """Ensure fallback chain contains console as final fallback."""
@@ -138,20 +276,33 @@ class UltronConfig(BaseModel):
 
     @root_validator(skip_on_failure=True)
     def validate_api_keys(cls, values):
-        """Load API keys from environment if not provided."""
-        # Map of config field to environment variable
-        env_mapping = {
-            'openai_api_key': 'OPENAI_API_KEY',
-            'elevenlabs_api_key': 'ELEVENLABS_API_KEY',
-            'elevenlabs_agent_id': 'ELEVENLABS_AGENT_ID',
-            'nvidia_api_key': 'NVIDIA_API_KEY',
-            'together_api_key': 'TOGETHER_API_KEY',
+        """Load API keys from secrets manager or environment if not provided."""
+        # Map of config field to environment variable and secret name
+        key_mappings = {
+            'openai_api_key': ('OPENAI_API_KEY', 'openai_api_key'),
+            'elevenlabs_api_key': ('ELEVENLABS_API_KEY', 'elevenlabs_api_key'),
+            'elevenlabs_agent_id': ('ELEVENLABS_AGENT_ID', 'elevenlabs_agent_id'),
+            'nvidia_api_key': ('NVIDIA_API_KEY', 'nvidia_api_key'),
+            'together_api_key': ('TOGETHER_API_KEY', 'together_api_key'),
         }
 
-        for field, env_var in env_mapping.items():
-            if not values.get(field) and os.getenv(env_var):
-                values[field] = os.getenv(env_var)
-                logger.debug(f"Loaded {field} from environment")
+        for field, (env_var, secret_name) in key_mappings.items():
+            if not values.get(field):
+                # Try secrets manager first
+                if SECRETS_MANAGER_AVAILABLE:
+                    try:
+                        secrets_manager = SecretsManager()
+                        if secrets_manager.secret_exists(secret_name):
+                            values[field] = secrets_manager.get_secret(secret_name)
+                            logger.debug(f"Loaded {field} from secrets manager")
+                            continue
+                    except Exception as e:
+                        logger.warning(f"Failed to load {field} from secrets manager: {e}")
+
+                # Fallback to environment variable
+                if os.getenv(env_var):
+                    values[field] = os.getenv(env_var)
+                    logger.debug(f"Loaded {field} from environment")
 
         return values
 
@@ -234,6 +385,10 @@ def save_config(config: UltronConfig, config_path: Optional[Path] = None) -> Non
     """
     Save configuration to file (excluding sensitive values).
 
+    API keys are stored securely in the secrets manager and should not be saved
+    in plaintext configuration files. Use config.store_secure_api_key() to store
+    API keys securely.
+
     Args:
         config: Configuration to save
         config_path: Path to save to (defaults to config.config_file)
@@ -253,6 +408,27 @@ def save_config(config: UltronConfig, config_path: Optional[Path] = None) -> Non
     except IOError as e:
         logger.error(f"Failed to save config to {config_path}: {e}")
         raise
+
+
+def migrate_api_keys_to_secrets_manager(config_path: Optional[Path] = None) -> Dict[str, bool]:
+    """
+    Utility function to migrate existing API keys to the secrets manager.
+
+    This function loads the current configuration, checks for API keys in environment
+    variables or config file, and migrates them to the secure secrets manager.
+
+    Args:
+        config_path: Path to config file (optional)
+
+    Returns:
+        Dictionary mapping key names to migration success status
+    """
+    try:
+        config = load_config(config_path)
+        return config.migrate_api_keys_to_secrets()
+    except Exception as e:
+        logger.error(f"Failed to migrate API keys: {e}")
+        return {}
 
 
 # Global config instance

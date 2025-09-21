@@ -1,0 +1,32 @@
+{
+  "monitoring": {
+    "enabled": true,
+    "logFile": "copilot_actions.log",
+    "trackSuggestions": true,
+    "trackAcceptance": true,
+    "provideAdvice": true
+  },
+  "advice": {
+    "triggers": [
+      "low_acceptance_rate",
+      "high_rejection_rate", 
+      "no_suggestions",
+      "language_switch"
+    ],
+    "tips": [
+      "Write descriptive comments to get better suggestions",
+      "Use specific function names for targeted completions",
+      "Try Ctrl+I for inline chat assistance",
+      "Use Copilot Chat for complex problem solving",
+      "Break down complex functions for better suggestions"
+    ]
+  },
+  "shortcuts": {
+    "accept": "Tab",
+    "reject": "Esc",
+    "next": "Alt+]",
+    "previous": "Alt+[",
+    "inline_chat": "Ctrl+I",
+    "copilot_chat": "Ctrl+Shift+P -> GitHub Copilot: Open Chat"
+  }
+}

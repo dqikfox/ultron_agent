@@ -1,11 +1,10 @@
 import asyncio
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-f        @self.sio.event
-        async def user_message(sid, data):
-            # Process the user message
-            response = await self.process_data(data)
-            await self.sio.emit('ai_response', response, to=sid)
+from fastapi.responses import JSONResponse
+from typing import Dict, Any, List
+import logging
+from datetime import datetime
 
     async def process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Process user message and generate AI response"""

@@ -6,19 +6,50 @@ import hashlib
 import speech_recognition as sr
 import pyttsx3
 import asyncio
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict
 from pathlib import Path
 from contextlib import contextmanager
-from elevenlabs import generate, stream, set_api_key, voices, Voice
-from elevenlabs.api import Models, Voices
-from elevenlabs.error import AuthenticationError, APIError, RateLimitError
-from tools.audio_manager import AudioManager
+
+try:
+    from elevenlabs import generate, set_api_key, voices
+    from elevenlabs.api import Models
+    from elevenlabs.error import AuthenticationError, APIError, RateLimitError
+    ELEVENLABS_AVAILABLE = True
+except ImportError:
+    ELEVENLABS_AVAILABLE = False
+    print("Warning: ElevenLabs not available")
+
+try:
+    from tools.audio_manager import AudioManager
+except ImportError:
+    # Fallback audio manager
+    class AudioManager:
+        def play_audio(self, path): pass
+        def play_audio_bytes(self, data): pass
+
+# Import event system for integration
+try:
+    from utils.event_system import EventSystem
+    EVENT_SYSTEM_AVAILABLE = True
+except ImportError:
+    EVENT_SYSTEM_AVAILABLE = False
+
+# Import performance monitor
+try:
+    from utils.performance_monitor import PerformanceMonitor
+    PERFORMANCE_MONITOR_AVAILABLE = True
+except ImportError:
+    PERFORMANCE_MONITOR_AVAILABLE = False
 
 # Configure module-level logger
 logger = logging.getLogger(__name__)
 
+
 class VoiceAssistant:
-    """Production-ready voice assistant with ElevenLabs integration and fallback chains"""
+    """
+    Production-ready voice assistant with ElevenLabs integration
+    and fallback chains.
+    """
 
     def __init__(self, config):
         """Initialize voice assistant with configuration"""
@@ -27,8 +58,12 @@ class VoiceAssistant:
         self.tts_engine = None
         self.elevenlabs_voices = None
         self.audio_manager = AudioManager()
-        self.cache_dir = Path(config.data.get("cache_dir", "cache/voice"))
+        self.cache_dir = Path(config.data.get("voice_cache_dir", "cache/voice"))
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Initialize event system and performance monitor
+        self.event_system = EventSystem() if EVENT_SYSTEM_AVAILABLE else None
+        self.performance_monitor = PerformanceMonitor() if PERFORMANCE_MONITOR_AVAILABLE else None
 
         # Voice settings
         self.voice_rate = config.data.get("voice_rate", 150)
@@ -37,72 +72,151 @@ class VoiceAssistant:
         self.voice_similarity = config.data.get("voice_similarity", 0.75)
         self.preferred_voice_id = config.data.get("elevenlabs_agent_id")
 
+        # Initialize with visual feedback
+        print("🔄 Initializing Voice Assistant...")
+        self._show_progress("Loading cache directory", 10)
+
         # Initialize voice systems
         self._init_elevenlabs()
         self._init_fallback_tts()
 
         # Set microphone energy threshold for better recognition
         if hasattr(self.recognizer, "energy_threshold"):
-            self.recognizer.energy_threshold = config.data.get("mic_energy_threshold", 300)
+            threshold = config.data.get("mic_energy_threshold", 300)
+            self.recognizer.energy_threshold = threshold
             self.recognizer.dynamic_energy_threshold = True
             self.recognizer.pause_threshold = 0.8
 
+        self._show_progress("Voice Assistant ready", 100)
         logger.info("Voice Assistant initialized successfully")
+
+    def _show_progress(self, message: str, percent: int = None):
+        """Show visual progress indicator"""
+        if percent is not None:
+            bar_length = 30
+            filled_length = int(bar_length * percent // 100)
+            bar = '█' * filled_length + '-' * (bar_length - filled_length)
+            print(f"\r{message} [{bar}] {percent}%", end='', flush=True)
+        else:
+            print(f"\r{message}", end='', flush=True)
+        time.sleep(0.1)  # Brief pause for visual effect
 
     def _init_elevenlabs(self):
         """Initialize ElevenLabs with proper error handling"""
-        elevenlabs_api_key = self.config.data.get("elevenlabs_api_key")
+        # First try to get API key from environment variable
+        elevenlabs_api_key = os.getenv('ELEVENLABS_APIKEY')
         if not elevenlabs_api_key:
-            logger.info("ElevenLabs API key not found in config, skipping initialization")
+            # Fallback to config file
+            elevenlabs_api_key = self.config.data.get("elevenlabs_api_key")
+
+        if not elevenlabs_api_key:
+            self._show_progress(
+                "⚠️  ElevenLabs API key not found in environment or config",
+                30
+            )
+            logger.info(
+                "ElevenLabs API key not found in environment variable "
+                "ELEVENLABS_APIKEY or config file"
+            )
+            return
+
+        # Set the preferred voice ID from environment variable or config
+        elevenlabs_agent_id = os.getenv('ELEVENLABS_AGENT_ID')
+        if not elevenlabs_agent_id:
+            # Fallback to config file
+            elevenlabs_agent_id = self.config.data.get("elevenlabs_agent_id")
+
+        if elevenlabs_agent_id:
+            self.preferred_voice_id = elevenlabs_agent_id
+            logger.info(f"Using ElevenLabs voice ID from environment: "
+                        f"{self.preferred_voice_id}")
+        else:
+            # Final fallback to default voice ID
+            self.preferred_voice_id = "e3mik6xHn4Sl51poljxK"  # Default
+            logger.info(f"Using default ElevenLabs voice ID: "
+                        f"{self.preferred_voice_id}")
+
+        # Only proceed with ElevenLabs initialization if available
+        if not ELEVENLABS_AVAILABLE:
+            self._show_progress(
+                "⚠️  ElevenLabs library not available, using fallback TTS",
+                30
+            )
+            logger.info("ElevenLabs library not available, "
+                        "skipping initialization")
             return
 
         try:
             # Set API key globally for the elevenlabs package
+            self._show_progress("🔌 Connecting to ElevenLabs...", 40)
             set_api_key(elevenlabs_api_key)
 
             # Verify API key by retrieving available voices
             self.elevenlabs_voices = voices()
 
-            # Validate preferred voice exists
+            self._show_progress(
+                f"🎤 Loaded {len(self.elevenlabs_voices)} ElevenLabs voices",
+                50
+            )
+
+            # Validate preferred voice exists (though we know this one exists)
             if self.preferred_voice_id:
-                voice_exists = any(voice.voice_id == self.preferred_voice_id for voice in self.elevenlabs_voices)
+                voice_exists = any(
+                    voice.voice_id == self.preferred_voice_id
+                    for voice in self.elevenlabs_voices)
                 if not voice_exists:
-                    logger.warning(f"Configured voice ID {self.preferred_voice_id} not found in ElevenLabs account")
+                    self._show_progress(
+                        "⚠️  Configured voice not found in account", 55
+                    )
+                    logger.warning(
+                        f"Configured voice ID {self.preferred_voice_id} "
+                        "not found - will use default voice"
+                    )
                     # Try to get a default voice
                     if self.elevenlabs_voices:
-                        self.preferred_voice_id = self.elevenlabs_voices[0].voice_id
-                        logger.info(f"Using default voice: {self.preferred_voice_id}")
+                        self.preferred_voice_id = (
+                            self.elevenlabs_voices[0].voice_id
+                        )
+                        logger.info(
+                            f"Using default voice: {self.preferred_voice_id}")
 
-            logger.info(f"ElevenLabs initialized successfully with {len(self.elevenlabs_voices)} voices available")
+            print("\n✅ ElevenLabs connected successfully")
+            logger.info(
+                f"ElevenLabs initialized successfully with "
+                f"{len(self.elevenlabs_voices)} voices available")
 
-        except AuthenticationError as e:
-            logger.error(f"ElevenLabs authentication failed: {e}")
-            self.elevenlabs_voices = None
-        except APIError as e:
-            logger.error(f"ElevenLabs API error: {e}")
-            self.elevenlabs_voices = None
         except Exception as e:
+            self._show_progress("❌ ElevenLabs initialization failed", 50)
             logger.error(f"ElevenLabs initialization failed: {e}")
             self.elevenlabs_voices = None
 
     def _init_fallback_tts(self):
         """Initialize pyttsx3 as fallback TTS engine"""
         try:
+            self._show_progress("⚙️  Initializing fallback TTS engine...", 60)
             self.tts_engine = pyttsx3.init()
             self.tts_engine.setProperty('rate', self.voice_rate)
             self.tts_engine.setProperty('volume', self.voice_volume)
 
             # Try to set a natural voice if available
             voices = self.tts_engine.getProperty('voices')
+            voice_set = False
             for voice in voices:
                 # Prefer female voices if available, otherwise use first voice
                 if voice.gender == 'female' or 'female' in voice.name.lower():
                     self.tts_engine.setProperty('voice', voice.id)
                     logger.info(f"Using pyttsx3 voice: {voice.name}")
+                    voice_set = True
                     break
 
+            if not voice_set and voices:
+                self.tts_engine.setProperty('voice', voices[0].id)
+                logger.info(f"Using pyttsx3 voice: {voices[0].name}")
+
+            print("✅ Fallback TTS engine ready")
             logger.info("pyttsx3 TTS initialized as fallback")
         except Exception as e:
+            self._show_progress("❌ pyttsx3 initialization failed", 65)
             logger.error(f"pyttsx3 initialization failed: {e}")
             self.tts_engine = None
 
@@ -145,7 +259,10 @@ class VoiceAssistant:
     def _get_cache_path(self, text: str) -> Path:
         """Generate a cache file path for the given text"""
         # Create a hash of the text plus voice settings to use as filename
-        settings = f"{self.preferred_voice_id}-{self.voice_stability}-{self.voice_similarity}"
+        settings = (
+            f"{self.preferred_voice_id}-{self.voice_stability}-"
+            f"{self.voice_similarity}"
+        )
         text_hash = hashlib.md5(f"{text}{settings}".encode()).hexdigest()
         return self.cache_dir / f"{text_hash}.mp3"
 
@@ -162,73 +279,201 @@ class VoiceAssistant:
         if not text:
             return False
 
-        # Clean text to improve speech quality
-        cleaned_text = self._clean_speech_text(text)
+        # Emit speak start event
+        if self.event_system:
+            await self.event_system.emit("voice_speak_start", {
+                "text": text[:100] + "..." if len(text) > 100 else text,
+                "length": len(text)
+            })
 
-        # Check cache first if not disabled
-        if not self.config.data.get("disable_tts_cache", False):
-            cache_path = self._get_cache_path(cleaned_text)
-            if cache_path.exists():
+        # Start performance monitoring
+        speak_start_time = time.time()
+        engine_used = "unknown"
+
+        try:
+            # Clean text to improve speech quality
+            cleaned_text = self._clean_speech_text(text)
+
+            # Check cache first if not disabled
+            if not self.config.data.get("disable_tts_cache", False):
+                cache_path = self._get_cache_path(cleaned_text)
+                if cache_path.exists():
+                    try:
+                        logger.debug(
+                            f"Using cached audio for: {cleaned_text[:30]}..."
+                        )
+                        self.audio_manager.play_audio(str(cache_path))
+                        engine_used = "cached"
+
+                        # Emit success event
+                        if self.event_system:
+                            await self.event_system.emit(
+                                "voice_speak_success", {
+                                    "engine": engine_used,
+                                    "cached": True,
+                                    "duration": time.time() - speak_start_time
+                                }
+                            )
+
+                        return True
+                    except Exception as e:
+                        logger.warning(f"Failed to play cached audio: {e}")
+
+            # Try ElevenLabs first (only if available)
+            if (ELEVENLABS_AVAILABLE and self.elevenlabs_voices and
+                    self.preferred_voice_id):
                 try:
-                    logger.debug(f"Using cached audio for: {cleaned_text[:30]}...")
-                    self.audio_manager.play_audio(str(cache_path))
+                    logger.debug(
+                        f"Using ElevenLabs TTS for: {cleaned_text[:30]}..."
+                    )
+                    audio = generate(
+                        text=cleaned_text,
+                        voice=self.preferred_voice_id,
+                        model="eleven_monolingual_v1",
+                        stability=self.voice_stability,
+                        similarity_boost=self.voice_similarity
+                    )
+
+                    # Cache the audio if caching is enabled
+                    if not self.config.data.get("disable_tts_cache", False):
+                        try:
+                            cache_path.write_bytes(audio)
+                        except Exception as e:
+                            logger.warning(f"Failed to cache audio: {e}")
+
+                    # Play the audio
+                    self.audio_manager.play_audio_bytes(audio)
+                    engine_used = "elevenlabs"
+
+                    # Emit success event
+                    if self.event_system:
+                        await self.event_system.emit("voice_speak_success", {
+                            "engine": engine_used,
+                            "cached": False,
+                            "duration": time.time() - speak_start_time
+                        })
+
+                    # Record performance metric
+                    self._record_performance_metric(
+                        "elevenlabs_tts",
+                        time.time() - speak_start_time,
+                        success=True,
+                        metadata={"engine": "elevenlabs"}
+                    )
+
+                    return True
+
+                except Exception as e:
+                    logger.warning(f"ElevenLabs TTS failed: {e}")
+
+                    # Emit failure event
+                    if self.event_system:
+                        await self.event_system.emit("voice_speak_error", {
+                            "engine": "elevenlabs",
+                            "error": str(e),
+                            "duration": time.time() - speak_start_time
+                        })
+
+            # Fallback to pyttsx3
+            if self.tts_engine:
+                try:
+                    logger.debug(
+                        f"Using pyttsx3 TTS for: {cleaned_text[:30]}..."
+                    )
+                    self.tts_engine.say(cleaned_text)
+                    self.tts_engine.runAndWait()
+                    engine_used = "pyttsx3"
+
+                    # Emit success event
+                    if self.event_system:
+                        await self.event_system.emit("voice_speak_success", {
+                            "engine": engine_used,
+                            "cached": False,
+                            "duration": time.time() - speak_start_time
+                        })
+
                     return True
                 except Exception as e:
-                    logger.warning(f"Failed to use cached audio: {e}")
+                    logger.error(f"pyttsx3 TTS failed: {e}")
 
-        # Try ElevenLabs TTS
-        if self.elevenlabs_voices:
-            try:
-                # Use ElevenLabs streaming API for better performance
-                logger.debug(f"Generating ElevenLabs audio for: {cleaned_text[:30]}...")
-                audio_stream = generate(
-                    text=cleaned_text,
-                    voice=self.preferred_voice_id,
-                    model="eleven_monolingual_v1",
-                    stream=True,
-                    stability=self.voice_stability,
-                    similarity_boost=self.voice_similarity
+                    # Emit failure event
+                    if self.event_system:
+                        await self.event_system.emit("voice_speak_error", {
+                            "engine": "pyttsx3",
+                            "error": str(e),
+                            "duration": time.time() - speak_start_time
+                        })
+
+            logger.error("All TTS engines failed")
+
+            # Emit final failure event
+            if self.event_system:
+                await self.event_system.emit("voice_speak_failed", {
+                    "text": text[:100] + "..." if len(text) > 100 else text,
+                    "duration": time.time() - speak_start_time
+                })
+
+            return False
+
+        except Exception as e:
+            logger.error(f"Unexpected error in speak method: {e}")
+
+            # Emit error event
+            if self.event_system:
+                await self.event_system.emit("voice_speak_error", {
+                    "engine": engine_used,
+                    "error": str(e),
+                    "duration": time.time() - speak_start_time
+                })
+
+            return False
+
+    def listen(self, timeout: int = 5) -> Optional[str]:
+        """Listen for speech input and return transcribed text"""
+        try:
+            # Get microphone device index from config
+            device_index = self.config.data.get("microphone_device_index")
+
+            # Initialize microphone properly
+            if device_index is not None:
+                logger.debug(f"Using microphone device index: {device_index}")
+                mic = sr.Microphone(device_index=device_index)
+            else:
+                logger.debug("Using default microphone")
+                mic = sr.Microphone()
+
+            with mic as source:
+                logger.debug("Adjusting for ambient noise...")
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+
+                logger.debug("Listening for speech...")
+                audio = self.recognizer.listen(
+                    source, timeout=timeout, phrase_time_limit=10
                 )
 
-                # Save to cache file while streaming
-                cache_path = self._get_cache_path(cleaned_text)
-                with open(cache_path, "wb") as f:
-                    for chunk in audio_stream:
-                        f.write(chunk)
+            logger.debug("Processing speech...")
+            text = self.recognizer.recognize_google(audio)
+            logger.info(f"Speech recognized: {text}")
+            return text
 
-                # Play the saved file
-                self.audio_manager.play_audio(str(cache_path))
-                logger.info(f"ElevenLabs TTS completed for: {cleaned_text[:30]}...")
-                return True
-
-            except RateLimitError:
-                logger.error("ElevenLabs rate limit reached, falling back to local TTS")
-            except AuthenticationError:
-                logger.error("ElevenLabs authentication error, falling back to local TTS")
-            except Exception as e:
-                logger.error(f"ElevenLabs TTS error: {e}, falling back to local TTS")
-
-        # Fallback to pyttsx3
-        if self.tts_engine:
-            try:
-                self.tts_engine.say(cleaned_text)
-                self.tts_engine.runAndWait()
-                logger.info(f"Used pyttsx3 for speech: {cleaned_text[:30]}...")
-                return True
-            except Exception as e:
-                logger.error(f"pyttsx3 speech error: {e}")
-
-        # Final fallback - text output
-        logger.warning(f"All TTS methods failed, using text fallback: {cleaned_text[:30]}...")
-        print(f"[Voice]: {cleaned_text} - voice.py:223")
-        return False
+        except sr.WaitTimeoutError:
+            logger.debug("Speech recognition timeout")
+            return None
+        except sr.UnknownValueError:
+            logger.debug("Could not understand speech")
+            return None
+        except Exception as e:
+            logger.error(f"Speech recognition failed: {e}")
+            return None
 
     # Synchronous wrapper for compatibility
     def speak_sync(self, text: str) -> bool:
         """Synchronous wrapper for speak method"""
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            return asyncio.run_coroutine_threadsafe(self.speak(text), loop).result()
+            return asyncio.run_coroutine_threadsafe(
+                self.speak(text), loop
+            ).result()
         else:
             return asyncio.run(self.speak(text))
 
@@ -239,10 +484,13 @@ class VoiceAssistant:
         try:
             yield mic
         finally:
-            # No explicit cleanup needed for Microphone object in speech_recognition
+            # No explicit cleanup needed for Microphone object
+            # in speech_recognition
             pass
 
-    async def listen(self, timeout: int = 10, phrase_time_limit: int = 10) -> str:
+    async def listen_async(
+        self, timeout: int = 10, phrase_time_limit: int = 10
+    ) -> str:
         """
         Listen for speech and return recognized text
 
@@ -253,8 +501,18 @@ class VoiceAssistant:
         Returns:
             str: Recognized text or empty string if recognition failed
         """
+        # Emit listen start event
+        if self.event_system:
+            await self.event_system.emit("voice_listen_start", {
+                "timeout": timeout,
+                "phrase_time_limit": phrase_time_limit
+            })
+
+        listen_start_time = time.time()
+        engine_used = "unknown"
+
         # Try ElevenLabs STT if available
-        if hasattr(Models, "speech_recognition") and self.elevenlabs_voices:
+        if ELEVENLABS_AVAILABLE and self.elevenlabs_voices:
             try:
                 # Record audio using audio manager
                 logger.info("Recording audio for ElevenLabs STT...")
@@ -269,18 +527,55 @@ class VoiceAssistant:
 
                 if response and response.get("text"):
                     recognized_text = response["text"]
-                    logger.info(f"ElevenLabs STT recognized: {recognized_text}")
+                    logger.info(
+                        f"ElevenLabs STT recognized: {recognized_text}"
+                    )
+                    engine_used = "elevenlabs"
+
+                    # Emit success event
+                    if self.event_system:
+                        await self.event_system.emit("voice_listen_success", {
+                            "engine": engine_used,
+                            "text": recognized_text[:100] + "..." if len(
+                                recognized_text) > 100 else recognized_text,
+                            "duration": time.time() - listen_start_time
+                        })
+
                     return recognized_text
                 else:
                     logger.warning("ElevenLabs STT returned empty result")
+
+                    # Emit empty result event
+                    if self.event_system:
+                        await self.event_system.emit("voice_listen_empty", {
+                            "engine": "elevenlabs",
+                            "duration": time.time() - listen_start_time
+                        })
+
             except Exception as e:
                 logger.error(f"ElevenLabs STT error: {e}")
+
+                # Emit error event
+                if self.event_system:
+                    await self.event_system.emit("voice_listen_error", {
+                        "engine": "elevenlabs",
+                        "error": str(e),
+                        "duration": time.time() - listen_start_time
+                    })
 
         # Fallback to local speech recognition
         device_index = self.config.data.get("microphone_device_index")
 
         try:
-            with self._get_microphone(device_index) as source:
+            # Initialize microphone properly
+            if device_index is not None:
+                logger.info(f"Using microphone device index: {device_index}")
+                mic = sr.Microphone(device_index=device_index)
+            else:
+                logger.info("Using default microphone")
+                mic = sr.Microphone()
+
+            with mic as source:
                 logger.info("Adjusting for ambient noise...")
                 self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
 
@@ -302,29 +597,82 @@ class VoiceAssistant:
                     try:
                         text = await recognizer_func(audio)
                         if text:
-                            logger.info(f"{name.capitalize()} STT recognized: {text}")
+                            logger.info(
+                                f"{name.capitalize()} STT recognized: {text}"
+                            )
+                            engine_used = name
+
+                            # Emit success event
+                            if self.event_system:
+                                await self.event_system.emit(
+                                    "voice_listen_success", {
+                                        "engine": engine_used,
+                                        "text": text[:100] + "..." if len(
+                                            text) > 100 else text,
+                                        "duration": time.time() - listen_start_time
+                                    }
+                                )
+
                             return text
                     except Exception as e:
-                        logger.warning(f"{name.capitalize()} recognition failed: {e}")
+                        logger.warning(
+                            f"{name.capitalize()} recognition failed: {e}"
+                        )
+
+                        # Emit error event for this service
+                        if self.event_system:
+                            await self.event_system.emit("voice_listen_error", {
+                                "engine": name,
+                                "error": str(e),
+                                "duration": time.time() - listen_start_time
+                            })
 
                 logger.error("All speech recognition methods failed")
+
+                # Emit final failure event
+                if self.event_system:
+                    await self.event_system.emit("voice_listen_failed", {
+                        "duration": time.time() - listen_start_time
+                    })
+
                 return ""
 
         except sr.WaitTimeoutError:
             logger.warning("Speech recognition timeout - no speech detected")
+
+            # Emit timeout event
+            if self.event_system:
+                await self.event_system.emit("voice_listen_timeout", {
+                    "timeout": timeout,
+                    "duration": time.time() - listen_start_time
+                })
+
             return ""
         except Exception as e:
             logger.error(f"Speech recognition error: {e}")
+
+            # Emit error event
+            if self.event_system:
+                await self.event_system.emit("voice_listen_error", {
+                    "engine": "system",
+                    "error": str(e),
+                    "duration": time.time() - listen_start_time
+                })
+
             return ""
 
     # Synchronous wrapper for compatibility
-    def listen_sync(self, timeout: int = 10, phrase_time_limit: int = 10) -> str:
+    def listen_sync(
+        self, timeout: int = 10, phrase_time_limit: int = 10
+    ) -> str:
         """Synchronous wrapper for listen method"""
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            return asyncio.run_coroutine_threadsafe(self.listen(timeout, phrase_time_limit), loop).result()
+            return asyncio.run_coroutine_threadsafe(
+                self.listen_async(timeout, phrase_time_limit), loop
+            ).result()
         else:
-            return asyncio.run(self.listen(timeout, phrase_time_limit))
+            return asyncio.run(self.listen_async(timeout, phrase_time_limit))
 
     async def _recognize_google(self, audio):
         """Use Google Speech Recognition"""
@@ -399,7 +747,9 @@ class VoiceAssistant:
         """Get list of available microphones"""
         mics = []
         try:
-            for i, mic_name in enumerate(sr.Microphone.list_microphone_names()):
+            for i, mic_name in enumerate(
+                sr.Microphone.list_microphone_names()
+            ):
                 mics.append({
                     'index': i,
                     'name': mic_name
@@ -431,7 +781,7 @@ class VoiceAssistant:
         }
 
         # Check ElevenLabs
-        if self.elevenlabs_voices:
+        if ELEVENLABS_AVAILABLE and self.elevenlabs_voices:
             try:
                 # Simple test - get voices list
                 test_voices = voices()
@@ -474,25 +824,77 @@ class VoiceAssistant:
         health["google"] = hasattr(self.recognizer, "recognize_google")
         health["whisper"] = hasattr(self.recognizer, "recognize_whisper")
         health["sphinx"] = hasattr(self.recognizer, "recognize_sphinx")
-        health["elevenlabs"] = hasattr(Models, "speech_recognition") and self.elevenlabs_voices is not None
+        health["elevenlabs"] = (
+            ELEVENLABS_AVAILABLE and
+            hasattr(self, 'elevenlabs_voices') and
+            self.elevenlabs_voices is not None
+        )
 
         return health
 
-    def stop_voice(self):
-        """Release any audio resources (mic, audio, etc)."""
-        try:
-            if hasattr(self, 'audio_manager') and hasattr(self.audio_manager, 'stop_audio'):
-                self.audio_manager.stop_audio()
+    def _record_performance_metric(self, operation: str, duration: float,
+                                   success: bool = True, metadata: Dict = None):
+        """Record performance metrics for voice operations"""
+        if not self.performance_monitor:
+            return
 
-            # Clean up pyttsx3 if needed
-            if self.tts_engine:
-                try:
-                    self.tts_engine.stop()
-                except Exception:
-                    pass
+        try:
+            metric_data = {
+                "operation": operation,
+                "duration": duration,
+                "success": success,
+                "timestamp": time.time()
+            }
+
+            if metadata:
+                metric_data.update(metadata)
+
+            # Record the metric
+            engine_tag = (metadata.get("engine", "unknown")
+                          if metadata else "unknown")
+            self.performance_monitor.record_metric(
+                f"voice_{operation}",
+                duration,
+                tags={
+                    "success": str(success),
+                    "engine": engine_tag
+                }
+            )
+
+            logger.debug(
+                f"Recorded performance metric: {operation} = {duration:.2f}s"
+            )
 
         except Exception as e:
-            logger.error(f"Error releasing voice/audio resources: {e}")
+            logger.warning(f"Failed to record performance metric: {e}")
+
+    def get_performance_stats(self) -> Dict:
+        """Get performance statistics for voice operations"""
+        if not self.performance_monitor:
+            return {"error": "Performance monitor not available"}
+
+        try:
+            stats = {}
+
+            # Get stats for different operations
+            operations = [
+                "speak", "listen", "elevenlabs_tts", "pyttsx3_tts",
+                "google_stt", "whisper_stt", "sphinx_stt"
+            ]
+
+            for op in operations:
+                op_stats = self.performance_monitor.get_operation_stats(
+                    f"voice_{op}"
+                )
+                if op_stats:
+                    stats[op] = op_stats
+
+            return stats
+
+        except Exception as e:
+            logger.error(f"Failed to get performance stats: {e}")
+            return {"error": str(e)}
+
 
 def text_fallback_tts(text):
     """Fallback text output when voice synthesis fails."""

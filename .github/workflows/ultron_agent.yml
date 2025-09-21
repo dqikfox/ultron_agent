@@ -1,0 +1,67 @@
+name: Ultron Agent – Command Runner
+
+on:
+  issue_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  run-ultron-command:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.comment.body, '/ultron ')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # minimal extras used by the runner (no external APIs required)
+          pip install pyyaml click
+
+      - name: Run command
+        id: run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_EVENT_NAME: ${{ github.event_name }}
+          GH_ACTOR: ${{ github.actor }}
+          GH_REF: ${{ github.ref }}
+          GH_SHA: ${{ github.sha }}
+          GH_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          python scripts/ultron_ci/command_runner.py
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ultron-logs
+          path: |
+            logs/ai_activities.log
+            logs/file_changes.log
+
+      - name: Comment back
+        if: always()
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number || github.event.pull_request.number }}
+          body: ${{ steps.run.outputs.comment || 'Ultron: command processed. See artifacts & PR (if any).' }}

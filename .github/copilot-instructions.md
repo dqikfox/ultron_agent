@@ -182,6 +182,85 @@ await self.event_system.emit("command_start", {"command": cmd})
 
 ---
 
+## CI/CD Integration: Ultron Command Runner
+
+### Overview
+The Ultron Agent repository includes a GitHub Actions-based CI system for safe, remote edits via `/ultron` commands. This feature enables collaborative development while enforcing project guardrails (model awareness, centralized logging, and reversibility).
+
+### Setup Requirements
+- GitHub Actions enabled in the repository
+- Existing utilities: `utils/model_awareness.py`, `utils/ultron_logger.py`
+- Logs directory: `logs/` (auto-created if missing)
+
+### Usage Examples
+
+#### Single File Edit with Context
+```
+/ultron edit
+```yaml
+file: brain.py
+intent: "Refactor: extract plan() substeps into pure functions"
+change:
+  type: replace_with_context
+  before: |
+    def plan(self, ...):
+        # existing logic line A
+        # existing logic line B
+  after: |
+    def plan(self, ...):
+        plan_steps = self._plan_steps(...)
+        return self._execute_plan(plan_steps)
+tests: true
+```
+
+#### Regex Replacement
+```
+/ultron replace
+```yaml
+file: utils/performance_monitor.py
+intent: "Increase default timeout from 30s to 45s"
+change:
+  type: replace_regex
+  pattern: r"(DEFAULT_TIMEOUT\s*=\s*)30(\s*)"
+  replacement: "\\g<1>45\\2"
+tests: true
+```
+
+#### Batch Changes
+```
+/ultron edit
+```yaml
+intent: "Rename event 'command_start' → 'task_start' across modules"
+changes:
+  - { type: replace_regex, file: "brain.py", pattern: "command_start", replacement: "task_start" }
+  - { type: replace_regex, file: "agent_core.py", pattern: "command_start", replacement: "task_start" }
+tests: true
+```
+
+### Guardrails and Safety
+- **Model Awareness**: Every edit checks `should_modify_file()` and `check_file_context()` before application.
+- **Centralized Logging**: All actions logged to `logs/ai_activities.log` and `logs/file_changes.log`.
+- **Reversibility**: Changes create PRs for review; use Git for rollbacks.
+- **Testing**: Optional `tests: true` runs `pytest` and blocks merges on failures.
+- **Security**: Uses only `GITHUB_TOKEN` with minimal permissions.
+
+### Workflow Triggers
+- Issue comments containing `/ultron`
+- PR review comments
+- Manual workflow dispatch
+
+### Artifacts and Auditing
+- Logs uploaded as workflow artifacts for review
+- PRs created automatically with unified diffs
+- Feedback posted back to the triggering comment
+
+### Troubleshooting
+- Check workflow logs for errors
+- Verify `utils/model_awareness.py` and `utils/ultron_logger.py` are functional
+- Ensure branch protection rules allow bot PRs
+
+---
+
 *This document reflects the current state of ULTRON Agent 3.0. Update as architecture evolves.*
 Ultron AI Developer’s Guide: Building a Voice-Controlled AI Assistant
 This comprehensive guide provides detailed instruc ons and best prac ces for

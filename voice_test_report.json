@@ -1,0 +1,185 @@
+{
+  "timestamp": 1757957009.6878572,
+  "summary": {
+    "total": 13,
+    "passed": 10,
+    "failed": 2,
+    "skipped": 0,
+    "success_rate": 76.92307692307693
+  },
+  "results": [
+    {
+      "test_name": "Configuration Loading",
+      "status": "PASS",
+      "message": "Configuration loaded successfully",
+      "timestamp": 1757956960.3792527,
+      "details": {}
+    },
+    {
+      "test_name": "Voice System Initialization",
+      "status": "PASS",
+      "message": "Voice assistant initialized successfully",
+      "timestamp": 1757956960.9990098,
+      "details": {}
+    },
+    {
+      "test_name": "AI System Initialization",
+      "status": "PASS",
+      "message": "AI brain system initialized successfully",
+      "timestamp": 1757956961.00173,
+      "details": {}
+    },
+    {
+      "test_name": "Microphone Detection",
+      "status": "PASS",
+      "message": "Found 22 microphone(s)",
+      "timestamp": 1757956961.027013,
+      "details": {
+        "microphones": [
+          "Microsoft Sound Mapper - Input",
+          "Microphone Array (IntelÂ® Smart ",
+          "Microsoft Sound Mapper - Output",
+          "Speakers (Realtek(R) Audio)",
+          "Primary Sound Capture Driver",
+          "Microphone Array (IntelÂ® Smart Sound Technology for Digital Microphones)",
+          "Primary Sound Driver",
+          "Speakers (Realtek(R) Audio)",
+          "Speakers (Realtek(R) Audio)",
+          "Microphone Array (IntelÂ® Smart Sound Technology for Digital Microphones)",
+          "Input ()",
+          "Microphone Array 1 ()",
+          "Microphone Array 2 ()",
+          "Microphone Array 3 ()",
+          "Stereo Mix (Realtek HD Audio Stereo input)",
+          "Headphones 1 (Realtek HD Audio 2nd output with SST)",
+          "Headphones 2 (Realtek HD Audio 2nd output with SST)",
+          "PC Speaker (Realtek HD Audio 2nd output with SST)",
+          "Speakers 1 (Realtek HD Audio output with SST)",
+          "Speakers 2 (Realtek HD Audio output with SST)",
+          "PC Speaker (Realtek HD Audio output with SST)",
+          "Microphone (Realtek HD Audio Mic input)"
+        ]
+      }
+    },
+    {
+      "test_name": "Microphone Configuration",
+      "status": "INFO",
+      "message": "No specific microphone configured, using default",
+      "timestamp": 1757956961.027013,
+      "details": {}
+    },
+    {
+      "test_name": "Speech Recognition Health",
+      "status": "PASS",
+      "message": "Healthy STT services: google, whisper, sphinx, microphone",
+      "timestamp": 1757956961.2182796,
+      "details": {
+        "services": {
+          "google": true,
+          "whisper": true,
+          "sphinx": true,
+          "elevenlabs": false,
+          "microphone": true
+        }
+      }
+    },
+    {
+      "test_name": "Speech Recognition",
+      "status": "FAIL",
+      "message": "Speech recognition error: name 'Models' is not defined",
+      "timestamp": 1757956970.399103,
+      "details": {}
+    },
+    {
+      "test_name": "Text-to-Speech Health",
+      "status": "PASS",
+      "message": "Healthy TTS services: pyttsx3",
+      "timestamp": 1757956970.4004025,
+      "details": {
+        "services": {
+          "elevenlabs": false,
+          "pyttsx3": true
+        }
+      }
+    },
+    {
+      "test_name": "Text-to-Speech",
+      "status": "PASS",
+      "message": "Successfully synthesized and played speech",
+      "timestamp": 1757956974.9591658,
+      "details": {}
+    },
+    {
+      "test_name": "AI Model Integration",
+      "status": "PASS",
+      "message": "AI responded: '[LLM error: No content received from LLM]...'",
+      "timestamp": 1757956986.9044526,
+      "details": {
+        "response_length": 41
+      }
+    },
+    {
+      "test_name": "Voice Chat Workflow",
+      "status": "FAIL",
+      "message": "Voice chat workflow error: name 'Models' is not defined",
+      "timestamp": 1757957009.6838672,
+      "details": {}
+    },
+    {
+      "test_name": "Voice Configuration Settings",
+      "status": "PASS",
+      "message": "6/7 voice settings configured",
+      "timestamp": 1757957009.6838672,
+      "details": {
+        "settings": {
+          "voice_rate": {
+            "configured": true,
+            "value": 150
+          },
+          "voice_volume": {
+            "configured": true,
+            "value": 0.9
+          },
+          "voice_stability": {
+            "configured": true,
+            "value": 0.5
+          },
+          "voice_similarity": {
+            "configured": true,
+            "value": 0.75
+          },
+          "mic_energy_threshold": {
+            "configured": true,
+            "value": 300
+          },
+          "voice_cache_dir": {
+            "configured": true,
+            "value": "cache/voice"
+          },
+          "microphone_device_index": {
+            "configured": false,
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "test_name": "Voice Availability",
+      "status": "PASS",
+      "message": "Found 2 available voices",
+      "timestamp": 1757957009.6848578,
+      "details": {
+        "voices": [
+          {
+            "name": "Microsoft David Desktop - English (United States)",
+            "source": "pyttsx3"
+          },
+          {
+            "name": "Microsoft Zira Desktop - English (United States)",
+            "source": "pyttsx3"
+          }
+        ]
+      }
+    }
+  ]
+}

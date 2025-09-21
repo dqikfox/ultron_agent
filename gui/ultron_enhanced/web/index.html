@@ -8,6 +8,7 @@
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://elevenlabs.io/convai-widget/index.js" async></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
@@ -92,9 +93,21 @@
                                     <span class="nav-icon">👤</span>
                                     <span class="nav-label">PROFILE</span>
                                 </button>
+                                <button class="nav-button" data-section="autogen">
+                                    <span class="nav-icon">🤖</span>
+                                    <span class="nav-label">AUTOGEN</span>
+                                </button>
                                 <button class="nav-button" data-section="assistant" onclick="window.open('http://localhost:5173', '_blank')">
                                     <span class="nav-icon">🤖</span>
                                     <span class="nav-label">AI CHAT</span>
+                                </button>
+                                <button class="nav-button" data-section="llm-chat">
+                                    <span class="nav-icon">💬</span>
+                                    <span class="nav-label">LLM CHAT</span>
+                                </button>
+                                <button class="nav-button" data-section="tools">
+                                    <span class="nav-icon">🔧</span>
+                                    <span class="nav-label">TOOLS</span>
                                 </button>
                             </div>
                         </div>
@@ -285,6 +298,96 @@
                                     </div>
                                 </div>
 
+                                <!-- AutoGen Studio Section -->
+                                <div id="autogen-section" class="section-content">
+                                    <div class="section-title">AUTOGEN STUDIO</div>
+                                    <div class="autogen-content">
+                                        <div class="autogen-status">
+                                            <div class="status-card">
+                                                <h3>AutoGen Studio Status</h3>
+                                                <div class="autogen-metrics" id="autogen-metrics">
+                                                    <div class="metric">
+                                                        <span class="metric-label">Status:</span>
+                                                        <span class="metric-value" id="autogen-status">Checking...</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Port:</span>
+                                                        <span class="metric-value" id="autogen-port">8081</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Active Sessions:</span>
+                                                        <span class="metric-value" id="autogen-sessions">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="status-card">
+                                                <h3>Available Agents</h3>
+                                                <div class="agent-list" id="agent-list">
+                                                    <div class="agent-item">Loading agents...</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="autogen-controls">
+                                            <div class="control-group">
+                                                <button class="autogen-btn primary" id="start-autogen-btn">
+                                                    <span class="btn-icon">🚀</span>
+                                                    Start AutoGen Studio
+                                                </button>
+                                                <button class="autogen-btn" id="stop-autogen-btn">
+                                                    <span class="btn-icon">⏹️</span>
+                                                    Stop AutoGen Studio
+                                                </button>
+                                                <button class="autogen-btn" id="refresh-autogen-btn">
+                                                    <span class="btn-icon">🔄</span>
+                                                    Refresh Status
+                                                </button>
+                                            </div>
+                                            <div class="control-group">
+                                                <button class="autogen-btn secondary" id="open-autogen-btn">
+                                                    <span class="btn-icon">🌐</span>
+                                                    Open AutoGen Studio
+                                                </button>
+                                                <button class="autogen-btn secondary" id="create-agent-btn">
+                                                    <span class="btn-icon">➕</span>
+                                                    Create Agent
+                                                </button>
+                                                <button class="autogen-btn secondary" id="create-workflow-btn">
+                                                    <span class="btn-icon">⚡</span>
+                                                    Create Workflow
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="autogen-commands">
+                                            <div class="command-section">
+                                                <h4>Quick Commands</h4>
+                                                <div class="command-grid">
+                                                    <button class="command-btn" data-command="autogen status">
+                                                        <span>📊</span> Status
+                                                    </button>
+                                                    <button class="command-btn" data-command="autogen list agents">
+                                                        <span>🤖</span> List Agents
+                                                    </button>
+                                                    <button class="command-btn" data-command="autogen list workflows">
+                                                        <span>⚡</span> List Workflows
+                                                    </button>
+                                                    <button class="command-btn" data-command="autogen create session">
+                                                        <span>🎯</span> New Session
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="autogen-output" id="autogen-output">
+                                            <div class="output-header">AutoGen Studio Output</div>
+                                            <div class="output-content">
+                                                <div class="output-message system-message">
+                                                    <span class="timestamp">[00:00:00]</span>
+                                                    <span class="message-content">AutoGen Studio integration ready</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Dashboard Section -->
                                 <div id="dashboard-section" class="section-content">
                                     <div class="section-title">SYSTEM DASHBOARD</div>
@@ -314,6 +417,89 @@
                                                     <button class="action-btn" onclick="ultronInterface.loadNvidiaStatus()">Check NVIDIA</button>
                                                     <button class="action-btn" onclick="ultronInterface.switchSection('system')">View Details</button>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- LLM Chat Section -->
+                                <div id="llm-chat-section" class="section-content">
+                                    <div class="section-title">LLM CHAT INTERFACE</div>
+                                    <div class="llm-chat-content">
+                                        <div class="llm-chat-header">
+                                            <div class="model-status">
+                                                <span class="model-label">Active Model:</span>
+                                                <span class="model-name" id="active-model">Loading...</span>
+                                                <span class="model-status-indicator" id="model-status">🔄</span>
+                                            </div>
+                                            <div class="chat-controls">
+                                                <button class="chat-btn" id="clear-chat-btn">🗑️ Clear</button>
+                                                <button class="chat-btn" id="export-chat-btn">📤 Export</button>
+                                                <button class="chat-btn" id="switch-model-btn">🔄 Switch Model</button>
+                                            </div>
+                                        </div>
+                                        <div class="chat-messages" id="chat-messages">
+                                            <div class="chat-message system-message">
+                                                <div class="message-avatar">🤖</div>
+                                                <div class="message-content">
+                                                    <div class="message-header">ULTRON AI</div>
+                                                    <div class="message-text">Hello! I'm ready to help. What would you like to discuss?</div>
+                                                    <div class="message-time">Now</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="chat-input-container">
+                                            <div class="chat-input-wrapper">
+                                                <textarea id="chat-input" class="chat-input" placeholder="Type your message here..." rows="2"></textarea>
+                                                <div class="chat-input-actions">
+                                                    <button class="send-btn" id="send-chat-btn">📤 Send</button>
+                                                    <button class="voice-btn" id="voice-chat-btn">🎤 Voice</button>
+                                                </div>
+                                            </div>
+                                            <div class="chat-quick-actions">
+                                                <button class="quick-action-btn" data-prompt="Explain this code">💻 Explain Code</button>
+                                                <button class="quick-action-btn" data-prompt="Debug this issue">🐛 Debug Issue</button>
+                                                <button class="quick-action-btn" data-prompt="Optimize this">⚡ Optimize</button>
+                                                <button class="quick-action-btn" data-prompt="Generate documentation">📚 Document</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tools Integration Section -->
+                                <div id="tools-section" class="section-content">
+                                    <div class="section-title">TOOL INTEGRATION</div>
+                                    <div class="tools-content">
+                                        <div class="tools-header">
+                                            <div class="tools-stats">
+                                                <div class="stat-card">
+                                                    <span class="stat-label">Total Tools:</span>
+                                                    <span class="stat-value" id="total-tools">0</span>
+                                                </div>
+                                                <div class="stat-card">
+                                                    <span class="stat-label">Active Tools:</span>
+                                                    <span class="stat-value" id="active-tools">0</span>
+                                                </div>
+                                                <div class="stat-card">
+                                                    <span class="stat-label">Tool Usage:</span>
+                                                    <span class="stat-value" id="tool-usage">0</span>
+                                                </div>
+                                            </div>
+                                            <div class="tools-controls">
+                                                <button class="tool-btn" id="refresh-tools-btn">🔄 Refresh</button>
+                                                <button class="tool-btn" id="reload-tools-btn">⚡ Reload All</button>
+                                                <button class="tool-btn" id="test-tools-btn">🧪 Test Tools</button>
+                                            </div>
+                                        </div>
+                                        <div class="tools-grid" id="tools-grid">
+                                            <div class="tool-placeholder">
+                                                <div class="loading-spinner"></div>
+                                                <p>Loading available tools...</p>
+                                            </div>
+                                        </div>
+                                        <div class="tool-details" id="tool-details">
+                                            <div class="tool-info-placeholder">
+                                                Select a tool to view details
                                             </div>
                                         </div>
                                     </div>
@@ -578,6 +764,22 @@ function initFloatingBall() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initFloatingBall);
+
+// Initialize Conva AI widget
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize ElevenLabs Conva AI widget
+    if (window.ConvaiWidget) {
+        // Get credentials from environment or configuration
+        const agentId = 'agent_01jzwkf7dkfdvt5810x1vgrcjs'; // Current agent ID from environment
+        const apiKey = window.ELEVENLABS_API_KEY || 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed'; // Fallback for development
+
+        window.ConvaiWidget.init({
+            agentId: agentId,
+            apiKey: apiKey
+        });
+    }
+});
+
 </script>
 
 </body>
