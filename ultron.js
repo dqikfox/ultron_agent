@@ -1,13 +1,13 @@
-import express from 'express';
 import axios from 'axios';
-import readline from 'readline';
-import fs from 'fs';
 import { ElevenLabs } from 'elevenlabs';
+import express from 'express';
+import fs from 'fs';
+import readline from 'readline';
 
 const app = express();
 const port = 3000;
 
-const elevenlabs = new ElevenLabs({ apiKey: 'sk_a99d3caeef2c2dc6e98567110d905e724af83375e5c29d9d' });
+const elevenlabs = new ElevenLabs({ apiKey: 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed' });
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -34,7 +34,7 @@ async function voiceLoop() {
       });
       const reply = response.data.message.content.trim();
       console.log(`Ultron: ${reply}`);
-      const audio = await elevenlabs.textToSpeech(reply, { voiceId: 'agent_01jz2wq70mfetr2b7nchrhew1t' });
+      const audio = await elevenlabs.textToSpeech(reply, { voiceId: 'agent_01jzwkf7dkfdvt5810x1vgrcjs' });
       audio.pipe(fs.createWriteStream('output.mp3'));
       voiceLoop();
     } catch (e) {

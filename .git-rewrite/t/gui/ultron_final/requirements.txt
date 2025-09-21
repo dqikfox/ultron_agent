@@ -1,0 +1,22 @@
+# ULTRON AI Assistant - Dependencies
+speech_recognition==3.10.4
+pyttsx3==2.90
+opencv-python==4.9.0.80
+pytesseract==0.3.10
+Pillow==10.3.0
+numpy==1.26.4
+psutil==5.9.8
+pyautogui==0.9.54
+Flask==3.0.3
+openai==1.51.2
+asyncio
+pathlib2
+hashlib
+threading
+logging
+datetime
+json
+os
+sys
+subprocess
+tkinter

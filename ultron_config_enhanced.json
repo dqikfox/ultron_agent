@@ -1,0 +1,130 @@
+{
+  "version": "3.0_enhanced",
+  "last_updated": "2025-01-15",
+  
+  "core_features": {
+    "use_voice": true,
+    "use_vision": true,
+    "use_api": true,
+    "use_gui": true,
+    "use_enhanced_logging": true,
+    "use_model_awareness": true
+  },
+  
+  "security": {
+    "security_mode": true,
+    "bind_localhost_only": true,
+    "enable_input_sanitization": true,
+    "max_file_size_mb": 100,
+    "allowed_file_extensions": [".py", ".json", ".txt", ".md", ".yaml", ".yml"],
+    "rate_limiting": {
+      "enabled": true,
+      "max_requests_per_minute": 60
+    }
+  },
+  
+  "ai_models": {
+    "primary_llm": "llama3.2:latest",
+    "fallback_models": ["qwen2.5:latest", "mistral:latest"],
+    "ollama_base_url": "http://localhost:11434",
+    "openai_api_key": null,
+    "anthropic_api_key": null,
+    "gemini_api_key": null,
+    "ollama_api_key": null
+  },
+  
+  "voice_system": {
+    "voice_engine": "elevenlabs",
+    "stt_engine": "whisper",
+    "tts_engine": "elevenlabs",
+    "elevenlabs_api_key": null,
+    "elevenlabs_agent_id": null,
+    "voice_rate": 150,
+    "voice_volume": 0.9,
+    "voice_stability": 0.5,
+    "voice_similarity": 0.75,
+    "mic_energy_threshold": 300,
+    "disable_tts_cache": false,
+    "voice_boot_message": "ULTRON Enhanced Systems Online"
+  },
+  
+  "gui_settings": {
+    "default_port": 5000,
+    "auto_open_browser": true,
+    "theme": "pokedex_red",
+    "enable_animations": true,
+    "show_debug_info": false
+  },
+  
+  "logging": {
+    "log_level": "INFO",
+    "enable_file_logging": true,
+    "enable_console_logging": true,
+    "log_rotation_days": 7,
+    "max_log_size_mb": 50,
+    "components_to_log": [
+      "agent_core",
+      "brain",
+      "voice",
+      "gui",
+      "tools",
+      "security"
+    ]
+  },
+  
+  "performance": {
+    "enable_monitoring": true,
+    "cpu_threshold": 80,
+    "memory_threshold": 85,
+    "disk_threshold": 90,
+    "network_timeout": 30,
+    "max_concurrent_tasks": 10
+  },
+  
+  "database": {
+    "supabase_url": null,
+    "supabase_anon_key": null,
+    "local_db_path": "data/ultron.db",
+    "enable_caching": true,
+    "cache_ttl_minutes": 60
+  },
+  
+  "tools": {
+    "auto_load_tools": true,
+    "tools_directory": "tools",
+    "disabled_tools": [],
+    "tool_timeout_seconds": 30,
+    "max_tool_output_length": 10000
+  },
+  
+  "network": {
+    "proxy_enabled": false,
+    "proxy_host": null,
+    "proxy_port": null,
+    "user_agent": "ULTRON-Agent/3.0",
+    "max_retries": 3,
+    "retry_delay_seconds": 1
+  },
+  
+  "development": {
+    "debug_mode": false,
+    "enable_hot_reload": false,
+    "show_stack_traces": false,
+    "enable_profiling": false
+  },
+  
+  "experimental": {
+    "enable_quantum_computing": false,
+    "enable_blockchain_integration": false,
+    "enable_advanced_vision": true,
+    "enable_multi_agent_coordination": true
+  },
+  
+  "jwt_secret": null,
+  
+  "system_info": {
+    "created_by": "ULTRON Agent 3.0 Enhanced",
+    "documentation": "https://github.com/dqikfox/ultron_agent",
+    "support_email": "support@ultron-agent.com"
+  }
+}

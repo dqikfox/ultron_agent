@@ -11,9 +11,34 @@ from requests import get as requests_get
 from asyncio import new_event_loop, set_event_loop, TimeoutError as AsyncTimeoutError
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
+from typing import Dict, Any
 from security_utils import sanitize_log_input, sanitize_html_output, validate_file_path
 
 from tools.openai_tools import OpenAITools
+
+# Import enhanced mesh transformer manager for GPT-J/GPT-NeoX integration
+try:
+    from enhanced_mesh_transformer_manager import (
+        get_enhanced_mesh_transformer_manager,
+        is_enhanced_mesh_transformer_available,
+        MeshTransformerIntegration
+    )
+    MESH_TRANSFORMER_AVAILABLE = True
+except ImportError as e:
+    warning(f"Enhanced mesh transformer not available: "
+            f"{sanitize_log_input(str(e))}")
+    MESH_TRANSFORMER_AVAILABLE = False
+    get_enhanced_mesh_transformer_manager = None
+    MeshTransformerIntegration = None
+
+# Import NVIDIA NIM router for enhanced suggestions
+try:
+    from nvidia_nim_router import UltronNvidiaRouter
+    NVIDIA_AVAILABLE = True
+except ImportError:
+    warning("NVIDIA NIM router not available - suggestions will use Ollama only")
+    UltronNvidiaRouter = None
+    NVIDIA_AVAILABLE = False
 
 class UltronBrain:
     def __init__(self, config, tools, memory):
@@ -27,6 +52,15 @@ class UltronBrain:
         self.agent_network = None
         self.openai_tools = None
 
+        # Initialize NVIDIA NIM router for suggestions
+        self.nvidia_router = None
+        if NVIDIA_AVAILABLE:
+            try:
+                self.nvidia_router = UltronNvidiaRouter()
+                info("NVIDIA NIM router initialized for suggestions")
+            except Exception as e:
+                warning(f"NVIDIA NIM router initialization failed: {sanitize_log_input(str(e))}")
+
         try:
             from tools.agent_network import AgentNetwork
             self.agent_network = AgentNetwork(config)
@@ -39,11 +73,61 @@ class UltronBrain:
             info("OpenAI tools initialized")
         except Exception as e:
             warning(f"OpenAI tools not available: {sanitize_log_input(str(e))}")
+            self.openai_tools = None
+
+        # Initialize enhanced mesh transformer integration
+        self.mesh_integration = None
+        if MESH_TRANSFORMER_AVAILABLE:
+            try:
+                self.mesh_integration = MeshTransformerIntegration(self)
+                info("Enhanced mesh transformer integration initialized")
+            except Exception as e:
+                warning(f"Mesh transformer integration failed: "
+                       f"{sanitize_log_input(str(e))}")
+                self.mesh_integration = None
+
+    async def initialize_mesh_integration_async(self) -> bool:
+        """Asynchronously initialize mesh transformer integration"""
+        if not self.mesh_integration:
+            return False
+
+        try:
+            success = await self.mesh_integration.initialize_async()
+            if success:
+                info("Mesh transformer integration initialized successfully")
+            else:
+                warning("Mesh transformer integration initialization failed")
+            return success
+        except Exception as e:
+            error(f"Error initializing mesh integration: {sanitize_log_input(str(e))}")
+            return False
+
+    def get_mesh_transformer_status(self) -> Dict[str, Any]:
+        """Get status of mesh transformer integration"""
+        if not self.mesh_integration:
+            return {
+                "available": False,
+                "reason": "Mesh transformer not available or not initialized"
+            }
+
+        try:
+            status = self.mesh_integration.get_integration_status()
+            return {
+                "available": True,
+                "integration_status": status,
+                "models_available": self.mesh_integration.mesh_manager.get_available_models()
+                if self.mesh_integration.mesh_manager else []
+            }
+        except Exception as e:
+            return {
+                "available": False,
+                "error": str(e)
+            }
 
     def load_cache(self):
         """Load cached responses"""
         try:
-            if os.path.exists(self.cache_file):
+            if os_path.exists(self.cache_file):
                 with open(self.cache_file, 'r', encoding='utf-8') as f:
                     self.cache = json_load(f)
             else:
@@ -77,7 +161,7 @@ class UltronBrain:
 
             payload = {
                 "model": model,
-                "messages": [{"role": "user", "content": prompt}],
+                "prompt": prompt,
                 "stream": True  # Enable streaming for better UX
             }
 
@@ -87,7 +171,7 @@ class UltronBrain:
                 if progress_callback:
                     progress_callback(20, f"Connecting to Ollama model '{model}'...")
 
-                async with session.post(f"{ollama_base_url}/api/chat",
+                async with session.post(f"{ollama_base_url}/api/generate",
                                        json=payload,
                                        headers=headers) as response:
                     response.raise_for_status()
@@ -224,6 +308,43 @@ class UltronBrain:
 
             response = await self.direct_chat(prompt, progress_callback=progress_callback)
 
+            # Try to get NVIDIA suggestions for enhanced response
+            if self.nvidia_router and len(message.strip()) > 10:  # Only for substantial queries
+                try:
+                    if progress_callback:
+                        progress_callback(80, "Getting AI suggestions...")
+
+                    suggestions = await self.get_suggestions(
+                        message,
+                        context="Enhance the response with intelligent suggestions",
+                        suggestion_type=self._determine_suggestion_type(message)
+                    )
+
+                    if suggestions and not suggestions.startswith("Unable"):
+                        # Append suggestions to the main response
+                        response = self._integrate_suggestions(response, suggestions)
+
+                except Exception as e:
+                    warning(f"Failed to get NVIDIA suggestions: {sanitize_log_input(str(e))}")
+
+            # Try to enhance response with mesh transformer models
+            if self.mesh_integration and len(message.strip()) > 10:
+                try:
+                    if progress_callback:
+                        progress_callback(85, "Enhancing with mesh transformer...")
+
+                    enhanced_response = await self.mesh_integration.enhance_response_async(
+                        message, response, progress_callback
+                    )
+
+                    if enhanced_response and len(enhanced_response) > len(response):
+                        response = enhanced_response
+                        if progress_callback:
+                            progress_callback(95, "Response enhanced with mesh transformer")
+
+                except Exception as e:
+                    warning(f"Mesh transformer enhancement failed: {sanitize_log_input(str(e))}")
+
             # Post-process the response
             if response and not response.startswith("["):  # Not an error message
                 response = self._post_process_response(response, message)
@@ -295,6 +416,156 @@ ULTRON:"""
                 response = '\n'.join(lines[1:]).strip()
 
         return response
+
+    async def get_suggestions(self, query: str, context: str = "", suggestion_type: str = "general") -> str:
+        """
+        Get intelligent suggestions using NVIDIA NIM models.
+        Falls back to Ollama if NVIDIA is unavailable.
+
+        Args:
+            query: The main query or task
+            context: Additional context for the suggestion
+            suggestion_type: Type of suggestion (general, code, analysis, planning)
+
+        Returns:
+            Suggestion string or error message
+        """
+        if not self.nvidia_router:
+            warning("NVIDIA router not available, falling back to Ollama for suggestions")
+            return await self._get_ollama_suggestions(query, context, suggestion_type)
+
+        try:
+            # Build enhanced prompt for NVIDIA models
+            prompt = self._build_suggestion_prompt(query, context, suggestion_type)
+
+            info(f"Requesting {suggestion_type} suggestions from NVIDIA NIM for: {sanitize_log_input(query[:100])}...")
+
+            # Use NVIDIA router to get suggestions
+            suggestion = await self.nvidia_router.ask_nvidia_async(
+                prompt,
+                model_preference=self._get_model_for_suggestion_type(suggestion_type)
+            )
+
+            if suggestion and not suggestion.startswith("Error"):
+                info(f"Successfully received NVIDIA suggestion ({len(suggestion)} chars)")
+                return self._format_suggestion_response(suggestion, suggestion_type)
+            else:
+                warning(f"NVIDIA suggestion failed: {sanitize_log_input(suggestion or 'No response')}")
+                # Fallback to Ollama
+                return await self._get_ollama_suggestions(query, context, suggestion_type)
+
+        except Exception as e:
+            error_msg = f"Error getting NVIDIA suggestions: {e}"
+            error(sanitize_log_input(error_msg))
+            # Fallback to Ollama
+            return await self._get_ollama_suggestions(query, context, suggestion_type)
+
+    async def _get_ollama_suggestions(self, query: str, context: str = "", suggestion_type: str = "general") -> str:
+        """Fallback method to get suggestions using Ollama when NVIDIA is unavailable"""
+        try:
+            prompt = self._build_suggestion_prompt(query, context, suggestion_type)
+            response = await self.direct_chat(prompt)
+            return self._format_suggestion_response(response, suggestion_type)
+        except Exception as e:
+            error_msg = f"Error getting Ollama suggestions: {e}"
+            error(sanitize_log_input(error_msg))
+            return f"Unable to generate suggestions at this time: {sanitize_html_output(str(e))}"
+
+    def _build_suggestion_prompt(self, query: str, context: str, suggestion_type: str) -> str:
+        """Build an optimized prompt for suggestion generation"""
+
+        base_prompt = "You are ULTRON, an advanced AI assistant providing intelligent suggestions."
+
+        type_specific_instructions = {
+            "general": "Provide helpful, practical suggestions for the user's request.",
+            "code": "Provide code-related suggestions, improvements, or solutions. Include code examples when relevant.",
+            "analysis": "Analyze the situation and provide detailed insights and recommendations.",
+            "planning": "Help break down tasks into actionable steps and provide strategic planning suggestions."
+        }
+
+        instruction = type_specific_instructions.get(suggestion_type, type_specific_instructions["general"])
+
+        if context:
+            full_prompt = f"""{base_prompt}
+
+{instruction}
+
+Context: {context}
+
+User Query: {query}
+
+Please provide intelligent suggestions:"""
+        else:
+            full_prompt = f"""{base_prompt}
+
+{instruction}
+
+User Query: {query}
+
+Please provide intelligent suggestions:"""
+
+        return full_prompt
+
+    def _get_model_for_suggestion_type(self, suggestion_type: str) -> str:
+        """Select the best NVIDIA model for the suggestion type"""
+        model_mapping = {
+            "code": "qwen2.5-coder",  # Best for code-related suggestions
+            "analysis": "gpt-oss",    # Good for analytical thinking
+            "planning": "llama",      # Good for structured planning
+            "general": "gpt-oss"      # Default general-purpose model
+        }
+        return model_mapping.get(suggestion_type, "gpt-oss")
+
+    def _format_suggestion_response(self, response: str, suggestion_type: str) -> str:
+        """Format the suggestion response for better readability"""
+        if not response or response.startswith("Error"):
+            return response
+
+        # Add suggestion type header
+        type_headers = {
+            "code": "💻 Code Suggestions:",
+            "analysis": "🔍 Analysis & Insights:",
+            "planning": "📋 Planning Recommendations:",
+            "general": "💡 Suggestions:"
+        }
+
+        header = type_headers.get(suggestion_type, "💡 Suggestions:")
+        formatted_response = f"{header}\n\n{response.strip()}"
+
+        # Sanitize for HTML output
+        return sanitize_html_output(formatted_response)
+
+    def _determine_suggestion_type(self, message: str) -> str:
+        """Determine the most appropriate suggestion type based on the message content"""
+        message_lower = message.lower()
+
+        # Code-related keywords
+        if any(keyword in message_lower for keyword in ["code", "function", "class", "script", "programming", "debug", "error", "fix"]):
+            return "code"
+
+        # Analysis-related keywords
+        if any(keyword in message_lower for keyword in ["analyze", "review", "examine", "assess", "evaluate", "check"]):
+            return "analysis"
+
+        # Planning-related keywords
+        if any(keyword in message_lower for keyword in ["plan", "schedule", "organize", "steps", "workflow", "project"]):
+            return "planning"
+
+        return "general"
+
+    def _integrate_suggestions(self, main_response: str, suggestions: str) -> str:
+        """Integrate NVIDIA suggestions into the main response"""
+        if not suggestions or suggestions.startswith("Unable"):
+            return main_response
+
+        # Check if suggestions are already integrated or too similar
+        if suggestions.strip() in main_response:
+            return main_response
+
+        # Add suggestions as an additional section
+        integrated = f"{main_response}\n\n--- Additional AI Suggestions ---\n{suggestions}"
+
+        return integrated
 
     def analyze_and_fix_project(self, directory_path: str = '.', progress_callback=None) -> str:
         """

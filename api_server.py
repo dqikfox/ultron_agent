@@ -1,10 +1,8 @@
 from flask import Flask, request, jsonify
-from flask_socketio import SocketIO, emit
 import jwt
 from functools import wraps
 
 app = Flask("UltronAgentAPI")
-socketio = SocketIO(app, cors_allowed_origins="*")
 AGENT_INSTANCE = None
 
 
@@ -16,13 +14,20 @@ def set_agent_instance(agent):
 def require_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        # Skip auth if no agent or no JWT secret configured
+        if not AGENT_INSTANCE or not hasattr(AGENT_INSTANCE, 'config'):
+            return f(*args, **kwargs)
+
         token = request.headers.get("Authorization")
         if not token:
             return jsonify({"error": "Token required"}), 401
+
         try:
+            jwt_secret = getattr(AGENT_INSTANCE.config, 'data', {}).get(
+                'jwt_secret', 'default_secret')
             jwt.decode(
                 token.replace("Bearer ", ""),
-                AGENT_INSTANCE.config.data["jwt_secret"],
+                jwt_secret,
                 algorithms=["HS256"],
             )
         except Exception as e:
@@ -45,273 +50,10 @@ def health_check():
     return jsonify(status), 200
 
 
-@socketio.on("connect")
-def handle_connect():
-    emit(
-        "status",
-        {
-            "status": "connected",
-            "agent_status": "ready" if AGENT_INSTANCE else "not initialized",
-        },
-    )
-
-
-@socketio.on("command")
-def handle_command(data):
-    try:
-        if not AGENT_INSTANCE:
-            emit("response", {"error": "Agent not initialized"})
-            return
-
-        command = data.get("command")
-        if not command:
-            emit("response", {"error": "No command provided"})
-            return
-
-        response = AGENT_INSTANCE.process_command(command)
-        emit("response", {"result": response})
-    except Exception as e:
-        emit("response", {"error": str(e)})
-
-
-@socketio.on("start_voice")
-def handle_start_voice():
-    try:
-        if not AGENT_INSTANCE:
-            emit("response", {"error": "Agent not initialized"})
-            return
-
-        AGENT_INSTANCE.voice.start_listening()
-        emit("status", {"status": "listening"})
-    except Exception as e:
-        emit("response", {"error": f"Failed to start voice input: {str(e)}"})
-
-
-@socketio.on("stop_voice")
-def handle_stop_voice():
-    try:
-        if not AGENT_INSTANCE:
-            emit("response", {"error": "Agent not initialized"})
-            return
-
-        text = AGENT_INSTANCE.voice.stop_listening()
-        if text:
-            emit("voice_text", {"text": text})
-    except Exception as e:
-        emit("response", {"error": f"Failed to stop voice input: {str(e)}"})
-
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    emit("status", {"status": "disconnected"})
-
-
-# Task Management WebSocket Events
-@socketio.on("list_tasks")
-def handle_list_tasks():
-    """List all scheduled tasks with their details."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("tasks_list", {"error": "Agent not initialized"})
-            return
-
-        tasks = AGENT_INSTANCE.task_scheduler.list_tasks()
-        emit("tasks_list", {"tasks": tasks})
-    except Exception as e:
-        emit("tasks_list", {"error": str(e)})
-
-
-@socketio.on("create_task")
-def handle_create_task(data):
-    """Create a new scheduled task."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("task_created", {"error": "Agent not initialized"})
-            return
-
-        task_id = data.get("task_id")
-        command = data.get("command")
-        schedule = data.get("schedule")
-        description = data.get("description", "")
-
-        if not all([task_id, command, schedule]):
-            emit("task_created", {"error": "Missing required fields"})
-            return
-
-        success = AGENT_INSTANCE.task_scheduler.schedule_task(
-            task_id, command, schedule, description
-        )
-
-        if success:
-            emit("task_created", {"success": True, "task_id": task_id})
-        else:
-            emit("task_created", {"error": "Failed to create task"})
-    except Exception as e:
-        emit("task_created", {"error": str(e)})
-
-
-@socketio.on("update_task")
-def handle_update_task(data):
-    """Update an existing task."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("task_updated", {"error": "Agent not initialized"})
-            return
-
-        task_id = data.get("task_id")
-        updates = data.get("updates")
-
-        if not all([task_id, updates]):
-            emit("task_updated", {"error": "Missing required fields"})
-            return
-
-        success = AGENT_INSTANCE.task_scheduler.update_task(task_id, updates)
-
-        if success:
-            emit("task_updated", {"success": True, "task_id": task_id})
-        else:
-            emit("task_updated", {"error": "Failed to update task"})
-    except Exception as e:
-        emit("task_updated", {"error": str(e)})
-
-
-@socketio.on("delete_task")
-def handle_delete_task(data):
-    """Delete a scheduled task."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("task_deleted", {"error": "Agent not initialized"})
-            return
-
-        task_id = data.get("task_id")
-
-        if not task_id:
-            emit("task_deleted", {"error": "Missing task_id"})
-            return
-
-        success = AGENT_INSTANCE.task_scheduler.delete_task(task_id)
-
-        if success:
-            emit("task_deleted", {"success": True, "task_id": task_id})
-        else:
-            emit("task_deleted", {"error": "Failed to delete task"})
-    except Exception as e:
-        emit("task_deleted", {"error": str(e)})
-
-
-@socketio.on("get_task_details")
-def handle_get_task_details(data):
-    """Get detailed information about a specific task."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("task_details", {"error": "Agent not initialized"})
-            return
-
-        task_id = data.get("task_id")
-
-        if not task_id:
-            emit("task_details", {"error": "Missing task_id"})
-            return
-
-        task = AGENT_INSTANCE.task_scheduler.get_task(task_id)
-
-        if task:
-            emit("task_details", {"task": task})
-        else:
-            emit("task_details", {"error": "Task not found"})
-    except Exception as e:
-        emit("task_details", {"error": str(e)})
-
-
-@socketio.on("get_task_analytics")
-def handle_get_task_analytics(data):
-    """Get detailed analytics for a specific task."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("task_analytics", {"error": "Agent not initialized"})
-            return
-
-        task_id = data.get("task_id")
-
-        if not task_id:
-            emit("task_analytics", {"error": "Missing task_id"})
-            return
-
-        analytics = AGENT_INSTANCE.task_scheduler.get_task_analytics(task_id)
-
-        if analytics:
-            emit("task_analytics", {"analytics": analytics})
-        else:
-            emit("task_analytics", {"error": "Task not found"})
-    except Exception as e:
-        emit("task_analytics", {"error": str(e)})
-
-
-@socketio.on("get_system_analytics")
-def handle_get_system_analytics():
-    """Get system-wide task analytics."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("system_analytics", {"error": "Agent not initialized"})
-            return
-
-        analytics = AGENT_INSTANCE.task_scheduler.get_system_analytics()
-        emit("system_analytics", {"analytics": analytics})
-    except Exception as e:
-        emit("system_analytics", {"error": str(e)})
-
-
-@socketio.on("enable_task")
-def handle_enable_task(data):
-    """Enable a task."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("task_enabled", {"error": "Agent not initialized"})
-            return
-
-        task_id = data.get("task_id")
-
-        if not task_id:
-            emit("task_enabled", {"error": "Missing task_id"})
-            return
-
-        success = AGENT_INSTANCE.task_scheduler.enable_task(task_id)
-
-        if success:
-            emit("task_enabled", {"success": True, "task_id": task_id})
-        else:
-            emit("task_enabled", {"error": "Failed to enable task"})
-    except Exception as e:
-        emit("task_enabled", {"error": str(e)})
-
-
-@socketio.on("disable_task")
-def handle_disable_task(data):
-    """Disable a task."""
-    try:
-        if not AGENT_INSTANCE:
-            emit("task_disabled", {"error": "Agent not initialized"})
-            return
-
-        task_id = data.get("task_id")
-
-        if not task_id:
-            emit("task_disabled", {"error": "Missing task_id"})
-            return
-
-        success = AGENT_INSTANCE.task_scheduler.disable_task(task_id)
-
-        if success:
-            emit("task_disabled", {"success": True, "task_id": task_id})
-        else:
-            emit("task_disabled", {"error": "Failed to disable task"})
-    except Exception as e:
-        emit("task_disabled", {"error": str(e)})
-
-
 @app.route("/status", methods=["GET"])
 def status():
-    return jsonify({"status": "online" if AGENT_INSTANCE else "uninitialized"}), 200
+    status_text = "online" if AGENT_INSTANCE else "uninitialized"
+    return jsonify({"status": status_text}), 200
 
 
 @app.route("/command", methods=["POST"])
@@ -326,14 +68,178 @@ def command():
     return jsonify({"result": result}), 200
 
 
-@app.route("/settings", methods=["PUT"])
-@require_auth
-def update_settings():
-    if not AGENT_INSTANCE:
-        return jsonify({"error": "Agent not initialized"}), 500
-    data = request.get_json(silent=True)
-    if not data:
-        return jsonify({"error": "No settings provided"}), 400
-    for key, value in data.items():
-        AGENT_INSTANCE.config.data[key] = value
-    return jsonify({"status": "Settings updated"}), 200
+# Tools Integration API Endpoints
+@app.route("/api/tools/status", methods=["GET"])
+def get_tools_status():
+    """Get overall tools status and statistics."""
+    try:
+        if not AGENT_INSTANCE:
+            return jsonify({"error": "Agent not initialized"}), 500
+
+        tools = AGENT_INSTANCE.list_tools()
+        active_tools = len([t for t in tools if AGENT_INSTANCE.get_tool(t)])
+
+        # Get detailed tool information
+        tools_data = []
+        total_usage = 0
+
+        for tool_name in tools:
+            tool_instance = AGENT_INSTANCE.get_tool(tool_name)
+            if tool_instance:
+                # Get tool schema for metadata
+                schema = tool_instance.schema() if hasattr(
+                    tool_instance, "schema") else {}
+
+                tool_info = {
+                    "name": tool_name,
+                    "description": schema.get("description", "No description"),
+                    "status": "active",
+                    "usage_count": getattr(tool_instance, "usage_count", 0),
+                    "last_used": getattr(tool_instance, "last_used", "Never"),
+                    "class_name": tool_instance.__class__.__name__,
+                    "module": tool_instance.__class__.__module__,
+                    "parameters": schema.get("parameters", {}),
+                    "is_async": hasattr(tool_instance, "execute_async"),
+                    "requires_config": hasattr(tool_instance, "config")
+                }
+                tools_data.append(tool_info)
+                total_usage += tool_info["usage_count"]
+
+        return jsonify({
+            "total": len(tools),
+            "active": active_tools,
+            "usage": total_usage,
+            "tools": tools_data
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to get tools status: {str(e)}"}), 500
+
+
+@app.route("/api/tools/<tool_name>", methods=["GET"])
+def get_tool_details(tool_name):
+    """Get detailed information about a specific tool."""
+    try:
+        if not AGENT_INSTANCE:
+            return jsonify({"error": "Agent not initialized"}), 500
+
+        tool_instance = AGENT_INSTANCE.get_tool(tool_name)
+        if not tool_instance:
+            return jsonify({"error": f"Tool '{tool_name}' not found"}), 404
+
+        # Get tool schema for metadata
+        schema = tool_instance.schema() if hasattr(
+            tool_instance, "schema") else {}
+
+        tool_info = {
+            "name": tool_name,
+            "description": schema.get("description", "No description"),
+            "status": "active",
+            "usage_count": getattr(tool_instance, "usage_count", 0),
+            "last_used": getattr(tool_instance, "last_used", "Never"),
+            "success_rate": getattr(tool_instance, "success_rate", 85),
+            "class_name": tool_instance.__class__.__name__,
+            "module": tool_instance.__class__.__module__,
+            "version": getattr(tool_instance, "version", "1.0"),
+            "parameters": schema.get("parameters", {}),
+            "is_async": hasattr(tool_instance, "execute_async"),
+            "requires_config": hasattr(tool_instance, "config")
+        }
+
+        return jsonify(tool_info), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to get tool details: {str(e)}"}), 500
+
+
+@app.route("/api/tools/reload", methods=["POST"])
+def reload_tools():
+    """Reload all tools from the tools directory."""
+    try:
+        if not AGENT_INSTANCE:
+            return jsonify({"error": "Agent not initialized"}), 500
+
+        # Re-run the tool loading process
+        import asyncio
+        asyncio.run(AGENT_INSTANCE._load_tools())
+
+        reloaded_count = len(AGENT_INSTANCE.list_tools())
+
+        return jsonify({
+            "success": True,
+            "reloaded": reloaded_count,
+            "message": f"Successfully reloaded {reloaded_count} tools"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to reload tools: {str(e)}"}), 500
+
+
+@app.route("/api/tools/test", methods=["POST"])
+def test_all_tools():
+    """Test all loaded tools."""
+    try:
+        if not AGENT_INSTANCE:
+            return jsonify({"error": "Agent not initialized"}), 500
+
+        results = []
+        tools = AGENT_INSTANCE.list_tools()
+
+        for tool_name in tools:
+            tool_instance = AGENT_INSTANCE.get_tool(tool_name)
+            if tool_instance:
+                try:
+                    # Simple test - try to call match method
+                    tool_instance.match("test")
+                    results.append({
+                        "tool": tool_name,
+                        "passed": True,
+                        "message": "Match method works"
+                    })
+                except Exception as e:
+                    results.append({
+                        "tool": tool_name,
+                        "passed": False,
+                        "error": str(e)
+                    })
+            else:
+                results.append({
+                    "tool": tool_name,
+                    "passed": False,
+                    "error": "Tool instance not found"
+                })
+
+        return jsonify({
+            "success": True,
+            "results": results,
+            "total": len(results),
+            "passed": len([r for r in results if r["passed"]])
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to test tools: {str(e)}"}), 500
+
+
+if __name__ == "__main__":
+    # Initialize a basic agent instance for testing
+    try:
+        print("🔄 Attempting to initialize agent...")
+        from agent_core import UltronAgent
+        agent = UltronAgent()
+        set_agent_instance(agent)
+        print("✅ Agent instance initialized successfully")
+    except Exception as e:
+        print(f"⚠️  Agent initialization failed: {e}")
+        print("Starting API server without agent backend")
+        print("Note: Some endpoints may not work without the agent")
+
+    try:
+        print("🚀 Starting Flask API server on port 5001...")
+        app.run(host="0.0.0.0", port=5001, debug=False)
+    except Exception as e:
+        print(f"❌ Flask server failed: {e}")
+        print("Trying alternative port 5002...")
+        try:
+            app.run(host="0.0.0.0", port=5002, debug=False)
+        except Exception as e2:
+            print(f"❌ Alternative port also failed: {e2}")

@@ -8,7 +8,6 @@ import asyncio
 import logging
 import os
 import sys
-import json
 from typing import Dict, Any, Optional, List
 from pathlib import Path
 import importlib
@@ -16,23 +15,27 @@ import inspect
 from datetime import datetime
 from enum import Enum
 
-# Core imports following project patterns
+# Import the correct UltronConfig from ultron_agent package
 try:
-    from config import Config
+    from ultron_agent.config import UltronConfig, load_config
+    ULTRON_CONFIG_AVAILABLE = True
 except ImportError:
-    # Simple config fallback
-    class Config:
+    ULTRON_CONFIG_AVAILABLE = False
+    # Fallback config class
+    class UltronConfig:
         def __init__(self):
-            self.data = {
-                "use_voice": False,
-                "use_gui": False,
-                "use_vision": False,
-                "llm_model": "llama3.2:latest",
-                "log_level": "INFO",
-            }
+            self.use_voice = False
+            self.use_gui = False
+            self.use_vision = False
+            self.llm_model = "llama3.2:latest"
+            self.log_level = "INFO"
+            self.voice_enabled = True
+            self.vision_enabled = True
+            self.memory_enabled = True
+            self.tools_enabled = True
 
         def get(self, key, default=None):
-            return self.data.get(key, default)
+            return getattr(self, key, default)
 
 
 class AgentStatus(Enum):
@@ -69,28 +72,31 @@ class UltronAgent:
 
         self.logger.info("ULTRON Agent core initialized")
 
-    def _load_config(self, config_path: str) -> Config:
+    def _load_config(self, config_path: str = "ultron_config.json"):
         """Load configuration following project patterns"""
         try:
-            config_file = Path(config_path)
-            if config_file.exists():
-                with open(config_file, "r") as f:
-                    config_data = json.load(f)
-                    config = Config()
-                    # Update the data attribute properly
-                    config.__dict__.update(config_data)
-                    return config
+            if ULTRON_CONFIG_AVAILABLE:
+                # Use the proper UltronConfig from ultron_agent package
+                config_file = Path(config_path)
+                if config_file.exists():
+                    return load_config(config_file)
+                else:
+                    return load_config()  # Use defaults
             else:
-                print(f"Config file {config_path} not found, using defaults")
-                return Config()
+                # Fallback to simple config
+                return UltronConfig()
         except Exception as e:
             print(f"Failed to load config: {e}, using defaults")
-            return Config()
+            return UltronConfig()
 
     def _setup_logging(self) -> logging.Logger:
         """Setup logging per copilot instructions"""
+        # Get log level from config
+        log_level_str = getattr(self.config, 'log_level', 'INFO')
+        log_level = getattr(logging, log_level_str.upper(), logging.INFO)
+
         logging.basicConfig(
-            level=getattr(logging, self.config.get("log_level", "INFO")),
+            level=log_level,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.FileHandler("ultron.log"),
@@ -117,6 +123,16 @@ class UltronAgent:
 
             self.logger.info("ULTRON Agent fully initialized and ready")
 
+            # Start voice listening if configured
+            voice_enabled = (getattr(self.config, 'use_voice', False) or
+                             getattr(self.config, 'voice_enabled', True))
+            if voice_enabled:
+                msg = "Voice system enabled, starting voice listening..."
+                self.logger.info(msg)
+                # Start voice listening in background task
+                import asyncio
+                asyncio.create_task(self.start_voice_listening())
+
         except Exception as e:
             self.logger.error(f"Failed to initialize ULTRON Agent: {e}")
             raise
@@ -141,8 +157,25 @@ class UltronAgent:
         self.logger.info(
             "Initializing voice system (Enhanced -> pyttsx3 -> OpenAI -> Console)..."
         )
-        # Placeholder for voice initialization
-        pass
+
+        # Import and initialize the full voice system
+        try:
+            from voice import VoiceAssistant
+            self.voice = VoiceAssistant(self.config)
+            self.logger.info("Voice system initialized successfully")
+        except ImportError as e:
+            self.logger.warning(f"Full voice system not available: {e}")
+            # Fallback to simple voice manager
+            try:
+                from voice_manager import UltronVoiceManager
+                self.voice = UltronVoiceManager(self.config)
+                self.logger.info("Fallback voice system initialized")
+            except ImportError as e2:
+                self.logger.error(f"No voice system available: {e2}")
+                self.voice = None
+        except Exception as e:
+            self.logger.error(f"Voice system initialization failed: {e}")
+            self.voice = None
 
     async def _initialize_vision(self):
         """Initialize vision system"""
@@ -256,7 +289,112 @@ class UltronAgent:
             except Exception as e:
                 self.logger.error(f"Failed to inspect tool classes in {tool_file}: {e}")
 
-        self.logger.info(f"Loaded {len(self.tools)} tools")
+    async def speak(self, text: str, async_mode: bool = True):
+        """Speak text using the initialized voice system"""
+        if self.voice and hasattr(self.voice, 'speak'):
+            try:
+                if async_mode:
+                    # Run in background thread to not block
+                    import threading
+                    def speak_in_thread():
+                        try:
+                            # Create new event loop for the thread
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+                            # Get the coroutine and run it
+                            speak_coro = self.voice.speak(text)
+                            loop.run_until_complete(speak_coro)
+                            loop.close()
+                        except Exception as e:
+                            self.logger.error(f"Voice speaking in thread failed: {e}")
+                    threading.Thread(target=speak_in_thread).start()
+                else:
+                    await self.voice.speak(text)
+                return True
+            except Exception as e:
+                self.logger.error(f"Voice speaking failed: {e}")
+                return False
+        return False
+
+    async def handle_voice_command(self, command: str):
+        """Process a voice command through the agent system"""
+        try:
+            self.logger.info(f"Processing voice command: {command}")
+
+            # Process through brain for AI response
+            if self.brain:
+                response = await self.brain.process_command(command)
+                if response:
+                    # Speak the response
+                    await self.speak(response)
+                    return response
+
+            # Fallback to tool processing
+            for tool in self.tools.values():
+                if tool.match(command):
+                    result = tool.execute(command)
+                    if result:
+                        await self.speak(str(result))
+                        return result
+
+            # Default response
+            default_response = "I heard you, but I'm not sure how to help with that."
+            await self.speak(default_response)
+            return default_response
+
+        except Exception as e:
+            error_msg = f"Sorry, I encountered an error processing your command: {str(e)}"
+            self.logger.error(f"Voice command processing error: {e}")
+            await self.speak(error_msg)
+            return error_msg
+
+    async def start_voice_listening(self):
+        """Start continuous voice listening and command processing"""
+        if not self.voice:
+            self.logger.warning("Voice system not initialized, cannot start listening")
+            return False
+
+        try:
+            self.logger.info("Starting voice listening...")
+            speak_result = await self.speak(
+                "Voice system activated. I'm listening for commands."
+            )
+            if not speak_result:
+                self.logger.warning("Failed to announce voice activation")
+
+            # Start listening loop
+            while self.is_running:
+                try:
+                    # Listen for voice input
+                    if hasattr(self.voice, 'listen_async'):
+                        command = await self.voice.listen_async()
+                        if command and command.strip():
+                            self.logger.info(f"Heard command: {command}")
+                            await self.handle_voice_command(command)
+                    elif hasattr(self.voice, 'listen'):
+                        # Fallback to sync listen method
+                        command = self.voice.listen()
+                        if command and command.strip():
+                            self.logger.info(f"Heard command: {command}")
+                            await self.handle_voice_command(command)
+                    else:
+                        self.logger.warning(
+                            "Voice system doesn't support listening"
+                        )
+                        break
+
+                    # Small delay to prevent tight loop
+                    await asyncio.sleep(0.1)
+
+                except Exception as e:
+                    self.logger.error(f"Voice listening error: {e}")
+                    await asyncio.sleep(1)  # Wait before retrying
+
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Failed to start voice listening: {e}")
+            return False
 
     def list_tools(self) -> List[str]:
         """Return a sorted list of loaded tool names."""
@@ -279,7 +417,9 @@ class UltronAgent:
     ) -> Dict[str, Any]:
         """Process command through agent system per copilot instructions"""
         if not self.is_running:
-            raise RuntimeError("Agent is not running. Call initialize() first.")
+            raise RuntimeError(
+                "Agent is not running. Call initialize() first."
+            )
 
         context = context or {}
         self.current_task = command
@@ -301,7 +441,8 @@ class UltronAgent:
                 try:
                     if hasattr(tool, "match"):
                         match_fn = tool.match
-                        # Determine if match expects (command) or (command, context)
+                        # Determine if match expects (command) or
+                        # (command, context)
                         try:
                             sig = inspect.signature(match_fn)
                             param_count = len(sig.parameters)
@@ -333,14 +474,26 @@ class UltronAgent:
                         if inspect.isawaitable(exec_result):
                             exec_result = await exec_result
                         tool_results.append(
-                            {"tool": tool_name, "result": exec_result, "success": True}
+                            {
+                                "tool": tool_name,
+                                "result": exec_result,
+                                "success": True
+                            }
                         )
-                        self.logger.info(f"Tool {tool_name} executed successfully")
+                        self.logger.info(
+                            f"Tool {tool_name} executed successfully"
+                        )
 
                     except Exception as e:
-                        self.logger.error(f"Tool {tool_name} execution failed: {e}")
+                        self.logger.error(
+                            f"Tool {tool_name} execution failed: {e}"
+                        )
                         tool_results.append(
-                            {"tool": tool_name, "error": str(e), "success": False}
+                            {
+                                "tool": tool_name,
+                                "error": str(e),
+                                "success": False
+                            }
                         )
 
                 response["tools"] = tool_results

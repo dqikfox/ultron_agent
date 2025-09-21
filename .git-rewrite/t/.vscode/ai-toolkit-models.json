@@ -1,0 +1,20 @@
+{
+  "models": [
+    {
+      "name": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "enabled": true
+    },
+    {
+      "name": "gpt-3.5-turbo",
+      "provider": "OpenAI", 
+      "enabled": true
+    }
+  ],
+  "disabled": [
+    "gpt-5",
+    "gpt-4o",
+    "gpt-4-turbo",
+    "Phi-4"
+  ]
+}

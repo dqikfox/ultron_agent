@@ -102,7 +102,9 @@ class SystemTool(Tool):
                 else:
                     os.startfile(app_name)
             elif os.name == 'posix':  # macOS or Linux
-                subprocess.Popen(["open", app_name]) if os.uname().sysname == 'Darwin' else subprocess.Popen([app_name])
+                import platform
+                is_darwin = platform.system() == 'Darwin'
+                subprocess.Popen(["open", app_name]) if is_darwin else subprocess.Popen([app_name])
             return f"Opened {app_name}."
         except Exception as e:
             logging.error(f"Failed to open application: {e} - system_tool.py:108")

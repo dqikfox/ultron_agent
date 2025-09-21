@@ -1,0 +1,30 @@
+🔍 ULTRON Agent - MCP Connection Diagnostic Report
+============================================================
+
+🚨 ISSUES FOUND:
+  1. API Server server not running on port 5000
+  2. npm is not installed
+  3. Cannot connect to localhost:5000
+  4. Multiple AI extensions: ['github.copilot', 'github.copilot-chat']
+
+💡 RECOMMENDATIONS:
+  1. Start API Server server on port 5000
+  2. Install Node.js and npm
+  3. Ensure service is running on port 5000
+  4. Disable conflicting AI extensions, keep only GitHub Copilot
+
+📡 SERVER STATUS:
+  ✅ Langflow: RUNNING
+  ✅ Web GUI: RUNNING
+  ✅ Ollama: RUNNING
+  ❌ API Server: NOT_RUNNING
+
+🔧 QUICK FIXES:
+  1. Restart VS Code
+  2. Check if required servers are running:
+     - python main.py (for ULTRON Agent)
+     - ollama serve (for Ollama)
+     - Start Langflow server if needed
+  3. Clear npm cache: npm cache clean --force
+  4. Reinstall node modules: rm -rf node_modules && npm install
+  5. Check VS Code extensions for conflicts

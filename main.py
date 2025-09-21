@@ -48,6 +48,10 @@ def main() -> int:
         agent = UltronAgent()
         logger.info(f"Agent initialized with status: {agent.status}")
 
+        # Initialize the agent (this will start voice listening if configured)
+        asyncio.run(agent.initialize())
+        logger.info("Agent fully initialized and ready")
+
         # Check for GUI mode preference
         if len(sys.argv) > 1 and sys.argv[1] == "--web":
             # Force web GUI mode
@@ -63,17 +67,36 @@ def main() -> int:
                     web_server.stop_server()
 
         elif Path("web_gui").exists():
-            # Web GUI mode - preferred if web_gui folder exists
+            # Web GUI mode - check if port 8080 is available before starting
             logger.info("Starting in Web GUI mode (web_gui folder detected)...")
-            from web_gui_server import UltronWebServer
 
-            web_server = UltronWebServer(agent_ref=agent, port=8080)
-            if web_server.start_server():
+            # Check if port 8080 is available
+            import socket
+            port_available = True
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.bind(('', 8080))
+            except OSError:
+                port_available = False
+                logger.warning("Port 8080 is already in use, "
+                               "skipping web_gui_server")
+
+            if port_available:
                 try:
-                    web_server.wait_for_shutdown()
-                except KeyboardInterrupt:
-                    logger.info("Shutdown requested by user")
-                    web_server.stop_server()
+                    from web_gui_server import UltronWebServer
+                    web_server = UltronWebServer(agent_ref=agent, port=8080)
+                    if web_server.start_server():
+                        try:
+                            web_server.wait_for_shutdown()
+                        except KeyboardInterrupt:
+                            logger.info("Shutdown requested by user")
+                            web_server.stop_server()
+                    else:
+                        logger.error("Failed to start web GUI server")
+                except Exception as e:
+                    logger.error(f"Error starting web GUI server: {e}")
+            else:
+                logger.info("Web GUI server skipped due to port conflict")
 
         elif agent.gui and hasattr(agent.gui, "run_gui"):
             # New Pokédx GUI mode - run in main thread
@@ -95,7 +118,8 @@ def main() -> int:
         return 0
 
     except Exception as e:
-        error_msg = f"ULTRON Agent startup failed: {sanitize_log_input(str(e))}"
+        error_msg = (f"ULTRON Agent startup failed: "
+                     f"{sanitize_log_input(str(e))}")
         print(error_msg, file=sys.stderr)
         logging.error(error_msg, exc_info=True)
         return 1

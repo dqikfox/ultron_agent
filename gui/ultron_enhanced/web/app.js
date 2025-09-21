@@ -190,6 +190,81 @@ class UltronPokedexInterface {
             }
         });
 
+        // AutoGen Studio event listeners
+        document.getElementById('start-autogen-btn')?.addEventListener('click', () => {
+            this.startAutoGenStudio();
+        });
+
+        document.getElementById('stop-autogen-btn')?.addEventListener('click', () => {
+            this.stopAutoGenStudio();
+        });
+
+        document.getElementById('refresh-autogen-btn')?.addEventListener('click', () => {
+            this.refreshAutoGenStatus();
+        });
+
+        document.getElementById('open-autogen-btn')?.addEventListener('click', () => {
+            this.openAutoGenStudio();
+        });
+
+        document.getElementById('create-agent-btn')?.addEventListener('click', () => {
+            this.createAutoGenAgent();
+        });
+
+        document.getElementById('create-workflow-btn')?.addEventListener('click', () => {
+            this.createAutoGenWorkflow();
+        });
+
+        // LLM Chat event listeners
+        document.getElementById('send-chat-btn')?.addEventListener('click', () => {
+            this.sendChatMessage();
+        });
+
+        document.getElementById('voice-chat-btn')?.addEventListener('click', () => {
+            this.toggleVoiceChat();
+        });
+
+        document.getElementById('clear-chat-btn')?.addEventListener('click', () => {
+            this.clearChat();
+        });
+
+        document.getElementById('export-chat-btn')?.addEventListener('click', () => {
+            this.exportChat();
+        });
+
+        document.getElementById('switch-model-btn')?.addEventListener('click', () => {
+            this.switchModel();
+        });
+
+        // Chat input enter key
+        document.getElementById('chat-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.sendChatMessage();
+            }
+        });
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const prompt = e.currentTarget.dataset.prompt;
+                this.handleQuickAction(prompt);
+            });
+        });
+
+        // Tools Integration event listeners
+        document.getElementById('refresh-tools-btn')?.addEventListener('click', () => {
+            this.refreshTools();
+        });
+
+        document.getElementById('reload-tools-btn')?.addEventListener('click', () => {
+            this.reloadAllTools();
+        });
+
+        document.getElementById('test-tools-btn')?.addEventListener('click', () => {
+            this.testAllTools();
+        });
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             this.handleKeyboardShortcuts(e);
@@ -220,6 +295,8 @@ class UltronPokedexInterface {
                 files: '📁 FILES',
                 settings: '🔧 CONFIG',
                 profile: '👤 PROFILE',
+                autogen: '🤖 AUTOGEN',
+                assistant: '🤖 AI CHAT',
                 dashboard: '📊 DASHBOARD',
                 nvidia: '🎯 NVIDIA'
             };
@@ -254,6 +331,15 @@ class UltronPokedexInterface {
                 break;
             case 'nvidia':
                 this.loadNvidiaStatus();
+                break;
+            case 'autogen':
+                this.loadAutoGenStatus();
+                break;
+            case 'llm-chat':
+                this.loadLLMChatStatus();
+                break;
+            case 'tools':
+                this.loadToolsStatus();
                 break;
         }
     }
@@ -737,10 +823,993 @@ class UltronPokedexInterface {
         });
     }
 
+    // AutoGen Studio Methods
+    async loadAutoGenStatus() {
+        try {
+            const response = await this.apiCall('/api/autogen/status');
+            if (response.ok) {
+                const data = await response.json();
+                this.updateAutoGenUI(data);
+                this.addAutoGenMessage('system', 'AutoGen Studio status loaded');
+            } else {
+                this.addAutoGenMessage('error', 'Failed to load AutoGen Studio status');
+            }
+        } catch (error) {
+            this.addAutoGenMessage('error', 'AutoGen Studio service unavailable');
+        }
+    }
+
+    updateAutoGenUI(data) {
+        // Update status
+        const statusElement = document.getElementById('autogen-status');
+        if (statusElement) {
+            statusElement.textContent = data.status || 'Unknown';
+            statusElement.className = data.status === 'running' ? 'status-running' : 'status-stopped';
+        }
+
+        // Update port
+        const portElement = document.getElementById('autogen-port');
+        if (portElement) {
+            portElement.textContent = data.port || '8081';
+        }
+
+        // Update sessions
+        const sessionsElement = document.getElementById('autogen-sessions');
+        if (sessionsElement) {
+            sessionsElement.textContent = data.active_sessions || '0';
+        }
+
+        // Update agents list
+        const agentListElement = document.getElementById('agent-list');
+        if (agentListElement && data.agents) {
+            agentListElement.innerHTML = data.agents.map(agent =>
+                `<div class="agent-item">${agent.name || agent}</div>`
+            ).join('') || '<div class="agent-item">No agents available</div>';
+        }
+    }
+
+    async startAutoGenStudio() {
+        this.addAutoGenMessage('system', 'Starting AutoGen Studio...');
+        try {
+            const response = await this.apiCall('/api/autogen/start', { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                this.addAutoGenMessage('system', 'AutoGen Studio started successfully');
+                setTimeout(() => this.loadAutoGenStatus(), 2000);
+            } else {
+                this.addAutoGenMessage('error', 'Failed to start AutoGen Studio');
+            }
+        } catch (error) {
+            this.addAutoGenMessage('error', 'Error starting AutoGen Studio: ' + error.message);
+        }
+    }
+
+    async stopAutoGenStudio() {
+        this.addAutoGenMessage('system', 'Stopping AutoGen Studio...');
+        try {
+            const response = await this.apiCall('/api/autogen/stop', { method: 'POST' });
+            if (response.ok) {
+                this.addAutoGenMessage('system', 'AutoGen Studio stopped successfully');
+                setTimeout(() => this.loadAutoGenStatus(), 1000);
+            } else {
+                this.addAutoGenMessage('error', 'Failed to stop AutoGen Studio');
+            }
+        } catch (error) {
+            this.addAutoGenMessage('error', 'Error stopping AutoGen Studio: ' + error.message);
+        }
+    }
+
+    async refreshAutoGenStatus() {
+        this.addAutoGenMessage('system', 'Refreshing AutoGen Studio status...');
+        await this.loadAutoGenStatus();
+    }
+
+    openAutoGenStudio() {
+        const portElement = document.getElementById('autogen-port');
+        const port = portElement ? portElement.textContent : '8081';
+        const url = `http://localhost:${port}`;
+        window.open(url, '_blank');
+        this.addAutoGenMessage('system', `Opening AutoGen Studio at ${url}`);
+    }
+
+    async createAutoGenAgent() {
+        this.addAutoGenMessage('system', 'Creating new AutoGen agent...');
+        try {
+            const response = await this.apiCall('/api/autogen/create-agent', { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                this.addAutoGenMessage('system', `Agent created: ${data.agent_name || 'New Agent'}`);
+                setTimeout(() => this.loadAutoGenStatus(), 1000);
+            } else {
+                this.addAutoGenMessage('error', 'Failed to create agent');
+            }
+        } catch (error) {
+            this.addAutoGenMessage('error', 'Error creating agent: ' + error.message);
+        }
+    }
+
+    async createAutoGenWorkflow() {
+        this.addAutoGenMessage('system', 'Creating new AutoGen workflow...');
+        try {
+            const response = await this.apiCall('/api/autogen/create-workflow', { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                this.addAutoGenMessage('system', `Workflow created: ${data.workflow_name || 'New Workflow'}`);
+                setTimeout(() => this.loadAutoGenStatus(), 1000);
+            } else {
+                this.addAutoGenMessage('error', 'Failed to create workflow');
+            }
+        } catch (error) {
+            this.addAutoGenMessage('error', 'Error creating workflow: ' + error.message);
+        }
+    }
+
+    async handleAutoGenCommand(command) {
+        this.addAutoGenMessage('user', `Executing: ${command}`);
+        try {
+            const response = await this.apiCall('/api/autogen/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: command })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                this.addAutoGenMessage('system', data.response || 'Command executed successfully');
+                setTimeout(() => this.loadAutoGenStatus(), 1000);
+            } else {
+                this.addAutoGenMessage('error', 'Command execution failed');
+            }
+        } catch (error) {
+            this.addAutoGenMessage('error', 'Error executing command: ' + error.message);
+        }
+    }
+
+    addAutoGenMessage(type, content) {
+        const timestamp = new Date().toLocaleTimeString();
+        const outputElement = document.getElementById('autogen-output');
+        if (outputElement) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `output-message ${type}-message`;
+            messageDiv.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span>
+                <span class="message-content">${content}</span>
+            `;
+            const contentElement = outputElement.querySelector('.output-content');
+            if (contentElement) {
+                contentElement.appendChild(messageDiv);
+                contentElement.scrollTop = contentElement.scrollHeight;
+            }
+        }
+    }
+
+    // LLM Chat Methods
+    async loadLLMChatStatus() {
+        try {
+            const response = await this.apiCall('/api/llm/status');
+            if (response.ok) {
+                const data = await response.json();
+                this.updateLLMStatus(data);
+            } else {
+                this.updateLLMStatus({ model: 'Unknown', status: 'Offline' });
+            }
+        } catch (error) {
+            this.updateLLMStatus({ model: 'Error', status: 'Offline' });
+        }
+    }
+
+    updateLLMStatus(data) {
+        const modelElement = document.getElementById('active-model');
+        const statusElement = document.getElementById('model-status');
+
+        if (modelElement) {
+            modelElement.textContent = data.model || 'Loading...';
+        }
+
+        if (statusElement) {
+            const status = data.status || 'Unknown';
+            statusElement.textContent = status === 'online' ? '🟢' : status === 'busy' ? '🟡' : '🔴';
+            statusElement.title = status;
+        }
+    }
+
+    async sendChatMessage() {
+        const inputElement = document.getElementById('chat-input');
+        if (!inputElement || !inputElement.value.trim()) return;
+
+        const message = inputElement.value.trim();
+        inputElement.value = '';
+
+        // Add user message
+        this.addChatMessage('user', message, 'You');
+
+        // Show typing indicator
+        this.showTypingIndicator();
+
+        try {
+            const response = await this.apiCall('/api/llm/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+
+            // Hide typing indicator
+            this.hideTypingIndicator();
+
+            if (response.ok) {
+                const data = await response.json();
+                this.addChatMessage('system', data.response || 'No response', 'ULTRON AI');
+            } else {
+                this.addChatMessage('error', 'Failed to get response from AI', 'System');
+            }
+        } catch (error) {
+            this.hideTypingIndicator();
+            this.addChatMessage('error', 'Error communicating with AI: ' + error.message, 'System');
+        }
+    }
+
+    addChatMessage(type, content, sender) {
+        const messagesElement = document.getElementById('chat-messages');
+        if (!messagesElement) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}-message`;
+
+        const timestamp = new Date().toLocaleTimeString();
+        const avatar = type === 'user' ? '👤' : type === 'error' ? '⚠️' : '🤖';
+
+        messageDiv.innerHTML = `
+            <div class="message-avatar">${avatar}</div>
+            <div class="message-content">
+                <div class="message-header">${sender}</div>
+                <div class="message-text">${content}</div>
+                <div class="message-time">${timestamp}</div>
+            </div>
+        `;
+
+        messagesElement.appendChild(messageDiv);
+        messagesElement.scrollTop = messagesElement.scrollHeight;
+    }
+
+    showTypingIndicator() {
+        const messagesElement = document.getElementById('chat-messages');
+        if (!messagesElement) return;
+
+        const indicatorDiv = document.createElement('div');
+        indicatorDiv.className = 'chat-message system-message typing-indicator';
+        indicatorDiv.id = 'typing-indicator';
+        indicatorDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+                <div class="message-header">ULTRON AI</div>
+                <div class="message-text">Typing...</div>
+            </div>
+        `;
+
+        messagesElement.appendChild(indicatorDiv);
+        messagesElement.scrollTop = messagesElement.scrollHeight;
+    }
+
+    hideTypingIndicator() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    toggleVoiceChat() {
+        this.isListening = !this.isListening;
+        const voiceBtn = document.getElementById('voice-chat-btn');
+
+        if (this.isListening) {
+            if (voiceBtn) {
+                voiceBtn.innerHTML = '<span>🎙️</span> Listening...';
+                voiceBtn.style.background = 'linear-gradient(145deg, #dc2626, #b91c1c)';
+            }
+            this.addChatMessage('system', 'Voice input activated. Speak your message.', 'System');
+            // Start voice recognition
+            this.startVoiceRecognition();
+        } else {
+            if (voiceBtn) {
+                voiceBtn.innerHTML = '<span>🎤</span> Voice';
+                voiceBtn.style.background = '';
+            }
+            this.addChatMessage('system', 'Voice input deactivated.', 'System');
+            // Stop voice recognition
+            this.stopVoiceRecognition();
+        }
+    }
+
+    startVoiceRecognition() {
+        // Voice recognition implementation
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            this.addChatMessage('error', 'Voice recognition not supported in this browser.', 'System');
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'en-US';
+
+        this.recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const inputElement = document.getElementById('chat-input');
+            if (inputElement) {
+                inputElement.value = transcript;
+                this.addChatMessage('system', `Voice input: "${transcript}"`, 'System');
+            }
+        };
+
+        this.recognition.onerror = (event) => {
+            this.addChatMessage('error', `Voice recognition error: ${event.error}`, 'System');
+            this.toggleVoiceChat(); // Turn off voice mode
+        };
+
+        this.recognition.onend = () => {
+            if (this.isListening) {
+                // Restart recognition for continuous listening
+                setTimeout(() => {
+                    if (this.isListening) {
+                        this.recognition.start();
+                    }
+                }, 1000);
+            }
+        };
+
+        this.recognition.start();
+    }
+
+    stopVoiceRecognition() {
+        if (this.recognition) {
+            this.recognition.stop();
+        }
+    }
+
+    clearChat() {
+        const messagesElement = document.getElementById('chat-messages');
+        if (messagesElement) {
+            messagesElement.innerHTML = '';
+            this.addChatMessage('system', 'Chat history cleared.', 'System');
+        }
+    }
+
+    exportChat() {
+        const messages = document.querySelectorAll('.chat-message');
+        let chatContent = 'ULTRON AI Chat Export\n';
+        chatContent += '=' .repeat(50) + '\n\n';
+
+        messages.forEach(message => {
+            const header = message.querySelector('.message-header')?.textContent || '';
+            const text = message.querySelector('.message-text')?.textContent || '';
+            const time = message.querySelector('.message-time')?.textContent || '';
+
+            chatContent += `[${time}] ${header}: ${text}\n\n`;
+        });
+
+        // Create and download file
+        const blob = new Blob([chatContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ultron_chat_${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        this.addChatMessage('system', 'Chat exported successfully.', 'System');
+    }
+
+    async switchModel() {
+        try {
+            const response = await this.apiCall('/api/llm/models');
+            if (response.ok) {
+                const data = await response.json();
+                // Show model selection dialog
+                this.showModelSelection(data.models);
+            } else {
+                this.addChatMessage('error', 'Failed to load available models.', 'System');
+            }
+        } catch (error) {
+            this.addChatMessage('error', 'Error loading models: ' + error.message, 'System');
+        }
+    }
+
+    showModelSelection(models) {
+        // Create modal for model selection
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-title">SELECT AI MODEL</div>
+                <div class="model-list" style="margin: 2rem 0;">
+                    ${models.map(model => `
+                        <button class="model-option" data-model="${model.name}" style="
+                            display: block;
+                            width: 100%;
+                            padding: 1rem;
+                            margin: 0.5rem 0;
+                            background: rgba(0, 255, 65, 0.1);
+                            border: 1px solid #00ff41;
+                            border-radius: 8px;
+                            color: #00ff41;
+                            font-family: 'Orbitron', monospace;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.background='rgba(0, 255, 65, 0.2)'" onmouseout="this.style.background='rgba(0, 255, 65, 0.1)'">
+                            ${model.name} - ${model.description || 'AI Model'}
+                        </button>
+                    `).join('')}
+                </div>
+                <div style="text-align: center;">
+                    <button class="power-btn" data-action="cancel" style="margin-top: 1rem;">CANCEL</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Handle model selection
+        modal.querySelectorAll('.model-option').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const modelName = e.currentTarget.dataset.model;
+                await this.selectModel(modelName);
+                document.body.removeChild(modal);
+            });
+        });
+
+        // Handle cancel
+        modal.querySelector('[data-action="cancel"]').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+    }
+
+    async selectModel(modelName) {
+        try {
+            const response = await this.apiCall('/api/llm/switch-model', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: modelName })
+            });
+
+            if (response.ok) {
+                this.addChatMessage('system', `Switched to model: ${modelName}`, 'System');
+                setTimeout(() => this.loadLLMChatStatus(), 1000);
+            } else {
+                this.addChatMessage('error', 'Failed to switch model.', 'System');
+            }
+        } catch (error) {
+            this.addChatMessage('error', 'Error switching model: ' + error.message, 'System');
+        }
+    }
+
+    async handleQuickAction(prompt) {
+        const inputElement = document.getElementById('chat-input');
+        if (inputElement) {
+            inputElement.value = prompt;
+            this.addChatMessage('system', `Quick action selected: ${prompt}`, 'System');
+        }
+    }
+
+    // Tool Integration Methods
+    async loadToolsStatus() {
+        try {
+            const response = await this.apiCall('/api/tools/status');
+            if (response.ok) {
+                const data = await response.json();
+                this.updateToolsUI(data);
+            } else {
+                this.showToolsError('Failed to load tools status');
+            }
+        } catch (error) {
+            this.showToolsError('Error loading tools: ' + error.message);
+        }
+    }
+
+    updateToolsUI(data) {
+        // Update statistics
+        const totalToolsElement = document.getElementById('total-tools');
+        const activeToolsElement = document.getElementById('active-tools');
+        const toolUsageElement = document.getElementById('tool-usage');
+
+        if (totalToolsElement) totalToolsElement.textContent = data.total || 0;
+        if (activeToolsElement) activeToolsElement.textContent = data.active || 0;
+        if (toolUsageElement) toolUsageElement.textContent = data.usage || 0;
+
+        // Update tools grid
+        this.renderToolsGrid(data.tools || []);
+    }
+
+    renderToolsGrid(tools) {
+        const toolsGrid = document.getElementById('tools-grid');
+        if (!toolsGrid) return;
+
+        if (!tools || tools.length === 0) {
+            toolsGrid.innerHTML = `
+                <div class="tool-placeholder">
+                    <div class="loading-spinner"></div>
+                    <p>No tools available</p>
+                </div>
+            `;
+            return;
+        }
+
+        const toolsHtml = tools.map(tool => this.createToolCard(tool)).join('');
+        toolsGrid.innerHTML = toolsHtml;
+
+        // Add click handlers for tool cards
+        toolsGrid.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const toolName = e.currentTarget.dataset.tool;
+                this.selectTool(toolName);
+            });
+        });
+    }
+
+    createToolCard(tool) {
+        const statusClass = tool.status === 'active' ? 'active' : tool.status === 'loading' ? 'loading' : 'inactive';
+        const statusText = tool.status || 'unknown';
+        const icon = this.getToolIcon(tool.name);
+
+        return `
+            <div class="tool-card" data-tool="${tool.name}">
+                <div class="tool-card-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="tool-icon">${icon}</span>
+                        <span class="tool-name">${tool.name}</span>
+                    </div>
+                    <span class="tool-status ${statusClass}">${statusText}</span>
+                </div>
+                <div class="tool-description">${tool.description || 'No description available'}</div>
+                <div class="tool-meta">
+                    <span>Uses: ${tool.usage_count || 0}</span>
+                    <span>Last: ${tool.last_used || 'Never'}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    getToolIcon(toolName) {
+        const iconMap = {
+            'calculator': '🧮',
+            'file_tool': '📁',
+            'code_analysis': '💻',
+            'web_search': '🌐',
+            'weather': '🌤️',
+            'system_monitor': '⚙️',
+            'audio_manager': '🔊',
+            'image_generation': '🎨',
+            'database': '🗄️',
+            'network': '📡',
+            'process_management': '🔧',
+            'screen_reader': '👁️',
+            'system_control': '🎛️',
+            'geocode': '📍',
+            'blockchain': '⛓️',
+            'quantum_computing': '⚛️',
+            'pochi': '🐕',
+            'autogen_studio': '🤖',
+            'openai_tools': '🧠',
+            'agent_network': '🌐'
+        };
+
+        // Try exact match first
+        if (iconMap[toolName]) {
+            return iconMap[toolName];
+        }
+
+        // Try partial match
+        for (const [key, icon] of Object.entries(iconMap)) {
+            if (toolName.includes(key)) {
+                return icon;
+            }
+        }
+
+        return '🔧'; // Default tool icon
+    }
+
+    async selectTool(toolName) {
+        // Update selected tool visual
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        document.querySelector(`[data-tool="${toolName}"]`).classList.add('selected');
+
+        // Load tool details
+        try {
+            const response = await this.apiCall(`/api/tools/${toolName}`);
+            if (response.ok) {
+                const toolData = await response.json();
+                this.showToolDetails(toolData);
+            } else {
+                this.showToolDetails({ name: toolName, error: 'Failed to load tool details' });
+            }
+        } catch (error) {
+            this.showToolDetails({ name: toolName, error: 'Error loading tool details: ' + error.message });
+        }
+    }
+
+    showToolDetails(tool) {
+        const detailsElement = document.getElementById('tool-details');
+        if (!detailsElement) return;
+
+        if (tool.error) {
+            detailsElement.innerHTML = `
+                <div class="tool-info-placeholder">
+                    Error: ${tool.error}
+                </div>
+            `;
+            return;
+        }
+
+        const icon = this.getToolIcon(tool.name);
+        const statusClass = tool.status === 'active' ? 'active' : tool.status === 'loading' ? 'loading' : 'inactive';
+
+        detailsElement.innerHTML = `
+            <div class="tool-detail-content">
+                <div class="tool-detail-header">
+                    <span class="tool-detail-icon">${icon}</span>
+                    <div class="tool-detail-info">
+                        <h3>${tool.name}</h3>
+                        <span class="tool-detail-status ${statusClass}">${tool.status || 'unknown'}</span>
+                    </div>
+                </div>
+                <div class="tool-detail-description">
+                    ${tool.description || 'No description available'}
+                </div>
+                <div class="tool-detail-meta">
+                    <div class="tool-detail-meta-item">
+                        <h4>Usage Statistics</h4>
+                        <p>Total Uses: ${tool.usage_count || 0}</p>
+                        <p>Last Used: ${tool.last_used || 'Never'}</p>
+                        <p>Success Rate: ${tool.success_rate || 'N/A'}%</p>
+                    </div>
+                    <div class="tool-detail-meta-item">
+                        <h4>Technical Details</h4>
+                        <p>Class: ${tool.class_name || 'Unknown'}</p>
+                        <p>Module: ${tool.module || 'Unknown'}</p>
+                        <p>Version: ${tool.version || 'N/A'}</p>
+                    </div>
+                    <div class="tool-detail-meta-item">
+                        <h4>Parameters</h4>
+                        <p>${tool.parameters ? Object.keys(tool.parameters).length : 0} parameters</p>
+                        <p>Async: ${tool.is_async ? 'Yes' : 'No'}</p>
+                        <p>Requires Config: ${tool.requires_config ? 'Yes' : 'No'}</p>
+                    </div>
+                </div>
+                <div class="tool-detail-actions">
+                    <button class="tool-btn" onclick="ultronInterface.testTool('${tool.name}')">🧪 Test Tool</button>
+                    <button class="tool-btn" onclick="ultronInterface.reloadTool('${tool.name}')">🔄 Reload</button>
+                    <button class="tool-btn" onclick="ultronInterface.executeTool('${tool.name}')">▶️ Execute</button>
+                </div>
+            </div>
+        `;
+    }
+
+    async refreshTools() {
+        this.addSystemMessage('🔄 Refreshing tools status...');
+        await this.loadToolsStatus();
+        this.addSystemMessage('✅ Tools status refreshed');
+    }
+
+    async reloadAllTools() {
+        this.addSystemMessage('⚡ Reloading all tools...');
+        try {
+            const response = await this.apiCall('/api/tools/reload', { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                this.addSystemMessage(`✅ Reloaded ${data.reloaded || 0} tools`);
+                await this.loadToolsStatus();
+            } else {
+                this.addSystemMessage('❌ Failed to reload tools');
+            }
+        } catch (error) {
+            this.addSystemMessage('❌ Error reloading tools: ' + error.message);
+        }
+    }
+
+    async testAllTools() {
+        this.addSystemMessage('🧪 Testing all tools...');
+        try {
+            const response = await this.apiCall('/api/tools/test', { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                const passed = data.results.filter(r => r.passed).length;
+                const total = data.results.length;
+                this.addSystemMessage(`✅ Tool tests completed: ${passed}/${total} passed`);
+                await this.loadToolsStatus();
+            } else {
+                this.addSystemMessage('❌ Failed to run tool tests');
+            }
+        } catch (error) {
+            this.addSystemMessage('❌ Error testing tools: ' + error.message);
+        }
+    }
+
+    async testTool(toolName) {
+        this.addSystemMessage(`🧪 Testing tool: ${toolName}`);
+        try {
+            const response = await this.apiCall(`/api/tools/${toolName}/test`, { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.passed) {
+                    this.addSystemMessage(`✅ Tool ${toolName} test passed`);
+                } else {
+                    this.addSystemMessage(`❌ Tool ${toolName} test failed: ${data.error || 'Unknown error'}`);
+                }
+                await this.loadToolsStatus();
+            } else {
+                this.addSystemMessage(`❌ Failed to test tool ${toolName}`);
+            }
+        } catch (error) {
+            this.addSystemMessage(`❌ Error testing tool ${toolName}: ` + error.message);
+        }
+    }
+
+    async reloadTool(toolName) {
+        this.addSystemMessage(`🔄 Reloading tool: ${toolName}`);
+        try {
+            const response = await this.apiCall(`/api/tools/${toolName}/reload`, { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.addSystemMessage(`✅ Tool ${toolName} reloaded successfully`);
+                } else {
+                    this.addSystemMessage(`❌ Failed to reload tool ${toolName}: ${data.error || 'Unknown error'}`);
+                }
+                await this.loadToolsStatus();
+            } else {
+                this.addSystemMessage(`❌ Failed to reload tool ${toolName}`);
+            }
+        } catch (error) {
+            this.addSystemMessage(`❌ Error reloading tool ${toolName}: ` + error.message);
+        }
+    }
+
+    async executeTool(toolName) {
+        // Show a simple command input dialog
+        const command = prompt(`Enter command for ${toolName}:`);
+        if (!command || !command.trim()) return;
+
+        this.addSystemMessage(`▶️ Executing ${toolName} with: ${command}`);
+        try {
+            const response = await this.apiCall(`/api/tools/${toolName}/execute`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: command })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                this.addSystemMessage(`✅ Tool ${toolName} executed: ${data.result || 'Success'}`);
+            } else {
+                this.addSystemMessage(`❌ Tool ${toolName} execution failed`);
+            }
+        } catch (error) {
+            this.addSystemMessage(`❌ Error executing tool ${toolName}: ` + error.message);
+        }
+    }
+
+    showToolsError(message) {
+        const toolsGrid = document.getElementById('tools-grid');
+        if (toolsGrid) {
+            toolsGrid.innerHTML = `
+                <div class="tool-placeholder">
+                    <p style="color: #ff4141;">${message}</p>
+                </div>
+            `;
+        }
+    }
+
     startAnimations() {
         // LED animations
         this.animateMainLED();
         this.animateStatusLEDs();
+        // Initialize LED status monitoring
+        this.initializeLEDStatus();
+    }
+
+    initializeLEDStatus() {
+        // Initialize LED status labels
+        this.updateLEDLabels();
+        // Start monitoring system status for LED updates
+        this.startLEDStatusMonitoring();
+    }
+
+    updateLEDLabels() {
+        // Add status labels next to LEDs if they don't exist
+        const ledCluster = document.querySelector('.led-cluster');
+        if (ledCluster && !document.querySelector('.led-labels')) {
+            const labelsDiv = document.createElement('div');
+            labelsDiv.className = 'led-labels';
+            labelsDiv.innerHTML = `
+                <div class="led-label">System Ready</div>
+                <div class="led-label">Voice Online</div>
+                <div class="led-label">AI Connected</div>
+            `;
+            ledCluster.appendChild(labelsDiv);
+        }
+    }
+
+    startLEDStatusMonitoring() {
+        // Update LED status every 5 seconds
+        const interval = setInterval(() => {
+            this.updateLEDStatus();
+        }, 5000);
+        this.animationIntervals.push(interval);
+
+        // Initial status update
+        setTimeout(() => this.updateLEDStatus(), 1000);
+    }
+
+    async updateLEDStatus() {
+        try {
+            // Check system status
+            const systemStatus = await this.checkSystemStatus();
+            const voiceStatus = await this.checkVoiceStatus();
+            const aiStatus = await this.checkAIStatus();
+
+            // Update LEDs based on status
+            this.setLEDLight('main-led', systemStatus);
+            this.setLEDLight('led-1', voiceStatus);
+            this.setLEDLight('led-2', aiStatus);
+            this.setLEDLight('led-3', 'operational'); // Reserved for future use
+
+            // Update status labels
+            this.updateLEDLabelsText(systemStatus, voiceStatus, aiStatus);
+
+        } catch (error) {
+            console.error('Failed to update LED status:', error);
+            // Set all LEDs to error state on failure
+            this.setLEDLight('main-led', 'error');
+            this.setLEDLight('led-1', 'error');
+            this.setLEDLight('led-2', 'error');
+            this.setLEDLight('led-3', 'error');
+        }
+    }
+
+    async checkSystemStatus() {
+        try {
+            const response = await this.apiCall('/api/status');
+            if (response.ok) {
+                const data = await response.json();
+                return data.overall_status === 'operational' ? 'operational' :
+                       data.overall_status === 'degraded' ? 'loading' : 'error';
+            }
+        } catch (error) {
+            console.error('System status check failed:', error);
+        }
+        return 'error';
+    }
+
+    async checkVoiceStatus() {
+        try {
+            const response = await this.apiCall('/api/voice/status');
+            if (response.ok) {
+                const data = await response.json();
+                // Check if ElevenLabs and fallback TTS are available
+                const elevenlabsOk = data.elevenlabs?.available && data.elevenlabs?.voices > 0;
+                const fallbackOk = data.pyttsx3?.available;
+                const micOk = data.microphone?.available;
+
+                if (elevenlabsOk && micOk) return 'operational';
+                if (fallbackOk && micOk) return 'loading'; // Fallback mode
+                if (micOk) return 'loading'; // Basic functionality
+                return 'error';
+            }
+        } catch (error) {
+            console.error('Voice status check failed:', error);
+        }
+        return 'error';
+    }
+
+    async checkAIStatus() {
+        try {
+            const response = await this.apiCall('/api/brain/status');
+            if (response.ok) {
+                const data = await response.json();
+                // Check if Ollama and models are available
+                const ollamaOk = data.ollama?.running;
+                const modelsOk = data.models?.length > 0;
+
+                if (ollamaOk && modelsOk) return 'operational';
+                if (ollamaOk) return 'loading'; // Ollama running but no models
+                return 'error';
+            }
+        } catch (error) {
+            console.error('AI status check failed:', error);
+        }
+        return 'error';
+    }
+
+    setLEDLight(ledId, status) {
+        const led = document.getElementById(ledId);
+        if (!led) return;
+
+        // Remove all status classes
+        led.classList.remove('led-red', 'led-yellow', 'led-green', 'led-blue');
+
+        // Add appropriate status class
+        switch (status) {
+            case 'operational':
+            case 'online':
+            case 'connected':
+                led.classList.add('led-green');
+                break;
+            case 'loading':
+            case 'busy':
+            case 'initializing':
+                led.classList.add('led-yellow');
+                break;
+            case 'error':
+            case 'offline':
+            case 'failed':
+            default:
+                led.classList.add('led-red');
+                break;
+        }
+
+        // Update glow effect
+        this.updateLEDGlow(led, status);
+    }
+
+    updateLEDGlow(led, status) {
+        const glow = led.querySelector('.led-glow');
+        if (!glow) return;
+
+        switch (status) {
+            case 'operational':
+            case 'online':
+            case 'connected':
+                glow.style.background = 'radial-gradient(circle at 30% 30%, rgba(22, 163, 74, 0.8), rgba(22, 163, 74, 0.4))';
+                glow.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.8)';
+                break;
+            case 'loading':
+            case 'busy':
+            case 'initializing':
+                glow.style.background = 'radial-gradient(circle at 30% 30%, rgba(234, 179, 8, 0.8), rgba(234, 179, 8, 0.4))';
+                glow.style.boxShadow = '0 0 20px rgba(234, 179, 8, 0.8)';
+                break;
+            case 'error':
+            case 'offline':
+            case 'failed':
+            default:
+                glow.style.background = 'radial-gradient(circle at 30% 30%, rgba(220, 38, 38, 0.8), rgba(220, 38, 38, 0.4))';
+                glow.style.boxShadow = '0 0 20px rgba(220, 38, 38, 0.8)';
+                break;
+        }
+    }
+
+    updateLEDLabelsText(systemStatus, voiceStatus, aiStatus) {
+        const labels = document.querySelectorAll('.led-label');
+        if (labels.length >= 3) {
+            // Update system status label
+            labels[0].textContent = this.getStatusText('System', systemStatus);
+            labels[0].className = `led-label status-${systemStatus}`;
+
+            // Update voice status label
+            labels[1].textContent = this.getStatusText('Voice', voiceStatus);
+            labels[1].className = `led-label status-${voiceStatus}`;
+
+            // Update AI status label
+            labels[2].textContent = this.getStatusText('AI', aiStatus);
+            labels[2].className = `led-label status-${aiStatus}`;
+        }
+    }
+
+    getStatusText(component, status) {
+        const statusMap = {
+            operational: `${component} Online`,
+            online: `${component} Online`,
+            connected: `${component} Connected`,
+            loading: `${component} Loading`,
+            busy: `${component} Busy`,
+            initializing: `${component} Init`,
+            error: `${component} Error`,
+            offline: `${component} Offline`,
+            failed: `${component} Failed`
+        };
+        return statusMap[status] || `${component} Unknown`;
     }
 
     animateMainLED() {
