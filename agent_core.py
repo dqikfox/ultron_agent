@@ -15,6 +15,9 @@ import inspect
 from datetime import datetime
 from enum import Enum
 
+# Import performance profiler
+from utils.performance_profiler import get_performance_profiler, start_performance_monitoring
+
 # Import the correct UltronConfig from ultron_agent package
 try:
     from ultron_agent.config import UltronConfig, load_config
@@ -54,6 +57,9 @@ class UltronAgent:
         """Initialize ULTRON Agent following project architecture"""
         self.config = self._load_config(config_path)
         self.logger = self._setup_logging()
+
+        # Initialize performance profiler
+        self.performance_profiler = get_performance_profiler(self.config.__dict__ if hasattr(self.config, '__dict__') else {})
 
         # Core components per copilot instructions
         self.tools = {}
@@ -110,11 +116,16 @@ class UltronAgent:
         try:
             self.logger.info("Initializing ULTRON Agent components...")
 
+            # Start performance monitoring
+            start_performance_monitoring(self.config.__dict__ if hasattr(self.config, '__dict__') else {})
+
             # Initialize core systems per copilot instructions
             await self._initialize_memory()
             await self._initialize_voice()
             await self._initialize_vision()
             await self._initialize_brain()
+            await self._initialize_event_system()
+            await self._initialize_idle_monitor()
             await self._load_tools()
 
             # Update status
@@ -188,6 +199,135 @@ class UltronAgent:
         self.logger.info("Initializing brain system...")
         # Placeholder for brain initialization
         pass
+
+    async def _initialize_event_system(self):
+        """Initialize event system for inter-component communication"""
+        self.logger.info("Initializing event system...")
+        from utils.event_system import EventSystem
+        self.event_system = EventSystem()
+        self.logger.info("Event system initialized successfully")
+
+    async def _initialize_idle_monitor(self):
+        """Initialize idle monitor for auto-analysis triggering"""
+        self.logger.info("Initializing idle monitor...")
+        if not self.event_system:
+            await self._initialize_event_system()
+
+        from utils.idle_monitor import IdleMonitor
+        idle_threshold = getattr(self.config, 'idle_threshold_minutes', 5)
+        self.idle_monitor = IdleMonitor(self.event_system, idle_threshold)
+
+        # Set callback for idle trigger
+        async def on_idle():
+            await self._trigger_auto_analysis()
+
+        self.idle_monitor.set_idle_callback(on_idle)
+        await self.idle_monitor.start_monitoring()
+        self.logger.info("Idle monitor initialized and started")
+
+    async def _trigger_auto_analysis(self):
+        """Trigger auto-analysis workflow when idle threshold is exceeded"""
+        self.logger.info("Triggering auto-analysis due to idle timeout")
+
+        try:
+            # Profile the entire auto-analysis workflow
+            with self.performance_profiler.profile_operation("auto_analysis_workflow", {"trigger": "idle_timeout"}):
+                # Import required modules
+                from nvidia_nim_router import UltronNvidiaRouter
+                from utils.auto_patch_manager import AutoPatchManager
+
+                # Profile codebase context gathering
+                with self.performance_profiler.profile_operation("gather_codebase_context"):
+                    codebase_context = await self._gather_codebase_context()
+
+                # Profile NIM analysis
+                with self.performance_profiler.profile_operation("nim_codebase_analysis", {"context_length": len(codebase_context)}):
+                    nim_router = UltronNvidiaRouter()
+                    analysis_result = nim_router.analyze_codebase_for_improvements(codebase_context)
+
+                # Profile suggestion parsing and validation
+                with self.performance_profiler.profile_operation("parse_and_validate_suggestions"):
+                    patch_manager = AutoPatchManager(self.config)
+                    suggestions, metadata = patch_manager.parse_suggestions(analysis_result)
+
+                if suggestions:
+                    # Apply suggestions if auto-apply is enabled
+                    if self.config.get('auto_apply_patches', False):
+                        with self.performance_profiler.profile_operation("apply_auto_patches", {"suggestion_count": len(suggestions)}):
+                            results = patch_manager.apply_suggestions(suggestions, metadata)
+
+                        # Notify user of results
+                        await self._notify_auto_patch_results(results, metadata)
+                    else:
+                        # Just notify about available suggestions
+                        await self._notify_available_suggestions(suggestions, metadata)
+                else:
+                    ultron_logger.log_info("auto_patch_manager", "No valid suggestions generated")
+
+        except Exception as e:
+            ultron_logger.log_error("agent_core", f"Auto-analysis failed: {str(e)}")
+            await self.speak("Auto-analysis encountered an error. Check logs for details.")
+
+    async def _gather_codebase_context(self) -> str:
+        """Gather context about the current codebase state"""
+        context_parts = []
+
+        # Get recent file changes
+        try:
+            from utils.model_awareness import get_recent_changes
+            recent_changes = get_recent_changes()
+            context_parts.append(f"Recent Changes:\n{recent_changes}")
+        except Exception as e:
+            context_parts.append(f"Recent Changes: Error gathering - {str(e)}")
+
+        # Get current system status
+        context_parts.append(f"Current Status: {self.status.value}")
+        context_parts.append(f"Running: {self.is_running}")
+
+        # Get loaded tools
+        tools_list = list(self.tools.keys())
+        context_parts.append(f"Loaded Tools: {', '.join(tools_list)}")
+
+        return "\n\n".join(context_parts)
+
+    async def _notify_auto_patch_results(self, results: Dict[str, Any], metadata: Dict[str, Any]):
+        """Notify user about auto-patch application results"""
+        applied = results.get('applied', 0)
+        failed = results.get('failed', 0)
+        total = results.get('total_suggestions', 0)
+
+        message = f"Auto-analysis complete. Applied {applied} of {total} suggestions."
+        if failed > 0:
+            message += f" {failed} suggestions failed."
+
+        # Log detailed results
+        ultron_logger.log_info("agent_core", f"Auto-patch results: {results}")
+
+        # Speak notification
+        await self.speak(message)
+
+        # Emit event for GUI notification
+        if self.event_system:
+            await self.event_system.emit("auto_patch_complete", {
+                "results": results,
+                "metadata": metadata,
+                "message": message
+            })
+
+    async def _notify_available_suggestions(self, suggestions: List[Dict[str, Any]], metadata: Dict[str, Any]):
+        """Notify user about available suggestions (when auto-apply is disabled)"""
+        count = len(suggestions)
+        message = f"Auto-analysis found {count} improvement suggestions. Manual review required."
+
+        await self.speak(message)
+
+        # Emit event for GUI
+        if self.event_system:
+            await self.event_system.emit("suggestions_available", {
+                "suggestions": suggestions,
+                "metadata": metadata,
+                "count": count
+            })
 
     async def _load_tools(self):
         """Dynamically load tools from tools/ directory with robust fallback"""

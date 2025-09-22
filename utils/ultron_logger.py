@@ -20,7 +20,7 @@ def setup_logging():
     # Create logs directory
     logs_dir = Path("logs")
     logs_dir.mkdir(exist_ok=True)
-    
+
     # Configure root logger
     logging.basicConfig(
         level=logging.INFO,
@@ -36,26 +36,26 @@ def get_logger(component: str) -> logging.Logger:
     with _lock:
         if component not in _loggers:
             logger = logging.getLogger(f"ultron.{component}")
-            
+
             # Create component-specific log file
             logs_dir = Path("logs")
             logs_dir.mkdir(exist_ok=True)
-            
+
             handler = logging.FileHandler(logs_dir / f"{component}.log")
             formatter = logging.Formatter(
                 '%(asctime)s - %(levelname)s - %(message)s'
             )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
-            
+
             _loggers[component] = logger
-        
+
         return _loggers[component]
 
 def log_info(component: str, message: str, **kwargs):
     """Log info message with structured data"""
     logger = get_logger(component)
-    
+
     # Create structured log entry
     log_entry = {
         "timestamp": datetime.now().isoformat(),
@@ -64,17 +64,17 @@ def log_info(component: str, message: str, **kwargs):
         "message": message,
         **kwargs
     }
-    
+
     # Log to component file
     logger.info(json.dumps(log_entry))
-    
+
     # Also log to activities file
     _log_to_activities(log_entry)
 
 def log_error(component: str, message: str, **kwargs):
     """Log error message with structured data"""
     logger = get_logger(component)
-    
+
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "component": component,
@@ -82,14 +82,14 @@ def log_error(component: str, message: str, **kwargs):
         "message": message,
         **kwargs
     }
-    
+
     logger.error(json.dumps(log_entry))
     _log_to_activities(log_entry)
 
 def log_ai_decision(component: str, message: str, ai_model: str = None, confidence_score: float = None, **kwargs):
     """Log AI decision with context and confidence"""
     logger = get_logger("ai_activities")
-    
+
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "component": component,
@@ -99,14 +99,14 @@ def log_ai_decision(component: str, message: str, ai_model: str = None, confiden
         "confidence_score": confidence_score,
         **kwargs
     }
-    
+
     logger.info(json.dumps(log_entry))
     _log_to_activities(log_entry)
 
 def log_file_operation(component: str, message: str, file_path: str, action: str, **kwargs):
     """Log file operations with path and action"""
     logger = get_logger("file_operations")
-    
+
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "component": component,
@@ -116,7 +116,7 @@ def log_file_operation(component: str, message: str, file_path: str, action: str
         "action": action,
         **kwargs
     }
-    
+
     logger.info(json.dumps(log_entry))
     _log_to_activities(log_entry)
 
@@ -136,7 +136,7 @@ def get_recent_logs(component: str = None, limit: int = 100) -> list:
         activities_file = Path("logs") / "activities.jsonl"
         if not activities_file.exists():
             return []
-        
+
         logs = []
         with open(activities_file, "r", encoding="utf-8") as f:
             for line in f:
@@ -146,10 +146,10 @@ def get_recent_logs(component: str = None, limit: int = 100) -> list:
                         logs.append(entry)
                 except json.JSONDecodeError:
                     continue
-        
+
         # Return most recent entries
         return logs[-limit:] if len(logs) > limit else logs
-    
+
     except Exception as e:
         print(f"Failed to read logs: {e}")
         return []
@@ -160,14 +160,14 @@ def cleanup_old_logs(days: int = 30):
         logs_dir = Path("logs")
         if not logs_dir.exists():
             return
-        
+
         cutoff_time = datetime.now().timestamp() - (days * 24 * 60 * 60)
-        
+
         for log_file in logs_dir.glob("*.log"):
             if log_file.stat().st_mtime < cutoff_time:
                 log_file.unlink()
                 print(f"Cleaned up old log file: {log_file}")
-    
+
     except Exception as e:
         print(f"Failed to cleanup logs: {e}")
 

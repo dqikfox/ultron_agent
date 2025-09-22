@@ -27,20 +27,16 @@ class UltronPokedexInterface {
     }
 
     init() {
-        console.log('🚀 Initializing ULTRON Pokedex Interface... - app.js:30');
-        console.log(`🔗 API Base URL: ${this.API_BASE_URL} - app.js:31`);
-        console.log(`🤖 Agent Base URL: ${this.AGENT_BASE_URL} - app.js:32`);
-        this.setupEventListeners();
-        this.initializeTheme();
-        this.startAnimations();
-        this.loadConfiguration();
-        this.startSystemMonitoring();
-        this.showLoadingScreen();
-
-        // Simulate loading and then show main interface
-        setTimeout(() => {
-            this.hideLoadingScreen();
-        }, 3000);
+           console.log('🚀 Initializing ULTRON Pokedex Interface... - app.js:30');
+           console.log(`🔗 API Base URL: ${this.API_BASE_URL} - app.js:31`);
+           console.log(`🤖 Agent Base URL: ${this.AGENT_BASE_URL} - app.js:32`);
+           this.setupEventListeners();
+           this.initializeTheme();
+           this.startAnimations();
+           this.loadConfiguration();
+           this.startSystemMonitoring();
+           // Immediately show main interface, skip loading screen
+           this.hideLoadingScreen();
     }
 
     // Helper method to make API calls with proper URL and logging

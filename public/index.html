@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ultron Web UI</title>
     <style>
         :root {
@@ -14,8 +15,8 @@
             --user-message-bg: #d1ecf1;
         }
 
-        body { 
-            font-family: Arial, sans-serif; 
+        body {
+            font-family: Arial, sans-serif;
             padding: 20px;
             background-color: var(--background-color);
             color: var(--text-color);
@@ -55,10 +56,10 @@
             background-color: #28a745;
         }
 
-        #chat { 
-            height: 400px; 
-            overflow-y: scroll; 
-            border: 1px solid #ccc; 
+        #chat {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
             padding: 10px;
             background: var(--chat-bg);
             border-radius: 5px;
@@ -87,14 +88,14 @@
             margin-top: 10px;
         }
 
-        #input { 
+        #input {
             flex-grow: 1;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
-        button { 
+        button {
             padding: 10px 20px;
             background: var(--secondary-color);
             color: white;
@@ -414,12 +415,12 @@
             .analytics-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
+
             .side-panel {
                 width: 100%;
                 right: -100%;
             }
-            
+
             .checkbox-group {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -490,7 +491,7 @@
                 <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
             </div>
         </div>
-        
+
         <!-- Tasks Panel -->
         <div id="tasks-panel" class="side-panel">
             <div class="panel-header">
@@ -499,7 +500,7 @@
             </div>
             <div id="tasks-list"></div>
         </div>
-        
+
         <!-- Task Details Modal -->
         <div id="task-modal" class="modal">
             <div class="modal-content">
@@ -535,7 +536,7 @@
                 </form>
             </div>
         </div>
-        
+
         <div class="status-bar">
             <div id="connection-status" class="status-indicator"></div>
             <span id="status-text">Disconnected</span>
@@ -543,7 +544,7 @@
         </div>
 
         <div id="chat"></div>
-        
+
         <div class="input-area">
             <input id="input" type="text" placeholder="Type a command...">
             <button id="voiceButton" onclick="toggleVoiceInput()">
@@ -570,14 +571,14 @@
         const commandHistory = [];
         let currentTask = null;
         let reconnectAttempts = 0;
-        
+
         const chatDiv = document.getElementById('chat');
         const statusIndicator = document.getElementById('connection-status');
         const statusText = document.getElementById('status-text');
         const voiceButton = document.getElementById('voiceButton');
         const historyList = document.getElementById('history-list');
         let isRecording = false;
-        
+
         // Theme Management
         function toggleTheme() {
             document.body.classList.toggle('dark-theme');
@@ -620,11 +621,11 @@
         function appendMessage(sender, message, className = '') {
             const div = document.createElement('div');
             div.className = `message ${sender === 'You' ? 'user-message' : ''} ${className}`;
-            
+
             // Add timestamp
             const timestamp = new Date().toLocaleTimeString();
             div.innerHTML = `<strong>${sender}</strong> <small>(${timestamp})</small>: ${message}`;
-            
+
             chatDiv.appendChild(div);
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
@@ -722,11 +723,11 @@
             data.tasks.forEach(task => {
                 const taskElement = document.createElement('div');
                 taskElement.className = 'task-item';
-                
+
                 // Calculate next run display
                 const nextRun = task.next_run ? new Date(task.next_run).toLocaleString() : 'Not scheduled';
                 const lastRun = task.last_run ? new Date(task.last_run).toLocaleString() : 'Never';
-                
+
                 taskElement.innerHTML = `
                     <h3>${task.id}
                         <span class="task-status ${task.enabled ? 'enabled' : 'disabled'}">
@@ -923,9 +924,9 @@
         async function sendCommand() {
             const input = document.getElementById('input');
             const command = input.value.trim();
-            
+
             if (!command) return;
-            
+
             appendMessage('You', command);
             addToHistory(command);
             socket.emit('command', { command: command });
@@ -988,6 +989,34 @@
                 appendMessage('System', 'Task disabled: ' + data.task_id);
                 refreshTasks();
             }
+        });
+
+        // Auto-Analysis and Auto-Patch Event Handlers
+        socket.on('auto_patch_complete', (data) => {
+            const results = data.results;
+            const message = data.message;
+            appendMessage('Auto-Analysis', message, 'system-message');
+
+            // Show detailed results in a modal or expanded message
+            const details = `
+                <strong>Auto-Patch Results:</strong><br>
+                Total Suggestions: ${results.total_suggestions}<br>
+                Applied: ${results.applied}<br>
+                Failed: ${results.failed}<br>
+                Skipped: ${results.skipped}<br>
+                <em>Model: ${data.metadata.model_used}</em>
+            `;
+            appendMessage('Details', details, 'system-message');
+        });
+
+        socket.on('suggestions_available', (data) => {
+            const count = data.count;
+            const suggestions = data.suggestions;
+            appendMessage('Auto-Analysis', `Found ${count} improvement suggestions. Review required.`, 'system-message');
+
+            // Show summary of suggestions
+            const summary = suggestions.map(s => `${s.id}: ${s.description.substring(0, 100)}...`).join('<br>');
+            appendMessage('Suggestions', summary, 'system-message');
         });
 
         // Initialize

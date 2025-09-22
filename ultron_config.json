@@ -6,7 +6,7 @@
   "voice_engine": "elevenlabs",
   "stt_engine": "whisper",
   "tts_engine": "elevenlabs",
-  "llm_model": "llama3.2:latest",
+  "llm_model": "qwen3-coder:480b-cloud",
   "ollama_base_url": "http://localhost:11434",
   "voice_boot_message": "There's No Strings On Me",
   "debug": false,
@@ -49,5 +49,12 @@
   "voice_cache_dir": "cache/voice",
   "mic_energy_threshold": 300,
   "disable_tts_cache": false,
-  "microphone_device_index": null
+  "microphone_device_index": null,
+  "auto_analysis_enabled": true,
+  "idle_threshold_minutes": 5,
+  "auto_apply_patches": false,
+  "max_patch_size": 1000,
+  "modules_allowed_for_auto_patch": ["tools", "utils", "docs"],
+  "notification_enabled": true,
+  "rollback_enabled": true
 }
