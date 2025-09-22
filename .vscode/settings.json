@@ -10,6 +10,8 @@
         "**/.git/subtree-cache/**": true,
         "**/node_modules/**": true,
         "**/venv/**": true,
+        "**/.venv/**": true,
+        "**/.venv-1/**": true,
         "**/__pycache__/**": true,
         "**/logs/**": true,
         "**/cache/**": true,
@@ -51,7 +53,7 @@
     "ai-toolkit.enabled": false,
     "CodeGPT.enabled": false,
 
-    "python.defaultInterpreterPath": ".venv-1/Scripts/python.exe",
+    "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
     "python.analysis.typeCheckingMode": "basic",
     "python.formatting.provider": "black",
     "python.analysis.autoImportCompletions": false,
@@ -77,6 +79,5 @@
             "envManager": "ms-python.python:system",
             "packageManager": "ms-python.python:pip"
         }
-    ],
-    "python.pythonPath": ".venv-1/Scripts/python.exe"
+    ]
 }

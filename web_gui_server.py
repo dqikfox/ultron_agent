@@ -221,7 +221,7 @@ class UltronWebServer:
         """Start the web server"""
         try:
             # Change to web_gui directory
-            web_dir = Path(__file__).parent / "web_gui"
+            web_dir = Path(__file__).parent / "gui" / "ultron_enhanced" / "web"
             if not web_dir.exists():
                 raise FileNotFoundError("Web GUI directory not found. Please run the setup first.")
 

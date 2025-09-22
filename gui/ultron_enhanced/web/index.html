@@ -13,27 +13,8 @@
 </head>
 <body>
     <div id="app">
-        <!-- Loading Screen -->
-        <div id="loading-screen" class="loading-screen">
-            <div class="loading-content">
-                <div class="ultron-spinner">
-                    <div class="spinner-ring">
-                        <div class="spinner-core"></div>
-                    </div>
-                </div>
-                <div class="ultron-logo">
-                    <div class="logo-circle"></div>
-                    <div class="logo-text retro-text">ULTRON</div>
-                </div>
-                <div class="loading-bar">
-                    <div class="loading-progress"></div>
-                </div>
-                <div class="loading-text retro-text text-shadow-glow">Initializing AI Systems...</div>
-            </div>
-        </div>
-
         <!-- Main Pokedex Interface -->
-        <div id="main-interface" class="main-interface hidden">
+        <div id="main-interface" class="main-interface">
             <div class="pokedex-container">
 
                 <!-- Main Pokédex Body -->
@@ -209,7 +190,7 @@
                                     <div class="settings-grid">
                                         <div class="setting-group">
                                             <label>Theme</label>
-                                            <select id="theme-select">
+                                            <select id="theme-select" title="Select theme color for the Pokedex interface">
                                                 <option value="red">Red Pokedex</option>
                                                 <option value="blue">Blue Pokedex</option>
                                             </select>

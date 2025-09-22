@@ -284,6 +284,69 @@ class UltronNvidiaRouter:
             # Restore original model
             self.current_model = original_model
 
+    def analyze_codebase_for_improvements(self, codebase_context: str, scope: str = "full") -> str:
+        """Analyze ULTRON codebase and provide structured improvement suggestions"""
+        analysis_prompt = f"""
+        You are ULTRON's AI code analyzer. Analyze the provided codebase context and generate improvement suggestions in VALID JSON format.
+
+        REQUIREMENTS:
+        - Output MUST be valid JSON matching the ULTRON Suggestion Schema
+        - Focus on practical, implementable improvements
+        - Consider safety, performance, and maintainability
+        - Include confidence scores and risk assessments
+        - Only suggest changes for allowed modules: tools, utils, docs, gui, voice components
+
+        CODEBASE CONTEXT:
+        {codebase_context}
+
+        ANALYSIS SCOPE: {scope}
+
+        Generate suggestions following this EXACT JSON structure:
+        {{
+          "suggestions": [
+            {{
+              "id": "unique_id",
+              "module": "target_module",
+              "type": "refactor|update|optimize|add|remove",
+              "priority": "high|medium|low",
+              "description": "Clear explanation",
+              "code_snippet": "Actual code change",
+              "file_path": "relative/path/to/file.py",
+              "line_number": 123,
+              "confidence_score": 0.85,
+              "risk_level": "low|medium|high",
+              "dependencies": ["affected_modules"],
+              "test_required": true|false,
+              "rollback_plan": "How to revert"
+            }}
+          ],
+          "metadata": {{
+            "analysis_timestamp": "ISO timestamp",
+            "model_used": "model_name",
+            "analysis_scope": "{scope}",
+            "total_suggestions": 5,
+            "estimated_effort": "X hours"
+          }}
+        }}
+
+        IMPORTANT:
+        - Generate 3-5 high-quality suggestions
+        - Ensure JSON is parseable
+        - Focus on ULTRON-specific improvements
+        - Consider integration with existing systems (voice, GUI, tools)
+        """
+
+        # Use the most capable model for analysis
+        original_model = self.current_model
+        if "llama" in self.models:
+            self.current_model = "llama"
+
+        try:
+            response = self.ask_nvidia(analysis_prompt, max_tokens=4096, temperature=0.2)
+            return response
+        finally:
+            self.current_model = original_model
+
     def get_status(self) -> Dict[str, Any]:
         """Get router status information"""
         return {

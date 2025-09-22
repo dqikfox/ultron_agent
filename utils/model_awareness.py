@@ -1,336 +1,400 @@
 """
-ULTRON Agent 3.0 - AI Model Awareness System
-Coordinates file modifications between AI models to ensure system stability
+ULTRON Agent Model Awareness System
+Provides AI model coordination and file modification safety checks
 """
 
-import json
 import os
+import json
+import hashlib
 from datetime import datetime, timedelta
+from typing import Dict, List, Any, Tuple, Optional, Set
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
-import threading
-from .ultron_logger import log_info, log_error, log_ai_decision
+from dataclasses import dataclass, asdict
+from utils.ultron_logger import ultron_logger
 
-# Thread-safe file tracking
-_file_locks: Dict[str, threading.Lock] = {}
-_global_lock = threading.Lock()
+@dataclass
+class FileContext:
+    """Represents the context of a file for modification decisions"""
+    file_path: str
+    last_modified: datetime
+    size: int
+    hash: str
+    dependencies: List[str]
+    related_files: List[str]
+    recent_changes: List[Dict[str, Any]]
+    stability_score: float  # 0.0 to 1.0, higher is more stable
 
-def get_file_lock(file_path: str) -> threading.Lock:
-    """Get or create a lock for a specific file"""
-    with _global_lock:
-        if file_path not in _file_locks:
-            _file_locks[file_path] = threading.Lock()
-        return _file_locks[file_path]
+@dataclass
+class ModificationDecision:
+    """Represents a decision about whether to modify a file"""
+    should_proceed: bool
+    reason: str
+    confidence: float
+    context: FileContext
+    recommendations: List[str]
 
-def should_modify_file(file_path: str, modification_type: str, ai_model: str) -> Tuple[bool, str, Dict]:
+class ModelAwareness:
     """
-    Check if a file should be modified based on recent activity and system state
-    
-    Returns:
-        (should_proceed, reason, context)
+    AI Model Awareness System for ULTRON Agent
+    Coordinates file modifications and ensures system stability
     """
-    try:
-        file_path = os.path.abspath(file_path)
-        
-        # Get file context
-        context = check_file_context(file_path)
-        
-        # Check if file is currently being modified
-        file_lock = get_file_lock(file_path)
-        if not file_lock.acquire(blocking=False):
-            return False, "File is currently being modified by another process", context
-        
+
+    def __init__(self):
+        self.logger = ultron_logger
+        self.cache_file = Path("cache/model_awareness_cache.json")
+        self.cache_duration = timedelta(hours=1)
+        self.file_contexts: Dict[str, FileContext] = {}
+        self.active_models: Set[str] = set()
+        self.modification_history: List[Dict[str, Any]] = []
+        self.max_history = 100
+
+        # Critical files that require extra caution
+        self.critical_files = {
+            "agent_core.py",
+            "brain.py",
+            "config.py",
+            "ultron_config.json",
+            "main.py",
+            "run.bat"
+        }
+
+        # File dependencies mapping
+        self.file_dependencies = {
+            "agent_core.py": ["brain.py", "config.py", "utils/event_system.py"],
+            "brain.py": ["config.py", "utils/ultron_logger.py"],
+            "config.py": ["ultron_config.json"],
+            "gui/ultron_enhanced/web/index.html": ["gui_api_server.py", "api_server.py"]
+        }
+
+        self._load_cache()
+
+    def _load_cache(self) -> None:
+        """Load cached file contexts"""
         try:
-            # Check recent modifications (last 5 minutes)
-            recent_changes = context.get("recent_changes", [])
-            now = datetime.now()
-            
-            for change in recent_changes:
-                change_time = datetime.fromisoformat(change.get("timestamp", ""))
-                if now - change_time < timedelta(minutes=5):
-                    if change.get("ai_model") != ai_model:
-                        return False, f"File recently modified by {change.get('ai_model', 'unknown')}", context
-            
-            # Check for critical system files
-            critical_files = [
-                "agent_core.py", "brain.py", "main.py", "ultron_config.json",
-                "requirements.txt", "run.bat"
-            ]
-            
-            if any(critical in file_path for critical in critical_files):
-                # Extra caution for critical files
-                if len(recent_changes) > 0:
-                    return False, "Critical system file has recent modifications", context
-            
-            # Check system stability
-            error_logs = get_recent_errors()
-            if len(error_logs) > 5:  # More than 5 errors in recent logs
-                return False, "System instability detected - too many recent errors", context
-            
-            # Log the decision
-            log_ai_decision(
-                ai_model, 
-                f"Approved modification of {file_path}",
-                ai_model=ai_model,
-                confidence_score=0.8
-            )
-            
-            return True, "Modification approved", context
-            
-        finally:
-            file_lock.release()
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error checking file modification permission: {e}")
-        return False, f"Error during check: {str(e)}", {}
+            if self.cache_file.exists():
+                with open(self.cache_file, 'r') as f:
+                    data = json.load(f)
 
-def check_file_context(file_path: str) -> Dict:
-    """Get comprehensive context about a file"""
-    try:
-        file_path = os.path.abspath(file_path)
-        context = {
-            "file_path": file_path,
-            "exists": os.path.exists(file_path),
-            "recent_changes": [],
-            "dependencies": [],
-            "related_files": [],
-            "last_modified": None,
-            "size": 0
-        }
-        
-        if context["exists"]:
-            stat = os.stat(file_path)
-            context["last_modified"] = datetime.fromtimestamp(stat.st_mtime).isoformat()
-            context["size"] = stat.st_size
-        
-        # Get recent changes from logs
-        context["recent_changes"] = get_recent_file_changes(file_path)
-        
-        # Find related files (same directory, similar names)
-        context["related_files"] = find_related_files(file_path)
-        
-        # Check for dependencies (imports, includes, etc.)
-        context["dependencies"] = find_file_dependencies(file_path)
-        
-        return context
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error getting file context: {e}")
-        return {"error": str(e)}
+                # Check if cache is still valid
+                cache_time = datetime.fromisoformat(data.get('timestamp', '2000-01-01'))
+                if datetime.now() - cache_time < self.cache_duration:
+                    self.file_contexts = {}
+                    for path, context_data in data.get('contexts', {}).items():
+                        context_data['last_modified'] = datetime.fromisoformat(context_data['last_modified'])
+                        self.file_contexts[path] = FileContext(**context_data)
 
-def get_recent_file_changes(file_path: str, hours: int = 24) -> List[Dict]:
-    """Get recent changes to a specific file"""
-    try:
-        changes = []
-        activities_file = Path("logs") / "file_changes.log"
-        
-        if not activities_file.exists():
-            return changes
-        
-        cutoff_time = datetime.now() - timedelta(hours=hours)
-        
-        with open(activities_file, "r", encoding="utf-8") as f:
-            for line in f:
-                try:
-                    entry = json.loads(line.strip())
-                    if entry.get("file_path") == file_path:
-                        entry_time = datetime.fromisoformat(entry.get("timestamp", ""))
-                        if entry_time > cutoff_time:
-                            changes.append(entry)
-                except json.JSONDecodeError:
-                    continue
-        
-        return sorted(changes, key=lambda x: x.get("timestamp", ""))
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error getting recent file changes: {e}")
-        return []
+                    self.logger.log_info("model_awareness", "Loaded cached file contexts")
+                else:
+                    self.logger.log_info("model_awareness", "Cache expired, will rebuild")
+        except Exception as e:
+            self.logger.log_error("model_awareness", f"Error loading cache: {str(e)}")
 
-def find_related_files(file_path: str) -> List[str]:
-    """Find files related to the given file"""
-    try:
-        related = []
-        file_path = Path(file_path)
-        
-        if not file_path.exists():
-            return related
-        
-        # Files in same directory
-        for sibling in file_path.parent.glob("*"):
-            if sibling.is_file() and sibling != file_path:
-                # Same base name or similar
-                if (sibling.stem == file_path.stem or 
-                    file_path.stem in sibling.stem or 
-                    sibling.stem in file_path.stem):
-                    related.append(str(sibling))
-        
-        return related[:10]  # Limit to 10 related files
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error finding related files: {e}")
-        return []
+    def _save_cache(self) -> None:
+        """Save file contexts to cache"""
+        try:
+            cache_data = {
+                'timestamp': datetime.now().isoformat(),
+                'contexts': {}
+            }
 
-def find_file_dependencies(file_path: str) -> List[str]:
-    """Find dependencies of a file (imports, includes, etc.)"""
-    try:
+            for path, context in self.file_contexts.items():
+                context_dict = asdict(context)
+                context_dict['last_modified'] = context.last_modified.isoformat()
+                cache_data['contexts'][path] = context_dict
+
+            self.cache_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.cache_file, 'w') as f:
+                json.dump(cache_data, f, indent=2)
+
+            self.logger.log_info("model_awareness", "Saved file contexts to cache")
+        except Exception as e:
+            self.logger.log_error("model_awareness", f"Error saving cache: {str(e)}")
+
+    def _calculate_file_hash(self, file_path: str) -> str:
+        """Calculate SHA256 hash of file content"""
+        try:
+            with open(file_path, 'rb') as f:
+                return hashlib.sha256(f.read()).hexdigest()
+        except Exception:
+            return ""
+
+    def _get_file_dependencies(self, file_path: str) -> List[str]:
+        """Get files that depend on the given file"""
         dependencies = []
-        
-        if not os.path.exists(file_path):
-            return dependencies
-        
-        # For Python files, find imports
-        if file_path.endswith('.py'):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if line.startswith('import ') or line.startswith('from '):
-                        dependencies.append(line)
-                    if len(dependencies) > 20:  # Limit to prevent huge lists
-                        break
-        
-        return dependencies
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error finding file dependencies: {e}")
-        return []
+        file_name = Path(file_path).name
 
-def get_recent_errors(hours: int = 1) -> List[Dict]:
-    """Get recent error logs"""
-    try:
-        errors = []
-        activities_file = Path("logs") / "activities.jsonl"
-        
-        if not activities_file.exists():
-            return errors
-        
-        cutoff_time = datetime.now() - timedelta(hours=hours)
-        
-        with open(activities_file, "r", encoding="utf-8") as f:
-            for line in f:
-                try:
-                    entry = json.loads(line.strip())
-                    if entry.get("level") == "ERROR":
-                        entry_time = datetime.fromisoformat(entry.get("timestamp", ""))
-                        if entry_time > cutoff_time:
-                            errors.append(entry)
-                except json.JSONDecodeError:
-                    continue
-        
-        return errors
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error getting recent errors: {e}")
-        return []
+        # Check direct dependencies
+        if file_name in self.file_dependencies:
+            dependencies.extend(self.file_dependencies[file_name])
 
-def record_file_modification(file_path: str, ai_model: str, modification_type: str, success: bool = True):
-    """Record a file modification for tracking"""
-    try:
-        file_path = os.path.abspath(file_path)
-        
-        modification_record = {
-            "timestamp": datetime.now().isoformat(),
-            "file_path": file_path,
-            "ai_model": ai_model,
-            "modification_type": modification_type,
-            "success": success
+        # Check reverse dependencies
+        for dep_file, deps in self.file_dependencies.items():
+            if file_name in deps:
+                dependencies.append(dep_file)
+
+        return list(set(dependencies))
+
+    def _get_related_files(self, file_path: str) -> List[str]:
+        """Get files related to the given file"""
+        related = []
+        file_path_obj = Path(file_path)
+        file_name = file_path_obj.name
+        file_stem = file_path_obj.stem
+
+        # Find files with similar names or in same directory
+        workspace_root = Path(".")
+        for file in workspace_root.rglob("*"):
+            if file.is_file() and file != file_path_obj:
+                # Same directory
+                if file.parent == file_path_obj.parent:
+                    related.append(str(file))
+                # Similar name (same stem)
+                elif file.stem == file_stem and file.suffix != file_path_obj.suffix:
+                    related.append(str(file))
+
+        return related[:10]  # Limit to 10 related files
+
+    def _calculate_stability_score(self, file_path: str) -> float:
+        """Calculate stability score for a file (0.0 to 1.0)"""
+        score = 1.0
+        file_name = Path(file_path).name
+
+        # Critical files have lower stability
+        if file_name in self.critical_files:
+            score *= 0.3
+
+        # Recently modified files have lower stability
+        if file_path in self.file_contexts:
+            context = self.file_contexts[file_path]
+            hours_since_modified = (datetime.now() - context.last_modified).total_seconds() / 3600
+
+            if hours_since_modified < 1:
+                score *= 0.5
+            elif hours_since_modified < 24:
+                score *= 0.7
+
+        # Files with many dependencies have lower stability
+        dependencies = self._get_file_dependencies(file_path)
+        if len(dependencies) > 5:
+            score *= 0.6
+        elif len(dependencies) > 2:
+            score *= 0.8
+
+        return max(0.0, min(1.0, score))
+
+    def check_file_context(self, file_path: str) -> FileContext:
+        """
+        Get comprehensive context for a file
+
+        Args:
+            file_path: Path to the file to analyze
+
+        Returns:
+            FileContext object with analysis results
+        """
+        abs_path = str(Path(file_path).resolve())
+
+        # Check if we have cached context
+        if abs_path in self.file_contexts:
+            cached_context = self.file_contexts[abs_path]
+            # Check if file has been modified since cache
+            if Path(abs_path).exists():
+                current_mtime = datetime.fromtimestamp(Path(abs_path).stat().st_mtime)
+                if current_mtime <= cached_context.last_modified:
+                    return cached_context
+
+        # Build new context
+        try:
+            stat = Path(abs_path).stat()
+            file_hash = self._calculate_file_hash(abs_path)
+            dependencies = self._get_file_dependencies(abs_path)
+            related_files = self._get_related_files(abs_path)
+            stability_score = self._calculate_stability_score(abs_path)
+
+            # Get recent changes from history
+            recent_changes = []
+            for change in self.modification_history[-20:]:  # Last 20 changes
+                if change.get('file_path') == abs_path:
+                    recent_changes.append(change)
+
+            context = FileContext(
+                file_path=abs_path,
+                last_modified=datetime.fromtimestamp(stat.st_mtime),
+                size=stat.st_size,
+                hash=file_hash,
+                dependencies=dependencies,
+                related_files=related_files,
+                recent_changes=recent_changes,
+                stability_score=stability_score
+            )
+
+            self.file_contexts[abs_path] = context
+            self._save_cache()
+
+            self.logger.log_info("model_awareness", f"Analyzed file context for {abs_path}",
+                               extra={"stability_score": stability_score})
+
+            return context
+
+        except Exception as e:
+            self.logger.log_error("model_awareness", f"Error analyzing file {abs_path}: {str(e)}")
+
+            # Return minimal context for missing/non-existent files
+            return FileContext(
+                file_path=abs_path,
+                last_modified=datetime.now(),
+                size=0,
+                hash="",
+                dependencies=[],
+                related_files=[],
+                recent_changes=[],
+                stability_score=0.0
+            )
+
+    def should_modify_file(self, file_path: str, modification_type: str,
+                          ai_model: str) -> Tuple[bool, str, FileContext]:
+        """
+        Determine if a file should be modified
+
+        Args:
+            file_path: Path to the file
+            modification_type: Type of modification (edit, delete, create)
+            ai_model: Name of the AI model requesting modification
+
+        Returns:
+            Tuple of (should_proceed, reason, context)
+        """
+        context = self.check_file_context(file_path)
+        file_name = Path(file_path).name
+
+        # Track active model
+        self.active_models.add(ai_model)
+
+        # Critical file checks
+        if file_name in self.critical_files:
+            if modification_type in ['delete', 'replace']:
+                return False, f"Critical file {file_name} cannot be {modification_type}d", context
+
+        # Stability checks
+        if context.stability_score < 0.3:
+            return False, f"File {file_name} has low stability score ({context.stability_score:.2f})", context
+
+        # Recent modification checks
+        if context.recent_changes:
+            last_change = max(context.recent_changes, key=lambda x: x.get('timestamp', 0))
+            change_time = datetime.fromtimestamp(last_change.get('timestamp', 0))
+            minutes_since_change = (datetime.now() - change_time).total_seconds() / 60
+
+            if minutes_since_change < 5:
+                return False, f"File {file_name} was modified {minutes_since_change:.1f} minutes ago", context
+
+        # Dependency impact assessment
+        if len(context.dependencies) > 3:
+            reason = f"File {file_name} has {len(context.dependencies)} dependencies - proceed with caution"
+            return True, reason, context
+
+        # Model coordination
+        if len(self.active_models) > 1:
+            other_models = self.active_models - {ai_model}
+            reason = f"Multiple AI models active: {', '.join(other_models)} - coordinate modifications"
+            return True, reason, context
+
+        return True, "File modification approved", context
+
+    def record_modification(self, file_path: str, modification_type: str,
+                           ai_model: str, success: bool = True) -> None:
+        """
+        Record a file modification in history
+
+        Args:
+            file_path: Path to the modified file
+            modification_type: Type of modification
+            ai_model: Name of the AI model that made the modification
+            success: Whether the modification was successful
+        """
+        record = {
+            'timestamp': datetime.now().timestamp(),
+            'file_path': str(Path(file_path).resolve()),
+            'modification_type': modification_type,
+            'ai_model': ai_model,
+            'success': success
         }
-        
-        # Log to file changes
-        changes_file = Path("logs") / "file_changes.log"
-        changes_file.parent.mkdir(exist_ok=True)
-        
-        with open(changes_file, "a", encoding="utf-8") as f:
-            f.write(json.dumps(modification_record) + "\n")
-        
-        # Also log as activity
-        log_info(
-            "model_awareness",
-            f"File modification recorded: {file_path}",
-            ai_model=ai_model,
-            modification_type=modification_type,
-            success=success
-        )
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error recording file modification: {e}")
 
-def get_system_stability_score() -> float:
-    """Get a score (0-1) indicating system stability"""
-    try:
-        # Check recent errors
-        recent_errors = get_recent_errors(hours=1)
-        error_penalty = min(len(recent_errors) * 0.1, 0.5)
-        
-        # Check recent file modifications
-        recent_mods = []
-        changes_file = Path("logs") / "file_changes.log"
-        if changes_file.exists():
-            cutoff_time = datetime.now() - timedelta(hours=1)
-            with open(changes_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    try:
-                        entry = json.loads(line.strip())
-                        entry_time = datetime.fromisoformat(entry.get("timestamp", ""))
-                        if entry_time > cutoff_time:
-                            recent_mods.append(entry)
-                    except json.JSONDecodeError:
-                        continue
-        
-        # Penalty for too many modifications
-        mod_penalty = min(len(recent_mods) * 0.05, 0.3)
-        
-        # Calculate stability score
-        stability_score = max(0.0, 1.0 - error_penalty - mod_penalty)
-        
-        return stability_score
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error calculating stability score: {e}")
-        return 0.5  # Default to moderate stability
+        self.modification_history.append(record)
+        if len(self.modification_history) > self.max_history:
+            self.modification_history = self.modification_history[-self.max_history:]
 
-def cleanup_old_tracking_data(days: int = 7):
-    """Clean up old tracking data"""
-    try:
-        cutoff_time = datetime.now() - timedelta(days=days)
-        
-        # Clean file changes log
-        changes_file = Path("logs") / "file_changes.log"
-        if changes_file.exists():
-            temp_file = changes_file.with_suffix('.tmp')
-            
-            with open(changes_file, "r", encoding="utf-8") as infile, \
-                 open(temp_file, "w", encoding="utf-8") as outfile:
-                
-                for line in infile:
-                    try:
-                        entry = json.loads(line.strip())
-                        entry_time = datetime.fromisoformat(entry.get("timestamp", ""))
-                        if entry_time > cutoff_time:
-                            outfile.write(line)
-                    except json.JSONDecodeError:
-                        continue
-            
-            temp_file.replace(changes_file)
-            log_info("model_awareness", f"Cleaned up tracking data older than {days} days")
-    
-    except Exception as e:
-        log_error("model_awareness", f"Error cleaning up tracking data: {e}")
+        self.logger.log_file_operation("model_awareness", f"Recorded modification: {modification_type}",
+                                     file_path, modification_type)
 
-# Initialize tracking on import
-def initialize_model_awareness():
-    """Initialize the model awareness system"""
-    try:
-        # Create logs directory
-        Path("logs").mkdir(exist_ok=True)
-        
-        # Log initialization
-        log_info("model_awareness", "Model awareness system initialized")
-        
-        # Clean up old data
-        cleanup_old_tracking_data()
-        
-    except Exception as e:
-        log_error("model_awareness", f"Error initializing model awareness: {e}")
+        # Update context cache
+        if record['file_path'] in self.file_contexts:
+            del self.file_contexts[record['file_path']]
+        self._save_cache()
 
-# Initialize on import
-initialize_model_awareness()
+    def get_system_status(self) -> Dict[str, Any]:
+        """Get overall system status"""
+        total_files = len(self.file_contexts)
+        critical_files_modified = 0
+        recent_modifications = 0
+
+        now = datetime.now()
+        for context in self.file_contexts.values():
+            file_name = Path(context.file_path).name
+            if file_name in self.critical_files:
+                hours_since_modified = (now - context.last_modified).total_seconds() / 3600
+                if hours_since_modified < 24:
+                    critical_files_modified += 1
+
+            if context.recent_changes:
+                recent_modifications += len(context.recent_changes)
+
+        return {
+            'total_files_analyzed': total_files,
+            'critical_files_modified_recently': critical_files_modified,
+            'recent_modifications': recent_modifications,
+            'active_models': list(self.active_models),
+            'system_stability': 'stable' if critical_files_modified == 0 else 'caution'
+        }
+
+    def cleanup_old_contexts(self, days: int = 7) -> None:
+        """Clean up old file contexts"""
+        cutoff = datetime.now() - timedelta(days=days)
+        to_remove = []
+
+        for path, context in self.file_contexts.items():
+            if context.last_modified < cutoff:
+                to_remove.append(path)
+
+        for path in to_remove:
+            del self.file_contexts[path]
+
+        if to_remove:
+            self._save_cache()
+            self.logger.log_info("model_awareness", f"Cleaned up {len(to_remove)} old contexts")
+
+# Global instance
+_model_awareness_instance: Optional[ModelAwareness] = None
+
+def get_model_awareness() -> ModelAwareness:
+    """Get or create global model awareness instance"""
+    global _model_awareness_instance
+    if _model_awareness_instance is None:
+        _model_awareness_instance = ModelAwareness()
+    return _model_awareness_instance
+
+# Convenience functions
+def should_modify_file(file_path: str, modification_type: str, ai_model: str) -> Tuple[bool, str, FileContext]:
+    """Check if a file should be modified"""
+    awareness = get_model_awareness()
+    return awareness.should_modify_file(file_path, modification_type, ai_model)
+
+def check_file_context(file_path: str) -> FileContext:
+    """Get file context"""
+    awareness = get_model_awareness()
+    return awareness.check_file_context(file_path)
+
+def record_modification(file_path: str, modification_type: str, ai_model: str, success: bool = True) -> None:
+    """Record a file modification"""
+    awareness = get_model_awareness()
+    awareness.record_modification(file_path, modification_type, ai_model, success)

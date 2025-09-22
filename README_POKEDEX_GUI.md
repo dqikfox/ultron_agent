@@ -1,8 +1,14 @@
-# ULTRON Agent 3.0 - Pokedex Interface
+# ULTRON Agent 3.0 - PRIMARY GUI Interface
+
+## ⚠️ IMPORTANT NOTICE
+
+**PRIMARY GUI**: `gui/ultron_enhanced/web/index.html` - This is the ONLY active GUI interface.
+
+**DEPRECATED**: `pokedex_ultron_gui.py` and all other Python GUI files are deprecated. Use the web-based interface only.
 
 ## Overview
 
-The Pokedex ULTRON GUI combines the iconic Pokedex aesthetic with full ULTRON Agent functionality, providing an accessible and visually appealing interface for interacting with the AI assistant.
+The ULTRON Enhanced GUI provides a modern web-based Pokédex-style interface for the ULTRON Agent system, offering complete access to all AI features through an intuitive, accessible design.
 
 ## Features
 

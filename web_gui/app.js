@@ -31,13 +31,10 @@ class UltronPokedexInterface {
         this.loadConfiguration();
         this.connectWebSocket();
         this.startSystemMonitoring();
-        this.showLoadingScreen();
 
-        // Simulate loading and then show main interface
-        setTimeout(() => {
-            this.hideLoadingScreen();
-            this.checkSystemStatus();
-        }, 3000);
+        // Skip loading screen and show main interface immediately
+        this.hideLoadingScreen();
+        this.checkSystemStatus();
     }
 
     connectWebSocket() {
@@ -426,30 +423,7 @@ class UltronPokedexInterface {
         } catch (error) {
             this.addSystemMessage(`❌ Failed to get system status: ${error.message}`);
         }
-            this.addSystemMessage(`Network: ${this.systemStats.network}`);
-            return;
-        }
-
-        if (lowerCommand.startsWith('theme ')) {
-            const theme = lowerCommand.split(' ')[1];
-            if (theme === 'red' || theme === 'blue') {
-                this.changeTheme(theme);
-                this.addSystemMessage(`Theme changed to ${theme}`);
-            } else {
-                this.addErrorMessage('Invalid theme. Use \"red\" or \"blue\"');
-            }
-            return;
-        }
-
-        if (lowerCommand === 'capture') {
-            this.captureScreen();
-            return;
-        }
-
-        if (lowerCommand === 'analyze') {
-            this.analyzeVision();
-            return;
-        }
+    }
 
     updateSystemStats(stats) {
         if (!stats) return;

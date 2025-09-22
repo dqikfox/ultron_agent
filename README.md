@@ -7,7 +7,7 @@ Ultron Agent 3.0 is a sophisticated AI agent platform that combines autonomous w
 ## 🌟 Key Features
 
 - **Agent-Based Workflow Engine**: Event-driven task orchestration with intelligent planning
-- **Sandboxed Code Interpreter**: Secure Python execution environment with safety measures  
+- **Sandboxed Code Interpreter**: Secure Python execution environment with safety measures
 - **Dual-Layer Memory System**: Short-term context and long-term knowledge management
 - **Multi-Modal Interfaces**: Voice, vision, GUI, CLI, and API access
 - **OpenAI-Compatible API**: Standard REST and WebSocket endpoints with function calling
@@ -20,7 +20,7 @@ Ultron Agent 3.0 is a sophisticated AI agent platform that combines autonomous w
 - **[📖 Major Components & Features](docs/major_components_and_features.md)** - Comprehensive technical documentation
 - **[🏗️ Project Overview](docs/project_overview.md)** - Architecture and system design
 - **[📋 Component Specifications](COMPONENT_SPECIFICATIONS.md)** - Detailed technical specifications
-- **[📂 Documentation Index](docs/README.md)** - Complete documentation guide
+- **[GUI Reference Guide](GUI_REFERENCE.md)** - Primary GUI interface and deprecated file information
 
 ## AI Tools Enabled
 
