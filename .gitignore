@@ -52,6 +52,11 @@ Oracle_JDK-24/
 ultron-agent-project/
 ultron_integration/
 resources/
+core/ultron-agent-command-center/release/
+*.snap
+*.AppImage
+*.zip
+*.exe
 
 # Test artifacts
 tests/__pycache__/
