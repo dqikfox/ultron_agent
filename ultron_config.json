@@ -45,6 +45,7 @@
   "langchain_max_tokens": 2000,
   "langchain_verbose": false,
   "elevenlabs_api_key": "USE_ENV_ELEVENLABS_APIKEY",
+  "anthropic_api_key": "USE_ENV_ANTHROPIC_API_KEY",
   "elevenlabs_agent_id": "e3mik6xHn4Sl51poljxK",
   "voice_cache_dir": "cache/voice",
   "mic_energy_threshold": 300,
