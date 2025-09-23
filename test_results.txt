@@ -1,0 +1,41 @@
+🚀 ULTRON Stable Diffusion Integration Test Suite
+============================================================
+
+🔬 Running: Stable Diffusion Tool
+----------------------------------------
+🧪 Testing Stable Diffusion Tool...
+❌ Stable Diffusion Tool test failed: No module named 'PIL'
+
+🔬 Running: Stable Diffusion GUI
+----------------------------------------
+🧪 Testing Stable Diffusion GUI...
+⚠️  tkinter not available - testing headless mode
+⚠️  tkinter not available - GUI features disabled
+⚠️  PIL not available - image processing disabled
+✅ StableDiffusionGUI class imported successfully
+✅ Mock GUI attributes: images_dir = /home/runner/work/ultron_agent/ultron_agent/generated_images
+📁 Image directory exists: True
+✅ Stable Diffusion GUI test completed!
+
+🔬 Running: Colab Notebook
+----------------------------------------
+🧪 Testing Colab Notebook...
+✅ Colab notebook found: /home/runner/work/ultron_agent/ultron_agent/stable_diffusion_colab.ipynb
+📊 Notebook size: 34.3 KB
+
+🔬 Running: GUI Integration
+----------------------------------------
+🧪 Testing GUI Integration...
+⚠️  tkinter not available - testing module imports only
+❌ GUI integration test failed: No module named 'tkinter'
+
+============================================================
+📊 TEST RESULTS SUMMARY
+============================================================
+❌ FAIL - Stable Diffusion Tool
+✅ PASS - Stable Diffusion GUI
+✅ PASS - Colab Notebook
+❌ FAIL - GUI Integration
+
+🎯 Results: 2/4 tests passed (50.0%)
+⚠️  Some tests failed. Check the output above for details.
