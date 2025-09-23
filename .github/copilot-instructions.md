@@ -1,4 +1,4 @@
-# Copilot Instructions for ULTRON Agent 3.0
+# ULTRON Agent 3.0 - AI Developer Instructions
 
 ## Project Architecture & Key Components
 

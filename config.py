@@ -187,7 +187,31 @@ class ConfigSchema:
                 "minimum": 1,
                 "maximum": 32768
             },
-            "langchain_verbose": {"type": "boolean"}
+            "langchain_verbose": {"type": "boolean"},
+
+            # API Keys
+            "anthropic_api_key": {"type": "string"},
+            "elevenlabs_api_key": {"type": "string"},
+            "elevenlabs_agent_id": {"type": "string"},
+            "gemini_api_key": {"type": "string"},
+            "google_api_key": {"type": "string"},
+            "mistral_api_key": {"type": "string"},
+            "nvidia_api_key": {"type": "string"},
+            "ollama_api_key": {"type": "string"},
+            "openai_api_key": {"type": "string"},
+            "groq_api_key": {"type": "string"},
+            "deepseek_api_key": {"type": "string"},
+            "together_api_key": {"type": "string"},
+            "paperspace_api_key": {"type": "string"},
+            "supabase_url": {"type": "string"},
+            "supabase_anon_key": {"type": "string"},
+            "supabase_service_role": {"type": "string"},
+            "jwt_secret": {"type": "string"},
+            "logflare_api": {"type": "string"},
+            "logflare_backend": {"type": "string"},
+            "postman_api": {"type": "string"},
+            "petshop_apikey": {"type": "string"},
+            "codegpt_api_key": {"type": "string"}
         },
         "additionalProperties": True  # Allow custom properties
     }
@@ -412,7 +436,7 @@ class Config:
             # API Keys - loaded from environment variables
             "api_keys": {
                 "openai": os.getenv("OPENAI_API_KEY", ""),
-                "anthropic": os.getenv("ANTHROPIC_APIKEY", ""),
+                "anthropic": os.getenv("ANTHROPIC_API_KEY", ""),
                 "elevenlabs": os.getenv("ELEVENLABS_API_KEY", ""),
                 "elevenlabs_agent_id": os.getenv("ELEVENLABS_AGENT_ID", ""),
                 "gemini": os.getenv("GEMINI_API_KEY", ""),
