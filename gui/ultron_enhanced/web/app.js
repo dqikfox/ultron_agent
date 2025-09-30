@@ -35,20 +35,76 @@ class UltronPokedexInterface {
            this.startAnimations();
            this.loadConfiguration();
            this.startSystemMonitoring();
-           // Immediately show main interface, skip loading screen
-           this.hideLoadingScreen();
+           // Wait for user interaction to start
+           this.setupStartButton();
+    }
+
+    setupStartButton() {
+        const startButton = document.getElementById('start-button');
+        if (startButton) {
+            startButton.addEventListener('click', () => {
+                const startScreen = document.getElementById('start-screen');
+                if (startScreen) {
+                    startScreen.classList.add('hidden');
+                }
+                this.hideLoadingScreen();
+                const audio = this.playStartupSound();
+                if (audio) {
+                    audio.play();
+                }
+            });
+        }
+    }
+
+    playStartupSound() {
+        const elevenlabsApiKey = 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed';
+        const voiceId = 'e3mik6xHn4Sl51poljxK';
+        const text = 'ultron is online';
+
+        const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+        const headers = {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': elevenlabsApiKey
+        };
+        const data = {
+            text: text,
+            model_id: 'eleven_monolingual_v1',
+            voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5
+            }
+        };
+
+        const audio = document.getElementById('startup-sound');
+        if (!audio) return null;
+
+        fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            audio.src = URL.createObjectURL(blob);
+        })
+        .catch(error => {
+            console.error('Error with ElevenLabs API: - app.js:92', error);
+        });
+
+        return audio;
     }
 
     // Helper method to make API calls with proper URL and logging
     async apiCall(endpoint, options = {}) {
         const url = `${this.API_BASE_URL}${endpoint}`;
-        console.log(`[API Call] ${url} - app.js:49`, options);
+        console.log(`[API Call] ${url} - app.js:101`, options);
         try {
             const response = await fetch(url, options);
-            console.log(`[API Response] ${url}  Status: ${response.status} - app.js:52`);
+            console.log(`[API Response] ${url}  Status: ${response.status} - app.js:104`);
             return response;
         } catch (error) {
-            console.error(`[API Error] ${url} - app.js:55`, error);
+            console.error(`[API Error] ${url} - app.js:107`, error);
             throw error;
         }
     }
@@ -464,13 +520,21 @@ class UltronPokedexInterface {
         if (consoleOutput) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type}-message`;
+            // Sanitize content to prevent XSS
+            const sanitizedContent = this.sanitizeHTML(content);
             messageDiv.innerHTML = `
                 <span class=\"timestamp\">[${timestamp}]</span>
-                <span class=\"message-content\">${content}</span>
+                <span class=\"message-content\">${sanitizedContent}</span>
             `;
             consoleOutput.appendChild(messageDiv);
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
+    }
+
+    sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
     clearConsole() {
@@ -595,11 +659,17 @@ class UltronPokedexInterface {
                 // Switch to vision section to show result
                 this.switchSection('vision');
 
-                // Update vision display
+                // Update vision display with screenshot and OCR text
                 const visionDisplay = document.getElementById('vision-display');
                 if (visionDisplay && data.image_path) {
                     visionDisplay.innerHTML = `
-                        <img src=\"${data.image_path}\" alt=\"Screen Capture\" style=\"max-width: 100%; border-radius: 8px;\">
+                        <div class="vision-result">
+                            <img src="${data.image_path}" alt="Screen Capture" style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+                            <div class="ocr-text" style="background: rgba(0,0,0,0.8); padding: 1rem; border-radius: 8px; color: #00ff41; font-family: monospace; white-space: pre-wrap;">
+                                <h4>OCR Text:</h4>
+                                <p>${data.ocr_text || 'No text detected'}</p>
+                            </div>
+                        </div>
                     `;
                 }
             } else {
@@ -621,7 +691,7 @@ class UltronPokedexInterface {
                 this.updateStatsDisplay();
             }
         } catch (error) {
-            console.error('Failed to update system stats:', error);
+            console.error('Failed to update system stats: - app.js:694', error);
         }
     }
 
@@ -738,23 +808,31 @@ class UltronPokedexInterface {
                 this.addSystemMessage('📊 Dashboard updated with latest system information');
             }
         } catch (error) {
-            console.error('Failed to load system info:', error);
+            console.error('Failed to load system info: - app.js:811', error);
             this.addErrorMessage('Failed to load dashboard information');
         }
     }
 
-    loadFileSystem() {
+    async loadFileSystem() {
         const fileList = document.getElementById('file-list');
         if (fileList) {
-            fileList.innerHTML = `
-                <div class="file-item">📁 core/</div>
-                <div class="file-item">📁 models/</div>
-                <div class="file-item">📁 assets/</div>
-                <div class="file-item">📁 logs/</div>
-                <div class="file-item">📄 config.json</div>
-                <div class="file-item">📄 ultron_main.py</div>
-                <div class="file-item">📄 README.md</div>
-            `;
+            try {
+                const response = await this.apiCall('/api/files');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.files) {
+                        fileList.innerHTML = data.files.map(file => `
+                            <div class="file-item">${file.is_dir ? '📁' : '📄'} ${file.name}</div>
+                        `).join('');
+                    } else {
+                        fileList.innerHTML = '<div class="file-item">Error loading files</div>';
+                    }
+                } else {
+                    fileList.innerHTML = '<div class="file-item">Error loading files</div>';
+                }
+            } catch (error) {
+                fileList.innerHTML = '<div class="file-item">Error loading files</div>';
+            }
         }
     }
 
@@ -1022,11 +1100,18 @@ class UltronPokedexInterface {
         this.showTypingIndicator();
 
         try {
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 130000); // 130 seconds (10s more than server)
+
             const response = await this.apiCall('/api/llm/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message })
+                body: JSON.stringify({ message: message }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             // Hide typing indicator
             this.hideTypingIndicator();
@@ -1034,12 +1119,24 @@ class UltronPokedexInterface {
             if (response.ok) {
                 const data = await response.json();
                 this.addChatMessage('system', data.response || 'No response', 'ULTRON AI');
+                if (data.audio_data) {
+                    const audioData = new Uint8Array(data.audio_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                    const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+                }
             } else {
                 this.addChatMessage('error', 'Failed to get response from AI', 'System');
             }
         } catch (error) {
             this.hideTypingIndicator();
-            this.addChatMessage('error', 'Error communicating with AI: ' + error.message, 'System');
+
+            if (error.name === 'AbortError') {
+                this.addChatMessage('error', 'Request timed out. The AI model is taking too long to respond. Try again or switch to a faster model.', 'System');
+            } else {
+                this.addChatMessage('error', 'Error communicating with AI: ' + error.message, 'System');
+            }
         }
     }
 
@@ -1133,7 +1230,7 @@ class UltronPokedexInterface {
             const inputElement = document.getElementById('chat-input');
             if (inputElement) {
                 inputElement.value = transcript;
-                this.addChatMessage('system', `Voice input: "${transcript}"`, 'System');
+                this.sendChatMessage();
             }
         };
 
@@ -1655,7 +1752,7 @@ class UltronPokedexInterface {
             this.updateLEDLabelsText(systemStatus, voiceStatus, aiStatus);
 
         } catch (error) {
-            console.error('Failed to update LED status:', error);
+            console.error('Failed to update LED status: - app.js:1755', error);
             // Set all LEDs to error state on failure
             this.setLEDLight('main-led', 'error');
             this.setLEDLight('led-1', 'error');
@@ -1673,7 +1770,7 @@ class UltronPokedexInterface {
                        data.overall_status === 'degraded' ? 'loading' : 'error';
             }
         } catch (error) {
-            console.error('System status check failed:', error);
+            console.error('System status check failed: - app.js:1773', error);
         }
         return 'error';
     }
@@ -1694,7 +1791,7 @@ class UltronPokedexInterface {
                 return 'error';
             }
         } catch (error) {
-            console.error('Voice status check failed:', error);
+            console.error('Voice status check failed: - app.js:1794', error);
         }
         return 'error';
     }
@@ -1713,7 +1810,7 @@ class UltronPokedexInterface {
                 return 'error';
             }
         } catch (error) {
-            console.error('AI status check failed:', error);
+            console.error('AI status check failed: - app.js:1813', error);
         }
         return 'error';
     }
@@ -1894,10 +1991,10 @@ class UltronPokedexInterface {
             const audio = document.getElementById(`audio-${soundName}`);
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(e => console.log('Audio play failed: - app.js:759', e));
+                audio.play().catch(e => console.log('Audio play failed: - app.js:1994', e));
             }
         } catch (error) {
-            console.log('Sound play error: - app.js:762', error);
+            console.log('Sound play error: - app.js:1997', error);
         }
     }
 
@@ -1915,7 +2012,7 @@ class UltronPokedexInterface {
 
 // Initialize the interface when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:780');
+    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:2015');
     window.ultronInterface = new UltronPokedexInterface();
 });
 
