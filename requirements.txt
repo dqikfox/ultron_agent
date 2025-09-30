@@ -1,27 +1,19 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-socketio==5.10.0
-openai==1.3.7
-websockets==12.0
-python-multipart==0.0.6
-jinja2==3.1.2
-
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-socketio==5.10.0
-openai==1.3.7
+openai==1.32.0
 websockets==12.0
 python-multipart==0.0.6
 jinja2==3.1.2
 
 # AutoGen Studio Integration - Updated versions
 autogenstudio==0.1.5
-autogen-agentchat==0.4.9
-pyautogen==0.2.25
+autogen-agentchat==0.5.0
+pyautogen==0.2.26
 
 # Additional dependencies for AutoGen Studio
 docker==7.0.0
-streamlit==1.29.0
+streamlit==1.32.0
 plotly==5.17.0
 pandas==2.1.4
 numpy==1.26.2
@@ -30,7 +22,7 @@ numpy==1.26.2
 transformers==4.36.2
 torch==2.1.2
 torchvision==0.16.2
-Pillow==10.1.0
+Pillow
 requests==2.31.0
 
 # Langflow and Langchain Integration
@@ -41,10 +33,15 @@ langchain-core==0.2.43
 langchain-experimental==0.0.60
 langchain-openai==0.1.17
 langchain-text-splitters==0.2.0
-langserve==0.1.1
+langserve==0.2.0
 
 # Enhanced Voice Features
 elevenlabs==1.2.0
 pygame==2.5.2
 pyttsx3==2.90
 SpeechRecognition==3.10.0
+
+# Web Server Dependencies
+aiohttp==3.9.0
+psutil==5.9.6
+pynvml==11.5.0

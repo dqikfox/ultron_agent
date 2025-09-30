@@ -24,7 +24,7 @@ try:
     AGENT_AVAILABLE = True
 except ImportError:
     AGENT_AVAILABLE = False
-    logging.warning("Agent core not available")
+    logging.warning("Agent core not available - web_gui_server.py:27")
 
 class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     """Custom handler for ULTRON web interface"""
@@ -35,7 +35,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         """Handle GET requests"""
-        logging.info(f"📡 GET request: {self.path}")
+        logging.info(f"GET request: {self.path} - web_gui_server.py:38")
 
         if self.path.startswith('/api/'):
             self._handle_api_get()
@@ -47,7 +47,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         """Handle POST requests"""
-        logging.info(f"📡 POST request: {self.path}")
+        logging.info(f"POST request: {self.path} - web_gui_server.py:50")
 
         if self.path.startswith('/api/'):
             self._handle_api_post()
@@ -63,11 +63,21 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json_response(self._get_agent_info())
             elif self.path == '/api/tools':
                 self._send_json_response(self._get_tools_list())
+            elif self.path == '/api/llm/status':
+                self._send_json_response(self._get_llm_status())
+            elif self.path == '/api/llm/models':
+                self._send_json_response(self._get_llm_models())
+            elif self.path == '/api/voice/status':
+                self._send_json_response(self._get_voice_status())
+            elif self.path == '/api/brain/status':
+                self._send_json_response(self._get_brain_status())
+            elif self.path == '/api/files':
+                self._send_json_response(self._get_files_list())
             else:
                 self.send_error(404, "API endpoint not found")
 
         except Exception as e:
-            logging.error(f"API GET error: {e}")
+            logging.error(f"API GET error: {e} - web_gui_server.py:80")
             self.send_error(500, str(e))
 
     def _handle_api_post(self):
@@ -83,11 +93,20 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             elif self.path == '/api/voice/toggle':
                 response = self._toggle_voice()
                 self._send_json_response(response)
+            elif self.path == '/api/llm/chat':
+                response = self._handle_llm_chat(data.get('message', ''))
+                self._send_json_response(response)
+            elif self.path == '/api/llm/switch-model':
+                response = self._switch_llm_model(data.get('model', ''))
+                self._send_json_response(response)
+            elif self.path == '/api/vision/capture':
+                response = self._capture_screen()
+                self._send_json_response(response)
             else:
                 self.send_error(404, "API endpoint not found")
 
         except Exception as e:
-            logging.error(f"API POST error: {e}")
+            logging.error(f"API POST error: {e} - web_gui_server.py:109")
             self.send_error(500, str(e))
 
     def _send_json_response(self, data):
@@ -187,7 +206,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 return "❌ Agent command processing not available"
 
         except Exception as e:
-            logging.error(f"Command processing error: {e}")
+            logging.error(f"Command processing error: {e} - web_gui_server.py:209")
             return f"❌ Error: {str(e)}"
 
     def _toggle_voice(self):
@@ -195,9 +214,194 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         # This would integrate with voice system
         return {'status': 'not_implemented', 'message': 'Voice toggle not yet implemented'}
 
+    def _get_llm_status(self):
+        """Get LLM status from Ollama"""
+        try:
+            import requests
+
+            # Check if Ollama is running
+            import aiohttp
+            import asyncio
+
+            async def check_ollama():
+                ollama_url = "http://localhost:11434"
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(f"{ollama_url}/api/tags", timeout=aiohttp.ClientTimeout(total=5)) as response:
+                            if response.status == 200:
+                                data = await response.json()
+                                models = data.get('models', [])
+                                if models:
+                                    current_model = models[0]['name']
+                                    return {
+                                        'model': current_model,
+                                        'status': 'online',
+                                        'available_models': [m['name'] for m in models]
+                                    }
+                                else:
+                                    return {'model': 'No models', 'status': 'offline'}
+                            else:
+                                return {'model': 'Connection failed', 'status': 'offline'}
+                except:
+                    return {'model': 'Ollama offline', 'status': 'offline'}
+
+            try:
+                return asyncio.run(check_ollama())
+            except:
+                return {'model': 'Ollama offline', 'status': 'offline'}
+
+        except ImportError:
+            return {'model': 'Requests not available', 'status': 'offline'}
+
+    def _get_llm_models(self):
+        """Get available LLM models from Ollama"""
+        try:
+            import requests
+            ollama_url = "http://localhost:11434"
+            response = requests.get(f"{ollama_url}/api/tags", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                models = data.get('models', [])
+                return {
+                    'models': [
+                        {
+                            'name': model['name'],
+                            'size': model.get('size', 'Unknown'),
+                            'modified': model.get('modified_at', 'Unknown')
+                        }
+                        for model in models
+                    ]
+                }
+            else:
+                return {'models': [], 'error': 'Failed to fetch models'}
+        except Exception as e:
+            return {'models': [], 'error': f'Connection error: {str(e)}'}
+
+    def _get_voice_status(self):
+        """Get voice system status"""
+        return {
+            'status': 'available',
+            'input_enabled': True,
+            'output_enabled': True,
+            'provider': 'system_default'
+        }
+
+    def _get_brain_status(self):
+        """Get brain/AI system status"""
+        return {
+            'status': 'online',
+            'model': 'mistral-nemo:12b',
+            'capabilities': ['chat', 'reasoning', 'code'],
+            'ready': True
+        }
+
+    def _get_files_list(self):
+        """Get list of files in the project root"""
+        try:
+            root_dir = Path(__file__).parent
+            files = []
+            for item in os.listdir(root_dir):
+                item_path = root_dir / item
+                files.append({
+                    'name': item,
+                    'is_dir': item_path.is_dir()
+                })
+            return {'files': files}
+        except Exception as e:
+            return {'error': str(e)}
+
+    def _handle_llm_chat(self, message: str):
+        """Handle LLM chat message"""
+        try:
+            import requests
+
+            if not message.strip():
+                return {'error': 'Empty message'}
+
+            ollama_url = "http://localhost:11434"
+
+            import aiohttp
+            import asyncio
+
+            async def chat_with_ollama():
+                ollama_url = "http://localhost:11434"
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        # Get available models
+                        async with session.get(f"{ollama_url}/api/tags", timeout=aiohttp.ClientTimeout(total=10)) as models_response:
+                            if models_response.status != 200:
+                                return {'error': 'Cannot connect to Ollama'}
+
+                            models_data = await models_response.json()
+                            models = models_data.get('models', [])
+                            if not models:
+                                return {'error': 'No models available'}
+
+                            current_model = models[0]['name']
+
+                        # Send chat message
+                        chat_data = {
+                            "model": current_model,
+                            "messages": [
+                                {
+                                    "role": "user",
+                                    "content": message
+                                }
+                            ],
+                            "stream": False
+                        }
+
+                        async with session.post(
+                            f"{ollama_url}/api/chat",
+                            json=chat_data,
+                            timeout=aiohttp.ClientTimeout(total=120)
+                        ) as response:
+                            if response.status == 200:
+                                result = await response.json()
+                                ai_response = result.get('message', {}).get('content', 'No response')
+                                return {'response': ai_response, 'model': current_model}
+                            else:
+                                return {'error': f'Ollama error: {response.status}'}
+
+                except asyncio.TimeoutError:
+                    return {'error': 'AI model took too long to respond. Try using a smaller/faster model.'}
+                except Exception as e:
+                    if 'timeout' in str(e).lower():
+                        return {'error': 'AI model response timed out. Consider using a faster model.'}
+                    return {'error': f'Request failed: {str(e)}'}
+
+            try:
+                return asyncio.run(chat_with_ollama())
+            except:
+                return {'error': 'Chat request failed'}
+
+        except ImportError:
+            return {'error': 'Required libraries not available'}
+
+    def _switch_llm_model(self, model_name: str):
+        """Switch LLM model (placeholder for now)"""
+        # For now, just return success - Ollama doesn't require explicit model switching
+        # The model is specified per request
+        return {'status': 'success', 'message': f'Model preference set to {model_name}'}
+
+    def _capture_screen(self):
+        """Capture screen and return image path"""
+        try:
+            if self.agent_ref and hasattr(self.agent_ref, 'vision') and self.agent_ref.vision is not None:
+                result = self.agent_ref.vision.capture_and_ocr()
+                return {
+                    'success': True,
+                    'image_path': result['screenshot_path'],
+                    'ocr_text': result['text']
+                }
+            else:
+                return {'success': False, 'error': 'Vision component not available'}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
     def log_message(self, format, *args):
         """Custom log format"""
-        logging.info(f"🌐 {format % args}")
+        logging.info(f"WEB {format % args} - web_gui_server.py:404")
 
 
 class UltronWebServer:
@@ -232,12 +436,12 @@ class UltronWebServer:
                 return UltronWebHandler(*args, agent_ref=self.agent_ref, **kwargs)
 
             # Create server
+            socketserver.TCPServer.allow_reuse_address = True
             self.server = socketserver.TCPServer(("", self.port), handler_factory)
-            self.server.allow_reuse_address = True
 
-            self.logger.info(f"🚀 ULTRON Web Server starting on port {self.port}")
-            self.logger.info(f"📂 Serving from: {web_dir}")
-            self.logger.info(f"🌐 Access GUI at: http://localhost:{self.port}")
+            self.logger.info(f"ULTRON Web Server starting on port {self.port}")
+            self.logger.info(f"Serving from: {web_dir}")
+            self.logger.info(f"Access GUI at: http://localhost:{self.port}")
 
             # Start server in background thread
             self.running = True
@@ -247,7 +451,7 @@ class UltronWebServer:
             # Open browser
             try:
                 webbrowser.open(f"http://localhost:{self.port}")
-                self.logger.info("🌍 Browser opened automatically")
+                self.logger.info("Browser opened automatically")
             except:
                 self.logger.warning("Could not open browser automatically")
 
@@ -289,39 +493,39 @@ class UltronWebServer:
 
 def main():
     """Main entry point for web GUI"""
-    print("ULTRON Agent 3.0 - Web GUI Server")
-    print("=" * 50)
+    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:496")
+    print("= - web_gui_server.py:497" * 50)
 
     # Initialize agent if available
     agent = None
     if AGENT_AVAILABLE:
         try:
-            print("Initializing ULTRON Agent...")
+            print("Initializing ULTRON Agent... - web_gui_server.py:503")
             agent = UltronAgent()
             # Use asyncio to properly initialize the agent
             asyncio.run(agent.initialize())
-            print(f"Agent initialized with status: {agent.status}")
+            print(f"Agent initialized with status: {agent.status} - web_gui_server.py:507")
         except Exception as e:
-            print(f"Agent initialization failed: {e}")
-            print("Starting web server without agent backend")
+            print(f"Agent initialization failed: {e} - web_gui_server.py:509")
+            print("Starting web server without agent backend - web_gui_server.py:510")
     else:
-        print("Starting web server in standalone mode")
+        print("Starting web server in standalone mode - web_gui_server.py:512")
 
     # Create and start web server
     server = UltronWebServer(agent_ref=agent, port=8080)
 
     if server.start_server():
-        print("\nULTRON Web GUI is now running!")
-        print(f"Open your browser to: http://localhost:8080")
-        print("Press Ctrl+C to stop")
+        print("\nULTRON Web GUI is now running! - web_gui_server.py:518")
+        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:519")
+        print("Press Ctrl+C to stop - web_gui_server.py:520")
 
         try:
             server.wait_for_shutdown()
         except KeyboardInterrupt:
-            print("\nShutting down...")
+            print("\nShutting down... - web_gui_server.py:525")
             server.stop_server()
     else:
-        print("Failed to start web server")
+        print("Failed to start web server - web_gui_server.py:528")
         return 1
 
     return 0

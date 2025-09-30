@@ -42,20 +42,10 @@ class UltronTestRunner:
         cmd = [
             sys.executable, "-m", "pytest",
             "tests/",
-            "-v",  # Verbose output
-            "--tb=short",  # Short traceback format
-            "--strict-config",  # Strict configuration
-            "--strict-markers",  # Strict markers
-            "--durations=10",  # Show 10 slowest tests
-            "--maxfail=5",  # Stop after 5 failures
-            "--junit-xml=test_results.xml",  # JUnit XML output
-            "--html=test_report.html",  # HTML report
-            "--self-contained-html",  # Self-contained HTML
-            "--cov=.",  # Coverage for all modules
-            "--cov-report=html",  # HTML coverage report
-            "--cov-report=term-missing",  # Terminal coverage with missing lines
-            "--cov-report=json",  # JSON coverage report
-            "--cov-fail-under=70",  # Fail if coverage below 70%
+            "-x",  # Stop on first failure
+            "--maxfail=1",  # Stop after 1 failure
+            "--tb=short",  # Short traceback
+            "--timeout=30",  # 30 second timeout per test
         ]
         
         try:

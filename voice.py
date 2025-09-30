@@ -17,7 +17,7 @@ try:
     ELEVENLABS_AVAILABLE = True
 except ImportError:
     ELEVENLABS_AVAILABLE = False
-    print("Warning: ElevenLabs not available")
+    print("Warning: ElevenLabs not available - voice.py:20")
 
 try:
     from tools.audio_manager import AudioManager
@@ -58,7 +58,7 @@ class VoiceAssistant:
         self.tts_engine = None
         self.elevenlabs_voices = None
         self.audio_manager = AudioManager()
-        self.cache_dir = Path(config.data.get("voice_cache_dir", "cache/voice"))
+        self.cache_dir = Path(config.get("voice_cache_dir", "cache/voice"))
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize event system and performance monitor
@@ -66,14 +66,14 @@ class VoiceAssistant:
         self.performance_monitor = PerformanceMonitor() if PERFORMANCE_MONITOR_AVAILABLE else None
 
         # Voice settings
-        self.voice_rate = config.data.get("voice_rate", 150)
-        self.voice_volume = config.data.get("voice_volume", 0.9)
-        self.voice_stability = config.data.get("voice_stability", 0.5)
-        self.voice_similarity = config.data.get("voice_similarity", 0.75)
-        self.preferred_voice_id = config.data.get("elevenlabs_agent_id")
+        self.voice_rate = config.get("voice_rate", 150)
+        self.voice_volume = config.get("voice_volume", 0.9)
+        self.voice_stability = config.get("voice_stability", 0.5)
+        self.voice_similarity = config.get("voice_similarity", 0.75)
+        self.preferred_voice_id = config.get("elevenlabs_agent_id")
 
         # Initialize with visual feedback
-        print("🔄 Initializing Voice Assistant...")
+        print("🔄 Initializing Voice Assistant... - voice.py:76")
         self._show_progress("Loading cache directory", 10)
 
         # Initialize voice systems
@@ -82,7 +82,7 @@ class VoiceAssistant:
 
         # Set microphone energy threshold for better recognition
         if hasattr(self.recognizer, "energy_threshold"):
-            threshold = config.data.get("mic_energy_threshold", 300)
+            threshold = config.get("mic_energy_threshold", 300)
             self.recognizer.energy_threshold = threshold
             self.recognizer.dynamic_energy_threshold = True
             self.recognizer.pause_threshold = 0.8
@@ -96,9 +96,9 @@ class VoiceAssistant:
             bar_length = 30
             filled_length = int(bar_length * percent // 100)
             bar = '█' * filled_length + '-' * (bar_length - filled_length)
-            print(f"\r{message} [{bar}] {percent}%", end='', flush=True)
+            print(f"\r{message} [{bar}] {percent}% - voice.py:99", end='', flush=True)
         else:
-            print(f"\r{message}", end='', flush=True)
+            print(f"\r{message} - voice.py:101", end='', flush=True)
         time.sleep(0.1)  # Brief pause for visual effect
 
     def _init_elevenlabs(self):
@@ -107,7 +107,7 @@ class VoiceAssistant:
         elevenlabs_api_key = os.getenv('ELEVENLABS_APIKEY')
         if not elevenlabs_api_key:
             # Fallback to config file
-            elevenlabs_api_key = self.config.data.get("elevenlabs_api_key")
+            elevenlabs_api_key = self.config.get("elevenlabs_api_key")
 
         if not elevenlabs_api_key:
             self._show_progress(
@@ -124,7 +124,7 @@ class VoiceAssistant:
         elevenlabs_agent_id = os.getenv('ELEVENLABS_AGENT_ID')
         if not elevenlabs_agent_id:
             # Fallback to config file
-            elevenlabs_agent_id = self.config.data.get("elevenlabs_agent_id")
+            elevenlabs_agent_id = self.config.get("elevenlabs_agent_id")
 
         if elevenlabs_agent_id:
             self.preferred_voice_id = elevenlabs_agent_id
@@ -180,7 +180,7 @@ class VoiceAssistant:
                         logger.info(
                             f"Using default voice: {self.preferred_voice_id}")
 
-            print("\n✅ ElevenLabs connected successfully")
+            print("\n✅ ElevenLabs connected successfully - voice.py:183")
             logger.info(
                 f"ElevenLabs initialized successfully with "
                 f"{len(self.elevenlabs_voices)} voices available")
@@ -213,7 +213,7 @@ class VoiceAssistant:
                 self.tts_engine.setProperty('voice', voices[0].id)
                 logger.info(f"Using pyttsx3 voice: {voices[0].name}")
 
-            print("✅ Fallback TTS engine ready")
+            print("✅ Fallback TTS engine ready - voice.py:216")
             logger.info("pyttsx3 TTS initialized as fallback")
         except Exception as e:
             self._show_progress("❌ pyttsx3 initialization failed", 65)
@@ -291,11 +291,11 @@ class VoiceAssistant:
         engine_used = "unknown"
 
         try:
-            # Clean text to improve speech quality
+        # Clean text to improve speech quality
             cleaned_text = self._clean_speech_text(text)
 
             # Check cache first if not disabled
-            if not self.config.data.get("disable_tts_cache", False):
+            if not self.config.get("disable_tts_cache", False):
                 cache_path = self._get_cache_path(cleaned_text)
                 if cache_path.exists():
                     try:
@@ -335,7 +335,7 @@ class VoiceAssistant:
                     )
 
                     # Cache the audio if caching is enabled
-                    if not self.config.data.get("disable_tts_cache", False):
+                    if not self.config.get("disable_tts_cache", False):
                         try:
                             cache_path.write_bytes(audio)
                         except Exception as e:
@@ -432,7 +432,7 @@ class VoiceAssistant:
         """Listen for speech input and return transcribed text"""
         try:
             # Get microphone device index from config
-            device_index = self.config.data.get("microphone_device_index")
+            device_index = self.config.get("microphone_device_index")
 
             # Initialize microphone properly
             if device_index is not None:
@@ -564,7 +564,7 @@ class VoiceAssistant:
                     })
 
         # Fallback to local speech recognition
-        device_index = self.config.data.get("microphone_device_index")
+        device_index = self.config.get("microphone_device_index")
 
         try:
             # Initialize microphone properly
@@ -766,7 +766,7 @@ class VoiceAssistant:
                 self.recognizer.adjust_for_ambient_noise(source, duration=0.1)
 
             # Update config
-            self.config.data["microphone_device_index"] = device_index
+            self.config["microphone_device_index"] = device_index
             logger.info(f"Set microphone to device index: {device_index}")
             return True
         except Exception as e:
@@ -812,7 +812,7 @@ class VoiceAssistant:
 
         # Check microphone access
         try:
-            device_index = self.config.data.get("microphone_device_index")
+            device_index = self.config.get("microphone_device_index")
             with sr.Microphone(device_index=device_index) as source:
                 self.recognizer.adjust_for_ambient_noise(source, duration=0.1)
                 health["microphone"] = True
@@ -898,6 +898,5 @@ class VoiceAssistant:
 
 def text_fallback_tts(text):
     """Fallback text output when voice synthesis fails."""
-    print(f"[Voice]: {text} - voice.py:499")
+    print(f"[Voice]: {text} - voice.py:901")
     logger.warning(f"Voice output failed, using text fallback: {text[:50]}...")
-
