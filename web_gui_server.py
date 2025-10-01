@@ -28,6 +28,9 @@ except ImportError:
 
 class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     """Custom handler for ULTRON web interface"""
+    
+    # Class variable to store current model preference
+    current_model_preference = 'qwen3-coder:480b-cloud'
 
     def __init__(self, *args, agent_ref=None, **kwargs):
         self.agent_ref = agent_ref
@@ -35,7 +38,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         """Handle GET requests"""
-        logging.info(f"GET request: {self.path} - web_gui_server.py:38")
+        logging.info(f"GET request: {self.path} - web_gui_server.py:41")
 
         if self.path.startswith('/api/'):
             self._handle_api_get()
@@ -47,7 +50,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         """Handle POST requests"""
-        logging.info(f"POST request: {self.path} - web_gui_server.py:50")
+        logging.info(f"POST request: {self.path} - web_gui_server.py:53")
 
         if self.path.startswith('/api/'):
             self._handle_api_post()
@@ -77,7 +80,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(404, "API endpoint not found")
 
         except Exception as e:
-            logging.error(f"API GET error: {e} - web_gui_server.py:80")
+            logging.error(f"API GET error: {e} - web_gui_server.py:83")
             self.send_error(500, str(e))
 
     def _handle_api_post(self):
@@ -106,7 +109,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(404, "API endpoint not found")
 
         except Exception as e:
-            logging.error(f"API POST error: {e} - web_gui_server.py:109")
+            logging.error(f"API POST error: {e} - web_gui_server.py:112")
             self.send_error(500, str(e))
 
     def _send_json_response(self, data):
@@ -206,7 +209,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 return "❌ Agent command processing not available"
 
         except Exception as e:
-            logging.error(f"Command processing error: {e} - web_gui_server.py:209")
+            logging.error(f"Command processing error: {e} - web_gui_server.py:212")
             return f"❌ Error: {str(e)}"
 
     def _toggle_voice(self):
@@ -290,7 +293,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         """Get brain/AI system status"""
         return {
             'status': 'online',
-            'model': 'mistral-nemo:12b',
+            'model': self.current_model_preference,
             'capabilities': ['chat', 'reasoning', 'code'],
             'ready': True
         }
@@ -337,7 +340,11 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                             if not models:
                                 return {'error': 'No models available'}
 
-                            current_model = models[0]['name']
+                            # Use stored model preference, fallback to first available model
+                            available_models = [model['name'] for model in models]
+                            current_model = self.current_model_preference
+                            if current_model not in available_models:
+                                current_model = available_models[0]
 
                         # Send chat message
                         chat_data = {
@@ -379,9 +386,9 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             return {'error': 'Required libraries not available'}
 
     def _switch_llm_model(self, model_name: str):
-        """Switch LLM model (placeholder for now)"""
-        # For now, just return success - Ollama doesn't require explicit model switching
-        # The model is specified per request
+        """Switch LLM model preference"""
+        # Store the model preference for future chat requests
+        UltronWebHandler.current_model_preference = model_name
         return {'status': 'success', 'message': f'Model preference set to {model_name}'}
 
     def _capture_screen(self):
@@ -401,7 +408,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def log_message(self, format, *args):
         """Custom log format"""
-        logging.info(f"WEB {format % args} - web_gui_server.py:404")
+        logging.info(f"WEB {format % args} - web_gui_server.py:411")
 
 
 class UltronWebServer:
@@ -493,39 +500,39 @@ class UltronWebServer:
 
 def main():
     """Main entry point for web GUI"""
-    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:496")
-    print("= - web_gui_server.py:497" * 50)
+    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:503")
+    print("= - web_gui_server.py:504" * 50)
 
     # Initialize agent if available
     agent = None
     if AGENT_AVAILABLE:
         try:
-            print("Initializing ULTRON Agent... - web_gui_server.py:503")
+            print("Initializing ULTRON Agent... - web_gui_server.py:510")
             agent = UltronAgent()
             # Use asyncio to properly initialize the agent
             asyncio.run(agent.initialize())
-            print(f"Agent initialized with status: {agent.status} - web_gui_server.py:507")
+            print(f"Agent initialized with status: {agent.status} - web_gui_server.py:514")
         except Exception as e:
-            print(f"Agent initialization failed: {e} - web_gui_server.py:509")
-            print("Starting web server without agent backend - web_gui_server.py:510")
+            print(f"Agent initialization failed: {e} - web_gui_server.py:516")
+            print("Starting web server without agent backend - web_gui_server.py:517")
     else:
-        print("Starting web server in standalone mode - web_gui_server.py:512")
+        print("Starting web server in standalone mode - web_gui_server.py:519")
 
     # Create and start web server
     server = UltronWebServer(agent_ref=agent, port=8080)
 
     if server.start_server():
-        print("\nULTRON Web GUI is now running! - web_gui_server.py:518")
-        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:519")
-        print("Press Ctrl+C to stop - web_gui_server.py:520")
+        print("\nULTRON Web GUI is now running! - web_gui_server.py:525")
+        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:526")
+        print("Press Ctrl+C to stop - web_gui_server.py:527")
 
         try:
             server.wait_for_shutdown()
         except KeyboardInterrupt:
-            print("\nShutting down... - web_gui_server.py:525")
+            print("\nShutting down... - web_gui_server.py:532")
             server.stop_server()
     else:
-        print("Failed to start web server - web_gui_server.py:528")
+        print("Failed to start web server - web_gui_server.py:535")
         return 1
 
     return 0
