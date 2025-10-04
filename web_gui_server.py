@@ -46,17 +46,17 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     # Class variable to store current model preference
     current_model_preference = 'qwen3-coder:480b-cloud'
-    
+
     # Class variable for voice assistant
     voice_assistant = None
 
     def __init__(self, *args, agent_ref=None, **kwargs):
         self.agent_ref = agent_ref
-        
+
         # Initialize voice assistant if not already done and if enabled
-        if (UltronWebHandler.voice_assistant is None and 
-            VOICE_AVAILABLE and 
-            config.get("use_voice", False) and 
+        if (UltronWebHandler.voice_assistant is None and
+            VOICE_AVAILABLE and
+            config.get("use_voice", False) and
             config.get("voice_enabled", False)):
             try:
                 UltronWebHandler.voice_assistant = VoiceAssistant(config)
@@ -64,7 +64,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 logging.warning(f"Failed to initialize voice assistant: {e}")
                 UltronWebHandler.voice_assistant = None
-        
+
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
@@ -327,7 +327,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         """Get voice system status"""
         voice_available = UltronWebHandler.voice_assistant is not None
         voice_config_enabled = config.get("use_voice", False) and config.get("voice_enabled", False)
-        
+
         return {
             'status': 'available' if voice_available else 'disabled',
             'input_enabled': voice_available and voice_config_enabled,
@@ -436,10 +436,10 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                                 ai_response = result.get('message', {}).get('content', 'No response')
                                 # Debug logging
                                 logging.info(f"Chat response from {current_model}: {ai_response[:100]}... - web_gui_server.py:374" if len(ai_response) > 100 else f"Chat response from {current_model}: {ai_response}")
-                                
+
                                 # Add TTS support - speak the AI response
-                                if (UltronWebHandler.voice_assistant and 
-                                    config.get("use_voice", False) and 
+                                if (UltronWebHandler.voice_assistant and
+                                    config.get("use_voice", False) and
                                     config.get("voice_enabled", False)):
                                     try:
                                         # Use threading to avoid blocking the response
@@ -448,13 +448,13 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                                                 UltronWebHandler.voice_assistant.speak(ai_response)
                                             except Exception as e:
                                                 logging.warning(f"TTS failed: {e}")
-                                        
+
                                         tts_thread = threading.Thread(target=speak_response, daemon=True)
                                         tts_thread.start()
                                         logging.info("TTS initiated for AI response")
                                     except Exception as e:
                                         logging.warning(f"Failed to start TTS: {e}")
-                                
+
                                 return {'response': ai_response, 'model': current_model, 'tts_enabled': UltronWebHandler.voice_assistant is not None}
                             else:
                                 return {'error': f'Ollama error: {response.status}'}

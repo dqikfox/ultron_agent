@@ -35,6 +35,8 @@ class UltronPokedexInterface {
            this.startAnimations();
            this.loadConfiguration();
            this.startSystemMonitoring();
+           // Initialize ElevenLabs widget integration
+           this.initializeElevenLabsWidget();
            // Wait for user interaction to start
            this.setupStartButton();
     }
@@ -89,16 +91,16 @@ class UltronPokedexInterface {
             audio.src = URL.createObjectURL(blob);
         })
         .catch(error => {
-            console.error('Error with ElevenLabs API: - app.js:92', error);
+            console.error('Error with ElevenLabs API: - app.js:94', error);
         });
 
         return audio;
     }
 
-    // Speak any text using ElevenLabs TTS
+    // Speak any text using ElevenLabs TTS (using the SAME method as startup sound)
     async speakText(text) {
         if (!text || !text.trim()) return;
-        
+
         const elevenlabsApiKey = 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed';
         const voiceId = 'e3mik6xHn4Sl51poljxK';
 
@@ -117,8 +119,17 @@ class UltronPokedexInterface {
             }
         };
 
+        console.log(`[TTS] Speaking: ${text.substring(0, 50)}... - app.js:122`);
+        console.log(`[TTS] API URL: ${url} - app.js:123`);
+        console.log(`[TTS] Voice ID: ${voiceId} - app.js:124`);
+        console.log(`[TTS] API Key (first 10 chars): ${elevenlabsApiKey.substring(0, 10)}... - app.js:125`);
+
+        // Show visual feedback that TTS is working
+        this.setLEDLight('led-3', 'active');
+        this.showTTSIndicator();
+
         try {
-            console.log(`[TTS] Speaking: ${text.substring(0, 50)}...`);
+            // Use the EXACT same method as playStartupSound()
             const response = await fetch(url, {
                 method: 'POST',
                 headers: headers,
@@ -127,27 +138,85 @@ class UltronPokedexInterface {
 
             if (response.ok) {
                 const audioBlob = await response.blob();
-                const audio = new Audio(URL.createObjectURL(audioBlob));
-                audio.play();
-                console.log('[TTS] Audio playback started');
+
+                // Create audio element and play it (same as startup sound)
+                const audio = new Audio();
+                audio.src = URL.createObjectURL(audioBlob);
+
+                // Set up audio event listeners
+                audio.onended = () => {
+                    console.log('[TTS] Audio playback finished - app.js:148');
+                    this.setLEDLight('led-3', 'inactive');
+                    this.hideTTSIndicator();
+                    URL.revokeObjectURL(audio.src); // Clean up
+                };
+
+                audio.onerror = (error) => {
+                    console.error('[TTS] Audio playback error: - app.js:155', error);
+                    this.setLEDLight('led-3', 'error');
+                    this.hideTTSIndicator();
+                    URL.revokeObjectURL(audio.src); // Clean up
+                };
+
+                // Play the audio
+                await audio.play();
+                console.log('[TTS] Audio playback started successfully - app.js:163');
+                return true;
             } else {
-                console.error('[TTS] ElevenLabs API error:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('[TTS] ElevenLabs API HTTP Error: - app.js:167', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    url: url,
+                    errorBody: errorText
+                });
+                this.setLEDLight('led-3', 'error');
+                this.hideTTSIndicator();
+                throw new Error(`ElevenLabs API error: ${response.status} - ${response.statusText}: ${errorText}`);
             }
         } catch (error) {
-            console.error('[TTS] Error speaking text:', error);
+            console.error('[TTS] Complete error details: - app.js:178', {
+                message: error.message,
+                name: error.name,
+                stack: error.stack,
+                url: url,
+                text: text
+            });
+            this.setLEDLight('led-3', 'error');
+            this.hideTTSIndicator();
+            throw error;
+        }
+    }
+
+    showTTSIndicator() {
+        // Add visual indicator that TTS is active
+        const indicator = document.createElement('div');
+        indicator.id = 'tts-indicator';
+        indicator.className = 'tts-indicator';
+        indicator.innerHTML = '🔊 Speaking...';
+
+        // Add to current section or main container
+        const activeSection = document.querySelector('.section-content:not(.hidden)') || document.body;
+        activeSection.appendChild(indicator);
+    }
+
+    hideTTSIndicator() {
+        const indicator = document.getElementById('tts-indicator');
+        if (indicator) {
+            indicator.remove();
         }
     }
 
     // Helper method to make API calls with proper URL and logging
     async apiCall(endpoint, options = {}) {
         const url = `${this.API_BASE_URL}${endpoint}`;
-        console.log(`[API Call] ${url} - app.js:101`, options);
+        console.log(`[API Call] ${url} - app.js:213`, options);
         try {
             const response = await fetch(url, options);
-            console.log(`[API Response] ${url}  Status: ${response.status} - app.js:104`);
+            console.log(`[API Response] ${url}  Status: ${response.status} - app.js:216`);
             return response;
         } catch (error) {
-            console.error(`[API Error] ${url} - app.js:107`, error);
+            console.error(`[API Error] ${url} - app.js:219`, error);
             throw error;
         }
     }
@@ -195,6 +264,9 @@ class UltronPokedexInterface {
     }
 
     setupEventListeners() {
+        console.log('📋 Setting up event listeners  DOM ready state: - app.js:267', document.readyState);
+        console.log('📋 Total elements in DOM: - app.js:268', document.querySelectorAll('*').length);
+
         // Navigation buttons
         document.querySelectorAll('.nav-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -311,6 +383,7 @@ class UltronPokedexInterface {
         });
 
         // LLM Chat event listeners
+        console.log('Setting up LLM Chat event listeners... - app.js:386');
         document.getElementById('send-chat-btn')?.addEventListener('click', () => {
             this.sendChatMessage();
         });
@@ -326,6 +399,34 @@ class UltronPokedexInterface {
         document.getElementById('export-chat-btn')?.addEventListener('click', () => {
             this.exportChat();
         });
+
+        const testTTSBtn = document.getElementById('test-tts-btn');
+        const elevenLabsBtn = document.getElementById('show-elevenlabs-btn');
+
+        console.log('🔍 Looking for TTS test button: - app.js:406', testTTSBtn);
+        console.log('🔍 Looking for ElevenLabs button: - app.js:407', elevenLabsBtn);
+
+        if (testTTSBtn) {
+            console.log('✅ Test TTS button found, adding event listener - app.js:410');
+            testTTSBtn.addEventListener('click', () => {
+                console.log('🔊 Test TTS button clicked! - app.js:412');
+                alert('Test TTS button clicked! Check console for details.');
+                this.testTTS();
+            });
+        } else {
+            console.error('❌ Test TTS button NOT found in DOM! - app.js:417');
+        }
+
+        if (elevenLabsBtn) {
+            console.log('✅ ElevenLabs button found, adding event listener - app.js:421');
+            elevenLabsBtn.addEventListener('click', () => {
+                console.log('💬 ElevenLabs Text button clicked! - app.js:423');
+                alert('ElevenLabs Text button clicked!');
+                this.showElevenLabsTextOverlay();
+            });
+        } else {
+            console.error('❌ ElevenLabs button NOT found in DOM! - app.js:428');
+        }
 
         document.getElementById('switch-model-btn')?.addEventListener('click', () => {
             this.switchModel();
@@ -734,7 +835,7 @@ class UltronPokedexInterface {
                 this.updateStatsDisplay();
             }
         } catch (error) {
-            console.error('Failed to update system stats: - app.js:694', error);
+            console.error('Failed to update system stats: - app.js:838', error);
         }
     }
 
@@ -851,7 +952,7 @@ class UltronPokedexInterface {
                 this.addSystemMessage('📊 Dashboard updated with latest system information');
             }
         } catch (error) {
-            console.error('Failed to load system info: - app.js:811', error);
+            console.error('Failed to load system info: - app.js:955', error);
             this.addErrorMessage('Failed to load dashboard information');
         }
     }
@@ -1139,6 +1240,9 @@ class UltronPokedexInterface {
         // Add user message
         this.addChatMessage('user', message, 'You');
 
+        // Also display in ElevenLabs text overlay
+        this.displayElevenLabsResponse(message, 'user');
+
         // Show typing indicator
         this.showTypingIndicator();
 
@@ -1162,12 +1266,14 @@ class UltronPokedexInterface {
             if (response.ok) {
                 const data = await response.json();
                 this.addChatMessage('system', data.response || 'No response', 'ULTRON AI');
-                
+
                 // Speak the AI response using ElevenLabs TTS
                 if (data.response && data.response.trim()) {
                     this.speakText(data.response);
+                    // Also display in ElevenLabs text overlay
+                    this.displayElevenLabsResponse(data.response, 'ai');
                 }
-                
+
                 // Legacy audio data support (if server sends audio)
                 if (data.audio_data) {
                     const audioData = new Uint8Array(data.audio_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
@@ -1354,6 +1460,29 @@ class UltronPokedexInterface {
         URL.revokeObjectURL(url);
 
         this.addChatMessage('system', 'Chat exported successfully.', 'System');
+    }
+
+    async testTTS() {
+        console.log('[TTS Test] Starting TTS test... - app.js:1466');
+        const testText = "Hello! This is a test of the ULTRON AI text-to-speech functionality using ElevenLabs. If you can hear this, TTS is working correctly.";
+
+        this.addChatMessage('system', 'Testing TTS functionality...', 'System');
+        console.log('[TTS Test] Added system message, about to call speakText - app.js:1470');
+
+        try {
+            console.log('[TTS Test] Calling speakText with: - app.js:1473', testText.substring(0, 50) + '...');
+            await this.speakText(testText);
+            console.log('[TTS Test] speakText completed successfully - app.js:1475');
+            this.addChatMessage('system', '✅ TTS test completed. You should hear the test message.', 'System');
+        } catch (error) {
+            console.error('[TTS Test] speakText threw an error: - app.js:1478', error);
+            this.addChatMessage('error', `❌ TTS test failed: ${error.message}`, 'System');
+            console.error('[TTS Test] Full error details: - app.js:1480', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+        }
     }
 
     async switchModel() {
@@ -1814,7 +1943,7 @@ class UltronPokedexInterface {
             this.updateLEDLabelsText(systemStatus, voiceStatus, aiStatus);
 
         } catch (error) {
-            console.error('Failed to update LED status: - app.js:1755', error);
+            console.error('Failed to update LED status: - app.js:1946', error);
             // Set all LEDs to error state on failure
             this.setLEDLight('main-led', 'error');
             this.setLEDLight('led-1', 'error');
@@ -1832,7 +1961,7 @@ class UltronPokedexInterface {
                        data.overall_status === 'degraded' ? 'loading' : 'error';
             }
         } catch (error) {
-            console.error('System status check failed: - app.js:1773', error);
+            console.error('System status check failed: - app.js:1964', error);
         }
         return 'error';
     }
@@ -1853,7 +1982,7 @@ class UltronPokedexInterface {
                 return 'error';
             }
         } catch (error) {
-            console.error('Voice status check failed: - app.js:1794', error);
+            console.error('Voice status check failed: - app.js:1985', error);
         }
         return 'error';
     }
@@ -1872,7 +2001,7 @@ class UltronPokedexInterface {
                 return 'error';
             }
         } catch (error) {
-            console.error('AI status check failed: - app.js:1813', error);
+            console.error('AI status check failed: - app.js:2004', error);
         }
         return 'error';
     }
@@ -2053,10 +2182,10 @@ class UltronPokedexInterface {
             const audio = document.getElementById(`audio-${soundName}`);
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(e => console.log('Audio play failed: - app.js:1994', e));
+                audio.play().catch(e => console.log('Audio play failed: - app.js:2185', e));
             }
         } catch (error) {
-            console.log('Sound play error: - app.js:1997', error);
+            console.log('Sound play error: - app.js:2188', error);
         }
     }
 
@@ -2070,13 +2199,204 @@ class UltronPokedexInterface {
         this.animationIntervals.forEach(interval => clearInterval(interval));
         this.animationIntervals = [];
     }
+
+    // ============= ElevenLabs Widget Integration =============
+
+    initializeElevenLabsWidget() {
+        console.log('[ElevenLabs] Initializing widget integration... - app.js:2206');
+
+        // Setup widget event listeners
+        this.setupElevenLabsTextOverlay();
+        this.monitorElevenLabsWidget();
+
+        // Listen for widget interactions
+        const widget = document.querySelector('elevenlabs-convai');
+        if (widget) {
+            console.log('[ElevenLabs] Widget found, setting up listeners - app.js:2215');
+
+            // Monitor widget for speech recognition results
+            widget.addEventListener('speech-recognized', (event) => {
+                console.log('[ElevenLabs] Speech recognized: - app.js:2219', event.detail);
+                this.handleElevenLabsSpeechInput(event.detail.text);
+            });
+
+            // Monitor widget for AI responses
+            widget.addEventListener('ai-response', (event) => {
+                console.log('[ElevenLabs] AI response: - app.js:2225', event.detail);
+                this.displayElevenLabsResponse(event.detail.text, 'ai');
+            });
+
+            // Monitor widget state changes
+            widget.addEventListener('state-change', (event) => {
+                console.log('[ElevenLabs] State change: - app.js:2231', event.detail);
+                this.updateElevenLabsStatus(event.detail.state);
+            });
+        } else {
+            console.warn('[ElevenLabs] Widget not found, text overlay will work independently - app.js:2235');
+        }
+    }
+
+    setupElevenLabsTextOverlay() {
+        const overlay = document.getElementById('elevenlabs-text-overlay');
+        const closeBtn = document.getElementById('close-elevenlabs-overlay');
+        const clearBtn = document.getElementById('clear-elevenlabs-text');
+        const toggleBtn = document.getElementById('toggle-elevenlabs-widget');
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.hideElevenLabsTextOverlay();
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearElevenLabsConversation();
+            });
+        }
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                this.toggleElevenLabsWidget();
+            });
+        }
+
+        // Add floating button to show text overlay
+        this.createElevenLabsToggleButton();
+    }
+
+    createElevenLabsToggleButton() {
+        const toggleButton = document.createElement('button');
+        toggleButton.id = 'elevenlabs-toggle-floating';
+        toggleButton.innerHTML = '💬';
+        toggleButton.className = 'elevenlabs-toggle-floating';
+        toggleButton.title = 'Show ElevenLabs Conversation Text';
+
+        toggleButton.addEventListener('click', () => {
+            this.showElevenLabsTextOverlay();
+        });
+
+        document.body.appendChild(toggleButton);
+    }
+
+    showElevenLabsTextOverlay() {
+        const overlay = document.getElementById('elevenlabs-text-overlay');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+        }
+    }
+
+    hideElevenLabsTextOverlay() {
+        const overlay = document.getElementById('elevenlabs-text-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+        }
+    }
+
+    handleElevenLabsSpeechInput(text) {
+        console.log('[ElevenLabs] Processing speech input: - app.js:2296', text);
+        this.displayElevenLabsResponse(text, 'user');
+
+        // Also add to our main chat if LLM Chat section is active
+        if (this.currentSection === 'llm-chat') {
+            this.addChatMessage('user', text, 'You');
+        }
+    }
+
+    displayElevenLabsResponse(text, sender = 'ai') {
+        const conversationDisplay = document.getElementById('elevenlabs-conversation');
+        if (!conversationDisplay) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `conversation-message ${sender === 'user' ? 'user-msg' : 'system-msg'}`;
+
+        const label = sender === 'user' ? '👤 You:' : '🤖 AI:';
+        messageDiv.innerHTML = `
+            <span class="msg-label">${label}</span>
+            <span class="msg-content">${text}</span>
+        `;
+
+        conversationDisplay.appendChild(messageDiv);
+        conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+
+        console.log(`[ElevenLabs] Added ${sender} message to text overlay - app.js:2321`);
+    }
+
+    clearElevenLabsConversation() {
+        const conversationDisplay = document.getElementById('elevenlabs-conversation');
+        if (conversationDisplay) {
+            conversationDisplay.innerHTML = `
+                <div class="conversation-message system-msg">
+                    <span class="msg-label">🤖 AI:</span>
+                    <span class="msg-content">Ready to chat! Ask me anything.</span>
+                </div>
+            `;
+        }
+    }
+
+    toggleElevenLabsWidget() {
+        const widget = document.querySelector('elevenlabs-convai');
+        if (widget) {
+            const isHidden = widget.style.display === 'none';
+            widget.style.display = isHidden ? 'block' : 'none';
+            console.log(`[ElevenLabs] Widget ${isHidden ? 'shown' : 'hidden'} - app.js:2341`);
+        }
+    }
+
+    updateElevenLabsStatus(state) {
+        console.log('[ElevenLabs] Status update: - app.js:2346', state);
+        // Update LED indicators based on widget state
+        if (state === 'listening') {
+            this.setLEDLight('led-2', 'active');
+        } else if (state === 'speaking') {
+            this.setLEDLight('led-3', 'active');
+        } else {
+            this.setLEDLight('led-2', 'inactive');
+            this.setLEDLight('led-3', 'inactive');
+        }
+    }
+
+    monitorElevenLabsWidget() {
+        // Check if widget is properly loaded and responding
+        const widget = document.querySelector('elevenlabs-convai');
+        if (widget) {
+            console.log('[ElevenLabs] Widget monitoring active - app.js:2362');
+
+            // Set up periodic check for widget status
+            setInterval(() => {
+                // Check if widget is responsive
+                const isActive = widget.getAttribute('data-status') !== 'error';
+                this.setLEDLight('led-1', isActive ? 'active' : 'error');
+            }, 5000);
+        }
+    }
 }
 
 // Initialize the interface when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:2015');
-    window.ultronInterface = new UltronPokedexInterface();
+    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:2376');
+    try {
+        window.ultronInterface = new UltronPokedexInterface();
+        console.log('✅ ULTRON Interface initialized successfully - app.js:2379');
+    } catch (error) {
+        console.error('❌ Failed to initialize ULTRON Interface: - app.js:2381', error);
+        console.error('Error details: - app.js:2382', error.message, error.stack);
+    }
 });
+
+// Fallback initialization if DOMContentLoaded doesn't fire
+if (document.readyState === 'loading') {
+    console.log('📄 DOM still loading, waiting for DOMContentLoaded... - app.js:2388');
+} else {
+    console.log('📄 DOM already loaded, initializing immediately... - app.js:2390');
+    try {
+        if (!window.ultronInterface) {
+            window.ultronInterface = new UltronPokedexInterface();
+            console.log('✅ ULTRON Interface initialized via fallback - app.js:2394');
+        }
+    } catch (error) {
+        console.error('❌ Fallback initialization failed: - app.js:2397', error);
+    }
+}
 
 // Clean up on page unload
 window.addEventListener('beforeunload', () => {

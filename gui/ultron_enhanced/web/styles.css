@@ -2014,3 +2014,179 @@ select:focus-visible {
     box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
     transform: translateY(-1px);
 }
+
+/* ============= ElevenLabs Widget Text Overlay ============= */
+.elevenlabs-text-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.elevenlabs-text-overlay.hidden {
+    display: none;
+}
+
+.elevenlabs-text-container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #00ff41;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    overflow: hidden;
+}
+
+.elevenlabs-text-container .text-header {
+    background: linear-gradient(90deg, #00ff41, #00cc33);
+    color: #000;
+    padding: 1rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.elevenlabs-text-container .close-overlay-btn {
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
+    color: #000;
+    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.elevenlabs-text-container .close-overlay-btn:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.elevenlabs-text-container .text-content {
+    padding: 1rem;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.conversation-display {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.conversation-message {
+    background: rgba(0, 255, 65, 0.1);
+    border-left: 3px solid #00ff41;
+    padding: 0.75rem;
+    border-radius: 0 8px 8px 0;
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+}
+
+.conversation-message.user-msg {
+    background: rgba(0, 150, 255, 0.1);
+    border-left-color: #0096ff;
+    margin-left: 2rem;
+    border-radius: 8px 0 0 8px;
+    border-left: none;
+    border-right: 3px solid #0096ff;
+}
+
+.conversation-message .msg-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.conversation-message .msg-content {
+    color: #e2e8f0;
+    line-height: 1.4;
+}
+
+.elevenlabs-text-container .text-controls {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.control-btn {
+    background: linear-gradient(135deg, #00ff41, #00cc33);
+    color: #000;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 255, 65, 0.3);
+}
+
+/* Floating ElevenLabs Toggle Button */
+.elevenlabs-toggle-floating {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ff41, #00cc33);
+    border: 2px solid #fff;
+    color: #000;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0, 255, 65, 0.4);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.elevenlabs-toggle-floating:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 255, 65, 0.6);
+}
+
+.elevenlabs-toggle-floating:active {
+    transform: scale(0.95);
+}
+
+/* TTS Indicator */
+.tts-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #00ff41, #00cc33);
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 9998;
+    box-shadow: 0 4px 15px rgba(0, 255, 65, 0.4);
+    animation: tts-pulse 1s ease-in-out infinite;
+}
+
+@keyframes tts-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
