@@ -95,6 +95,49 @@ class UltronPokedexInterface {
         return audio;
     }
 
+    // Speak any text using ElevenLabs TTS
+    async speakText(text) {
+        if (!text || !text.trim()) return;
+        
+        const elevenlabsApiKey = 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed';
+        const voiceId = 'e3mik6xHn4Sl51poljxK';
+
+        const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+        const headers = {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': elevenlabsApiKey
+        };
+        const data = {
+            text: text.trim(),
+            model_id: 'eleven_monolingual_v1',
+            voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5
+            }
+        };
+
+        try {
+            console.log(`[TTS] Speaking: ${text.substring(0, 50)}...`);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                const audioBlob = await response.blob();
+                const audio = new Audio(URL.createObjectURL(audioBlob));
+                audio.play();
+                console.log('[TTS] Audio playback started');
+            } else {
+                console.error('[TTS] ElevenLabs API error:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('[TTS] Error speaking text:', error);
+        }
+    }
+
     // Helper method to make API calls with proper URL and logging
     async apiCall(endpoint, options = {}) {
         const url = `${this.API_BASE_URL}${endpoint}`;
@@ -1119,6 +1162,13 @@ class UltronPokedexInterface {
             if (response.ok) {
                 const data = await response.json();
                 this.addChatMessage('system', data.response || 'No response', 'ULTRON AI');
+                
+                // Speak the AI response using ElevenLabs TTS
+                if (data.response && data.response.trim()) {
+                    this.speakText(data.response);
+                }
+                
+                // Legacy audio data support (if server sends audio)
                 if (data.audio_data) {
                     const audioData = new Uint8Array(data.audio_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
                     const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
@@ -1235,8 +1285,20 @@ class UltronPokedexInterface {
         };
 
         this.recognition.onerror = (event) => {
-            this.addChatMessage('error', `Voice recognition error: ${event.error}`, 'System');
-            this.toggleVoiceChat(); // Turn off voice mode
+            // Handle different error types
+            if (event.error === 'no-speech') {
+                // Don't deactivate for no-speech - just continue listening
+                this.addChatMessage('system', 'No speech detected, continuing to listen...', 'System');
+            } else if (event.error === 'audio-capture') {
+                this.addChatMessage('error', 'Microphone access denied or not available', 'System');
+                this.toggleVoiceChat(); // Turn off voice mode for serious errors
+            } else if (event.error === 'not-allowed') {
+                this.addChatMessage('error', 'Microphone permission denied', 'System');
+                this.toggleVoiceChat(); // Turn off voice mode for permission issues
+            } else {
+                this.addChatMessage('error', `Voice recognition error: ${event.error}`, 'System');
+                // For other errors, continue listening instead of turning off
+            }
         };
 
         this.recognition.onend = () => {

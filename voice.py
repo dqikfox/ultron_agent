@@ -11,9 +11,7 @@ from pathlib import Path
 from contextlib import contextmanager
 
 try:
-    from elevenlabs import generate, set_api_key, voices
-    from elevenlabs.api import Models
-    from elevenlabs.error import AuthenticationError, APIError, RateLimitError
+    from elevenlabs import ElevenLabs, play, save
     ELEVENLABS_AVAILABLE = True
 except ImportError:
     ELEVENLABS_AVAILABLE = False
@@ -57,6 +55,7 @@ class VoiceAssistant:
         self.recognizer = sr.Recognizer()
         self.tts_engine = None
         self.elevenlabs_voices = None
+        self.elevenlabs_client = None
         self.audio_manager = AudioManager()
         self.cache_dir = Path(config.get("voice_cache_dir", "cache/voice"))
         self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -147,12 +146,13 @@ class VoiceAssistant:
             return
 
         try:
-            # Set API key globally for the elevenlabs package
+            # Initialize ElevenLabs client with API key
             self._show_progress("🔌 Connecting to ElevenLabs...", 40)
-            set_api_key(elevenlabs_api_key)
+            self.elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
 
             # Verify API key by retrieving available voices
-            self.elevenlabs_voices = voices()
+            voices_response = self.elevenlabs_client.voices.get_all()
+            self.elevenlabs_voices = voices_response.voices
 
             self._show_progress(
                 f"🎤 Loaded {len(self.elevenlabs_voices)} ElevenLabs voices",
@@ -266,7 +266,7 @@ class VoiceAssistant:
         text_hash = hashlib.md5(f"{text}{settings}".encode()).hexdigest()
         return self.cache_dir / f"{text_hash}.mp3"
 
-    async def speak(self, text: str) -> bool:
+    async def speak_async(self, text: str) -> bool:
         """
         Speak the given text using available TTS engines
 
@@ -320,18 +320,16 @@ class VoiceAssistant:
                         logger.warning(f"Failed to play cached audio: {e}")
 
             # Try ElevenLabs first (only if available)
-            if (ELEVENLABS_AVAILABLE and self.elevenlabs_voices and
-                    self.preferred_voice_id):
+            if (ELEVENLABS_AVAILABLE and hasattr(self, 'elevenlabs_client') and 
+                    self.elevenlabs_client and self.preferred_voice_id):
                 try:
                     logger.debug(
                         f"Using ElevenLabs TTS for: {cleaned_text[:30]}..."
                     )
-                    audio = generate(
+                    audio = self.elevenlabs_client.text_to_speech.convert(
                         text=cleaned_text,
-                        voice=self.preferred_voice_id,
-                        model="eleven_monolingual_v1",
-                        stability=self.voice_stability,
-                        similarity_boost=self.voice_similarity
+                        voice_id=self.preferred_voice_id,
+                        model_id="eleven_multilingual_v2"
                     )
 
                     # Cache the audio if caching is enabled
@@ -467,15 +465,45 @@ class VoiceAssistant:
             return None
 
     # Synchronous wrapper for compatibility
-    def speak_sync(self, text: str) -> bool:
-        """Synchronous wrapper for speak method"""
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            return asyncio.run_coroutine_threadsafe(
-                self.speak(text), loop
-            ).result()
-        else:
-            return asyncio.run(self.speak(text))
+    def speak(self, text: str) -> bool:
+        """Synchronous speak method for TTS"""
+        try:
+            # Try to run async method synchronously
+            loop = None
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # Create new event loop in thread for blocking call  
+                    import threading
+                    result = [False]
+                    def run_speak():
+                        new_loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(new_loop)
+                        try:
+                            result[0] = new_loop.run_until_complete(self.speak_async(text))
+                        finally:
+                            new_loop.close()
+                    
+                    thread = threading.Thread(target=run_speak, daemon=True)
+                    thread.start()
+                    thread.join(timeout=30)  # 30 second timeout
+                    return result[0]
+                else:
+                    return asyncio.run(self.speak_async(text))
+            except RuntimeError:
+                # No event loop, create one
+                return asyncio.run(self.speak_async(text))
+        except Exception as e:
+            logger.error(f"Speak failed: {e}")
+            # Fallback to pyttsx3 if available
+            if self.tts_engine:
+                try:
+                    self.tts_engine.say(text)
+                    self.tts_engine.runAndWait()
+                    return True
+                except Exception as fallback_error:
+                    logger.error(f"Fallback TTS failed: {fallback_error}")
+            return False
 
     @contextmanager
     def _get_microphone(self, device_index=None):
