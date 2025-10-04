@@ -320,7 +320,7 @@ class VoiceAssistant:
                         logger.warning(f"Failed to play cached audio: {e}")
 
             # Try ElevenLabs first (only if available)
-            if (ELEVENLABS_AVAILABLE and hasattr(self, 'elevenlabs_client') and 
+            if (ELEVENLABS_AVAILABLE and hasattr(self, 'elevenlabs_client') and
                     self.elevenlabs_client and self.preferred_voice_id):
                 try:
                     logger.debug(
@@ -473,7 +473,7 @@ class VoiceAssistant:
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
-                    # Create new event loop in thread for blocking call  
+                    # Create new event loop in thread for blocking call
                     import threading
                     result = [False]
                     def run_speak():
@@ -483,7 +483,7 @@ class VoiceAssistant:
                             result[0] = new_loop.run_until_complete(self.speak_async(text))
                         finally:
                             new_loop.close()
-                    
+
                     thread = threading.Thread(target=run_speak, daemon=True)
                     thread.start()
                     thread.join(timeout=30)  # 30 second timeout

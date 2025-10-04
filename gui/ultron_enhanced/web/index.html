@@ -12,6 +12,29 @@
 </head>
 <body>
     <elevenlabs-convai agent-id="agent_01jzwkf7dkfdvt5810x1vgrcjs"></elevenlabs-convai>
+
+    <!-- ElevenLabs Widget Text Display Overlay -->
+    <div id="elevenlabs-text-overlay" class="elevenlabs-text-overlay hidden">
+        <div class="elevenlabs-text-container">
+            <div class="text-header">
+                <span class="text-title">🎤 ElevenLabs AI Assistant</span>
+                <button class="close-overlay-btn" id="close-elevenlabs-overlay">✕</button>
+            </div>
+            <div class="text-content">
+                <div class="conversation-display" id="elevenlabs-conversation">
+                    <div class="conversation-message system-msg">
+                        <span class="msg-label">🤖 AI:</span>
+                        <span class="msg-content">Ready to chat! Ask me anything.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-controls">
+                <button class="control-btn" id="clear-elevenlabs-text">🗑️ Clear</button>
+                <button class="control-btn" id="toggle-elevenlabs-widget">🎤 Toggle Widget</button>
+            </div>
+        </div>
+    </div>
+
     <div id="app">
         <div id="start-screen" class="start-screen">
             <button id="start-button" class="start-button">START</button>
@@ -420,6 +443,9 @@
                                                 <button class="chat-btn" id="clear-chat-btn">🗑️ Clear</button>
                                                 <button class="chat-btn" id="export-chat-btn">📤 Export</button>
                                                 <button class="chat-btn" id="switch-model-btn">🔄 Switch Model</button>
+                                                <button class="chat-btn" id="test-tts-btn">🔊 Test TTS</button>
+                                                <button class="chat-btn" id="show-elevenlabs-btn">💬 ElevenLabs Text</button>
+                                                <button class="chat-btn" id="manual-tts-test-btn" onclick="if(window.ultronInterface){window.ultronInterface.testTTS();}else{alert('Interface not loaded');}">🎯 Manual TTS Test</button>
                                             </div>
                                         </div>
                                         <div class="chat-messages" id="chat-messages">
@@ -664,5 +690,30 @@
     display: none;
 }
 </style>
+
+<!-- Emergency initialization script -->
+<script>
+    // Force initialization after a delay if not already done
+    setTimeout(() => {
+        if (!window.ultronInterface) {
+            console.log('🚨 Emergency initialization triggered - app.js:2387');
+            try {
+                window.ultronInterface = new UltronPokedexInterface();
+                console.log('✅ Emergency initialization successful - app.js:2390');
+            } catch (error) {
+                console.error('❌ Emergency initialization failed: - app.js:2392', error);
+            }
+        }
+    }, 2000);
+
+    // Add global error handler
+    window.addEventListener('error', (event) => {
+        console.error('🚨 Global JavaScript error: - app.js:2399', event.error);
+        console.error('Error message: - app.js:2400', event.message);
+        console.error('Error file: - app.js:2401', event.filename);
+        console.error('Error line: - app.js:2402', event.lineno);
+    });
+</script>
+
 </body>
 </html>

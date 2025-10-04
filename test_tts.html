@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Test</title>
+</head>
+<body>
+    <h1>ElevenLabs TTS Test</h1>
+    <button onclick="testTTS()">Test TTS</button>
+    <div id="output"></div>
+
+    <script>
+        async function testTTS() {
+            const text = "Hello, this is a test of the ElevenLabs text to speech functionality.";
+            const output = document.getElementById('output');
+            output.textContent = 'Testing TTS...';
+
+            try {
+                const elevenlabsApiKey = 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed';
+                const voiceId = 'e3mik6xHn4Sl51poljxK';
+
+                const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+                const headers = {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': elevenlabsApiKey
+                };
+                const data = {
+                    text: text,
+                    model_id: 'eleven_monolingual_v1',
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                };
+
+                console.log('Making TTS request to:', url);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data)
+                });
+
+                console.log('TTS Response status:', response.status);
+                if (response.ok) {
+                    const audioBlob = await response.blob();
+                    const audio = new Audio(URL.createObjectURL(audioBlob));
+                    audio.play();
+                    output.textContent = 'TTS Success! Playing audio...';
+                    console.log('Audio playback started');
+                } else {
+                    const errorText = await response.text();
+                    output.textContent = `TTS Error: ${response.status} - ${errorText}`;
+                    console.error('TTS API error:', response.status, errorText);
+                }
+            } catch (error) {
+                output.textContent = `TTS Error: ${error.message}`;
+                console.error('TTS Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

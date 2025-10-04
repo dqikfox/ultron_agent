@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON TTS Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #111;
+            color: #00ff41;
+        }
+        button {
+            background: #00ff41;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #00cc33;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0, 255, 65, 0.1);
+        }
+        .error {
+            background: rgba(255, 65, 65, 0.1);
+            color: #ff4141;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔊 ULTRON TTS Test</h1>
+    <p>This page tests ElevenLabs TTS functionality independently.</p>
+
+    <div class="status" id="status">Ready to test TTS...</div>
+
+    <button onclick="testTTS()">🎯 Test ElevenLabs TTS</button>
+    <button onclick="testStartupSound()">🎵 Test Startup Sound</button>
+    <button onclick="clearStatus()">🗑️ Clear Status</button>
+
+    <script>
+        const ELEVENLABS_API_KEY = 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed';
+        const VOICE_ID = 'e3mik6xHn4Sl51poljxK';
+
+        function updateStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = isError ? 'status error' : 'status';
+            console.log(message);
+        }
+
+        async function testTTS() {
+            updateStatus('🎯 Starting TTS test...');
+
+            try {
+                const text = "Hello! This is a test of the ULTRON AI ElevenLabs text-to-speech system. If you can hear this, TTS is working correctly.";
+
+                const url = `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`;
+                const headers = {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': ELEVENLABS_API_KEY
+                };
+                const data = {
+                    text: text,
+                    model_id: 'eleven_monolingual_v1',
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                };
+
+                updateStatus('📡 Sending request to ElevenLabs API...');
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    updateStatus('✅ API response received, creating audio...');
+
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+
+                    audio.onended = () => {
+                        updateStatus('✅ TTS test completed successfully!');
+                        URL.revokeObjectURL(audioUrl);
+                    };
+
+                    audio.onerror = (error) => {
+                        updateStatus('❌ Audio playback failed: ' + error.message, true);
+                        URL.revokeObjectURL(audioUrl);
+                    };
+
+                    updateStatus('🔊 Playing audio...');
+                    await audio.play();
+
+                } else {
+                    const errorText = await response.text();
+                    updateStatus(`❌ API Error: ${response.status} - ${errorText}`, true);
+                }
+
+            } catch (error) {
+                updateStatus('❌ TTS test failed: ' + error.message, true);
+                console.error('TTS Error:', error);
+            }
+        }
+
+        async function testStartupSound() {
+            updateStatus('🎵 Testing startup sound method...');
+
+            try {
+                const text = 'ultron is online';
+
+                const url = `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`;
+                const headers = {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': ELEVENLABS_API_KEY
+                };
+                const data = {
+                    text: text,
+                    model_id: 'eleven_monolingual_v1',
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const audioBlob = await response.blob();
+
+                    // Create audio element like the startup sound
+                    const audio = document.createElement('audio');
+                    audio.src = URL.createObjectURL(audioBlob);
+                    audio.style.display = 'none';
+                    document.body.appendChild(audio);
+
+                    audio.onended = () => {
+                        updateStatus('✅ Startup sound test completed!');
+                        document.body.removeChild(audio);
+                    };
+
+                    audio.onerror = (error) => {
+                        updateStatus('❌ Startup sound playback failed: ' + error.message, true);
+                        document.body.removeChild(audio);
+                    };
+
+                    updateStatus('🔊 Playing startup sound...');
+                    await audio.play();
+
+                } else {
+                    const errorText = await response.text();
+                    updateStatus(`❌ Startup sound API Error: ${response.status} - ${errorText}`, true);
+                }
+
+            } catch (error) {
+                updateStatus('❌ Startup sound test failed: ' + error.message, true);
+                console.error('Startup Sound Error:', error);
+            }
+        }
+
+        function clearStatus() {
+            updateStatus('Status cleared. Ready for next test.');
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            updateStatus('Page loaded. Click a button to test TTS functionality.');
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Projects\ultron_agent\tts_test.html
