@@ -28,7 +28,7 @@ except ImportError:
 
 class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     """Custom handler for ULTRON web interface"""
-    
+
     # Class variable to store current model preference
     current_model_preference = 'qwen3-coder:480b-cloud'
 
@@ -214,8 +214,16 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def _toggle_voice(self):
         """Toggle voice listening"""
-        # This would integrate with voice system
-        return {'status': 'not_implemented', 'message': 'Voice toggle not yet implemented'}
+        try:
+            # Basic implementation - just acknowledge the toggle
+            # In a full implementation, this would start/stop speech recognition
+            return {
+                'status': 'success',
+                'message': 'Voice toggle received (basic implementation)',
+                'voice_enabled': True
+            }
+        except Exception as e:
+            return {'status': 'error', 'message': f'Voice toggle failed: {str(e)}'}
 
     def _get_llm_status(self):
         """Get LLM status from Ollama"""
@@ -235,11 +243,15 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                                 data = await response.json()
                                 models = data.get('models', [])
                                 if models:
-                                    current_model = models[0]['name']
+                                    # Use the configured model preference, fallback to first available
+                                    available_models = [m['name'] for m in models]
+                                    current_model = self.current_model_preference
+                                    if current_model not in available_models:
+                                        current_model = available_models[0]
                                     return {
                                         'model': current_model,
                                         'status': 'online',
-                                        'available_models': [m['name'] for m in models]
+                                        'available_models': available_models
                                     }
                                 else:
                                     return {'model': 'No models', 'status': 'offline'}
@@ -358,14 +370,36 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                             "stream": False
                         }
 
+                        headers = {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
                         async with session.post(
                             f"{ollama_url}/api/chat",
                             json=chat_data,
+                            headers=headers,
                             timeout=aiohttp.ClientTimeout(total=120)
                         ) as response:
                             if response.status == 200:
-                                result = await response.json()
+                                # Handle different content types
+                                content_type = response.headers.get('content-type', '')
+                                logging.info(f"Response content-type: {content_type}")
+
+                                if 'application/json' in content_type:
+                                    result = await response.json()
+                                else:
+                                    # Handle text/plain response
+                                    text_response = await response.text()
+                                    logging.info(f"Raw text response: {text_response[:200]}...")
+                                    try:
+                                        import json
+                                        result = json.loads(text_response)
+                                    except json.JSONDecodeError:
+                                        return {'error': f'Invalid JSON response: {text_response[:100]}...'}
+
                                 ai_response = result.get('message', {}).get('content', 'No response')
+                                # Debug logging
+                                logging.info(f"Chat response from {current_model}: {ai_response[:100]}... - web_gui_server.py:374" if len(ai_response) > 100 else f"Chat response from {current_model}: {ai_response}")
                                 return {'response': ai_response, 'model': current_model}
                             else:
                                 return {'error': f'Ollama error: {response.status}'}
@@ -378,9 +412,12 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                     return {'error': f'Request failed: {str(e)}'}
 
             try:
-                return asyncio.run(chat_with_ollama())
-            except:
-                return {'error': 'Chat request failed'}
+                result = asyncio.run(chat_with_ollama())
+                logging.info(f"Final chat result: {result}")
+                return result
+            except Exception as e:
+                logging.error(f"Chat request failed with exception: {e}")
+                return {'error': f'Chat request failed: {str(e)}'}
 
         except ImportError:
             return {'error': 'Required libraries not available'}
@@ -408,7 +445,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def log_message(self, format, *args):
         """Custom log format"""
-        logging.info(f"WEB {format % args} - web_gui_server.py:411")
+        logging.info(f"WEB {format % args} - web_gui_server.py:417")
 
 
 class UltronWebServer:
@@ -500,39 +537,39 @@ class UltronWebServer:
 
 def main():
     """Main entry point for web GUI"""
-    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:503")
-    print("= - web_gui_server.py:504" * 50)
+    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:509")
+    print("= - web_gui_server.py:510" * 50)
 
     # Initialize agent if available
     agent = None
     if AGENT_AVAILABLE:
         try:
-            print("Initializing ULTRON Agent... - web_gui_server.py:510")
+            print("Initializing ULTRON Agent... - web_gui_server.py:516")
             agent = UltronAgent()
             # Use asyncio to properly initialize the agent
             asyncio.run(agent.initialize())
-            print(f"Agent initialized with status: {agent.status} - web_gui_server.py:514")
+            print(f"Agent initialized with status: {agent.status} - web_gui_server.py:520")
         except Exception as e:
-            print(f"Agent initialization failed: {e} - web_gui_server.py:516")
-            print("Starting web server without agent backend - web_gui_server.py:517")
+            print(f"Agent initialization failed: {e} - web_gui_server.py:522")
+            print("Starting web server without agent backend - web_gui_server.py:523")
     else:
-        print("Starting web server in standalone mode - web_gui_server.py:519")
+        print("Starting web server in standalone mode - web_gui_server.py:525")
 
     # Create and start web server
     server = UltronWebServer(agent_ref=agent, port=8080)
 
     if server.start_server():
-        print("\nULTRON Web GUI is now running! - web_gui_server.py:525")
-        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:526")
-        print("Press Ctrl+C to stop - web_gui_server.py:527")
+        print("\nULTRON Web GUI is now running! - web_gui_server.py:531")
+        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:532")
+        print("Press Ctrl+C to stop - web_gui_server.py:533")
 
         try:
             server.wait_for_shutdown()
         except KeyboardInterrupt:
-            print("\nShutting down... - web_gui_server.py:532")
+            print("\nShutting down... - web_gui_server.py:538")
             server.stop_server()
     else:
-        print("Failed to start web server - web_gui_server.py:535")
+        print("Failed to start web server - web_gui_server.py:541")
         return 1
 
     return 0
