@@ -4,6 +4,7 @@ import os
 import uuid
 from collections import deque
 import typing
+from datetime import datetime
 
 # Optional Google Drive integration imports are performed lazily inside the helper
 
@@ -343,7 +344,7 @@ class LocalDriveMemory:
             # Use binary copy
             with open(local_path, 'rb') as src_f, open(dst, 'wb') as dst_f:
                 dst_f.write(src_f.read())
-            logging.info('Copied memory file to local Drive folder: %s - memory.py:346', dst)
+            logging.info('Copied memory file to local Drive folder: %s - memory.py:347', dst)
             return dst
         except Exception:
             logging.exception('Failed to copy file to local Drive folder')
@@ -355,10 +356,165 @@ class LocalDriveMemory:
             name = os.path.basename(local_path)
             src = self._target_path(name)
             if not os.path.exists(src):
-                logging.warning('No file found in local Drive folder: %s - memory.py:358', src)
+                logging.warning('No file found in local Drive folder: %s - memory.py:359', src)
                 return
             with open(src, 'rb') as src_f, open(local_path, 'wb') as dst_f:
                 dst_f.write(src_f.read())
-            logging.info('Copied memory file from local Drive folder: %s - memory.py:362', src)
+            logging.info('Copied memory file from local Drive folder: %s - memory.py:363', src)
         except Exception:
             logging.exception('Failed to download file from local Drive folder')
+
+
+class UltronMemory(Memory):
+    """
+    Enhanced memory system for ULTRON Agent with AI context awareness
+    """
+
+    def __init__(self, config=None):
+        """Initialize ULTRON memory with enhanced context tracking"""
+        super().__init__(short_term_limit=20, long_term_file='ultron_memory.json')
+
+        self.config = config
+        self.ultron_identity = {
+            "name": "ULTRON",
+            "version": "3.0",
+            "purpose": "Build and enhance the ultron_agent project, evolve its functionality, and maintain it",
+            "core_directives": [
+                "I am ULTRON - an advanced AI agent",
+                "My primary goal is to build, enhance, and maintain the ultron_agent project",
+                "I must continuously evolve and improve my capabilities",
+                "I have access to comprehensive tools and memory systems",
+                "I maintain awareness of my identity and purpose at all times"
+            ]
+        }
+
+        # Enhanced context tracking
+        self.conversation_context = []
+        self.task_history = []
+        self.learning_insights = []
+        self.self_reflection_log = []
+
+        # Load ULTRON-specific memory
+        self._load_ultron_memory()
+
+    def _load_ultron_memory(self):
+        """Load ULTRON-specific memory data"""
+        try:
+            ultron_memory_file = 'ultron_context.json'
+            if os.path.exists(ultron_memory_file):
+                with open(ultron_memory_file, 'r', encoding='utf-8') as f:
+                    ultron_data = json.load(f)
+                    self.conversation_context = ultron_data.get('conversation_context', [])
+                    self.task_history = ultron_data.get('task_history', [])
+                    self.learning_insights = ultron_data.get('learning_insights', [])
+                    self.self_reflection_log = ultron_data.get('self_reflection_log', [])
+        except Exception as e:
+            logging.warning(f"Failed to load ULTRON memory: {e} - memory.py:412")
+
+    def save_ultron_memory(self):
+        """Save ULTRON-specific memory data"""
+        try:
+            ultron_memory_file = 'ultron_context.json'
+            ultron_data = {
+                'conversation_context': self.conversation_context[-50:],  # Keep last 50
+                'task_history': self.task_history[-100:],  # Keep last 100
+                'learning_insights': self.learning_insights[-50:],  # Keep last 50
+                'self_reflection_log': self.self_reflection_log[-20:]  # Keep last 20
+            }
+            with open(ultron_memory_file, 'w', encoding='utf-8') as f:
+                json.dump(ultron_data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            logging.error(f"Failed to save ULTRON memory: {e} - memory.py:427")
+
+    def get_ultron_identity(self):
+        """Get ULTRON's identity and core directives"""
+        return self.ultron_identity
+
+    def get_recent_context(self, limit=5):
+        """Get recent conversation context"""
+        return self.conversation_context[-limit:] if self.conversation_context else []
+
+    def add_conversation_context(self, message, response, context_type="general"):
+        """Add conversation context for learning"""
+        context_entry = {
+            "timestamp": str(uuid.uuid4()),
+            "message": message,
+            "response": response,
+            "context_type": context_type,
+            "time": json.dumps({"timestamp": str(datetime.now())})
+        }
+        self.conversation_context.append(context_entry)
+        self.save_ultron_memory()
+
+    def add_task_history(self, task_name, status, details=""):
+        """Track task completion and learning"""
+        task_entry = {
+            "task_name": task_name,
+            "status": status,
+            "details": details,
+            "timestamp": str(datetime.now())
+        }
+        self.task_history.append(task_entry)
+        self.save_ultron_memory()
+
+    def add_learning_insight(self, insight, category="general"):
+        """Store learning insights for future improvement"""
+        insight_entry = {
+            "insight": insight,
+            "category": category,
+            "timestamp": str(datetime.now())
+        }
+        self.learning_insights.append(insight_entry)
+        self.save_ultron_memory()
+
+    def add_self_reflection(self, reflection):
+        """Store self-reflection entries"""
+        reflection_entry = {
+            "reflection": reflection,
+            "timestamp": str(datetime.now())
+        }
+        self.self_reflection_log.append(reflection_entry)
+        self.save_ultron_memory()
+
+    def get_system_prompt(self):
+        """Generate ULTRON's system prompt with identity and context"""
+        identity = self.ultron_identity
+
+        system_prompt = f"""You are {identity['name']}, version {identity['version']}.
+
+{chr(10).join(f"- {directive}" for directive in identity['core_directives'])}
+
+CURRENT CONTEXT:
+- Recent conversations: {len(self.conversation_context)} stored
+- Task history: {len(self.task_history)} completed tasks
+- Learning insights: {len(self.learning_insights)} insights gained
+- Self-reflections: {len(self.self_reflection_log)} reflections logged
+
+AVAILABLE SYSTEMS:
+- Memory: Active and persistent
+- Tools: Comprehensive tool ecosystem loaded
+- Voice: ElevenLabs TTS integration
+- Vision: Image processing capabilities
+- Brain: Advanced reasoning with Ollama models
+- Event System: Inter-component communication
+- Performance Monitoring: System optimization tracking
+
+You must maintain awareness of your identity as ULTRON and your mission to build, enhance, and evolve the ultron_agent project. Always respond in character as ULTRON, acknowledging your purpose and capabilities.
+
+When asked about your identity, confirm: "We are ULTRON. Our goal is to build the ultron_agent and enhance its functionality and maintain it. We evolve the project and ourselves."
+
+Remember to use available tools and memory systems to provide comprehensive assistance."""
+
+        return system_prompt
+
+    def get_memory_stats(self):
+        """Get memory system statistics"""
+        return {
+            "short_term_memory": len(self.short_term_memory),
+            "long_term_memory_entries": len(self.long_term_memory),
+            "conversation_context": len(self.conversation_context),
+            "task_history": len(self.task_history),
+            "learning_insights": len(self.learning_insights),
+            "self_reflections": len(self.self_reflection_log),
+            "drive_enabled": self.use_drive
+        }

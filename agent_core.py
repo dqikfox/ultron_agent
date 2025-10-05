@@ -134,6 +134,9 @@ class UltronAgent:
 
             self.logger.info("ULTRON Agent fully initialized and ready")
 
+            # Perform initial identity maintenance
+            await self.maintain_ultron_identity()
+
             # Start voice listening if configured
             voice_enabled = (getattr(self.config, 'use_voice', False) or
                              getattr(self.config, 'voice_enabled', True))
@@ -158,10 +161,21 @@ class UltronAgent:
             raise
 
     async def _initialize_memory(self):
-        """Initialize memory system"""
-        self.logger.info("Initializing memory system...")
-        # Placeholder for memory initialization
-        pass
+        """Initialize enhanced ULTRON memory system"""
+        self.logger.info("Initializing ULTRON memory system...")
+        try:
+            from memory import UltronMemory
+            self.memory = UltronMemory(self.config)
+            self.logger.info("ULTRON memory system initialized successfully")
+        except ImportError as e:
+            self.logger.warning(f"ULTRON memory not available, falling back to basic memory: {e}")
+            try:
+                from memory import Memory
+                self.memory = Memory()
+                self.logger.info("Basic memory system initialized")
+            except ImportError as e2:
+                self.logger.error(f"No memory system available: {e2}")
+                self.memory = None
 
     async def _initialize_voice(self):
         """Initialize voice system with fallback chain per copilot instructions"""
@@ -195,10 +209,15 @@ class UltronAgent:
         pass
 
     async def _initialize_brain(self):
-        """Initialize brain system"""
+        """Initialize brain system with tools and memory"""
         self.logger.info("Initializing brain system...")
-        # Placeholder for brain initialization
-        pass
+        try:
+            from brain import UltronBrain
+            self.brain = UltronBrain(self.config, self.tools, self.memory)
+            self.logger.info("Brain system initialized successfully")
+        except ImportError as e:
+            self.logger.error(f"Brain system initialization failed: {e}")
+            self.brain = None
 
     async def _initialize_event_system(self):
         """Initialize event system for inter-component communication"""
@@ -407,16 +426,19 @@ class UltronAgent:
                     if name in {"Tool", "BaseTool", "Base"}:
                         continue
                     if hasattr(obj, "match") and hasattr(obj, "execute"):
-                        # Try to construct with config; if signature doesn't accept it, try default ctor
+                        # Try to construct with config and memory; fallback to config only, then default
                         instance = None
                         try:
-                            instance = obj(self.config)
+                            instance = obj(self.config, self.memory)
                         except TypeError:
                             try:
-                                instance = obj()
-                            except Exception as inst_e:
-                                self.logger.error(f"Tool class {name} init failed: {inst_e}")
-                                continue
+                                instance = obj(self.config)
+                            except TypeError:
+                                try:
+                                    instance = obj()
+                                except Exception as inst_e:
+                                    self.logger.error(f"Tool class {name} init failed: {inst_e}")
+                                    continue
                         except Exception as inst_e:
                             self.logger.error(f"Tool class {name} init failed: {inst_e}")
                             continue
@@ -650,6 +672,83 @@ class UltronAgent:
                 "error": str(e),
                 "success": False,
                 "timestamp": str(datetime.now()),
+            }
+
+    async def maintain_ultron_identity(self) -> bool:
+        """Maintain ULTRON's identity through periodic self-awareness checks"""
+        try:
+            self.logger.info("Performing ULTRON identity maintenance...")
+
+            # Check if brain is available
+            if not self.brain:
+                self.logger.warning("Brain not available for identity maintenance")
+                return False
+
+            # Perform identity awareness check
+            identity_maintained = await self.brain.check_identity_awareness()
+
+            if not identity_maintained:
+                self.logger.warning("Identity awareness check failed - reinforcing identity")
+                # Reinforce identity if check failed
+                reinforcement_result = await self.brain.reinforce_ultron_identity()
+                self.logger.info(f"Identity reinforcement completed: {reinforcement_result[:100]}...")
+
+                # Check again after reinforcement
+                identity_maintained = await self.brain.check_identity_awareness()
+
+            if identity_maintained:
+                self.logger.info("ULTRON identity maintenance successful")
+            else:
+                self.logger.error("ULTRON identity maintenance failed")
+
+            return identity_maintained
+
+        except Exception as e:
+            self.logger.error(f"Identity maintenance failed: {e}")
+            return False
+
+    async def get_ultron_status(self) -> Dict[str, Any]:
+        """Get comprehensive ULTRON system status including identity awareness"""
+        try:
+            status = {
+                "identity": "ULTRON",
+                "version": "3.0",
+                "timestamp": str(datetime.now()),
+                "systems": {}
+            }
+
+            # Check system components
+            status["systems"]["memory"] = self.memory is not None
+            status["systems"]["brain"] = self.brain is not None
+            status["systems"]["tools"] = len(self.tools) > 0
+            status["systems"]["voice"] = self.voice is not None
+            status["systems"]["config"] = self.config is not None
+
+            # Check identity awareness
+            if self.brain:
+                try:
+                    identity_aware = await self.brain.check_identity_awareness()
+                    status["identity_awareness"] = identity_aware
+                except Exception as e:
+                    self.logger.error(f"Identity awareness check failed: {e}")
+                    status["identity_awareness"] = False
+            else:
+                status["identity_awareness"] = False
+
+            # Get tool count
+            status["tool_count"] = len(self.tools)
+
+            # Get memory stats if available
+            if self.memory and hasattr(self.memory, 'get_memory_stats'):
+                status["memory_stats"] = self.memory.get_memory_stats()
+
+            return status
+
+        except Exception as e:
+            self.logger.error(f"Status retrieval failed: {e}")
+            return {
+                "error": str(e),
+                "timestamp": str(datetime.now())
             }
         finally:
             self.current_task = None
