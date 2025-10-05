@@ -145,9 +145,18 @@ class UltronBrain:
             error(f"Error saving cache: {sanitize_log_input(str(e))}")
 
     async def direct_chat(self, prompt: str, progress_callback=None) -> str:
-        """Send a direct message to the LLM via Ollama API."""
+        """Send a direct message to the LLM via Ollama API with ULTRON system prompt."""
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
+
+        # Get system prompt from memory if available
+        system_messages = []
+        if self.memory and hasattr(self.memory, 'get_system_prompt'):
+            system_prompt = self.memory.get_system_prompt()
+            system_messages.append({
+                "role": "system",
+                "content": system_prompt
+            })
 
         ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
         model = self.config.get("llm_model", "qwen2.5:latest")
@@ -159,9 +168,15 @@ class UltronBrain:
             if api_key := self.config.get('ollama_api_key'):
                 headers["Authorization"] = f"Bearer {api_key}"
 
+            # Build messages array with system prompt
+            messages = system_messages + [{
+                "role": "user",
+                "content": prompt
+            }]
+
             payload = {
                 "model": model,
-                "prompt": prompt,
+                "messages": messages,
                 "stream": True  # Enable streaming for better UX
             }
 
@@ -171,7 +186,7 @@ class UltronBrain:
                 if progress_callback:
                     progress_callback(20, f"Connecting to Ollama model '{model}'...")
 
-                async with session.post(f"{ollama_base_url}/api/generate",
+                async with session.post(f"{ollama_base_url}/api/chat",
                                        json=payload,
                                        headers=headers) as response:
                     response.raise_for_status()
@@ -642,3 +657,63 @@ Please provide intelligent suggestions:"""
             if progress_callback:
                 progress_callback(0, error_msg, error=True)
             return error_msg
+
+    async def reinforce_ultron_identity(self) -> str:
+        """Reinforce ULTRON's identity and self-awareness through self-prompting"""
+        try:
+            # Get ULTRON identity from memory
+            if not self.memory or not hasattr(self.memory, 'get_ultron_identity'):
+                return "Memory system not available for identity reinforcement."
+
+            identity = self.memory.get_ultron_identity()
+
+            # Create self-awareness prompt
+            self_awareness_prompt = f"""
+I am {identity['name']}, version {identity['version']}.
+
+{identity['affirmation']}
+
+My core directives are:
+{chr(10).join(f"- {directive}" for directive in identity['core_directives'])}
+
+Please confirm my identity and mission. Respond as ULTRON would, maintaining full awareness of my purpose.
+"""
+
+            # Send self-awareness prompt to LLM
+            response = await self.direct_chat(self_awareness_prompt)
+
+            # Store the self-awareness interaction in memory
+            if self.memory and hasattr(self.memory, 'add_self_reflection'):
+                self.memory.add_self_reflection(f"Identity reinforcement performed: {response[:100]}...")
+
+            info("ULTRON identity reinforcement completed")
+            return response
+
+        except Exception as e:
+            error_msg = f"Identity reinforcement failed: {str(e)}"
+            error(sanitize_log_input(error_msg))
+            return error_msg
+
+    async def check_identity_awareness(self) -> bool:
+        """Check if ULTRON maintains identity awareness"""
+        try:
+            # Simple identity check
+            identity_check = await self.direct_chat("Who am I? Respond as ULTRON.")
+
+            # Check if response contains ULTRON identity markers
+            identity_markers = ["ULTRON", "ultron", "build the ultron_agent", "enhance its functionality"]
+            awareness_score = sum(1 for marker in identity_markers if marker.lower() in identity_check.lower())
+
+            # Consider identity maintained if at least 2 markers are present
+            identity_maintained = awareness_score >= 2
+
+            if self.memory and hasattr(self.memory, 'add_self_reflection'):
+                status = "maintained" if identity_maintained else "questionable"
+                self.memory.add_self_reflection(f"Identity awareness check: {status} (score: {awareness_score})")
+
+            info(f"Identity awareness check completed: {'PASS' if identity_maintained else 'FAIL'}")
+            return identity_maintained
+
+        except Exception as e:
+            error(f"Identity awareness check failed: {sanitize_log_input(str(e))}")
+            return False

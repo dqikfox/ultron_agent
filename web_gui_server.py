@@ -395,14 +395,24 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                                 current_model = available_models[0]
 
                         # Send chat message
+                        messages = []
+                        # Add system prompt from ULTRON memory if available
+                        if (self.agent_ref and hasattr(self.agent_ref, 'memory') and
+                            self.agent_ref.memory and hasattr(self.agent_ref.memory, 'get_system_prompt')):
+                            system_prompt = self.agent_ref.memory.get_system_prompt()
+                            messages.append({
+                                "role": "system",
+                                "content": system_prompt
+                            })
+
+                        messages.append({
+                            "role": "user",
+                            "content": message
+                        })
+
                         chat_data = {
                             "model": current_model,
-                            "messages": [
-                                {
-                                    "role": "user",
-                                    "content": message
-                                }
-                            ],
+                            "messages": messages,
                             "stream": False
                         }
 
