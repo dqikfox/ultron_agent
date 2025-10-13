@@ -137,18 +137,26 @@ else:
 from ollama_manager import OllamaManager
 
 # Create manager with custom configuration
-config = {
-    'llm_model': 'qwen2.5:latest',
-    'base_url': 'http://localhost:11434'
-}
+# Note: The config object should have a 'data' attribute with model settings
+class CustomConfig:
+    def __init__(self):
+        self.data = {
+            'llm_model': 'qwen2.5:latest'
+        }
 
+config = CustomConfig()
 manager = OllamaManager(config=config)
+
+# Note: Base URL is currently hardcoded to 'http://127.0.0.1:11434'
+# To use a different URL, modify the base_url attribute after initialization
+# manager.base_url = 'http://custom-host:11434'
 ```
 
 ### Ensure Default Model
 
 ```python
-# Ensure the default model (qwen2.5vl) is loaded
+# Ensure a default model is loaded
+# Tries in order: qwen2.5vl:latest, qwen2.5vl, qwen2.5:latest, qwen2.5
 success = manager.ensure_default_model()
 
 if success:
@@ -201,13 +209,15 @@ except Exception as e:
 All operations are logged using the ULTRON centralized logging system:
 
 - Component logs: `logs/ollama_manager.log`
-- Activity logs: `logs/activities.jsonl`
+- Master logs: `logs/ultron_master.log`
 
 Example log entries:
 - Model pull operations
 - Connection status changes
 - Model switching events
 - Error conditions
+
+Note: The logger uses the standard Python logging framework via `get_logger('ollama_manager')`
 
 ## Integration with ULTRON Agent
 
