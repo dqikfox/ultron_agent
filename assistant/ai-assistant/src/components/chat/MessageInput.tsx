@@ -3,10 +3,10 @@ import { useApp, assistantPersonalities } from '../../contexts/AppContext';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
-import { 
-  Send, 
-  Paperclip, 
-  Mic, 
+import {
+  Send,
+  Paperclip,
+  Mic,
   Square,
   X,
   FileText,
@@ -36,35 +36,33 @@ export default function MessageInput() {
 
   const simulateAIResponse = async (userMessage: string) => {
     dispatch({ type: 'SET_TYPING', payload: true });
-    
+
     // Simulate thinking time
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-    
+
     // Generate contextual response based on mode and content
     let response = '';
-    
+
     if (currentMode === 'creative') {
       response = `I'd love to help you with that creative project! Here are some ideas:\n\n• **Brainstorming approach**: Let's think outside the box and explore unconventional angles\n• **Structure suggestion**: Consider a three-act approach with a compelling hook\n• **Style recommendations**: Mix descriptive language with dynamic dialogue\n\nWhat specific aspect would you like to dive deeper into?`;
-    } else if (currentMode === 'technical') {
+    } else if (currentMode === 'code') {
       response = `Let me help you with that technical question. Here's my analysis:\n\n\`\`\`\n// Example solution approach\nfunction handleRequest(input) {\n  // Process the input\n  return processedResult;\n}\n\`\`\`\n\n**Key considerations:**\n- Performance optimization\n- Error handling\n- Scalability factors\n\nWould you like me to elaborate on any of these points?`;
-    } else if (currentMode === 'productivity') {
+    } else if (currentMode === 'analytical') {
       response = `Great question! Here's a structured approach to boost your productivity:\n\n**📋 Action Items:**\n1. Break down your goal into smaller, manageable tasks\n2. Set specific deadlines for each milestone\n3. Use the Pomodoro Technique for focused work sessions\n\n**⏰ Time Management:**\n- Prioritize tasks using the Eisenhower Matrix\n- Block time for deep work\n- Schedule regular breaks\n\nWhat's your biggest productivity challenge right now?`;
-    } else if (currentMode === 'research') {
-      response = `Excellent research question! Let me provide you with a comprehensive analysis:\n\n**📊 Key Findings:**\n- Primary sources suggest multiple perspectives on this topic\n- Recent studies indicate emerging trends in this field\n- Cross-referencing data reveals interesting correlations\n\n**🔍 Methodology:**\n1. Literature review of peer-reviewed sources\n2. Data analysis from reputable databases\n3. Expert opinion synthesis\n\n**📚 Recommended next steps:**\n- Explore specific case studies\n- Review additional primary sources\n- Consider alternative viewpoints\n\nWould you like me to focus on any particular aspect?`;
     } else {
       // General mode
       response = `I understand you're asking about "${userMessage.substring(0, 50)}${userMessage.length > 50 ? '...' : ''}". Let me help you with that!\n\nBased on your question, here are some key points to consider:\n\n• **Context**: Understanding the background is important\n• **Options**: There are several approaches we could take\n• **Recommendations**: I'd suggest starting with the most straightforward solution\n\nIs there a specific aspect you'd like me to focus on or explain in more detail?`;
     }
-    
+
     dispatch({ type: 'SET_TYPING', payload: false });
     addMessage(response, 'assistant');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!input.trim() && attachments.length === 0) return;
-    
+
     // Create new conversation if none exists
     if (!state.currentConversationId) {
       createNewConversation(currentMode);
@@ -82,12 +80,12 @@ export default function MessageInput() {
 
     // Add user message
     addMessage(input.trim(), 'user', processedAttachments);
-    
+
     // Clear input
     const messageContent = input.trim();
     setInput('');
     setAttachments([]);
-    
+
     // Simulate AI response
     await simulateAIResponse(messageContent);
   };
@@ -177,7 +175,7 @@ export default function MessageInput() {
             )}
             disabled={isTyping}
           />
-          
+
           {/* Input Actions */}
           <div className="absolute bottom-3 right-3 flex items-center gap-1">
             <input
@@ -188,7 +186,7 @@ export default function MessageInput() {
               accept="image/*,.pdf,.txt,.doc,.docx"
               className="hidden"
             />
-            
+
             <Button
               type="button"
               variant="ghost"
@@ -199,7 +197,7 @@ export default function MessageInput() {
             >
               <Paperclip className="h-4 w-4" />
             </Button>
-            
+
             <Button
               type="button"
               variant="ghost"
@@ -217,7 +215,7 @@ export default function MessageInput() {
                 <Mic className="h-4 w-4" />
               )}
             </Button>
-            
+
             <Button
               type="submit"
               size="icon"
@@ -228,7 +226,7 @@ export default function MessageInput() {
             </Button>
           </div>
         </div>
-        
+
         {/* Input Help */}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>

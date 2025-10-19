@@ -1,0 +1,1 @@
+False|File mcp.json has low stability score (0.00)

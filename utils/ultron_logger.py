@@ -11,6 +11,35 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import threading
 
+# Create a default logger instance for backward compatibility
+class UltronLogger:
+    """Wrapper class providing logging methods"""
+
+    def log_info(self, component: str, message: str, **kwargs):
+        log_info(component, message, **kwargs)
+
+    def log_error(self, component: str, message: str, **kwargs):
+        log_error(component, message, **kwargs)
+
+    def log_ai_decision(self, component: str, message: str, ai_model: str = None, confidence_score: float = None, **kwargs):
+        log_ai_decision(component, message, ai_model, confidence_score, **kwargs)
+
+    def log_file_operation(self, component: str, message: str, file_path: str, action: str, **kwargs):
+        log_file_operation(component, message, file_path, action, **kwargs)
+
+    # Standard logging methods for compatibility
+    def info(self, message: str, **kwargs):
+        log_info("ultron", message, **kwargs)
+
+    def error(self, message: str, **kwargs):
+        log_error("ultron", message, **kwargs)
+
+    def warning(self, message: str, **kwargs):
+        log_info("ultron", f"WARNING: {message}", **kwargs)
+
+    def debug(self, message: str, **kwargs):
+        log_info("ultron", f"DEBUG: {message}", **kwargs)
+
 # Thread-safe logger instances
 _loggers: Dict[str, logging.Logger] = {}
 _lock = threading.Lock()
@@ -128,7 +157,7 @@ def _log_to_activities(log_entry: Dict[str, Any]):
             f.write(json.dumps(log_entry) + "\n")
     except Exception as e:
         # Fallback logging to avoid infinite recursion
-        print(f"Failed to log to activities file: {e}")
+        print(f"Failed to log to activities file: {e} - ultron_logger.py:163")
 
 def get_recent_logs(component: str = None, limit: int = 100) -> list:
     """Get recent log entries"""
@@ -151,7 +180,7 @@ def get_recent_logs(component: str = None, limit: int = 100) -> list:
         return logs[-limit:] if len(logs) > limit else logs
 
     except Exception as e:
-        print(f"Failed to read logs: {e}")
+        print(f"Failed to read logs: {e} - ultron_logger.py:186")
         return []
 
 def cleanup_old_logs(days: int = 30):
@@ -166,10 +195,13 @@ def cleanup_old_logs(days: int = 30):
         for log_file in logs_dir.glob("*.log"):
             if log_file.stat().st_mtime < cutoff_time:
                 log_file.unlink()
-                print(f"Cleaned up old log file: {log_file}")
+                print(f"Cleaned up old log file: {log_file} - ultron_logger.py:201")
 
     except Exception as e:
-        print(f"Failed to cleanup logs: {e}")
+        print(f"Failed to cleanup logs: {e} - ultron_logger.py:204")
 
 # Initialize logging on import
 setup_logging()
+
+# Alias for backward compatibility
+ultron_logger = UltronLogger()

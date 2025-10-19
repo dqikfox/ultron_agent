@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { 
-  Conversation, 
-  Message, 
-  AssistantMode, 
-  UserSettings, 
-  Note, 
-  Task, 
+import {
+  Conversation,
+  Message,
+  AssistantMode,
+  UserSettings,
+  Note,
+  Task,
   Reminder,
-  AssistantPersonality 
+  AssistantPersonality
 } from '../types';
 
 interface AppState {
@@ -70,6 +70,7 @@ export const assistantPersonalities: AssistantPersonality[] = [
     description: 'Helpful and knowledgeable for everyday tasks',
     icon: '🤖',
     color: 'bg-blue-500',
+    mode: 'general',
     systemPrompt: 'You are a helpful and knowledgeable AI assistant.'
   },
   {
@@ -78,6 +79,7 @@ export const assistantPersonalities: AssistantPersonality[] = [
     description: 'Specialized in creative writing and brainstorming',
     icon: '✨',
     color: 'bg-purple-500',
+    mode: 'creative',
     systemPrompt: 'You are a creative AI assistant specialized in writing, storytelling, and creative ideation.'
   },
   {
@@ -86,6 +88,7 @@ export const assistantPersonalities: AssistantPersonality[] = [
     description: 'Expert in programming and technical solutions',
     icon: '💻',
     color: 'bg-green-500',
+    mode: 'code',
     systemPrompt: 'You are a technical AI assistant specialized in programming, software development, and technical problem-solving.'
   },
   {
@@ -94,6 +97,7 @@ export const assistantPersonalities: AssistantPersonality[] = [
     description: 'Focused on organization and efficiency',
     icon: '📊',
     color: 'bg-orange-500',
+    mode: 'analytical',
     systemPrompt: 'You are a productivity-focused AI assistant specialized in organization, time management, and efficiency optimization.'
   },
   {
@@ -102,6 +106,7 @@ export const assistantPersonalities: AssistantPersonality[] = [
     description: 'Expert in research and information analysis',
     icon: '🔍',
     color: 'bg-indigo-500',
+    mode: 'analytical',
     systemPrompt: 'You are a research-focused AI assistant specialized in information gathering, analysis, and academic support.'
   }
 ];
@@ -110,111 +115,112 @@ function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_CONVERSATIONS':
       return { ...state, conversations: action.payload };
-    
+
     case 'ADD_CONVERSATION':
-      return { 
-        ...state, 
+      return {
+        ...state,
         conversations: [action.payload, ...state.conversations],
         currentConversationId: action.payload.id
       };
-    
+
     case 'UPDATE_CONVERSATION':
       return {
         ...state,
         conversations: state.conversations.map(conv =>
-          conv.id === action.payload.id 
+          conv.id === action.payload.id
             ? { ...conv, ...action.payload.updates, updatedAt: new Date() }
             : conv
         )
       };
-    
-    case 'DELETE_CONVERSATION':
+
+    case 'DELETE_CONVERSATION': {
       const filteredConversations = state.conversations.filter(conv => conv.id !== action.payload);
       return {
         ...state,
         conversations: filteredConversations,
-        currentConversationId: state.currentConversationId === action.payload 
-          ? filteredConversations[0]?.id || null 
+        currentConversationId: state.currentConversationId === action.payload
+          ? filteredConversations[0]?.id || null
           : state.currentConversationId
       };
-    
+    }
+
     case 'SET_CURRENT_CONVERSATION':
       return { ...state, currentConversationId: action.payload };
-    
+
     case 'ADD_MESSAGE':
       return {
         ...state,
         conversations: state.conversations.map(conv =>
           conv.id === action.payload.conversationId
-            ? { 
-                ...conv, 
+            ? {
+                ...conv,
                 messages: [...conv.messages, action.payload.message],
                 updatedAt: new Date()
               }
             : conv
         )
       };
-    
+
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.payload } };
-    
+
     case 'ADD_NOTE':
       return { ...state, notes: [action.payload, ...state.notes] };
-    
+
     case 'UPDATE_NOTE':
       return {
         ...state,
         notes: state.notes.map(note =>
-          note.id === action.payload.id 
+          note.id === action.payload.id
             ? { ...note, ...action.payload.updates, updatedAt: new Date() }
             : note
         )
       };
-    
+
     case 'DELETE_NOTE':
       return { ...state, notes: state.notes.filter(note => note.id !== action.payload) };
-    
+
     case 'ADD_TASK':
       return { ...state, tasks: [action.payload, ...state.tasks] };
-    
+
     case 'UPDATE_TASK':
       return {
         ...state,
         tasks: state.tasks.map(task =>
-          task.id === action.payload.id 
+          task.id === action.payload.id
             ? { ...task, ...action.payload.updates, updatedAt: new Date() }
             : task
         )
       };
-    
+
     case 'DELETE_TASK':
       return { ...state, tasks: state.tasks.filter(task => task.id !== action.payload) };
-    
+
     case 'ADD_REMINDER':
       return { ...state, reminders: [action.payload, ...state.reminders] };
-    
+
     case 'UPDATE_REMINDER':
       return {
         ...state,
         reminders: state.reminders.map(reminder =>
-          reminder.id === action.payload.id 
+          reminder.id === action.payload.id
             ? { ...reminder, ...action.payload.updates }
             : reminder
         )
       };
-    
+
     case 'DELETE_REMINDER':
       return { ...state, reminders: state.reminders.filter(reminder => reminder.id !== action.payload) };
-    
+
     case 'SET_TYPING':
       return { ...state, isTyping: action.payload };
-    
+
     case 'TOGGLE_SIDEBAR':
       return { ...state, sidebarOpen: !state.sidebarOpen };
-    
+
     case 'SET_CURRENT_MODE':
       return { ...state, currentMode: action.payload };
-    
+
     default:
       return state;
   }
@@ -300,18 +306,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       attachments
     };
 
-    dispatch({ 
-      type: 'ADD_MESSAGE', 
-      payload: { conversationId: state.currentConversationId, message } 
+    dispatch({
+      type: 'ADD_MESSAGE',
+      payload: { conversationId: state.currentConversationId, message }
     });
 
     // Update conversation title based on first user message
     const conversation = state.conversations.find(c => c.id === state.currentConversationId);
     if (conversation && conversation.messages.length === 0 && role === 'user') {
       const title = content.length > 50 ? content.substring(0, 50) + '...' : content;
-      dispatch({ 
-        type: 'UPDATE_CONVERSATION', 
-        payload: { id: state.currentConversationId, updates: { title } } 
+      dispatch({
+        type: 'UPDATE_CONVERSATION',
+        payload: { id: state.currentConversationId, updates: { title } }
       });
     }
   };

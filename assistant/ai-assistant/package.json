@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "yes | pnpm install && vite",
-    "build": "yes | pnpm install && rm -rf node_modules/.vite-temp && tsc -b && vite build",
-    "lint": "yes | pnpm install && eslint .",
-    "preview": "yes | pnpm install && vite preview"
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 tsc -b && vite build",
+    "lint": "cross-env NODE_OPTIONS=--max-old-space-size=8192 eslint .",
+    "preview": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -71,6 +71,7 @@
     "@types/react-router-dom": "^5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "10.4.20",
+    "cross-env": "^7.0.3",
     "eslint": "^9.15.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",

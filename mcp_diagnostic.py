@@ -8,6 +8,7 @@ Usage: python mcp_diagnostic.py
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -33,6 +34,7 @@ class MCPDiagnosticTool:
             "vscode_config": self.check_vscode_config(),
             "network_connectivity": self.check_network_connectivity(),
             "extension_conflicts": self.check_extension_conflicts(),
+            "github_mcp": self.check_github_mcp_configuration(),
             "issues_found": self.issues_found,
             "recommendations": self.recommendations
         }
@@ -277,6 +279,108 @@ class MCPDiagnosticTool:
 
         return extension_status
 
+    def check_github_mcp_configuration(self) -> Dict[str, Any]:
+        """Validate GitHub MCP environment and workspace setup"""
+        print("\n🧩 Checking GitHub MCP configuration...")
+
+        mcp_status: Dict[str, Any] = {}
+
+        runtime = os.environ.get("GITHUB_MCP_RUNTIME", "remote").lower()
+        mcp_status["runtime"] = runtime
+        print(f"  ℹ️  Runtime mode: {runtime}")
+
+        token_present = bool(os.environ.get("GITHUB_PERSONAL_ACCESS_TOKEN"))
+        mcp_status["token"] = "SET" if token_present else "MISSING"
+        if token_present:
+            print("  ✅ GitHub Personal Access Token detected")
+        else:
+            print("  ❌ GitHub Personal Access Token not found")
+            self.issues_found.append(
+                "Missing GITHUB_PERSONAL_ACCESS_TOKEN for GitHub MCP"
+            )
+            self.recommendations.append(
+                "Add a read-only GitHub PAT to .env as "
+                "GITHUB_PERSONAL_ACCESS_TOKEN"
+            )
+
+        toolsets = os.environ.get("GITHUB_TOOLSETS", "").strip()
+        if toolsets:
+            mcp_status["toolsets"] = toolsets
+            print(f"  ✅ Toolsets configured: {toolsets}")
+        else:
+            mcp_status["toolsets"] = "UNSET"
+            print("  ❌ GITHUB_TOOLSETS is not defined")
+            self.issues_found.append(
+                "GITHUB_TOOLSETS not defined for GitHub MCP"
+            )
+            self.recommendations.append(
+                "Set GITHUB_TOOLSETS to a comma-separated list "
+                "(e.g., issues,pullRequests,repositories)"
+            )
+
+        read_only_flag = os.environ.get("GITHUB_READ_ONLY", "true").lower()
+        mcp_status["read_only"] = read_only_flag
+        if read_only_flag not in {"true", "false"}:
+            print("  ⚠️  GITHUB_READ_ONLY should be 'true' or 'false'")
+            self.recommendations.append(
+                "Normalize GITHUB_READ_ONLY to 'true' or 'false'"
+            )
+        else:
+            print(f"  ✅ Read-only mode: {read_only_flag}")
+
+        host = os.environ.get("GITHUB_HOST", "https://api.github.com")
+        mcp_status["host"] = host
+        print(f"  ℹ️  MCP host set to: {host}")
+
+        mcp_config_file = self.project_root / ".vscode" / "mcp.json"
+        if mcp_config_file.exists():
+            mcp_status["workspace_config"] = "FOUND"
+            print("  ✅ .vscode/mcp.json found")
+        else:
+            mcp_status["workspace_config"] = "MISSING"
+            print("  ❌ .vscode/mcp.json not found")
+            self.recommendations.append(
+                "Create .vscode/mcp.json to register the GitHub MCP client "
+                "(see COPILOT_ORCHESTRATION_README.md)"
+            )
+
+        if runtime == "local":
+            docker_available = self._check_command("docker", "--version")
+            mcp_status["docker"] = (
+                "AVAILABLE" if docker_available else "MISSING"
+            )
+            if docker_available:
+                print("  ✅ Docker detected for local MCP runtime")
+            else:
+                print(
+                    "  ❌ Docker not detected; required for local MCP runtime"
+                )
+                self.issues_found.append(
+                    "Docker CLI not available for local GitHub MCP runtime"
+                )
+                self.recommendations.append(
+                    "Install Docker Desktop or switch GITHUB_MCP_RUNTIME back "
+                    "to 'remote'"
+                )
+
+        return mcp_status
+
+    @staticmethod
+    def _check_command(command: str, arg: str) -> bool:
+        """Helper to verify whether an external command exists"""
+        try:
+            result = subprocess.run(
+                [command, arg],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            return result.returncode == 0
+        except FileNotFoundError:
+            return False
+        except Exception:
+            return False
+
     def generate_report(self, results: Dict[str, Any]) -> str:
         """Generate diagnostic report"""
         report = []
@@ -308,6 +412,44 @@ class MCPDiagnosticTool:
             report.append(f"  {status_icon} {server}: {status}")
         report.append("")
 
+        # GitHub MCP status
+        mcp_results = results.get("github_mcp", {})
+        if mcp_results:
+            report.append("🧩 GITHUB MCP CONFIGURATION:")
+            report.append(
+                "  Runtime: {}".format(
+                    mcp_results.get("runtime", "unknown")
+                )
+            )
+            report.append(
+                "  Token: {}".format(mcp_results.get("token", "unknown"))
+            )
+            report.append(
+                "  Toolsets: {}".format(
+                    mcp_results.get("toolsets", "unset")
+                )
+            )
+            report.append(
+                "  Read-only: {}".format(
+                    mcp_results.get("read_only", "unknown")
+                )
+            )
+            report.append(
+                "  Host: {}".format(mcp_results.get("host", "unknown"))
+            )
+            report.append(
+                "  Workspace config: {}".format(
+                    mcp_results.get("workspace_config", "unknown")
+                )
+            )
+            if mcp_results.get("runtime") == "local":
+                report.append(
+                    "  Docker: {}".format(
+                        mcp_results.get("docker", "unknown")
+                    )
+                )
+            report.append("")
+
         # Quick fixes
         report.append("🔧 QUICK FIXES:")
         report.append("  1. Restart VS Code")
@@ -315,6 +457,7 @@ class MCPDiagnosticTool:
         report.append("     - python main.py (for ULTRON Agent)")
         report.append("     - ollama serve (for Ollama)")
         report.append("     - Start Langflow server if needed")
+        report.append("     - Ensure GitHub MCP runtime matches your setup")
         report.append("  3. Clear npm cache: npm cache clean --force")
         report.append("  4. Reinstall node modules: rm -rf node_modules && "
                       "npm install")

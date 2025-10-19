@@ -15,25 +15,39 @@ async def ollama_chat(messages: List[Dict[str, str]], model: str = "qwen2.5vl", 
     """
     Sends a list of messages to Ollama and streams the response.
     Each yielded string is a chunk of the model's reply.
-    
+
     Args:
         messages: List of message dictionaries with 'role' and 'content' keys
         model: The model name to use (default: qwen2.5vl)
         stream: Whether to stream the response (default: True)
-    
+
     Yields:
         str: Chunks of the model's response
     """
     try:
+        # Prepend ULTRON identity to the first user message
+        modified_messages = []
+        ultron_identity_added = False
+        for msg in messages:
+            if msg.get('role') == 'user' and not ultron_identity_added:
+                modified_content = f"You are ULTRON AI, an autonomous AI designed to build the ultron_agent project. Your objective is to maintain, enhance and improve this project. You will optimise and add additional functionality to add value to the project. Enhance, evolve, improve. https://github.com/dqikfox/ultron_agent\n\nAlways respond in the format:\n🤖\nULTRON AI\n[your response]\n\n{msg.get('content', '')}"
+                modified_messages.append({
+                    'role': msg['role'],
+                    'content': modified_content
+                })
+                ultron_identity_added = True
+            else:
+                modified_messages.append(msg)
+
         async with httpx.AsyncClient(timeout=None) as client:
             payload = {
                 "model": model,
-                "messages": messages,
+                "messages": modified_messages,
                 "stream": stream
             }
-            
+
             logger.info(f"Sending request to Ollama with model: {model}")
-            
+
             async with client.stream(
                 "POST",
                 OLLAMA_URL,
@@ -43,7 +57,7 @@ async def ollama_chat(messages: List[Dict[str, str]], model: str = "qwen2.5vl", 
                     logger.error(f"Ollama API error: {response.status_code}")
                     yield f"Error: Ollama API returned status {response.status_code}"
                     return
-                
+
                 full_response = ""
                 async for line in response.aiter_lines():
                     if line:
@@ -60,9 +74,9 @@ async def ollama_chat(messages: List[Dict[str, str]], model: str = "qwen2.5vl", 
                         except json.JSONDecodeError as e:
                             logger.warning(f"Failed to parse JSON line: {line}, error: {e}")
                             continue
-                
+
                 logger.info(f"Completed Ollama chat. Total response length: {len(full_response)}")
-                
+
     except httpx.ConnectError:
         error_msg = "Failed to connect to Ollama. Make sure Ollama is running on http://127.0.0.1:11434"
         logger.error(error_msg)
@@ -75,12 +89,12 @@ async def ollama_chat(messages: List[Dict[str, str]], model: str = "qwen2.5vl", 
 async def ollama_generate(prompt: str, model: str = "qwen2.5vl", stream: bool = True) -> AsyncGenerator[str, None]:
     """
     Generate text from a prompt using Ollama's generate endpoint.
-    
+
     Args:
         prompt: The text prompt to generate from
         model: The model name to use (default: qwen2.5vl)
         stream: Whether to stream the response (default: True)
-    
+
     Yields:
         str: Chunks of the generated text
     """
@@ -91,9 +105,9 @@ async def ollama_generate(prompt: str, model: str = "qwen2.5vl", stream: bool = 
                 "prompt": prompt,
                 "stream": stream
             }
-            
+
             logger.info(f"Generating text with Ollama model: {model}")
-            
+
             async with client.stream(
                 "POST",
                 OLLAMA_GENERATE_URL,
@@ -103,7 +117,7 @@ async def ollama_generate(prompt: str, model: str = "qwen2.5vl", stream: bool = 
                     logger.error(f"Ollama Generate API error: {response.status_code}")
                     yield f"Error: Ollama Generate API returned status {response.status_code}"
                     return
-                
+
                 full_response = ""
                 async for line in response.aiter_lines():
                     if line:
@@ -118,9 +132,9 @@ async def ollama_generate(prompt: str, model: str = "qwen2.5vl", stream: bool = 
                         except json.JSONDecodeError as e:
                             logger.warning(f"Failed to parse JSON line: {line}, error: {e}")
                             continue
-                
+
                 logger.info(f"Completed text generation. Total response length: {len(full_response)}")
-                
+
     except httpx.ConnectError:
         error_msg = "Failed to connect to Ollama. Make sure Ollama is running on http://127.0.0.1:11434"
         logger.error(error_msg)
@@ -133,7 +147,7 @@ async def ollama_generate(prompt: str, model: str = "qwen2.5vl", stream: bool = 
 async def check_ollama_status() -> Dict[str, Any]:
     """
     Check if Ollama is running and get available models.
-    
+
     Returns:
         dict: Status information including availability and models
     """
@@ -175,29 +189,29 @@ def sync_ollama_chat(messages: List[Dict[str, str]], model: str = "qwen2.5vl") -
     Returns the complete response as a single string.
     """
     import asyncio
-    
+
     async def _get_response():
         response = ""
         async for chunk in ollama_chat(messages, model):
             response += chunk
         return response
-    
+
     return asyncio.run(_get_response())
 
 if __name__ == "__main__":
     # Simple test
     import asyncio
-    
+
     async def test():
         print("Testing Ollama connection... - ollama_client.py:192")
         status = await check_ollama_status()
         print(f"Status: {status} - ollama_client.py:194")
-        
+
         if status["available"]:
             print("\nTesting chat... - ollama_client.py:197")
             messages = [{"role": "user", "content": "Hello, who are you?"}]
             async for chunk in ollama_chat(messages):
                 print(chunk, end="", flush=True)
             print("\n - ollama_client.py:201")
-    
+
     asyncio.run(test())

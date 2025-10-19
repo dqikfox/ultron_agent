@@ -6,17 +6,24 @@ Following copilot instructions architecture
 
 import asyncio
 import logging
-import os
 import sys
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 from pathlib import Path
 import importlib
 import inspect
 from datetime import datetime
 from enum import Enum
 
+try:
+    import keyboard
+    KEYBOARD_AVAILABLE = True
+except ImportError:
+    KEYBOARD_AVAILABLE = False
+
 # Import performance profiler
-from utils.performance_profiler import get_performance_profiler, start_performance_monitoring
+from utils.performance_profiler import (
+    get_performance_profiler, start_performance_monitoring
+)
 
 # Import the correct UltronConfig from ultron_agent package
 try:
@@ -41,6 +48,7 @@ except ImportError:
             return getattr(self, key, default)
 
 
+
 class AgentStatus(Enum):
     INITIALIZING = "initializing"
     RUNNING = "running"
@@ -59,7 +67,9 @@ class UltronAgent:
         self.logger = self._setup_logging()
 
         # Initialize performance profiler
-        self.performance_profiler = get_performance_profiler(self.config.__dict__ if hasattr(self.config, '__dict__') else {})
+        config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                       else {})
+        self.performance_profiler = get_performance_profiler(config_dict)
 
         # Core components per copilot instructions
         self.tools = {}
@@ -92,7 +102,7 @@ class UltronAgent:
                 # Fallback to simple config
                 return UltronConfig()
         except Exception as e:
-            print(f"Failed to load config: {e}, using defaults")
+            print(f"Failed to load config: {e}, using defaults - agent_core.py:105")
             return UltronConfig()
 
     def _setup_logging(self) -> logging.Logger:
@@ -117,7 +127,9 @@ class UltronAgent:
             self.logger.info("Initializing ULTRON Agent components...")
 
             # Start performance monitoring
-            start_performance_monitoring(self.config.__dict__ if hasattr(self.config, '__dict__') else {})
+            config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                           else {})
+            start_performance_monitoring(config_dict)
 
             # Initialize core systems per copilot instructions
             await self._initialize_memory()
@@ -126,7 +138,11 @@ class UltronAgent:
             await self._initialize_brain()
             await self._initialize_event_system()
             await self._initialize_idle_monitor()
+            await self._initialize_keyboard_listener()
             await self._load_tools()
+
+            # Start web interface after all tools are loaded
+            await self._start_web_interface()
 
             # Update status
             self.status = AgentStatus.RUNNING
@@ -138,8 +154,8 @@ class UltronAgent:
             await self.maintain_ultron_identity()
 
             # Start voice listening if configured
-            voice_enabled = (getattr(self.config, 'use_voice', False) or
-                             getattr(self.config, 'voice_enabled', True))
+            voice_enabled = (self.config.get('use_voice', False) or
+                            self.config.get('voice_enabled', False))
             if voice_enabled:
                 msg = "Voice system enabled, starting voice listening..."
                 self.logger.info(msg)
@@ -180,7 +196,8 @@ class UltronAgent:
     async def _initialize_voice(self):
         """Initialize voice system with fallback chain per copilot instructions"""
         self.logger.info(
-            "Initializing voice system (Enhanced -> pyttsx3 -> OpenAI -> Console)..."
+            "Initializing voice system "
+            "(Enhanced -> pyttsx3 -> OpenAI -> Console)..."
         )
 
         # Import and initialize the full voice system
@@ -205,8 +222,13 @@ class UltronAgent:
     async def _initialize_vision(self):
         """Initialize vision system"""
         self.logger.info("Initializing vision system...")
-        # Placeholder for vision initialization
-        pass
+        try:
+            from tools.multimodal_vision_tool import MultimodalVisionTool
+            self.vision = MultimodalVisionTool()
+            self.logger.info("Vision system initialized successfully")
+        except ImportError as e:
+            self.logger.error(f"Vision system initialization failed: {e}")
+            self.vision = None
 
     async def _initialize_brain(self):
         """Initialize brain system with tools and memory"""
@@ -243,6 +265,84 @@ class UltronAgent:
         self.idle_monitor.set_idle_callback(on_idle)
         await self.idle_monitor.start_monitoring()
         self.logger.info("Idle monitor initialized and started")
+
+    async def _initialize_keyboard_listener(self):
+        """Initialize Print Screen key listener for automatic screenshot analysis"""
+        if not KEYBOARD_AVAILABLE:
+            self.logger.warning("Keyboard library not available, Print Screen functionality disabled")
+            return
+
+        self.logger.info("Initializing Print Screen key listener...")
+
+        def on_print_screen():
+            """Handle Print Screen key press"""
+            try:
+                self.logger.info("Print Screen detected, triggering vision analysis...")
+                # Run vision capture and analysis in background
+                asyncio.create_task(self._handle_print_screen_capture())
+            except Exception as e:
+                self.logger.error(f"Error handling Print Screen: {e}")
+
+        # Register the hotkey
+        try:
+            keyboard.add_hotkey('print screen', on_print_screen)
+            keyboard.add_hotkey('printscreen', on_print_screen)  # Alternative key name
+            self.logger.info("Print Screen key listener registered successfully")
+        except Exception as e:
+            self.logger.error(f"Failed to register Print Screen hotkey: {e}")
+
+    async def _handle_print_screen_capture(self):
+        """Handle the Print Screen capture and analysis workflow"""
+        try:
+            # Capture screenshot
+            if self.vision:
+                capture_result = self.vision.capture_and_ocr()
+                if capture_result.get('has_text') or capture_result.get('screenshot_path'):
+                    image_path = capture_result.get('screenshot_path')
+                    self.logger.info(f"Screenshot captured: {image_path}")
+
+                    # Trigger analysis via multimodal vision tool
+                    from tools.multimodal_vision_tool import MultimodalVisionTool
+                    vision_tool = MultimodalVisionTool()
+                    analysis = vision_tool.analyze_image(image_path)
+
+                    # Emit event for GUI updates
+                    if self.event_system:
+                        await self.event_system.emit('vision_analysis_complete', {
+                            'image_path': image_path,
+                            'analysis': analysis,
+                            'trigger': 'print_screen'
+                        })
+
+                    self.logger.info("Print Screen analysis completed successfully")
+                else:
+                    self.logger.error("Screenshot capture failed")
+            else:
+                self.logger.error("Vision system not available for Print Screen capture")
+        except Exception as e:
+            self.logger.error(f"Print Screen capture failed: {e}")
+
+    async def _start_web_interface(self):
+        """Start the web interface after all tools are loaded"""
+        self.logger.info("Starting web interface...")
+        try:
+            # Find the mobile web interface tool and start it
+            for tool_name, tool in self.tools.items():
+                if tool_name.lower() == 'mobilewebinterfacetool':
+                    # Start the interface in a separate thread to avoid blocking
+                    import threading
+                    def start_interface():
+                        try:
+                            tool.start_interface()
+                        except Exception as e:
+                            self.logger.error(f"Failed to start web interface: {e}")
+
+                    interface_thread = threading.Thread(target=start_interface, daemon=True)
+                    interface_thread.start()
+                    self.logger.info("Web interface started in background thread")
+                    break
+        except Exception as e:
+            self.logger.error(f"Error starting web interface: {e}")
 
     async def _trigger_auto_analysis(self):
         """Trigger auto-analysis workflow when idle threshold is exceeded"""
@@ -281,10 +381,12 @@ class UltronAgent:
                         # Just notify about available suggestions
                         await self._notify_available_suggestions(suggestions, metadata)
                 else:
-                    ultron_logger.log_info("auto_patch_manager", "No valid suggestions generated")
+                    from utils.ultron_logger import log_info
+                    log_info("auto_patch_manager", "No valid suggestions generated")
 
         except Exception as e:
-            ultron_logger.log_error("agent_core", f"Auto-analysis failed: {str(e)}")
+            from utils.ultron_logger import log_error
+            log_error("agent_core", f"Auto-analysis failed: {str(e)}")
             await self.speak("Auto-analysis encountered an error. Check logs for details.")
 
     async def _gather_codebase_context(self) -> str:
@@ -320,7 +422,8 @@ class UltronAgent:
             message += f" {failed} suggestions failed."
 
         # Log detailed results
-        ultron_logger.log_info("agent_core", f"Auto-patch results: {results}")
+        from utils.ultron_logger import log_info
+        log_info("agent_core", f"Auto-patch results: {results}")
 
         # Speak notification
         await self.speak(message)
@@ -406,7 +509,8 @@ class UltronAgent:
                 import importlib as _importlib
                 module = _importlib.import_module(f"tools.{stem}")
             except Exception as e:
-                self.logger.debug(f"package import failed for tools.{stem}: {e}")
+                self.logger.warning(f"package import failed for tools.{stem}: {e}")
+                continue  # Skip this tool entirely if it can't be imported
 
             # 2) Fallback to importlib.util by path
             if module is None:
@@ -451,32 +555,51 @@ class UltronAgent:
             except Exception as e:
                 self.logger.error(f"Failed to inspect tool classes in {tool_file}: {e}")
 
-    async def speak(self, text: str, async_mode: bool = True):
-        """Speak text using the initialized voice system"""
-        if self.voice and hasattr(self.voice, 'speak'):
-            try:
-                if async_mode:
-                    # Run in background thread to not block
+    async def speak(self, text: str, async_mode: bool = True) -> bool:
+        """Speak text using the initialized voice system."""
+        if not self.voice or not text:
+            return False
+
+        try:
+            speak_async = getattr(self.voice, "speak_async", None)
+            speak_sync = getattr(self.voice, "speak", None)
+
+            if async_mode and callable(speak_async):
+                try:
+                    loop = asyncio.get_running_loop()
+                    loop.create_task(speak_async(text))
+                    return True
+                except RuntimeError:
                     import threading
-                    def speak_in_thread():
+
+                    def run_in_thread():
                         try:
-                            # Create new event loop for the thread
-                            loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(loop)
-                            # Get the coroutine and run it
-                            speak_coro = self.voice.speak(text)
-                            loop.run_until_complete(speak_coro)
-                            loop.close()
-                        except Exception as e:
-                            self.logger.error(f"Voice speaking in thread failed: {e}")
-                    threading.Thread(target=speak_in_thread).start()
-                else:
-                    await self.voice.speak(text)
-                return True
-            except Exception as e:
-                self.logger.error(f"Voice speaking failed: {e}")
-                return False
-        return False
+                            asyncio.run(speak_async(text))
+                        except Exception as thread_exc:
+                            self.logger.error(
+                                f"Voice speak_async thread failed: {thread_exc}"
+                            )
+
+                    threading.Thread(target=run_in_thread, daemon=True).start()
+                    return True
+
+            if callable(speak_async):
+                return await speak_async(text)
+
+            if callable(speak_sync):
+                if async_mode:
+                    await asyncio.to_thread(speak_sync, text)
+                    return True
+                return bool(speak_sync(text))
+
+            self.logger.warning(
+                "Voice assistant lacks speak interfaces; skipping audio output"
+            )
+            return False
+
+        except Exception as exc:
+            self.logger.error(f"Voice speaking failed: {exc}")
+            return False
 
     async def handle_voice_command(self, command: str):
         """Process a voice command through the agent system"""
@@ -519,7 +642,7 @@ class UltronAgent:
         try:
             self.logger.info("Starting voice listening...")
             speak_result = await self.speak(
-                "Voice system activated. I'm listening for commands."
+                "Voice recognition active."
             )
             if not speak_result:
                 self.logger.warning("Failed to announce voice activation")
@@ -632,7 +755,7 @@ class UltronAgent:
                 tool_results = []
                 for tool_name, tool in matching_tools:
                     try:
-                        exec_result = tool.execute(command, context)
+                        exec_result = tool.execute(command)
                         if inspect.isawaitable(exec_result):
                             exec_result = await exec_result
                         tool_results.append(

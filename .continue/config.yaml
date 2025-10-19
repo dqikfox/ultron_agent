@@ -80,22 +80,21 @@ models:
 
   # Local Agent (ULTRON Agent Integration)
   - name: Local Agent
-    provider: openai
+    provider: continue-proxy
     model: gpt-3.5-turbo
     apiBase: http://localhost:8000/v1
     apiKey: ultron-local-key
+    orgScopeId: ultron-local
+    onPremProxyUrl: http://localhost:8000
     roles:
       - chat
       - edit
       - apply
-    description: "Local ULTRON Agent via FastAPI endpoint"
 
 # Context Providers
 context:
   - provider: diff
   - provider: codebase
-    nRetrieve: 50
-    nFinal: 20
   - provider: url
   - provider: folder
   - provider: terminal
@@ -112,103 +111,46 @@ context:
 
 # MCP Servers
 mcpServers:
-  github:
+  - name: github
     command: npx
     args: ["-y", "@anthropic-ai/mcp-server-github"]
     env:
       GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_PERSONAL_ACCESS_TOKEN}
 
-  postgres:
+  - name: postgres
     command: npx
     args: ["-y", "@anthropic-ai/mcp-server-postgres"]
     env:
       CONNECTION_STRING: ${POSTGRES_CONNECTION_STRING}
 
-  filesystem:
+  - name: filesystem
     command: npx
     args: ["-y", "@anthropic-ai/mcp-server-filesystem"]
     env:
       PATH: ${FILESYSTEM_PATH}
 
-  playwright:
+  - name: playwright
     command: npx
     args: ["-y", "playwright-mcp-server"]
 
-  exa:
+  - name: exa
     command: npx
     args: ["-y", "exa-mcp"]
     env:
       EXA_API_KEY: ${EXA_API_KEY}
 
-  brave-search:
+  - name: brave-search
     command: npx
     args: ["-y", "@anthropic-ai/mcp-server-brave-search"]
     env:
       BRAVE_API_KEY: ${BRAVE_API_KEY}
 
-  memory:
+  - name: memory
     command: npx
     args: ["-y", "@anthropic-ai/mcp-server-memory"]
 
-# Custom Slash Commands
-slashCommands:
-  - name: analyze
-    description: Analyze code patterns and best practices
-    step: |
-      Analyze the selected code for development patterns, including:
-      - Code quality and maintainability
-      - Security considerations
-      - Performance optimizations
-      - Best practices compliance
-      Provide actionable recommendations.
+  - name: Context7 MCP
+    type: streamable-http
+    url: https://mcp.context7.com/mcp
 
-  - name: test
-    description: Generate comprehensive test cases
-    step: |
-      Generate test cases for the selected code, including:
-      - Unit tests for core functionality
-      - Integration tests
-      - Edge cases and error handling
-      - Mock implementations where needed
 
-  - name: docs
-    description: Generate documentation
-    step: |
-      Generate comprehensive documentation including:
-      - Function/class descriptions
-      - Parameter explanations
-      - Usage examples
-      - Integration guidelines
-
-  - name: refactor
-    description: Refactor code for better structure
-    step: |
-      Refactor the selected code to improve:
-      - Code organization and readability
-      - Error handling
-      - Type safety
-      - Performance
-      - Maintainability
-
-# UI Settings
-ui:
-  showChatScrollbar: true
-  showPromptScrollbar: true
-  codeBlockToolbarPosition: top
-  fontSize: 14
-
-# Autocomplete Settings
-tabAutocompleteOptions:
-  disable: false
-  maxPromptTokens: 1024
-  debounceDelay: 250
-  modelTimeout: 150
-  maxSuffixPercentage: 0.2
-  prefixPercentage: 0.3
-  onlyMyCode: true
-  multilineCompletions: auto
-
-# Experimental Features
-experimental:
-  promptPath: .continue/prompts
-  modelContextWindowLimit: 128000

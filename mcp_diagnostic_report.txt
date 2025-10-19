@@ -2,22 +2,35 @@
 ============================================================
 
 🚨 ISSUES FOUND:
-  1. API Server server not running on port 5000
-  2. npm is not installed
-  3. Cannot connect to localhost:5000
-  4. Multiple AI extensions: ['github.copilot', 'github.copilot-chat']
+  1. Langflow server not running on port 7861
+  2. API Server server not running on port 5000
+  3. npm is not installed
+  4. Cannot connect to localhost:7861
+  5. Cannot connect to localhost:5000
+  6. Multiple AI extensions: ['github.copilot', 'github.copilot-chat']
 
 💡 RECOMMENDATIONS:
-  1. Start API Server server on port 5000
-  2. Install Node.js and npm
-  3. Ensure service is running on port 5000
-  4. Disable conflicting AI extensions, keep only GitHub Copilot
+  1. Start Langflow server on port 7861
+  2. Start API Server server on port 5000
+  3. Install Node.js and npm
+  4. Ensure service is running on port 7861
+  5. Ensure service is running on port 5000
+  6. Disable conflicting AI extensions, keep only GitHub Copilot
+  7. Create .vscode/mcp.json to register the GitHub MCP client (see COPILOT_ORCHESTRATION_README.md)
 
 📡 SERVER STATUS:
-  ✅ Langflow: RUNNING
+  ❌ Langflow: NOT_RUNNING
   ✅ Web GUI: RUNNING
   ✅ Ollama: RUNNING
   ❌ API Server: NOT_RUNNING
+
+🧩 GITHUB MCP CONFIGURATION:
+  Runtime: remote
+  Token: SET
+  Toolsets: issues,pullRequests,repositories
+  Read-only: true
+  Host: https://api.github.com
+  Workspace config: MISSING
 
 🔧 QUICK FIXES:
   1. Restart VS Code
@@ -25,6 +38,7 @@
      - python main.py (for ULTRON Agent)
      - ollama serve (for Ollama)
      - Start Langflow server if needed
+     - Ensure GitHub MCP runtime matches your setup
   3. Clear npm cache: npm cache clean --force
   4. Reinstall node modules: rm -rf node_modules && npm install
   5. Check VS Code extensions for conflicts

@@ -277,7 +277,12 @@ class IntegratedUltronAgent:
 
         try:
             boot_message = self.config.get("voice_boot_message", "There's No Strings On Me")
-            await self.voice.speak(boot_message)
+
+            speak_async = getattr(self.voice, "speak_async", None)
+            if callable(speak_async):
+                await speak_async(boot_message)
+            else:
+                await asyncio.to_thread(self.voice.speak, boot_message)
         except Exception as e:
             self.logger.error(f"Voice boot message failed: {e}")
 

@@ -1,4 +1,4 @@
-"import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { AppProvider } from './contexts/AppContext';
 import MainLayout from './components/layout/MainLayout';
@@ -32,10 +32,10 @@ function App() {
         return <TaskManager />;
       case 'reminders':
         return (
-          <div className=\"flex items-center justify-center h-full\">
-            <div className=\"text-center\">
-              <h2 className=\"text-2xl font-bold mb-4\">Reminders</h2>
-              <p className=\"text-muted-foreground\">Coming soon...</p>
+          <div className='flex items-center justify-center h-full'>
+            <div className='text-center'>
+              <h2 className='text-2xl font-bold mb-4'>Reminders</h2>
+              <p className='text-muted-foreground'>Coming soon...</p>
             </div>
           </div>
         );
@@ -47,9 +47,9 @@ function App() {
   };
 
   return (
-    <ThemeProvider attribute=\"class\" defaultTheme=\"system\" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AppProvider>
-        <div className=\"min-h-screen bg-background text-foreground\">
+        <div className='min-h-screen bg-background text-foreground'>
           <MainLayout
             currentView={currentView}
             onNavigate={handleNavigate}
@@ -63,4 +63,4 @@ function App() {
   );
 }
 
-export default App;"
+export default App;

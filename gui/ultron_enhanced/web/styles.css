@@ -1880,6 +1880,19 @@ select:focus-visible {
     border-left: 4px solid #00ff41;
 }
 
+.chat-message.thinking-message {
+    opacity: 0.75;
+    border-left-style: dashed;
+    animation: thinkingPulse 1.2s ease-in-out infinite;
+}
+
+.chat-message.thinking-message .message-text::after {
+    content: '...';
+    animation: thinkingEllipsis 1.4s ease-in-out infinite;
+    margin-left: 4px;
+    display: inline-block;
+}
+
 .message-avatar {
     font-size: 24px;
     flex-shrink: 0;
@@ -1908,6 +1921,18 @@ select:focus-visible {
     font-family: 'Courier New', monospace;
     font-size: 10px;
     color: #9ca3af;
+}
+
+@keyframes thinkingPulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.5; }
+}
+
+@keyframes thinkingEllipsis {
+    0% { opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { opacity: 0.2; }
 }
 
 .chat-input-container {
@@ -2023,6 +2048,7 @@ select:focus-visible {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.9);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: 10000;
     display: flex;
@@ -2189,4 +2215,620 @@ select:focus-visible {
 @keyframes tts-pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+/* === ULTRON STEAMPUNK THEME === */
+body.ultron-steampunk {
+    font-family: 'Share Tech Mono', 'Orbitron', 'Inter', system-ui, sans-serif;
+    background: radial-gradient(circle at 20% 20%, rgba(255, 180, 80, 0.08), transparent 60%),
+                radial-gradient(circle at 80% 0%, rgba(92, 225, 230, 0.12), transparent 55%),
+                #0b1018;
+    color: #f6eada;
+    position: relative;
+}
+
+body.ultron-steampunk .ambient-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255, 164, 64, 0.08), rgba(14, 181, 190, 0.03));
+    mix-blend-mode: screen;
+    opacity: 0.7;
+    z-index: -2;
+    animation: aurora-shift 18s ease-in-out infinite alternate;
+}
+
+body.ultron-steampunk .ambient-overlay.secondary {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 65%);
+    filter: blur(60px);
+    opacity: 0.35;
+    animation-duration: 28s;
+}
+
+body.ultron-steampunk .floating-gear {
+    position: fixed;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 215, 160, 0.18), transparent 70%),
+                conic-gradient(from 90deg, rgba(255, 179, 89, 0.35) 0deg 70deg, transparent 70deg 180deg,
+                               rgba(255, 179, 89, 0.35) 180deg 250deg, transparent 250deg 360deg);
+    filter: drop-shadow(0 0 30px rgba(255, 153, 80, 0.3));
+    opacity: 0.45;
+    z-index: -1;
+    animation: gear-spin 60s linear infinite;
+}
+
+body.ultron-steampunk .floating-gear.gear-left {
+    top: 10vh;
+    left: 3vw;
+}
+
+body.ultron-steampunk .floating-gear.gear-right {
+    bottom: 8vh;
+    right: 6vw;
+    animation-direction: reverse;
+}
+
+body.ultron-steampunk .lumen-ring {
+    position: fixed;
+    width: 480px;
+    height: 480px;
+    border-radius: 50%;
+    border: 1px solid rgba(118, 213, 255, 0.18);
+    box-shadow: 0 0 90px rgba(118, 213, 255, 0.18);
+    pointer-events: none;
+    z-index: -1;
+    mix-blend-mode: screen;
+}
+
+body.ultron-steampunk .lumen-ring.ring-one {
+    top: 18vh;
+    right: 18vw;
+    animation: ring-spin 22s linear infinite;
+}
+
+body.ultron-steampunk .lumen-ring.ring-two {
+    bottom: 12vh;
+    left: 20vw;
+    width: 420px;
+    height: 420px;
+    animation: ring-spin 28s linear infinite reverse;
+}
+
+body.ultron-steampunk .data-stream {
+    position: fixed;
+    top: 0;
+    right: 12vw;
+    width: 3px;
+    height: 100vh;
+    background: linear-gradient(180deg, rgba(109, 224, 255, 0) 0%, rgba(109, 224, 255, 0.8) 45%, rgba(109, 224, 255, 0) 100%);
+    opacity: 0.45;
+    animation: data-slide 14s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(109, 224, 255, 0.6));
+    z-index: -1;
+}
+
+body.ultron-steampunk #app {
+    position: relative;
+    z-index: 1;
+}
+
+body.ultron-steampunk .start-screen {
+    background: rgba(5, 8, 14, 0.86);
+    border: 1px solid rgba(241, 186, 104, 0.35);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65), inset 0 0 80px rgba(255, 132, 44, 0.12);
+}
+
+body.ultron-steampunk .start-screen-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    letter-spacing: 0.35em;
+}
+
+body.ultron-steampunk .start-logo {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(3rem, 5vw, 4rem);
+    color: #ffd6a6;
+    text-shadow: 0 0 25px rgba(255, 172, 68, 0.7);
+}
+
+body.ultron-steampunk .start-subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(230, 253, 255, 0.78);
+    text-transform: uppercase;
+}
+
+body.ultron-steampunk .start-button {
+    background: linear-gradient(135deg, #f4a259, #f0874e);
+    border: 1px solid rgba(255, 207, 160, 0.8);
+    color: #1b1610;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.3em;
+    box-shadow: 0 12px 30px rgba(240, 135, 78, 0.35);
+}
+
+body.ultron-steampunk .start-button:hover {
+    box-shadow: 0 18px 38px rgba(240, 135, 78, 0.5);
+}
+
+body.ultron-steampunk .pokedex-container {
+    max-width: 940px;
+}
+
+body.ultron-steampunk .frame-corner {
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    border: 2px solid rgba(255, 190, 120, 0.65);
+    z-index: 0;
+    pointer-events: none;
+}
+
+body.ultron-steampunk .frame-top-left { top: -12px; left: -12px; border-right: none; border-bottom: none; }
+body.ultron-steampunk .frame-top-right { top: -12px; right: -12px; border-left: none; border-bottom: none; }
+body.ultron-steampunk .frame-bottom-left { bottom: -12px; left: -12px; border-right: none; border-top: none; }
+body.ultron-steampunk .frame-bottom-right { bottom: -12px; right: -12px; border-left: none; border-top: none; }
+
+body.ultron-steampunk .holo-grid {
+    position: absolute;
+    inset: 20px;
+    border-radius: 28px;
+    border: 1px solid rgba(122, 206, 255, 0.15);
+    background: linear-gradient(90deg, rgba(122, 206, 255, 0.04) 1px, transparent 1px) 0 0 / 28px 28px,
+                linear-gradient(0deg, rgba(122, 206, 255, 0.04) 1px, transparent 1px) 0 0 / 28px 28px;
+    mask: linear-gradient(#000, rgba(0,0,0,0.4));
+    pointer-events: none;
+    z-index: 0;
+    animation: grid-float 14s ease-in-out infinite alternate;
+}
+
+body.ultron-steampunk .pokedex-body {
+    background: linear-gradient(140deg, rgba(37, 31, 23, 0.95), rgba(21, 23, 33, 0.96));
+    border: 1px solid rgba(255, 190, 120, 0.4);
+    box-shadow: 0 30px 55px rgba(4, 8, 15, 0.85), inset 0 0 70px rgba(255, 179, 89, 0.08);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+}
+
+body.ultron-steampunk .pokedex-body::after {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(from 0deg, rgba(255, 133, 54, 0.12), transparent 45%, rgba(81, 205, 224, 0.2), transparent 60%);
+    filter: blur(80px);
+    opacity: 0.45;
+    z-index: -1;
+    animation: arc-shift 22s linear infinite;
+}
+
+body.ultron-steampunk .pokedex-title {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.45em;
+    color: #ffe5c0;
+    text-shadow: 0 0 18px rgba(255, 152, 70, 0.6);
+}
+
+body.ultron-steampunk .current-section {
+    border: 1px solid rgba(122, 206, 255, 0.25);
+    background: rgba(16, 22, 30, 0.65);
+    box-shadow: inset 0 0 16px rgba(84, 235, 255, 0.18);
+}
+
+body.ultron-steampunk .section-indicator {
+    color: #8ff1f5;
+    text-shadow: 0 0 12px rgba(143, 241, 245, 0.8);
+}
+
+body.ultron-steampunk .navigation-panel {
+    background: rgba(13, 16, 23, 0.85);
+    border: 1px solid rgba(255, 190, 120, 0.25);
+    box-shadow: inset 0 0 35px rgba(255, 162, 72, 0.08);
+}
+
+body.ultron-steampunk .ultron-header {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.75rem 2.5rem;
+    margin: 0 auto 1.5rem;
+    max-width: 960px;
+    background: rgba(11, 17, 24, 0.82);
+    border: 1px solid rgba(122, 206, 255, 0.18);
+    box-shadow: 0 24px 48px rgba(5, 9, 14, 0.6), inset 0 0 35px rgba(109, 224, 255, 0.12);
+    border-radius: 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+body.ultron-steampunk .ultron-header::before {
+    content: "";
+    position: absolute;
+    inset: -40% 10% 40% 10%;
+    background: radial-gradient(circle, rgba(109, 224, 255, 0.12) 0%, transparent 60%);
+    filter: blur(60px);
+    opacity: 0.45;
+    animation: header-wisp 18s ease-in-out infinite;
+}
+
+body.ultron-steampunk .header-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    z-index: 1;
+}
+
+body.ultron-steampunk .header-column--left {
+    align-items: flex-start;
+}
+
+body.ultron-steampunk .header-column--center {
+    align-items: center;
+    text-align: center;
+}
+
+body.ultron-steampunk .header-column--right {
+    align-items: flex-end;
+    text-align: right;
+}
+
+body.ultron-steampunk .header-badge {
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.32em;
+    color: #88e0ff;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid rgba(140, 217, 255, 0.35);
+    border-radius: 999px;
+    background: rgba(14, 21, 30, 0.75);
+}
+
+body.ultron-steampunk .header-caption {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.45em;
+    color: rgba(255, 213, 168, 0.78);
+    text-transform: uppercase;
+}
+
+body.ultron-steampunk .header-holo {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    letter-spacing: 0.5em;
+    color: #ffe9d0;
+    text-shadow: 0 0 18px rgba(255, 173, 94, 0.5);
+}
+
+body.ultron-steampunk .header-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.65rem;
+    letter-spacing: 0.3em;
+    color: #8ff1f5;
+    text-shadow: 0 0 18px rgba(143, 241, 245, 0.7);
+}
+
+body.ultron-steampunk .header-divider {
+    width: 70px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(109, 224, 255, 0.9), transparent);
+    margin: 0.2rem 0 0.4rem;
+}
+
+body.ultron-steampunk .header-spectrum {
+    display: flex;
+    gap: 0.5rem;
+}
+
+body.ultron-steampunk .spectrum-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 177, 86, 0.85) 0%, rgba(255, 115, 64, 0.2) 70%);
+    box-shadow: 0 0 12px rgba(255, 177, 86, 0.6);
+    animation: spectrum-pulse 2.2s ease-in-out infinite;
+}
+
+body.ultron-steampunk .spectrum-dot:nth-child(2) { animation-delay: 0.3s; }
+body.ultron-steampunk .spectrum-dot:nth-child(3) { animation-delay: 0.6s; }
+body.ultron-steampunk .spectrum-dot:nth-child(4) { animation-delay: 0.9s; }
+
+body.ultron-steampunk .header-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+}
+
+body.ultron-steampunk .indicator-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    color: rgba(142, 214, 242, 0.68);
+}
+
+body.ultron-steampunk .indicator-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+    color: #ffe8c7;
+}
+
+body.ultron-steampunk .nav-button {
+    background: linear-gradient(145deg, rgba(46, 39, 31, 0.95), rgba(18, 20, 27, 0.92));
+    border: 1px solid rgba(255, 189, 136, 0.18);
+    color: #f6eada;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35), inset 0 0 14px rgba(255, 165, 78, 0.1);
+}
+
+body.ultron-steampunk .nav-button .nav-icon {
+    font-size: 1.2rem;
+    filter: drop-shadow(0 0 6px rgba(136, 224, 255, 0.35));
+}
+
+body.ultron-steampunk .nav-button:hover,
+body.ultron-steampunk .nav-button.active {
+    transform: translateY(-4px);
+    border-color: rgba(140, 217, 255, 0.5);
+    box-shadow: 0 12px 26px rgba(12, 72, 92, 0.45), inset 0 0 20px rgba(108, 214, 255, 0.2);
+}
+
+body.ultron-steampunk .screen-border {
+    border: 1px solid rgba(142, 212, 255, 0.25);
+    background: linear-gradient(140deg, rgba(13, 28, 38, 0.78), rgba(9, 15, 22, 0.95));
+    box-shadow: inset 0 0 45px rgba(99, 206, 255, 0.18);
+}
+
+body.ultron-steampunk .screen-content {
+    background: radial-gradient(circle at 20% 20%, rgba(110, 203, 255, 0.08), rgba(3, 7, 12, 0.95) 65%);
+    border: 1px solid rgba(99, 206, 255, 0.18);
+}
+
+body.ultron-steampunk .section-title {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.38em;
+    color: #ffe4c7;
+    text-transform: uppercase;
+    text-shadow: 0 0 14px rgba(255, 171, 86, 0.55);
+    margin-bottom: 1.5rem;
+}
+
+body.ultron-steampunk .dashboard-card,
+body.ultron-steampunk .system-card,
+body.ultron-steampunk .detail-card,
+body.ultron-steampunk .autogen-btn,
+body.ultron-steampunk .vision-btn,
+body.ultron-steampunk .profile-btn,
+body.ultron-steampunk .setting-btn,
+body.ultron-steampunk .control-btn {
+    background: rgba(17, 21, 30, 0.85);
+    border: 1px solid rgba(255, 190, 120, 0.2);
+    box-shadow: inset 0 0 24px rgba(255, 173, 94, 0.08);
+}
+
+body.ultron-steampunk .dashboard-card-header span,
+body.ultron-steampunk .metric-label,
+body.ultron-steampunk .detail-label {
+    color: rgba(237, 229, 214, 0.86);
+}
+
+body.ultron-steampunk .status-pill {
+    background: linear-gradient(135deg, rgba(103, 183, 255, 0.32), rgba(27, 102, 146, 0.52));
+    color: #9ee8ff;
+    border: 1px solid rgba(140, 217, 255, 0.45);
+    text-shadow: 0 0 12px rgba(115, 228, 255, 0.8);
+}
+
+body.ultron-steampunk .console-output {
+    background: rgba(8, 13, 18, 0.82);
+    border: 1px solid rgba(112, 206, 255, 0.22);
+    box-shadow: inset 0 0 30px rgba(90, 214, 255, 0.12);
+}
+
+body.ultron-steampunk .console-input-container {
+    border-top: 1px solid rgba(112, 206, 255, 0.18);
+}
+
+body.ultron-steampunk .console-prompt,
+body.ultron-steampunk .console-input {
+    color: #8ff1f5;
+}
+
+body.ultron-steampunk .console-input {
+    background: rgba(10, 16, 23, 0.6);
+    border: 1px solid rgba(143, 241, 245, 0.24);
+}
+
+body.ultron-steampunk .console-input:focus {
+    box-shadow: 0 0 18px rgba(143, 241, 245, 0.3);
+}
+
+body.ultron-steampunk .profile-btn:hover,
+body.ultron-steampunk .autogen-btn:hover,
+body.ultron-steampunk .vision-btn:hover,
+body.ultron-steampunk .setting-btn:hover,
+body.ultron-steampunk .control-btn:hover {
+    border-color: rgba(111, 217, 255, 0.5);
+    box-shadow: 0 12px 26px rgba(12, 72, 92, 0.35), inset 0 0 24px rgba(109, 224, 255, 0.18);
+}
+
+body.ultron-steampunk .profile-btn.danger {
+    background: linear-gradient(145deg, rgba(105, 28, 28, 0.85), rgba(52, 5, 7, 0.8));
+    border-color: rgba(255, 108, 108, 0.32);
+    color: #ffd6d6;
+}
+
+body.ultron-steampunk .vision-display {
+    background: rgba(6, 12, 18, 0.75);
+    border: 1px dashed rgba(109, 224, 255, 0.3);
+    box-shadow: inset 0 0 35px rgba(109, 224, 255, 0.12);
+}
+
+body.ultron-steampunk .task-placeholder,
+body.ultron-steampunk .file-placeholder,
+body.ultron-steampunk .empty-state {
+    color: rgba(240, 226, 207, 0.65);
+}
+
+body.ultron-steampunk .file-browser {
+    border: 1px solid rgba(255, 190, 120, 0.18);
+    background: rgba(14, 19, 28, 0.82);
+}
+
+body.ultron-steampunk .file-path {
+    background: rgba(28, 41, 49, 0.85);
+    color: #9ee8ff;
+    border-bottom: 1px solid rgba(122, 206, 255, 0.26);
+}
+
+body.ultron-steampunk .setting-group label {
+    color: #ffe7c9;
+    letter-spacing: 0.1em;
+}
+
+body.ultron-steampunk select,
+body.ultron-steampunk input[type="password"] {
+    background: rgba(15, 19, 26, 0.7);
+    border: 1px solid rgba(140, 217, 255, 0.28);
+    color: #f6eada;
+}
+
+body.ultron-steampunk .metric-bar span,
+body.ultron-steampunk .card-bar .bar-fill {
+    background: linear-gradient(90deg, #6de0ff, #e4a665);
+}
+
+body.ultron-steampunk .status-row span:first-child {
+    color: rgba(255, 230, 205, 0.6);
+}
+
+body.ultron-steampunk .status-row span:last-child {
+    color: rgba(158, 232, 255, 0.9);
+}
+
+body.ultron-steampunk .agent-item,
+body.ultron-steampunk .dashboard-log {
+    border-color: rgba(109, 224, 255, 0.22);
+    background: rgba(10, 15, 24, 0.72);
+}
+
+body.ultron-steampunk .dashboard-clear-btn {
+    background: rgba(255, 180, 90, 0.18);
+    border: 1px solid rgba(255, 191, 132, 0.35);
+    color: #f6eada;
+}
+
+body.ultron-steampunk .dashboard-clear-btn:hover {
+    background: rgba(109, 224, 255, 0.28);
+}
+
+body.ultron-steampunk .nav-label {
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.14em;
+}
+
+body.ultron-steampunk .profile-name {
+    font-family: 'Cinzel', serif;
+    color: #ffe8c7;
+}
+
+body.ultron-steampunk .profile-status .status-online {
+    color: #9ee8ff;
+}
+
+body.ultron-steampunk .vision-btn {
+    letter-spacing: 0.2em;
+}
+
+body.ultron-steampunk .ultron-footer-status {
+    position: relative;
+    margin: 2rem auto 0;
+    max-width: 940px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 1.2rem 2rem;
+    background: rgba(10, 15, 22, 0.82);
+    border: 1px solid rgba(255, 190, 120, 0.22);
+    box-shadow: 0 24px 48px rgba(5, 9, 14, 0.55), inset 0 0 28px rgba(255, 179, 89, 0.1);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+body.ultron-steampunk .ultron-footer-status .footer-glow {
+    position: absolute;
+    inset: -30% 40% 40% -20%;
+    background: radial-gradient(circle, rgba(255, 133, 54, 0.18) 0%, transparent 70%);
+    filter: blur(70px);
+    opacity: 0.45;
+    animation: footer-shift 20s linear infinite;
+}
+
+body.ultron-steampunk .footer-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    z-index: 1;
+}
+
+body.ultron-steampunk .footer-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.32em;
+    color: rgba(255, 226, 197, 0.55);
+}
+
+body.ultron-steampunk .footer-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+    color: #8ff1f5;
+}
+
+@keyframes gear-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes aurora-shift {
+    from { transform: translate3d(-2%, -1%, 0) scale(1.02); }
+    to { transform: translate3d(2%, 1%, 0) scale(1.06); }
+}
+
+@keyframes grid-float {
+    from { transform: translateY(-2%); }
+    to { transform: translateY(2%); }
+}
+
+@keyframes arc-shift {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes ring-spin {
+    from { transform: rotate(0deg) scale(1); }
+    to { transform: rotate(360deg) scale(1.05); }
+}
+
+@keyframes data-slide {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100%); }
+}
+
+@keyframes header-wisp {
+    from { transform: translate3d(-4%, 0, 0); opacity: 0.35; }
+    to { transform: translate3d(4%, 0, 0); opacity: 0.55; }
+}
+
+@keyframes spectrum-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.25); opacity: 1; }
+}
+
+@keyframes footer-shift {
+    from { transform: translate3d(-4%, 0, 0); }
+    to { transform: translate3d(4%, 0, 0); }
 }
