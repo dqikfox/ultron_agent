@@ -6,6 +6,7 @@ Analyze project dependencies, detect security vulnerabilities, and suggest updat
 import ast
 import re
 import subprocess
+import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set, Tuple
 from collections import defaultdict
@@ -26,6 +27,11 @@ class DependencyAnalyzerTool:
     
     name = "Dependency Analyzer"
     description = "Analyze project dependencies and detect issues"
+    
+    # Configuration constants
+    HIGH_IMPORT_THRESHOLD = 20  # Number of imports considered high
+    MAX_CYCLES_TO_DISPLAY = 5  # Maximum circular dependencies to show
+    TOP_IMPORTS_LIMIT = 10  # Number of top imports to display
     
     def __init__(self):
         self.workspace_root = Path(".")
@@ -283,27 +289,27 @@ Declared Requirements:     {len(self.requirements)}
         # Find cycles using DFS
         cycles = []
         visited = set()
-        rec_stack = set()
         
-        def dfs(node: str, path: List[str]):
+        def dfs(node: str, path: List[str], path_set: Set[str]):
             visited.add(node)
-            rec_stack.add(node)
             path.append(node)
+            path_set.add(node)
             
             for neighbor in graph.get(node, []):
                 if neighbor not in visited:
-                    dfs(neighbor, path.copy())
-                elif neighbor in rec_stack:
+                    dfs(neighbor, path, path_set)
+                elif neighbor in path_set:
                     # Found cycle
                     cycle_start = path.index(neighbor)
                     cycle = path[cycle_start:] + [neighbor]
                     cycles.append(cycle)
             
-            rec_stack.remove(node)
+            path.pop()
+            path_set.remove(node)
         
         for node in graph:
             if node not in visited:
-                dfs(node, [])
+                dfs(node, [], set())
         
         report = f"""
 ╔══════════════════════════════════════════════════════════════════╗
@@ -315,7 +321,7 @@ Declared Requirements:     {len(self.requirements)}
         if cycles:
             report += f"⚠️  Found {len(cycles)} circular dependencies:\n\n"
             
-            for i, cycle in enumerate(cycles[:5], 1):  # Show max 5
+            for i, cycle in enumerate(cycles[:self.MAX_CYCLES_TO_DISPLAY], 1):
                 report += f"{i}. Cycle detected:\n"
                 for j, module in enumerate(cycle):
                     if j < len(cycle) - 1:
@@ -371,11 +377,11 @@ Files Analyzed:            {len(imports_per_file)}
             report += f"{count:3d} imports : {file_name}\n"
         
         # Detect potential issues
-        high_import_files = [f for f, c in imports_per_file.items() if c > 20]
+        high_import_files = [f for f, c in imports_per_file.items() if c > self.HIGH_IMPORT_THRESHOLD]
         
         if high_import_files:
             report += f"""
-⚠️  FILES WITH HIGH IMPORT COUNT (>{20})
+⚠️  FILES WITH HIGH IMPORT COUNT (>{self.HIGH_IMPORT_THRESHOLD})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Found {len(high_import_files)} files with high import counts.
 Consider refactoring these files to reduce complexity.
@@ -394,7 +400,6 @@ Consider refactoring these files to reduce complexity.
             )
             
             if result.returncode == 0:
-                import json
                 outdated = json.loads(result.stdout)
                 
                 report = f"""
