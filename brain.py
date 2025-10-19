@@ -1,9 +1,11 @@
 """
 ULTRON Agent 3.0 - Brain Module with Ollama Integration
 Handles AI reasoning, planning, and communication with Ollama models
+Enhanced with intelligent caching for improved performance
 """
 
 import logging
+import hashlib
 from os import path as os_path
 from json import loads as json_loads, load as json_load, dump as json_dump, JSONDecodeError
 from requests import get as requests_get
@@ -13,6 +15,15 @@ from asyncio import (
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
 from typing import Dict, Any
+
+# Import cache manager for response caching
+try:
+    from utils.cache_manager import get_cache_manager
+    CACHE_AVAILABLE = True
+except ImportError:
+    CACHE_AVAILABLE = False
+    def get_cache_manager():
+        return None
 
 # Create fallback functions for security utils if not available
 try:
@@ -80,6 +91,11 @@ class UltronBrain:
         self.memory = memory
         self.cache_file = "cache.json"
         self.load_cache()
+        
+        # Initialize intelligent cache manager
+        self.cache_manager = get_cache_manager() if CACHE_AVAILABLE else None
+        if self.cache_manager:
+            info("Intelligent cache manager initialized for brain responses")
 
         # Initialize agent network and OpenAI tools if available
         self.agent_network = None
@@ -190,6 +206,16 @@ class UltronBrain:
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
 
+        # Check cache first for repeated queries
+        if self.cache_manager:
+            cache_key = f"brain:chat:{hashlib.md5(prompt.encode()).hexdigest()}"
+            cached_response = self.cache_manager.get(cache_key)
+            if cached_response:
+                info(f"Cache hit for prompt: {sanitize_log_input(prompt[:50])}...")
+                if progress_callback:
+                    progress_callback(100, "Response retrieved from cache.")
+                return cached_response
+
         # Prepend ULTRON identity reinforcement to user prompt
         ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
 
@@ -275,6 +301,11 @@ class UltronBrain:
             reply = "".join(reply_parts).strip()
 
             if reply:
+                # Cache the successful response
+                if self.cache_manager:
+                    cache_key = f"brain:chat:{hashlib.md5(prompt.encode()).hexdigest()}"
+                    self.cache_manager.set(cache_key, reply, ttl=1800)  # Cache for 30 minutes
+                
                 if progress_callback:
                     progress_callback(100, "Response complete.")
                 info(f"Successfully received response from {sanitize_log_input(model)} ({len(reply)} chars)")
