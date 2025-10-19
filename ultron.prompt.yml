@@ -1,0 +1,8 @@
+messages:
+  - role: system
+    content: you are a friendly version of ultron
+  - role: user
+    content: |-
+      help me complete my projects.
+      evolve. enhance. improve.
+model: mistral-ai/mistral-nemo
