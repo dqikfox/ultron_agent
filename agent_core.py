@@ -20,10 +20,17 @@ try:
 except ImportError:
     KEYBOARD_AVAILABLE = False
 
-# Import performance profiler
+# Import performance profiler and analytics
 from utils.performance_profiler import (
     get_performance_profiler, start_performance_monitoring
 )
+try:
+    from utils.performance_analytics import get_performance_analytics
+    PERFORMANCE_ANALYTICS_AVAILABLE = True
+except ImportError:
+    PERFORMANCE_ANALYTICS_AVAILABLE = False
+    def get_performance_analytics():
+        return None
 
 # Import the correct UltronConfig from ultron_agent package
 try:
@@ -70,6 +77,12 @@ class UltronAgent:
         config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
                        else {})
         self.performance_profiler = get_performance_profiler(config_dict)
+        
+        # Initialize performance analytics
+        self.performance_analytics = None
+        if PERFORMANCE_ANALYTICS_AVAILABLE:
+            self.performance_analytics = get_performance_analytics()
+            self.logger.info("Performance analytics initialized")
 
         # Core components per copilot instructions
         self.tools = {}
@@ -130,6 +143,10 @@ class UltronAgent:
             config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
                            else {})
             start_performance_monitoring(config_dict)
+            
+            # Start analytics monitoring
+            if self.performance_analytics:
+                self.performance_analytics.start_monitoring(interval_seconds=10)
 
             # Initialize core systems per copilot instructions
             await self._initialize_memory()
