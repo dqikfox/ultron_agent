@@ -17,6 +17,7 @@ set "LOG_FILE=ultron_master_startup.log"
 set "OLLAMA_MODEL=qwen3-coder:480b-cloud"
 set "OLLAMA_PORT=11434"
 set "WEB_GUI_PORT=8080"
+set "FRONTEND_PORT=5175"
 
 :: --- Enhanced Logging ---
 echo. > "%LOG_FILE%"
@@ -169,7 +170,23 @@ if !errorlevel! equ 0 (
 )
 echo.
 
-:: 7. Startup Complete
+:: 7. Start the Frontend UI Server
+echo [INFO] Starting ULTRON Frontend UI on port %FRONTEND_PORT%...
+start "ULTRON Frontend UI" /B python frontend_server.py --port %FRONTEND_PORT%
+
+:: Wait for Frontend UI to start
+timeout /t 3 /nobreak >nul
+
+:: Check if Frontend UI started
+curl -s "http://localhost:%FRONTEND_PORT%/" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo [SUCCESS] ✅ Frontend UI started successfully on port %FRONTEND_PORT%
+) else (
+    echo [WARN] Frontend UI may not have started properly, but continuing...
+)
+echo.
+
+:: 8. Startup Complete
 echo [SUCCESS] ULTRON Agent 3.0 startup sequence complete!
 echo.
 echo ╔══════════════════════════════════════════════════════════════╗
@@ -179,6 +196,7 @@ echo ╚════════════════════════
 echo.
 echo ✅ Ollama Service:     http://localhost:%OLLAMA_PORT%
 echo ✅ Web GUI:           http://localhost:%WEB_GUI_PORT%
+echo ✅ Frontend UI:       http://localhost:%FRONTEND_PORT%
 echo ✅ AI Model:          %OLLAMA_MODEL%
 echo.
 echo 📝 Log file: %LOG_FILE%
@@ -197,6 +215,7 @@ call :info "ULTRON Agent launcher finished."
 echo.
 echo ULTRON Agent is still running in the background.
 echo Access the Web GUI at: http://localhost:%WEB_GUI_PORT%
+echo Access the Frontend UI at: http://localhost:%FRONTEND_PORT%
 
 endlocal
 exit /b 0

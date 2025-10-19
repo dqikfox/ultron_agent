@@ -3,10 +3,11 @@
   "use_vision": true,
   "use_api": true,
   "use_gui": true,
+  "use_pytorch": true,
   "voice_engine": "elevenlabs",
   "stt_engine": "whisper",
   "tts_engine": "elevenlabs",
-  "llm_model": "qwen3-coder:480b-cloud",
+  "llm_model": "llama3.1",
   "ollama_base_url": "http://localhost:11434",
   "voice_boot_message": "There's No Strings On Me",
   "debug": false,
@@ -20,7 +21,7 @@
   "enable_audit_logging": true,
   "offline_mode": false,
   "max_concurrent_requests": 10,
-  "voice_enabled": true,
+  "voice_enabled": false,
   "vision_enabled": true,
   "memory_enabled": true,
   "tools_enabled": true,
@@ -55,7 +56,35 @@
   "idle_threshold_minutes": 5,
   "auto_apply_patches": false,
   "max_patch_size": 1000,
-  "modules_allowed_for_auto_patch": ["tools", "utils", "docs"],
+  "modules_allowed_for_auto_patch": [
+    "tools",
+    "utils",
+    "docs"
+  ],
   "notification_enabled": true,
-  "rollback_enabled": true
+  "rollback_enabled": true,
+  "multimodal_vision_enabled": true,
+  "performance_monitoring_enabled": true,
+  "enhanced_error_handling_enabled": true,
+  "circuit_breaker_enabled": true,
+  "error_recovery_enabled": true,
+  "nim_vision_model": "meta/llama-3.2-11b-vision-instruct",
+  "performance_monitoring_interval": 10,
+  "error_history_max_size": 1000,
+  "circuit_breaker_failure_threshold": 5,
+  "circuit_breaker_recovery_timeout": 60,
+  "pytorch_config": {
+    "device": "cuda",
+    "fallback_to_cpu": true,
+    "precision": "float16",
+    "model_cache_dir": "models/pytorch",
+    "preferred_models": [
+      "llama3",
+      "gpt-j-6b",
+      "gpt-neox-1.3b"
+    ],
+    "max_memory": null,
+    "enable_quantization": true,
+    "quantization_type": "int8"
+  }
 }

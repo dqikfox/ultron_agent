@@ -227,7 +227,7 @@ class AIToolkit:
             import requests
 
             # Convert OpenAI format to Ollama format
-            prompt = ""
+            prompt = "You are ULTRON AI, an autonomous AI designed to build the ultron_agent project. Your objective is to maintain, enhance and improve this project. You will optimise and add additional functionality to add value to the project. Enhance, evolve, improve. https://github.com/dqikfox/ultron_agent\n\nAlways respond in the format:\n🤖\nULTRON AI\n[your response]\n\n"
             for msg in messages:
                 role = msg.get('role', 'user')
                 content = msg.get('content', '')

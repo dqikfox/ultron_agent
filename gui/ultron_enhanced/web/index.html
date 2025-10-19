@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTRON - Pokedex AI Interface</title>
+    <title>ULTRON Aether Nexus</title>
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
-<body>
+<body class="ultron-steampunk">
+    <div class="ambient-overlay"></div>
+    <div class="ambient-overlay secondary"></div>
+    <div class="floating-gear gear-left"></div>
+    <div class="floating-gear gear-right"></div>
+    <div class="lumen-ring ring-one"></div>
+    <div class="lumen-ring ring-two"></div>
+    <div class="data-stream" aria-hidden="true"></div>
     <elevenlabs-convai agent-id="agent_01jzwkf7dkfdvt5810x1vgrcjs"></elevenlabs-convai>
 
     <!-- ElevenLabs Widget Text Display Overlay -->
@@ -37,11 +45,48 @@
 
     <div id="app">
         <div id="start-screen" class="start-screen">
-            <button id="start-button" class="start-button">START</button>
+            <div class="start-screen-inner">
+                <div class="start-logo">ULTRON</div>
+                <div class="start-subtitle">AETHER NEXUS INTERFACE</div>
+                <button id="start-button" class="start-button">INITIATE LINK</button>
+            </div>
         </div>
         <!-- Main Pokedex Interface -->
         <div id="main-interface" class="main-interface hidden">
+            <div class="ultron-header">
+                <div class="header-column header-column--left">
+                    <div class="header-badge">CORE SIGMA-7</div>
+                    <div class="header-caption">SYNTHETIC INTELLIGENCE RELAY</div>
+                </div>
+                <div class="header-column header-column--center">
+                    <div class="header-holo">AETHER NODE STATUS</div>
+                    <div class="header-time" id="chronos-clock">00:00:00</div>
+                    <div class="header-divider"></div>
+                    <div class="header-spectrum">
+                        <span class="spectrum-dot"></span>
+                        <span class="spectrum-dot"></span>
+                        <span class="spectrum-dot"></span>
+                        <span class="spectrum-dot"></span>
+                    </div>
+                </div>
+                <div class="header-column header-column--right">
+                    <div class="header-indicator">
+                        <span class="indicator-label">ENERGY FLOW</span>
+                        <span class="indicator-value">87%</span>
+                    </div>
+                    <div class="header-indicator">
+                        <span class="indicator-label">BANDWIDTH</span>
+                        <span class="indicator-value">QUANTUM-LINK</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="pokedex-container">
+                <div class="frame-corner frame-top-left"></div>
+                <div class="frame-corner frame-top-right"></div>
+                <div class="frame-corner frame-bottom-left"></div>
+                <div class="frame-corner frame-bottom-right"></div>
+                <div class="holo-grid"></div>
 
                 <!-- Main Pokédex Body -->
                 <div class="pokedex-body pokedex-red" id="pokedex-body">
@@ -63,16 +108,20 @@
                         <!-- Navigation Panel -->
                         <div class="navigation-panel">
                             <div class="nav-header">
-                                <h1 class="pokedex-title">ULTRON AI SYSTEM</h1>
+                                <h1 class="pokedex-title">ULTRON AETHER CORE</h1>
                                 <div class="current-section">
                                     <span class="section-indicator" id="current-section-indicator">
-                                        🖥️ CONSOLE
+                                        ⚡ STATUS LINK
                                     </span>
                                 </div>
                             </div>
 
                             <div class="nav-buttons-grid">
-                                <button class="nav-button active" data-section="console">
+                                <button class="nav-button active" data-section="dashboard">
+                                    <span class="nav-icon">📊</span>
+                                    <span class="nav-label">DASHBOARD</span>
+                                </button>
+                                <button class="nav-button" data-section="console">
                                     <span class="nav-icon">🖥️</span>
                                     <span class="nav-label">CONSOLE</span>
                                 </button>
@@ -116,6 +165,10 @@
                                     <span class="nav-icon">🔧</span>
                                     <span class="nav-label">TOOLS</span>
                                 </button>
+                                <button class="nav-button" data-section="stable-diffusion">
+                                    <span class="nav-icon">🎨</span>
+                                    <span class="nav-label">AI ART</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -127,12 +180,65 @@
                                 <div class="scan-lines"></div>
 
                                 <!-- Console Section -->
-                                <div id="console-section" class="section-content active">
-                                    <div class="section-title">ULTRON CONSOLE</div>
+                                <!-- Dashboard Section -->
+                                <div id="dashboard-section" class="section-content active">
+                                    <div class="section-title">AETHER OPERATIONS MATRIX</div>
+                                    <div class="dashboard-grid">
+                                        <div class="dashboard-card status-card">
+                                            <div class="dashboard-card-header">
+                                                <span class="status-pill" id="dashboard-online-indicator">INITIALIZING…</span>
+                                                <span class="status-subtitle" id="dashboard-status-subtitle">Awaiting data…</span>
+                                            </div>
+                                            <div class="status-list">
+                                                <div class="status-row"><span>Agent</span><span id="dashboard-agent-status">--</span></div>
+                                                <div class="status-row"><span>Uptime</span><span id="dashboard-uptime">--</span></div>
+                                                <div class="status-row"><span>Voice</span><span id="dashboard-voice-status">--</span></div>
+                                                <div class="status-row"><span>Voice Provider</span><span id="dashboard-voice-provider">--</span></div>
+                                                <div class="status-row"><span>LLM</span><span id="dashboard-model-name">--</span></div>
+                                                <div class="status-row"><span>LLM Status</span><span id="dashboard-llm-status">--</span></div>
+                                                <div class="status-row"><span>Tools Loaded</span><span id="dashboard-tools-count">--</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-card metrics-card">
+                                            <div class="metric-block">
+                                                <div class="metric-label">CPU</div>
+                                                <div class="metric-value" id="dashboard-cpu">0%</div>
+                                                <div class="metric-bar"><span id="dashboard-cpu-bar"></span></div>
+                                            </div>
+                                            <div class="metric-block">
+                                                <div class="metric-label">Memory</div>
+                                                <div class="metric-value" id="dashboard-memory">0%</div>
+                                                <div class="metric-bar"><span id="dashboard-memory-bar"></span></div>
+                                            </div>
+                                            <div class="metric-block">
+                                                <div class="metric-label">Disk</div>
+                                                <div class="metric-value" id="dashboard-disk">0%</div>
+                                                <div class="metric-bar"><span id="dashboard-disk-bar"></span></div>
+                                            </div>
+                                            <div class="metric-block">
+                                                <div class="metric-label">Network</div>
+                                                <div class="metric-value" id="dashboard-network">--</div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-card activity-card">
+                                            <div class="dashboard-card-header">
+                                                <span>Recent Activity</span>
+                                                <button id="dashboard-clear-log" class="dashboard-clear-btn" type="button">CLEAR</button>
+                                            </div>
+                                            <div class="dashboard-log" id="dashboard-log-feed">
+                                                <div class="empty-state">No activity yet.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Console Section -->
+                                <div id="console-section" class="section-content">
+                                    <div class="section-title">COMMAND TERMINAL</div>
                                     <div class="console-output" id="console-output">
                                         <div class="message system-message">
                                             <span class="timestamp">[00:00:00]</span>
-                                            <span class="message-content">🔴 ULTRON AI System Ready</span>
+                                            <span class="message-content">⚙️ Aether Nexus Online</span>
                                         </div>
                                     </div>
                                     <div class="console-input-container">
@@ -143,7 +249,7 @@
 
                                 <!-- System Section -->
                                 <div id="system-section" class="section-content">
-                                    <div class="section-title">SYSTEM STATUS</div>
+                                    <div class="section-title">MECHANIZED SYSTEM STATUS</div>
                                     <div class="system-grid">
                                         <div class="system-card">
                                             <div class="card-title">CPU</div>
@@ -179,7 +285,7 @@
 
                                 <!-- Vision Section -->
                                 <div id="vision-section" class="section-content">
-                                    <div class="section-title">VISION SYSTEM</div>
+                                    <div class="section-title">OPTICAL ARRAY</div>
                                     <div class="vision-controls">
                                         <button class="vision-btn" id="capture-btn">📷 CAPTURE</button>
                                         <button class="vision-btn" id="analyze-btn">🔍 ANALYZE</button>
@@ -193,7 +299,7 @@
 
                                 <!-- Tasks Section -->
                                 <div id="tasks-section" class="section-content">
-                                    <div class="section-title">TASK MANAGER</div>
+                                    <div class="section-title">MISSION QUEUE</div>
                                     <div class="task-list" id="task-list">
                                         <div class="task-placeholder">No active tasks</div>
                                     </div>
@@ -201,7 +307,7 @@
 
                                 <!-- Files Section -->
                                 <div id="files-section" class="section-content">
-                                    <div class="section-title">FILE SYSTEM</div>
+                                    <div class="section-title">ARCHIVE VAULT</div>
                                     <div class="file-browser" id="file-browser">
                                         <div class="file-path" id="file-path">D:\ULTRON\</div>
                                         <div class="file-list" id="file-list">
@@ -212,7 +318,7 @@
 
                                 <!-- Settings Section -->
                                 <div id="settings-section" class="section-content">
-                                    <div class="section-title">CONFIGURATION</div>
+                                    <div class="section-title">TUNING BAY</div>
                                     <div class="settings-grid">
                                         <div class="setting-group">
                                             <label>Theme</label>
@@ -238,7 +344,7 @@
 
                                 <!-- Profile Section -->
                                 <div id="profile-section" class="section-content">
-                                    <div class="section-title">USER PROFILE</div>
+                                    <div class="section-title">ARCHITECT PROFILE</div>
                                     <div class="profile-content">
                                         <div class="profile-header">
                                             <div class="profile-avatar">
@@ -253,7 +359,7 @@
 
                                         <div class="profile-details">
                                             <div class="detail-card">
-                                                <h3>Account Information</h3>
+                                                <h3>Identity Metrics</h3>
                                                 <div class="detail-item">
                                                     <span class="detail-label">Member Since:</span>
                                                     <span class="detail-value">2025</span>
@@ -298,16 +404,16 @@
                                         </div>
 
                                         <div class="profile-actions">
-                                            <button class="profile-btn" id="edit-profile-btn">Edit Profile</button>
-                                            <button class="profile-btn" id="export-data-btn">Export Data</button>
-                                            <button class="profile-btn danger" id="reset-system-btn">Reset System</button>
+                                            <button class="profile-btn" id="edit-profile-btn">Modify Credentials</button>
+                                            <button class="profile-btn" id="export-data-btn">Export Ledger</button>
+                                            <button class="profile-btn danger" id="reset-system-btn">Purge Node</button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- AutoGen Studio Section -->
                                 <div id="autogen-section" class="section-content">
-                                    <div class="section-title">AUTOGEN STUDIO</div>
+                                    <div class="section-title">AUTOMATION FORGE</div>
                                     <div class="autogen-content">
                                         <div class="autogen-status">
                                             <div class="status-card">
@@ -539,6 +645,96 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Stable Diffusion Section -->
+                                <div id="stable-diffusion-section" class="section-content">
+                                    <div class="section-title">STABLE DIFFUSION ART GENERATOR</div>
+                                    <div class="sd-content">
+                                        <div class="sd-input-section">
+                                            <div class="sd-form-group">
+                                                <label for="sd-prompt" class="sd-label">Prompt:</label>
+                                                <textarea id="sd-prompt" class="sd-textarea" placeholder="Describe the image you want to generate..." rows="3"></textarea>
+                                            </div>
+                                            <div class="sd-form-row">
+                                                <div class="sd-form-group">
+                                                    <label for="sd-negative-prompt" class="sd-label">Negative Prompt:</label>
+                                                    <input type="text" id="sd-negative-prompt" class="sd-input" placeholder="What to avoid in the image">
+                                                </div>
+                                                <div class="sd-form-group">
+                                                    <label for="sd-steps" class="sd-label">Steps:</label>
+                                                    <input type="number" id="sd-steps" class="sd-input" value="20" min="1" max="100">
+                                                </div>
+                                            </div>
+                                            <div class="sd-form-row">
+                                                <div class="sd-form-group">
+                                                    <label for="sd-width" class="sd-label">Width:</label>
+                                                    <input type="number" id="sd-width" class="sd-input" value="512" min="64" max="1024" step="64">
+                                                </div>
+                                                <div class="sd-form-group">
+                                                    <label for="sd-height" class="sd-label">Height:</label>
+                                                    <input type="number" id="sd-height" class="sd-input" value="512" min="64" max="1024" step="64">
+                                                </div>
+                                                <div class="sd-form-group">
+                                                    <label for="sd-guidance-scale" class="sd-label">Guidance Scale:</label>
+                                                    <input type="number" id="sd-guidance-scale" class="sd-input" value="7.5" min="1" max="20" step="0.5">
+                                                </div>
+                                            </div>
+                                            <div class="sd-form-row">
+                                                <div class="sd-form-group">
+                                                    <label for="sd-model" class="sd-label">Model:</label>
+                                                    <select id="sd-model" class="sd-select">
+                                                        <option value="sdxl">SDXL 1.0</option>
+                                                        <option value="sd15">Stable Diffusion 1.5</option>
+                                                        <option value="sd21">Stable Diffusion 2.1</option>
+                                                    </select>
+                                                </div>
+                                                <div class="sd-form-group">
+                                                    <label for="sd-sampler" class="sd-label">Sampler:</label>
+                                                    <select id="sd-sampler" class="sd-select">
+                                                        <option value="Euler a">Euler a</option>
+                                                        <option value="Euler">Euler</option>
+                                                        <option value="LMS">LMS</option>
+                                                        <option value="Heun">Heun</option>
+                                                        <option value="DPM2">DPM2</option>
+                                                        <option value="DPM2 a">DPM2 a</option>
+                                                        <option value="DPM++ 2S a">DPM++ 2S a</option>
+                                                        <option value="DPM++ 2M">DPM++ 2M</option>
+                                                        <option value="DPM++ SDE">DPM++ SDE</option>
+                                                        <option value="DPM fast">DPM fast</option>
+                                                        <option value="DPM adaptive">DPM adaptive</option>
+                                                        <option value="LMS Karras">LMS Karras</option>
+                                                        <option value="DPM2 Karras">DPM2 Karras</option>
+                                                        <option value="DPM2 a Karras">DPM2 a Karras</option>
+                                                        <option value="DPM++ 2S a Karras">DPM++ 2S a Karras</option>
+                                                        <option value="DPM++ 2M Karras">DPM++ 2M Karras</option>
+                                                        <option value="DPM++ SDE Karras">DPM++ SDE Karras</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="sd-controls">
+                                                <button class="sd-btn sd-generate-btn" id="sd-generate-btn">
+                                                    <span class="sd-btn-icon">🎨</span>
+                                                    Generate Image
+                                                </button>
+                                                <button class="sd-btn sd-clear-btn" id="sd-clear-btn">
+                                                    <span class="sd-btn-icon">🗑️</span>
+                                                    Clear
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="sd-output-section">
+                                            <div class="sd-image-container" id="sd-image-container">
+                                                <div class="sd-placeholder">
+                                                    <div class="sd-placeholder-icon">🎨</div>
+                                                    <div class="sd-placeholder-text">Generated image will appear here</div>
+                                                </div>
+                                            </div>
+                                            <div class="sd-status" id="sd-status">
+                                                <span class="sd-status-text">Ready to generate</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -635,6 +831,26 @@
                     </div>
                 </div>
             </div>
+
+            <div class="ultron-footer-status" role="status" aria-live="polite">
+                <div class="footer-glow"></div>
+                <div class="footer-metric">
+                    <span class="footer-label">SYSTEM VECTOR</span>
+                    <span class="footer-value" id="footer-vector">STABLE</span>
+                </div>
+                <div class="footer-metric">
+                    <span class="footer-label">NEURAL SYNC</span>
+                    <span class="footer-value" id="footer-sync">99.2%</span>
+                </div>
+                <div class="footer-metric">
+                    <span class="footer-label">AETHER FLOW</span>
+                    <span class="footer-value" id="footer-flow">PRIME</span>
+                </div>
+                <div class="footer-metric">
+                    <span class="footer-label">OPERATOR</span>
+                    <span class="footer-value">SIGNED IN</span>
+                </div>
+            </div>
         </div>
 
         <!-- Power Menu Modal -->
@@ -689,13 +905,213 @@
 .hidden {
     display: none;
 }
+
+/* Stable Diffusion Styles */
+.sd-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+}
+
+.sd-input-section {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.sd-form-group {
+    margin-bottom: 1rem;
+}
+
+.sd-label {
+    display: block;
+    color: #ff4444;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.sd-textarea {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+    resize: vertical;
+}
+
+.sd-input {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.sd-select {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.sd-form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sd-form-row .sd-form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.sd-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.sd-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.sd-generate-btn {
+    background: linear-gradient(45deg, #ff4444, #ff6666);
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+}
+
+.sd-generate-btn:hover {
+    background: linear-gradient(45deg, #ff6666, #ff8888);
+    box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+    transform: translateY(-2px);
+}
+
+.sd-clear-btn {
+    background: linear-gradient(45deg, #666666, #888888);
+    color: white;
+}
+
+.sd-clear-btn:hover {
+    background: linear-gradient(45deg, #888888, #aaaaaa);
+    transform: translateY(-2px);
+}
+
+.sd-output-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sd-image-container {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sd-placeholder {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.sd-placeholder-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.sd-placeholder-text {
+    font-size: 1.1rem;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.sd-generated-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.sd-status {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 4px;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.sd-status-text {
+    color: #ff4444;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.sd-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sd-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 68, 68, 0.3);
+    border-top: 3px solid #ff4444;
+    border-radius: 50%;
+    animation: sd-spin 1s linear infinite;
+}
+
+@keyframes sd-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.sd-error {
+    color: #ff6666;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+}
 </style>
 
 <!-- Emergency initialization script -->
 <script>
     // Force initialization after a delay if not already done
     setTimeout(() => {
+        console.log('Emergency check starting'); // Debug log
         if (!window.ultronInterface) {
+            console.log('Emergency instantiating'); // Debug log
             console.log('🚨 Emergency initialization triggered - app.js:2387');
             try {
                 window.ultronInterface = new UltronPokedexInterface();
@@ -703,6 +1119,8 @@
             } catch (error) {
                 console.error('❌ Emergency initialization failed: - app.js:2392', error);
             }
+        } else {
+            console.log('Emergency skipped - interface already exists'); // Debug log
         }
     }, 2000);
 
@@ -712,6 +1130,171 @@
         console.error('Error message: - app.js:2400', event.message);
         console.error('Error file: - app.js:2401', event.filename);
         console.error('Error line: - app.js:2402', event.lineno);
+    });
+
+    // Stable Diffusion Interface
+    class StableDiffusionInterface {
+        constructor() {
+            this.isGenerating = false;
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            this.updateStatus('Ready to generate');
+        }
+
+        bindEvents() {
+            const generateBtn = document.getElementById('sd-generate-btn');
+            const clearBtn = document.getElementById('sd-clear-btn');
+
+            if (generateBtn) {
+                generateBtn.addEventListener('click', () => this.generateImage());
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => this.clearInterface());
+            }
+        }
+
+        async generateImage() {
+            if (this.isGenerating) return;
+
+            const prompt = document.getElementById('sd-prompt').value.trim();
+            if (!prompt) {
+                this.showError('Please enter a prompt');
+                return;
+            }
+
+            this.isGenerating = true;
+            this.updateStatus('Generating image...');
+            this.showLoading();
+
+            try {
+                const params = {
+                    prompt: prompt,
+                    negative_prompt: document.getElementById('sd-negative-prompt').value.trim(),
+                    steps: parseInt(document.getElementById('sd-steps').value) || 20,
+                    width: parseInt(document.getElementById('sd-width').value) || 512,
+                    height: parseInt(document.getElementById('sd-height').value) || 512,
+                    guidance_scale: parseFloat(document.getElementById('sd-guidance-scale').value) || 7.5,
+                    model: document.getElementById('sd-model').value,
+                    sampler: document.getElementById('sd-sampler').value
+                };
+
+                const response = await fetch('/api/stable-diffusion/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.displayGeneratedImage(result.image_data);
+                    this.updateStatus('Image generated successfully');
+                    this.logMessage('Image generated successfully');
+                } else {
+                    throw new Error(result.error || 'Failed to generate image');
+                }
+
+            } catch (error) {
+                console.error('Stable Diffusion generation error:', error);
+                this.showError(error.message || 'Failed to generate image');
+                this.logMessage(`Generation failed: ${error.message}`);
+            } finally {
+                this.isGenerating = false;
+                this.hideLoading();
+            }
+        }
+
+        displayGeneratedImage(imageData) {
+            const container = document.getElementById('sd-image-container');
+            if (!container) return;
+
+            // Clear existing content
+            container.innerHTML = '';
+
+            // Create image element
+            const img = document.createElement('img');
+            img.src = `data:image/png;base64,${imageData}`;
+            img.className = 'sd-generated-image';
+            img.alt = 'Generated image';
+
+            container.appendChild(img);
+        }
+
+        showLoading() {
+            const container = document.getElementById('sd-image-container');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="sd-loading">
+                    <div class="sd-spinner"></div>
+                    <div class="sd-placeholder-text">Generating image...</div>
+                </div>
+            `;
+        }
+
+        hideLoading() {
+            // Loading is cleared when image is displayed or error is shown
+        }
+
+        showError(message) {
+            const container = document.getElementById('sd-image-container');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="sd-error">
+                    <div class="sd-placeholder-icon">❌</div>
+                    <div class="sd-placeholder-text">${message}</div>
+                </div>
+            `;
+            this.updateStatus('Error occurred');
+        }
+
+        clearInterface() {
+            // Clear prompt
+            document.getElementById('sd-prompt').value = '';
+
+            // Reset to placeholder
+            const container = document.getElementById('sd-image-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="sd-placeholder">
+                        <div class="sd-placeholder-icon">🎨</div>
+                        <div class="sd-placeholder-text">Generated image will appear here</div>
+                    </div>
+                `;
+            }
+
+            this.updateStatus('Interface cleared');
+            this.logMessage('Interface cleared');
+        }
+
+        updateStatus(message) {
+            const statusElement = document.getElementById('sd-status-text');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+        }
+
+        logMessage(message) {
+            // Log to console for debugging
+            console.log(`[Stable Diffusion] ${message}`);
+
+            // You could also send to the main interface logging if available
+            if (window.ultronInterface && window.ultronInterface.logMessage) {
+                window.ultronInterface.logMessage(`[AI Art] ${message}`);
+            }
+        }
+    }
+
+    // Initialize Stable Diffusion interface when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        window.stableDiffusionInterface = new StableDiffusionInterface();
     });
 </script>
 

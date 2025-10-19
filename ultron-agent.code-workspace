@@ -24,7 +24,9 @@
       "typescript": true,
       "css": true,
       "sql": true,
-      "shellscript": true
+      "shellscript": true,
+      "plaintext": true,
+      "scminput": true
     },
     "github.copilot.chat.enabled": true,
     "github.copilot.inlineSuggest.enable": true,
@@ -102,7 +104,14 @@
     "files.insertFinalNewline": true,
     "workbench.colorTheme": "Default Dark+",
     "workbench.iconTheme": "vs-seti",
-    "terminal.integrated.defaultProfile.windows": "PowerShell"
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "yaml.schemas": {
+      "file:///c%3A/Users/ultro/.vscode/extensions/continue.continue-1.2.9-win32-x64/config-yaml-schema.json": [
+        ".continue/**/*.yaml",
+        "file:///c%3A/Projects/ultron_agent/.continue/agents/new-agent-1.yaml"
+      ]
+    },
+    "github.copilot.nextEditSuggestions.enabled": true
   },
   "extensions": {
     "recommendations": [

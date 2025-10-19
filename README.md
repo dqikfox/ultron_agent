@@ -63,10 +63,11 @@ python main.py
 ```
 
 ### 4. Access Interfaces
-- **GUI**: Launches automatically with the agent
+
+- **Pokédex GUI**: Retro gaming interface at `http://localhost:8081`
+- **Mobile Web Interface**: Modern responsive interface at `http://localhost:8001`
 - **CLI**: Interactive command-line interface
-- **API**: HTTP endpoints on `http://localhost:8000`
-- **WebSocket**: Real-time communication for chat applications
+- **API**: HTTP endpoints on `http://localhost:8001`
 
 ## Configuration Features
 
@@ -104,9 +105,122 @@ python main.py
 - Supports inline editing capabilities
 - Works with proposed VS Code APIs
 
+## 🤖 Model Awareness & Testing
+
+### Current Model Configuration
+
+The ULTRON Agent uses **qwen3-coder:480b-cloud** as its primary LLM model, hosted via Ollama at `http://localhost:11434`.
+
+### Automated Model Validation
+
+Use the comprehensive model awareness validator script for systematic testing:
+
+```bash
+# Test current configured model
+python model_awareness_validator.py
+
+# Test specific model
+python model_awareness_validator.py deepseek-r1:14b
+
+# Test all available models
+for model in $(curl -s http://localhost:11434/api/tags | jq -r '.models[].name'); do
+  echo "Testing $model..."
+  python model_awareness_validator.py "$model"
+done
+```
+
+**Latest Validation Results** (as of 2025-10-11):
+
+- **qwen3-coder:480b-cloud**: ✅ PASSED (2/3)
+  - Model Identity: ❌ Failed (identified as "Qwen3" but not full name)
+  - Project Awareness: ✅ Passed (8/8 - perfect score)
+  - Model Switching: ✅ Passed (6/6 - perfect score)
+
+- **deepseek-r1:14b**: ❌ FAILED (0/3 - timeouts)
+  - All tests timed out, indicating performance issues
+
+### Manual Model Testing
+
+Test the current model's awareness of itself and the project:
+
+```bash
+# Test model identity
+echo "What model are you? Be specific about your name and architecture." | ollama run qwen3-coder:480b-cloud
+
+# Test project knowledge
+echo "You are running in the ULTRON Agent project. Describe its key components and purpose." | ollama run qwen3-coder:480b-cloud
+```
+
+### Available Models
+
+The system supports multiple models for different use cases:
+
+- **qwen3-coder:480b-cloud**: Primary coding and reasoning model (MoE architecture)
+- **gerard/ultron:latest**: ULTRON-specific personality model
+- **deepseek-r1:14b**: Advanced reasoning model
+- **llama3.1:latest**: General purpose model
+- **mistral-small3.2:latest**: Efficient conversational model
+
+### Model Switching
+
+To switch models, update `ultron_config.json`:
+
+```json
+{
+  "llm_model": "qwen3-coder:480b-cloud"
+}
+```
+
+Or use the API to switch dynamically:
+
+```bash
+curl -X POST http://localhost:8001/api/model/switch \
+  -H "Content-Type: application/json" \
+  -d '{"model": "deepseek-r1:14b"}'
+```
+
+### Model Awareness Requirements
+
+All models used in ULTRON Agent should be aware of:
+
+1. **Identity**: Correct model name and architecture
+2. **Project Context**: ULTRON Agent architecture and components
+3. **Environment**: VS Code integration, tool ecosystem, and capabilities
+4. **Safety**: Ethical guidelines and responsible AI practices
+
+**Validation Criteria**:
+
+- **PASS**: 2/3 or higher on automated validation tests
+- **Project Awareness**: Must score 3+ out of 8 key indicators
+- **Model Switching**: Must score 3+ out of 6 understanding indicators
+- **Identity**: Should correctly identify model name (bonus requirement)
+
+### Validation Script Features
+
+The `model_awareness_validator.py` script provides:
+
+- **Automated Testing**: Runs comprehensive test suite on any model
+- **Detailed Logging**: Saves results to `logs/model_awareness_*.json`
+- **Scoring System**: Quantifies awareness levels with numerical scores
+- **Batch Testing**: Can test multiple models sequentially
+- **CI/CD Ready**: Returns appropriate exit codes for automation
+
+### Testing Model Capabilities
+
+```bash
+# Test coding capabilities
+echo "Write a Python function to parse JSON and handle errors gracefully." | ollama run qwen3-coder:480b-cloud
+
+# Test reasoning capabilities
+echo "Analyze this code for potential security vulnerabilities: [paste code]" | ollama run qwen3-coder:480b-cloud
+
+# Test project-specific knowledge
+echo "How does the ULTRON Agent handle tool discovery and execution?" | ollama run qwen3-coder:480b-cloud
+```
+
 ## Project Structure
 
-```
+```bash
 ultron_agent_2/
  .vscode/
     settings.json     # AI-optimized workspace settings
@@ -162,15 +276,27 @@ code --list-extensions --show-versions | findstr -i "amazon\|github\|sixth"
 
 ## ULTRON Enhanced GUI Interface
 
-The project includes a fully functional Pokédex-style GUI interface:
+The project includes two web interfaces:
+
+### Pokédex GUI (Primary)
 
 - **Location**: `gui/ultron_enhanced/web/`
-- **Main File**: `file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html`
-- **Technology**: HTML5 + CSS3 + JavaScript
+- **Technology**: HTML5 + CSS3 + JavaScript with retro gaming theme
+- **Port**: 8081
 - **Status**: ✅ Fully Functional
 - **Features**: Console, System Monitor, Vision, Tasks, Files, Settings, Profile
+- **Launch**: `cd gui/ultron_enhanced/web && python -m http.server 8081`
 
-### Features
+### Mobile Web Interface
+
+- **Location**: `tools/mobile_web_interface_tool.py`
+- **Technology**: Flask-based responsive web app
+- **Port**: 8001
+- **Status**: ✅ Functional with API backend
+- **Features**: Command execution, status monitoring, mobile-optimized
+- **Launch**: `python tools/mobile_web_interface_tool.py`
+
+### Features (Both Interfaces)
 
 - 🤖 Multiple AI personalities (General, Creative, Technical, Productivity, Research)
 - 💬 Real-time chat interface with conversation history
@@ -182,12 +308,15 @@ The project includes a fully functional Pokédex-style GUI interface:
 ### Quick Start - GUI Interface
 
 ```bash
-# Open the ULTRON Enhanced GUI directly in browser
-start file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html
+# Launch the Pokédex GUI (recommended)
+cd gui/ultron_enhanced/web
+python -m http.server 8081
 
-# Or launch via Python server
-cd gui/ultron_enhanced
-python ultron_main.py
+# Access at: http://localhost:8081
+
+# Alternative: Launch mobile web interface
+python tools/mobile_web_interface_tool.py
+# Access at: http://localhost:8001
 ```
 
 ## Commands Reference
@@ -207,4 +336,21 @@ python ultron_main.py
 ---
 **Ready to code with AI assistance!**
 
+## 📝 Changelog
+
+### Version 3.0.1 - October 9, 2025
+
+- **Fixed**: UltronLogger compatibility issues - added missing `info()`, `error()`, `warning()`, `debug()` methods
+- **Improved**: Model identity awareness - switched from `qwen3-coder:480b-cloud` to `gerard/ultron:latest` for better role-playing
+- **Enhanced**: Vision system OCR support - added multiple Tesseract installation path detection
+- **Fixed**: Event system logging errors resolved
+- **Updated**: Configuration validation and error handling improvements
+
+### Version 3.0.0 - Initial Release
+
+- Complete AI agent platform with modular architecture
+- Multi-modal interfaces (voice, vision, GUI, API)
+- Comprehensive tool ecosystem
+- Real-time monitoring and state persistence
+- OpenAI-compatible API endpoints
 

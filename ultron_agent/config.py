@@ -19,6 +19,11 @@ try:
 except ImportError as e:
     logger.warning(f"Secrets manager not available: {e}. Using fallback methods.")
     SECRETS_MANAGER_AVAILABLE = False
+    # Create a dummy SecretsManager for fallback
+    class SecretsManager:
+        def secret_exists(self, key): return False
+        def get_secret(self, key): return None
+        def store_secret(self, key, value, desc=None): return False
 
 
 class LogLevel(str, Enum):
@@ -351,8 +356,11 @@ def load_config(config_path: Optional[Path] = None) -> UltronConfig:
         FileNotFoundError: If config file is required but missing
     """
     # Load environment variables from .env file
-    from dotenv import load_dotenv
-    load_dotenv()
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        logger.debug("python-dotenv not available, skipping .env file loading")
 
     if config_path is None:
         config_path = Path("ultron_config.json")
@@ -370,6 +378,20 @@ def load_config(config_path: Optional[Path] = None) -> UltronConfig:
             raise ValueError(f"Invalid configuration file: {e}")
     else:
         logger.info(f"Config file {config_path} not found, using defaults")
+
+    # Map legacy field names to current field names
+    field_mappings = {
+        'llm_model': 'default_model_name',
+        'use_voice': 'voice_enabled',
+        'use_vision': 'vision_enabled',
+        'use_api': 'api_reload',  # This might need adjustment
+        'use_gui': 'gui_enabled',
+    }
+
+    for old_field, new_field in field_mappings.items():
+        if old_field in config_data and new_field not in config_data:
+            config_data[new_field] = config_data.pop(old_field)
+            logger.debug(f"Mapped legacy field '{old_field}' to '{new_field}'")
 
     try:
         config = UltronConfig(**config_data)

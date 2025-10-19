@@ -9,9 +9,25 @@ from typing import Optional, Dict, Any, List
 import time
 
 # Core dependencies (already in requirements.txt)
-import torch
-import transformers
-from transformers import AutoTokenizer, AutoModelForCausalLM
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️ PyTorch not available: {e} - enhanced_mesh_transformer_manager.py:16")
+    TORCH_AVAILABLE = False
+    torch = None
+
+# Try to import transformers (make it optional)
+try:
+    import transformers
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    TRANSFORMERS_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Transformers not available: {e} - enhanced_mesh_transformer_manager.py:26")
+    TRANSFORMERS_AVAILABLE = False
+    transformers = None
+    AutoTokenizer = None
+    AutoModelForCausalLM = None
 
 # Try to import mesh-transformer-jax
 try:
@@ -20,18 +36,21 @@ try:
     from mesh_transformer import Transformer
     MESH_TRANSFORMER_AVAILABLE = True
     JAX_AVAILABLE = True
-    print("✅ Mesh Transformer JAX successfully imported")
-except ImportError as e:
-    print(f"⚠️ Mesh Transformer JAX not available: {e}")
+    print("✅ Mesh Transformer JAX successfully imported - enhanced_mesh_transformer_manager.py:39")
+except Exception as e:
+    print(f"⚠️ Mesh Transformer JAX not available: {e} - enhanced_mesh_transformer_manager.py:41")
     MESH_TRANSFORMER_AVAILABLE = False
     try:
         import jax  # noqa: F401
         import jax.numpy as jnp  # noqa: F401
         JAX_AVAILABLE = True
-        print("✅ JAX available for fallback operations")
+        print("✅ JAX available for fallback operations - enhanced_mesh_transformer_manager.py:47")
     except ImportError:
         JAX_AVAILABLE = False
-        print("❌ JAX not available")
+        jax = None
+        jnp = None
+        Transformer = None
+        print("❌ JAX not available - enhanced_mesh_transformer_manager.py:53")
 
 from utils.ultron_logger import get_logger, log_info, log_error
 
@@ -52,6 +71,7 @@ class EnhancedMeshTransformerManager:
         self.mesh_available = MESH_TRANSFORMER_AVAILABLE
         self.jax_available = JAX_AVAILABLE
         self.torch_available = torch.cuda.is_available()
+        self.transformers_available = TRANSFORMERS_AVAILABLE
 
         # Model configurations
         self.model_configs = {
@@ -154,11 +174,17 @@ class EnhancedMeshTransformerManager:
 
     async def _load_mesh_model_async(self, model_name: str, config: Dict[str, Any]) -> bool:
         """Load model using mesh-transformer-jax"""
+        if not self.transformers_available:
+            log_error("mesh_transformer",
+                     f"Transformers not available, cannot load {model_name}")
+            return False
+
         try:
             log_info("mesh_transformer", f"Loading {model_name} with mesh-transformer-jax")
 
             # Load tokenizer
-            tokenizer = transformers.AutoTokenizer.from_pretrained(config["hf"])
+            tokenizer = transformers.AutoTokenizer.from_pretrained(
+                config["hf"])
 
             # Create mesh transformer config
             mesh_config = {
@@ -184,15 +210,23 @@ class EnhancedMeshTransformerManager:
 
             self.tokenizers[model_name] = tokenizer
 
-            log_info("mesh_transformer", f"Successfully loaded {model_name} with mesh-transformer-jax")
+            log_info("mesh_transformer",
+                     f"Successfully loaded {model_name} with "
+                     f"mesh-transformer-jax")
             return True
 
         except Exception as e:
-            log_error("mesh_transformer", f"Mesh transformer loading failed for {model_name}: {e}")
+            log_error("mesh_transformer",
+                     f"Mesh transformer loading failed for {model_name}: {e}")
             return False
 
     async def _load_torch_model_async(self, model_name: str, config: Dict[str, Any]) -> bool:
         """Load model using PyTorch/Transformers as fallback"""
+        if not self.transformers_available:
+            log_error("mesh_transformer",
+                     f"Transformers not available, cannot load {model_name}")
+            return False
+
         try:
             log_info("mesh_transformer", f"Loading {model_name} with PyTorch fallback")
 
@@ -201,7 +235,8 @@ class EnhancedMeshTransformerManager:
 
             # Load model with appropriate settings
             model_kwargs = {
-                "torch_dtype": torch.float16 if self.torch_available else torch.float32,
+                "torch_dtype": (torch.float16 if self.torch_available
+                               else torch.float32),
                 "device_map": "auto" if self.torch_available else None,
                 "trust_remote_code": True
             }
@@ -223,11 +258,13 @@ class EnhancedMeshTransformerManager:
 
             self.tokenizers[model_name] = tokenizer
 
-            log_info("mesh_transformer", f"Successfully loaded {model_name} with PyTorch")
+            log_info("mesh_transformer",
+                     f"Successfully loaded {model_name} with PyTorch")
             return True
 
         except Exception as e:
-            log_error("mesh_transformer", f"PyTorch loading failed for {model_name}: {e}")
+            log_error("mesh_transformer",
+                     f"PyTorch loading failed for {model_name}: {e}")
             return False
 
     def _get_layers_for_model(self, model_name: str) -> int:
@@ -264,17 +301,21 @@ class EnhancedMeshTransformerManager:
             model_data = self.models[model_name]
             backend = model_data.get("backend", "unknown")
 
-            log_info("mesh_transformer", f"Generating text with {model_name} using {backend} backend")
+            log_info("mesh_transformer",
+                     f"Generating text with {model_name} using "
+                     f"{backend} backend")
 
             if progress_callback:
                 progress_callback(10, f"Preparing generation with {model_name}...")
 
             if backend == "mesh":
-                return await self._generate_mesh_async(model_data, prompt, max_length,
-                                                      temperature, top_p, progress_callback)
+                return await self._generate_mesh_async(
+                    model_data, prompt, max_length, temperature, top_p,
+                    progress_callback)
             elif backend == "torch":
-                return await self._generate_torch_async(model_data, prompt, max_length,
-                                                       temperature, top_p, progress_callback)
+                return await self._generate_torch_async(
+                    model_data, prompt, max_length, temperature, top_p,
+                    progress_callback)
             else:
                 log_error("mesh_transformer", f"Unknown backend: {backend}")
                 return None

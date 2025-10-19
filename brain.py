@@ -3,24 +3,53 @@ ULTRON Agent 3.0 - Brain Module with Ollama Integration
 Handles AI reasoning, planning, and communication with Ollama models
 """
 
-from logging import getLogger, info, error, warning
-from os import path as os_path, listdir
-from re import sub as re_sub
-from json import loads as json_loads, dumps as json_dumps, load as json_load, dump as json_dump, JSONDecodeError
+import logging
+from os import path as os_path
+from json import loads as json_loads, load as json_load, dump as json_dump, JSONDecodeError
 from requests import get as requests_get
-from asyncio import new_event_loop, set_event_loop, TimeoutError as AsyncTimeoutError
+from asyncio import (
+    new_event_loop, set_event_loop, TimeoutError as AsyncTimeoutError
+)
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
 from typing import Dict, Any
-from security_utils import sanitize_log_input, sanitize_html_output, validate_file_path
 
-from tools.openai_tools import OpenAITools
+# Create fallback functions for security utils if not available
+try:
+    from security_utils import (
+        sanitize_log_input, sanitize_html_output, validate_file_path
+    )
+except ImportError:
+    def sanitize_log_input(text):
+        return str(text)[:1000]  # Limit length
+    
+    def sanitize_html_output(text):
+        return str(text).replace('<', '&lt;').replace('>', '&gt;')
+    
+    def validate_file_path(path):
+        return True  # Basic fallback
+
+# Logging shortcuts
+def info(msg):
+    logging.info(msg)
+
+def error(msg):
+    logging.error(msg)
+
+def warning(msg):
+    logging.warning(msg)
+
+# Import OpenAI tools if available
+try:
+    from tools.openai_tools import OpenAITools
+except ImportError:
+    OpenAITools = None
+    warning("OpenAI tools not available")
 
 # Import enhanced mesh transformer manager for GPT-J/GPT-NeoX integration
 try:
     from enhanced_mesh_transformer_manager import (
         get_enhanced_mesh_transformer_manager,
-        is_enhanced_mesh_transformer_available,
         MeshTransformerIntegration
     )
     MESH_TRANSFORMER_AVAILABLE = True
@@ -36,9 +65,13 @@ try:
     from nvidia_nim_router import UltronNvidiaRouter
     NVIDIA_AVAILABLE = True
 except ImportError:
-    warning("NVIDIA NIM router not available - suggestions will use Ollama only")
+    warning(
+        "NVIDIA NIM router not available - suggestions will use Ollama only"
+    )
     UltronNvidiaRouter = None
     NVIDIA_AVAILABLE = False
+
+
 
 class UltronBrain:
     def __init__(self, config, tools, memory):
@@ -59,7 +92,10 @@ class UltronBrain:
                 self.nvidia_router = UltronNvidiaRouter()
                 info("NVIDIA NIM router initialized for suggestions")
             except Exception as e:
-                warning(f"NVIDIA NIM router initialization failed: {sanitize_log_input(str(e))}")
+                warning(
+                    f"NVIDIA NIM router initialization failed: "
+                    f"{sanitize_log_input(str(e))}"
+                )
 
         try:
             from tools.agent_network import AgentNetwork
@@ -68,11 +104,16 @@ class UltronBrain:
         except ImportError:
             warning("Agent network not available")
 
-        try:
-            self.openai_tools = OpenAITools(config)
-            info("OpenAI tools initialized")
-        except Exception as e:
-            warning(f"OpenAI tools not available: {sanitize_log_input(str(e))}")
+        if OpenAITools:
+            try:
+                self.openai_tools = OpenAITools(config)
+                info("OpenAI tools initialized")
+            except Exception as e:
+                warning(
+                    f"OpenAI tools not available: {sanitize_log_input(str(e))}"
+                )
+                self.openai_tools = None
+        else:
             self.openai_tools = None
 
         # Initialize enhanced mesh transformer integration
@@ -149,6 +190,9 @@ class UltronBrain:
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
 
+        # Prepend ULTRON identity reinforcement to user prompt
+        ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
+
         # Get system prompt from memory if available
         system_messages = []
         if self.memory and hasattr(self.memory, 'get_system_prompt'):
@@ -159,7 +203,7 @@ class UltronBrain:
             })
 
         ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
-        model = self.config.get("llm_model", "qwen2.5:latest")
+        model = self.config.get("llm_model", "llama3.1")
 
         info(f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}")
 
@@ -171,7 +215,7 @@ class UltronBrain:
             # Build messages array with system prompt
             messages = system_messages + [{
                 "role": "user",
-                "content": prompt
+                "content": ultron_prompt
             }]
 
             payload = {
@@ -717,3 +761,14 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
         except Exception as e:
             error(f"Identity awareness check failed: {sanitize_log_input(str(e))}")
             return False
+
+    async def process_command(self, command: str) -> str:
+        """Process a command through the brain system"""
+        try:
+            # Use plan_and_act for command processing
+            response = await self.plan_and_act(command)
+            return response
+        except Exception as e:
+            error_msg = f"Command processing failed: {str(e)}"
+            error(sanitize_log_input(error_msg))
+            return error_msg

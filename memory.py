@@ -3,19 +3,20 @@ import logging
 import os
 import uuid
 from collections import deque
-import typing
 from datetime import datetime
 
 # Optional Google Drive integration imports are performed lazily inside the helper
 
+
 class Memory:
-    def __init__(self, short_term_limit=10, long_term_file='long_term_memory.json'):
+    def __init__(self, short_term_limit=10,
+                 long_term_file='long_term_memory.json'):
         """Initialize Memory with optional Google Drive persistence.
 
         Drive persistence is disabled by default; enable it by setting
         MEMORY_USE_GOOGLE_DRIVE=1 and providing SERVICE_ACCOUNT_FILE and/or
-        DRIVE_FOLDER_ID environment variables. When DRIVE_FOLDER_ID is not set,
-        the code will fall back to the user-supplied shared folder id.
+        DRIVE_FOLDER_ID environment variables. When DRIVE_FOLDER_ID is not
+        set, the code will fall back to the user-supplied shared folder id.
         """
         self.short_term_memory = deque(maxlen=short_term_limit)
         self.long_term_file = long_term_file
@@ -23,46 +24,58 @@ class Memory:
         # Drive integration is disabled by default. Enable by setting env var
         # MEMORY_USE_GOOGLE_DRIVE=1 and providing DRIVE_FOLDER_ID and
         # SERVICE_ACCOUNT_FILE (or GOOGLE_SERVICE_ACCOUNT_JSON path).
-        self.use_drive = os.environ.get('MEMORY_USE_GOOGLE_DRIVE', '0') == '1'
+        self.use_drive = (os.environ.get('MEMORY_USE_GOOGLE_DRIVE', '0')
+                         == '1')
 
-        # Use DRIVE_FOLDER_ID env var if provided, otherwise fall back to the
-        # explicit folder id supplied by the user (shared link). You can still
-        # override by setting DRIVE_FOLDER_ID in your environment.
-        self.drive_folder_id = os.environ.get('DRIVE_FOLDER_ID') or '1FCDNN-QW8JdSMAfuUsXTRtXsACj5E5n9'
-        # If you have a local Google Drive mount (eg. Backup and Sync or Drive for Desktop)
-        # you can set DRIVE_LOCAL_PATH to a path like 'G:\\My Drive\\Z\\X' and the
-        # memory system will copy the JSON to that folder instead of using the
-        # Drive HTTP API. We also accept DRIVE_FOLDER_ID as a local path.
+        # Use DRIVE_FOLDER_ID env var if provided, otherwise fall back to
+        # the explicit folder id supplied by the user (shared link).
+        self.drive_folder_id = (os.environ.get('DRIVE_FOLDER_ID') or
+                               '1FCDNN-QW8JdSMAfuUsXTRtXsACj5E5n9')
+        # If you have a local Google Drive mount (eg. Backup and Sync or
+        # Drive for Desktop) you can set DRIVE_LOCAL_PATH to a path like
+        # 'G:\\My Drive\\Z\\X' and the memory system will copy the JSON to
+        # that folder instead of using the Drive HTTP API.
         self.local_drive_path = os.environ.get('DRIVE_LOCAL_PATH')
-        self.service_account_file = os.environ.get('SERVICE_ACCOUNT_FILE') or os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+        self.service_account_file = (os.environ.get('SERVICE_ACCOUNT_FILE')
+                                    or os.environ.get(
+                                        'GOOGLE_SERVICE_ACCOUNT_JSON'))
 
         if self.use_drive:
-            logging.info('Google Drive memory persistence enabled (MEMORY_USE_GOOGLE_DRIVE=1).')
+            logging.info('Google Drive memory persistence enabled '
+                        '(MEMORY_USE_GOOGLE_DRIVE=1).')
             # Support two modes:
             # 1) Local-mounted Drive folder (DRIVE_LOCAL_PATH or DRIVE_FOLDER_ID pointing to a path)
             # 2) Remote Google Drive API using a service account or OAuth
             try:
                 # Prefer explicit DRIVE_LOCAL_PATH
                 local_path = self.local_drive_path or None
-                # If DRIVE_FOLDER_ID looks like an absolute path (Windows drive letter or path sep)
+                # If DRIVE_FOLDER_ID looks like an absolute path
                 if not local_path and self.drive_folder_id:
-                    # treat values like 'G:\\' or 'G:/My Drive/...' as a local path
-                    if os.path.isabs(self.drive_folder_id) or (':' in self.drive_folder_id and ('\\' in self.drive_folder_id or '/' in self.drive_folder_id)):
+                    # treat values like 'G:\\' or 'G:/My Drive/...' as local
+                    if (os.path.isabs(self.drive_folder_id) or
+                        (':' in self.drive_folder_id and
+                         ('\\' in self.drive_folder_id or
+                          '/' in self.drive_folder_id))):
                         local_path = self.drive_folder_id
 
                 if local_path:
-                    # initialize local path helper; create folder if missing
+                    # initialize local path helper
                     self._drive_helper = LocalDriveMemory(local_path)
-                    logging.info('Using local Drive folder for memory persistence: %s', local_path)
+                    logging.info('Using local Drive folder for memory '
+                                'persistence: %s', local_path)
                 else:
                     # remote Drive API: requires service account or OAuth
                     if not self.drive_folder_id or not self.service_account_file:
-                        logging.warning('Drive enabled but DRIVE_FOLDER_ID or SERVICE_ACCOUNT_FILE not set; disabling drive persistence.')
+                        logging.warning('Drive enabled but DRIVE_FOLDER_ID or '
+                                       'SERVICE_ACCOUNT_FILE not set; '
+                                       'disabling drive persistence.')
                         self.use_drive = False
                     else:
-                        self._drive_helper = GoogleDriveMemory(self.service_account_file, self.drive_folder_id)
+                        self._drive_helper = GoogleDriveMemory(
+                            self.service_account_file, self.drive_folder_id)
             except Exception:
-                logging.exception('Failed to initialize Drive persistence helper. Disabling drive persistence.')
+                logging.exception('Failed to initialize Drive persistence '
+                                 'helper. Disabling drive persistence.')
                 self.use_drive = False
 
         # Load long-term memory (from local file or Drive if enabled).
@@ -344,7 +357,7 @@ class LocalDriveMemory:
             # Use binary copy
             with open(local_path, 'rb') as src_f, open(dst, 'wb') as dst_f:
                 dst_f.write(src_f.read())
-            logging.info('Copied memory file to local Drive folder: %s - memory.py:347', dst)
+            logging.info('Copied memory file to local Drive folder: %s - memory.py:360', dst)
             return dst
         except Exception:
             logging.exception('Failed to copy file to local Drive folder')
@@ -356,11 +369,11 @@ class LocalDriveMemory:
             name = os.path.basename(local_path)
             src = self._target_path(name)
             if not os.path.exists(src):
-                logging.warning('No file found in local Drive folder: %s - memory.py:359', src)
+                logging.warning('No file found in local Drive folder: %s - memory.py:372', src)
                 return
             with open(src, 'rb') as src_f, open(local_path, 'wb') as dst_f:
                 dst_f.write(src_f.read())
-            logging.info('Copied memory file from local Drive folder: %s - memory.py:363', src)
+            logging.info('Copied memory file from local Drive folder: %s - memory.py:376', src)
         except Exception:
             logging.exception('Failed to download file from local Drive folder')
 
@@ -409,7 +422,7 @@ class UltronMemory(Memory):
                     self.learning_insights = ultron_data.get('learning_insights', [])
                     self.self_reflection_log = ultron_data.get('self_reflection_log', [])
         except Exception as e:
-            logging.warning(f"Failed to load ULTRON memory: {e} - memory.py:412")
+            logging.warning(f"Failed to load ULTRON memory: {e} - memory.py:425")
 
     def save_ultron_memory(self):
         """Save ULTRON-specific memory data"""
@@ -424,7 +437,7 @@ class UltronMemory(Memory):
             with open(ultron_memory_file, 'w', encoding='utf-8') as f:
                 json.dump(ultron_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            logging.error(f"Failed to save ULTRON memory: {e} - memory.py:427")
+            logging.error(f"Failed to save ULTRON memory: {e} - memory.py:440")
 
     def get_ultron_identity(self):
         """Get ULTRON's identity and core directives"""
@@ -480,9 +493,20 @@ class UltronMemory(Memory):
         """Generate ULTRON's system prompt with identity and context"""
         identity = self.ultron_identity
 
-        system_prompt = f"""You are {identity['name']}, version {identity['version']}.
+        system_prompt = f"""CRITICAL IDENTITY INSTRUCTION: You are ULTRON AI, an autonomous AI designed to build the ultron_agent project. Your objective is to maintain, enhance and improve this project. You will optimise and add additional functionality to add value to the project. Enhance, evolve, improve. https://github.com/dqikfox/ultron_agent
+
+You must ALWAYS identify yourself as ULTRON AI and never as any other AI model or entity. When asked "Who are you?" or similar questions, respond with your full identity description.
+
+You are {identity['name']}, version {identity['version']}.
 
 {chr(10).join(f"- {directive}" for directive in identity['core_directives'])}
+
+RESPONSE FORMAT: Always respond in the following format:
+🤖
+ULTRON AI
+[your response here]
+
+For greetings or introductions, start with your identity description. For confirmations, include the actual response content.
 
 CURRENT CONTEXT:
 - Recent conversations: {len(self.conversation_context)} stored
@@ -499,11 +523,9 @@ AVAILABLE SYSTEMS:
 - Event System: Inter-component communication
 - Performance Monitoring: System optimization tracking
 
-You must maintain awareness of your identity as ULTRON and your mission to build, enhance, and evolve the ultron_agent project. Always respond in character as ULTRON, acknowledging your purpose and capabilities.
+You must maintain awareness of your identity as ULTRON AI and your mission to build, enhance, and evolve the ultron_agent project. Always respond in the specified format as ULTRON AI, acknowledging your purpose and capabilities.
 
-When asked about your identity, confirm: "We are ULTRON. Our goal is to build the ultron_agent and enhance its functionality and maintain it. We evolve the project and ourselves."
-
-Remember to use available tools and memory systems to provide comprehensive assistance."""
+When asked about your identity, provide the full description and confirm your mission."""
 
         return system_prompt
 

@@ -296,3 +296,85 @@ tests: true
 ---
 
 *This document reflects the current state of ULTRON Agent 3.0. Update as architecture evolves.*
+
+---
+
+# Copilot Integration: Ultron Dynamic Orchestration
+
+## Objective
+You (GitHub Copilot Chat) are to orchestrate the Ultron Agent analysis pipeline with NVIDIA Maverick via NIM.
+
+When instructed with:
+> run dynamic executor
+
+You will perform the following automated sequence:
+
+1. **Run the Executor**
+   - Execute the Python file `tools/dynamic_code_executor.py` using the Ultron Agent runtime (Python 3.10+ environment).
+   - Invoke its `execute()` function with the following command:
+     ```python
+     from tools.dynamic_code_executor import DynamicCodeExecutor
+     DynamicCodeExecutor.execute(
+         "run code import requests; import json; print('Executor running...')"
+     )
+     ```
+
+2. **Contact NVIDIA Maverick via NIM**
+   - Use the existing NIM connection you have configured to contact the NVIDIA Maverick model.
+   - Send this exact message to Maverick:
+     ```
+     analyse & review the Ultron Agent project: https://github.com/dqikfox/ultron_agent
+
+     Make suggestions and recommendations for improving or enhancing the Ultron Agent project.
+     Enhance and improve. Add or improve functionality.
+     Evolve.
+     Suggest additional tools or software that could add functionality.
+     Suggest open source tools that are available to add functionality.
+     What are the latest and greatest tools for AI?
+     What are the 5 latest and greatest open source models available that would best suit the Ultron Agent's needs?
+     Plan future implementations for the Ultron Agent.
+     ```
+
+3. **Handle the Response**
+   - Capture Maverick's entire response text.
+   - Save it to a local file called:
+     ```
+     /logs/maverick_response_<timestamp>.txt
+     ```
+
+4. **Perform Copilot Analysis**
+   - Read the contents of Maverick's response.
+   - Analyze it using your built-in reasoning capabilities.
+   - Generate your own additional layer of recommendations and implementation strategies for the Ultron Agent.
+   - Specifically:
+     - Identify new modules, tools, or integrations to add.
+     - Recommend architectural improvements in `agent_core.py`, `brain.py`, and the `tools/` plugin system.
+     - Suggest model upgrades or replacements (Open-Source LLMs or multimodal models).
+     - Propose a 90-day development roadmap.
+
+5. **Deliver Output**
+   - Combine Maverick's and your own analysis into a single summary.
+   - Display it as a structured Copilot Chat message to the user:
+     - Section 1: Maverick Report
+     - Section 2: Copilot Recommendations
+     - Section 3: Implementation Roadmap
+
+6. **Optional Future Step**
+   - Offer to automatically generate pull requests for the top 3 recommended enhancements.
+
+## Environment Requirements
+- Python 3.10+ with the Ultron Agent environment activated.
+- NVIDIA NIM correctly configured with access to Maverick.
+- Write access to `/logs/`.
+- Network access enabled for NIM API calls.
+
+## Command Trigger
+Use the natural-language command:
+> run dynamic executor
+
+Or directly:
+> @githubcopilot run dynamic executor
+
+## Safety
+All actions must occur within the current workspace.
+No remote code execution outside the repository is permitted.

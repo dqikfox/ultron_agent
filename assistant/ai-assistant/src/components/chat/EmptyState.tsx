@@ -3,10 +3,10 @@ import { useApp, assistantPersonalities } from '../../contexts/AppContext';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { 
-  MessageSquare, 
-  Sparkles, 
-  FileText, 
+import {
+  MessageSquare,
+  Sparkles,
+  FileText,
   Search,
   Lightbulb,
   Zap,
@@ -17,7 +17,7 @@ import {
 export default function EmptyState() {
   const { state, createNewConversation, dispatch } = useApp();
   const { currentMode } = state;
-  
+
   const currentPersonality = assistantPersonalities.find(p => p.id === currentMode);
 
   const suggestions = {
@@ -95,7 +95,7 @@ export default function EmptyState() {
               key={personality.id}
               variant={personality.id === currentMode ? "default" : "outline"}
               size="sm"
-              onClick={() => dispatch({ type: 'SET_CURRENT_MODE', payload: personality.id })}
+              onClick={() => dispatch({ type: 'SET_CURRENT_MODE', payload: personality.mode })}
               className="flex items-center gap-2"
             >
               <span>{personality.icon}</span>
@@ -111,10 +111,10 @@ export default function EmptyState() {
           <Sparkles className="h-5 w-5" />
           Get started with these suggestions:
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {currentSuggestions.map((suggestion, index) => (
-            <Card 
+            <Card
               key={index}
               className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/20"
               onClick={() => handleSuggestionClick(suggestion.text)}
@@ -141,15 +141,15 @@ export default function EmptyState() {
 
       {/* Quick Actions */}
       <div className="mt-8 flex flex-wrap gap-3 justify-center">
-        <Button 
+        <Button
           onClick={() => createNewConversation(currentMode)}
           className="flex items-center gap-2"
         >
           <MessageSquare className="h-4 w-4" />
           Start New Chat
         </Button>
-        
-        <Button 
+
+        <Button
           variant="outline"
           onClick={() => {
             const input = document.querySelector('textarea');
