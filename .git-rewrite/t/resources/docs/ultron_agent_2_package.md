@@ -1,3 +1,0 @@
-# Ultron Agent 2.0 Package
-
-... (truncated for brevity, full content from ultron_agent_2_package.markdown) ...
