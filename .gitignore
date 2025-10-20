@@ -26,6 +26,22 @@ wheels/
 .vscode/settings_clean.json
 .continue/.env
 
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.json.secret
+*-secret.json
+credentials.json
+auth_token.txt
+api_keys.txt
+keys.txt
+secrets.txt
+passwords.txt
+
 # Logs
 logs/
 *.log
@@ -47,6 +63,11 @@ Oracle_JDK-24/
 .old/
 .redundant/
 .git-rewrite/
+*.bak
+*.backup
+*.swp
+*.swo
+*~
 
 # Project specific
 ultron-agent-project/
