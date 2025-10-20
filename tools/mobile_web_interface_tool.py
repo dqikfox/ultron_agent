@@ -28,8 +28,10 @@ except ImportError:
     Flask = None
     log_error("mobile_web_interface", "Flask not available. Install with: pip install flask")
 
+from .tool_interface import ToolInterface
 
-class MobileWebInterfaceTool:
+
+class MobileWebInterfaceTool(ToolInterface):
     """
     Tool for creating unified Pokédex-styled web interface for ULTRON Agent
     """
@@ -49,6 +51,393 @@ class MobileWebInterfaceTool:
         self.server_thread = None
         self.is_running = False
         self.current_model = 'qwen3-coder:480b-cloud'  # Default model
+
+        # Initialize Flask app
+        self._initialize_flask_app()
+
+        # Auto-start the server in background
+        self._auto_start_server()
+
+    def _initialize_flask_app(self):
+        """Initialize the Flask application with all routes"""
+        if not FLASK_AVAILABLE:
+            log_error("mobile_web_interface", "Flask not available - cannot initialize web interface")
+            return
+
+        try:
+            self.app = Flask(__name__)
+
+            # Add routes
+            self._setup_routes()
+
+            log_info("mobile_web_interface", "Flask app initialized successfully")
+        except Exception as e:
+            log_error("mobile_web_interface", f"Failed to initialize Flask app: {e}")
+            self.app = None
+
+    def _auto_start_server(self):
+        """Automatically start the Flask server in background"""
+        if not self.app:
+            log_error("mobile_web_interface", "Cannot auto-start server - Flask app not initialized")
+            return
+
+        if self.is_running:
+            log_info("mobile_web_interface", "Server already running")
+            return
+
+        try:
+            def run_server():
+                log_info("mobile_web_interface", f"Auto-starting web interface server on port {self.port}")
+                self.app.run(host='0.0.0.0', port=self.port, debug=False, use_reloader=False)
+
+            self.server_thread = threading.Thread(target=run_server, daemon=True)
+            self.server_thread.start()
+            self.is_running = True
+
+            # Give server time to start
+            time.sleep(1)
+
+            log_info("mobile_web_interface", f"Web interface server auto-started successfully on port {self.port}")
+        except Exception as e:
+            log_error("mobile_web_interface", f"Failed to auto-start server: {e}")
+
+    def _setup_routes(self):
+        """Setup all Flask routes"""
+        if not self.app:
+            return
+
+        # Vision routes
+        @self.app.route('/api/vision/capture', methods=['POST'])
+        def vision_capture():
+            try:
+                print("Vision capture endpoint called - mobile_web_interface_tool.py:113")
+                # Add project root to Python path
+                import sys
+                import os
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+
+                # Import at module level to avoid scoping issues
+                from vision import Vision
+                from PIL import Image
+                import base64
+                from io import BytesIO
+
+                vision = Vision()
+                screen, filepath = vision.capture_screen()
+                print(f"Screen captured to: {filepath} - mobile_web_interface_tool.py:129")
+
+                # Convert image to base64 for web display
+                buffer = BytesIO()
+                screen.save(buffer, format='PNG')
+                img_base64 = base64.b64encode(buffer.getvalue()).decode()
+                image_url = f"data:image/png;base64,{img_base64}"
+                print("Image converted to base64 - mobile_web_interface_tool.py:136")
+
+                return jsonify({
+                    'action': 'capture',
+                    'status': 'completed',
+                    'image_path': filepath,
+                    'image_url': image_url,
+                    'timestamp': time.time()
+                })
+            except Exception as e:
+                print(f"Vision capture failed: {e} - mobile_web_interface_tool.py:146")
+                import traceback
+                traceback.print_exc()
+                return jsonify({
+                    'action': 'capture',
+                    'status': 'failed',
+                    'error': str(e),
+                    'timestamp': time.time()
+                }), 500
+
+        @self.app.route('/api/vision/analyze', methods=['POST'])
+        def vision_analyze():
+            try:
+                print("Vision analyze endpoint called - mobile_web_interface_tool.py:159")
+                # Add project root to Python path
+                import sys
+                import os
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+
+                # Import at module level to avoid scoping issues
+                from vision import Vision
+                from multimodal_vision_tool import MultimodalVisionTool
+                from PIL import Image
+
+                vision = Vision()
+                multimodal_vision = MultimodalVisionTool()
+
+                # Get the latest screenshot
+                screenshots_dir = "screenshots"
+                if os.path.exists(screenshots_dir):
+                    screenshots = [f for f in os.listdir(screenshots_dir) if f.endswith('.png')]
+                    if screenshots:
+                        # Get the most recent screenshot
+                        latest_screenshot = max(screenshots, key=lambda x: os.path.getctime(os.path.join(screenshots_dir, x)))
+                        image_path = os.path.join(screenshots_dir, latest_screenshot)
+                        print(f"Analyzing screenshot: {image_path} - mobile_web_interface_tool.py:183")
+
+                        # Perform OCR
+                        screen = Image.open(image_path)
+                        ocr_text = vision.perform_ocr(screen)
+                        print(f"OCR completed, text length: {len(ocr_text)} - mobile_web_interface_tool.py:188")
+
+                        # Perform AI analysis
+                        ai_analysis = multimodal_vision.analyze_image(image_path)
+                        print(f"AI analysis completed, length: {len(str(ai_analysis))} - mobile_web_interface_tool.py:192")
+
+                        return jsonify({
+                            'action': 'analyze',
+                            'status': 'completed',
+                            'image_path': image_path,
+                            'ocr_text': ocr_text,
+                            'analysis': ai_analysis,  # Changed from ai_analysis to analysis
+                            'timestamp': time.time()
+                        })
+                    else:
+                        print("No screenshots found for analysis - mobile_web_interface_tool.py:203")
+                        return jsonify({
+                            'action': 'analyze',
+                            'status': 'failed',
+                            'error': 'No screenshots found. Please capture a screen first.',
+                            'timestamp': time.time()
+                        }), 400
+                else:
+                    print("Screenshots directory not found - mobile_web_interface_tool.py:211")
+                    return jsonify({
+                        'action': 'analyze',
+                        'status': 'failed',
+                        'error': 'Screenshots directory not found.',
+                        'timestamp': time.time()
+                    }), 400
+            except Exception as e:
+                print(f"Vision analyze failed: {e} - mobile_web_interface_tool.py:219")
+                import traceback
+                traceback.print_exc()
+                return jsonify({
+                    'action': 'analyze',
+                    'status': 'failed',
+                    'error': str(e),
+                    'timestamp': time.time()
+                }), 500
+            except Exception as e:
+                print(f"Vision analyze failed: {e} - mobile_web_interface_tool.py:229")
+                import traceback
+                traceback.print_exc()
+                return jsonify({
+                    'action': 'analyze',
+                    'status': 'failed',
+                    'error': str(e),
+                    'timestamp': time.time()
+                }), 500
+
+        # Other routes (Stable Diffusion, NVIDIA, etc.)
+        @self.app.route('/api/stable-diffusion/generate', methods=['POST'])
+        def stable_diffusion_generate():
+            try:
+                print("Stable Diffusion generate endpoint called - mobile_web_interface_tool.py:243")
+                # Add project root to Python path
+                import sys
+                import os
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+
+                # Import the stable diffusion tool
+                from tools.stable_diffusion_tool import StableDiffusionTool
+
+                data = request.get_json() or {}
+                prompt = data.get('prompt', '')
+                negative_prompt = data.get('negative_prompt', '')
+                width = data.get('width', 512)
+                height = data.get('height', 512)
+                steps = data.get('steps', 20)
+                cfg_scale = data.get('cfg_scale', 7.0)
+                sampler_name = data.get('sampler_name', 'Euler a')
+
+                if not prompt:
+                    return jsonify({
+                        'action': 'generate',
+                        'status': 'failed',
+                        'error': 'No prompt provided',
+                        'timestamp': time.time()
+                    }), 400
+
+                # Create tool instance and generate
+                sd_tool = StableDiffusionTool()
+                command = f"generate image: {prompt}"
+                if negative_prompt:
+                    command += f" --negative {negative_prompt}"
+                if width != 512 or height != 512:
+                    command += f" --size {width}x{height}"
+                if steps != 20:
+                    command += f" --steps {steps}"
+                if cfg_scale != 7.0:
+                    command += f" --scale {cfg_scale}"
+                if sampler_name != 'Euler a':
+                    command += f" --sampler {sampler_name}"
+
+                result = sd_tool.execute(command)
+
+                # Parse result to extract image path or base64
+                if "Generated image saved to:" in result:
+                    # Extract path from result
+                    import re
+                    path_match = re.search(r"Generated image saved to: (.+)", result)
+                    if path_match:
+                        image_path = path_match.group(1).strip()
+                        # Convert to base64 for web display
+                        try:
+                            from PIL import Image
+                            import base64
+                            from io import BytesIO
+
+                            image = Image.open(image_path)
+                            buffer = BytesIO()
+                            image.save(buffer, format='PNG')
+                            img_base64 = base64.b64encode(buffer.getvalue()).decode()
+                            image_url = f"data:image/png;base64,{img_base64}"
+
+                            return jsonify({
+                                'action': 'generate',
+                                'status': 'completed',
+                                'image_path': image_path,
+                                'image_url': image_url,
+                                'prompt': prompt,
+                                'parameters': {
+                                    'negative_prompt': negative_prompt,
+                                    'width': width,
+                                    'height': height,
+                                    'steps': steps,
+                                    'cfg_scale': cfg_scale,
+                                    'sampler_name': sampler_name
+                                },
+                                'timestamp': time.time()
+                            })
+                        except Exception as img_error:
+                            print(f"Image processing error: {img_error} - mobile_web_interface_tool.py:323")
+                            return jsonify({
+                                'action': 'generate',
+                                'status': 'completed',
+                                'image_path': image_path,
+                                'prompt': prompt,
+                                'message': result,
+                                'timestamp': time.time()
+                            })
+                else:
+                    # Return text result
+                    return jsonify({
+                        'action': 'generate',
+                        'status': 'completed',
+                        'message': result,
+                        'prompt': prompt,
+                        'timestamp': time.time()
+                    })
+
+            except Exception as e:
+                print(f"Stable Diffusion generate failed: {e} - mobile_web_interface_tool.py:343")
+                import traceback
+                traceback.print_exc()
+                return jsonify({
+                    'action': 'generate',
+                    'status': 'failed',
+                    'error': str(e),
+                    'timestamp': time.time()
+                }), 500
+
+        @self.app.route('/api/nvidia/status')
+        def nvidia_status():
+            # Placeholder for NVIDIA status
+            return jsonify({
+                'available': False,
+                'gpu_count': 0,
+                'driver_version': None,
+                'timestamp': time.time()
+            })
+
+        @self.app.route('/api/files')
+        def get_files():
+            # Placeholder for file listing
+            return jsonify({
+                'files': [],
+                'directories': [],
+                'timestamp': time.time()
+            })
+
+        @self.app.route('/api/autogen/status')
+        def autogen_status():
+            # Placeholder for AutoGen status
+            return jsonify({
+                'running': False,
+                'agents': [],
+                'workflows': [],
+                'timestamp': time.time()
+            })
+
+        @self.app.route('/api/autogen/start', methods=['POST'])
+        def autogen_start():
+            # Placeholder for AutoGen start
+            log_info("mobile_web_interface", "AutoGen start requested")
+            return jsonify({
+                'action': 'start',
+                'status': 'initiated',
+                'timestamp': time.time()
+            })
+
+        @self.app.route('/api/autogen/stop', methods=['POST'])
+        def autogen_stop():
+            # Placeholder for AutoGen stop
+            log_info("mobile_web_interface", "AutoGen stop requested")
+            return jsonify({
+                'action': 'stop',
+                'status': 'completed',
+                'timestamp': time.time()
+            })
+
+        @self.app.route('/api/autogen/create-agent', methods=['POST'])
+        def autogen_create_agent():
+            # Placeholder for agent creation
+            log_info("mobile_web_interface", "AutoGen create agent requested")
+            return jsonify({
+                'action': 'create_agent',
+                'status': 'completed',
+                'agent_id': None,
+                'timestamp': time.time()
+            })
+
+        @self.app.route('/api/autogen/create-workflow', methods=['POST'])
+        def autogen_create_workflow():
+            # Placeholder for workflow creation
+            log_info("mobile_web_interface", "AutoGen create workflow requested")
+            return jsonify({
+                'action': 'create_workflow',
+                'status': 'completed',
+                'workflow_id': None,
+                'timestamp': time.time()
+            })
+
+        @self.app.route('/api/autogen/command', methods=['POST'])
+        def autogen_command():
+            # Placeholder for AutoGen command
+            log_info("mobile_web_interface", "AutoGen command requested")
+            return jsonify({
+                'action': 'command',
+                'status': 'completed',
+                'result': None,
+                'timestamp': time.time()
+            })
+
+        @self.app.after_request
+        def add_cors_headers(response):
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            return response
         self._initialize_interface()
 
         # Auto-start the web interface when tool is loaded
@@ -70,9 +459,9 @@ class MobileWebInterfaceTool:
             static_dir = os.path.join(os.path.dirname(__file__), '..', 'gui', 'ultron_enhanced', 'web')
             self.app = Flask(__name__, static_folder=static_dir, static_url_path='')
             self._setup_routes()
-            print("Web interface initialized with Pokédex GUI - mobile_web_interface_tool.py:73")
+            print("Web interface initialized with Pokédex GUI - mobile_web_interface_tool.py:462")
         except Exception as e:
-            print(f"Interface initialization failed: {e} - mobile_web_interface_tool.py:75")
+            print(f"Interface initialization failed: {e} - mobile_web_interface_tool.py:464")
 
     def _setup_routes(self):
         """Setup Flask routes"""
@@ -392,7 +781,7 @@ class MobileWebInterfaceTool:
         @self.app.route('/api/vision/capture', methods=['POST'])
         def vision_capture():
             try:
-                print("Vision capture endpoint called - mobile_web_interface_tool.py:395")
+                print("Vision capture endpoint called - mobile_web_interface_tool.py:784")
                 # Add project root to Python path
                 import sys
                 import os
@@ -408,14 +797,14 @@ class MobileWebInterfaceTool:
 
                 vision = Vision()
                 screen, filepath = vision.capture_screen()
-                print(f"Screen captured to: {filepath} - mobile_web_interface_tool.py:411")
+                print(f"Screen captured to: {filepath} - mobile_web_interface_tool.py:800")
 
                 # Convert image to base64 for web display
                 buffer = BytesIO()
                 screen.save(buffer, format='PNG')
                 img_base64 = base64.b64encode(buffer.getvalue()).decode()
                 image_url = f"data:image/png;base64,{img_base64}"
-                print("Image converted to base64 - mobile_web_interface_tool.py:418")
+                print("Image converted to base64 - mobile_web_interface_tool.py:807")
 
                 return jsonify({
                     'action': 'capture',
@@ -425,7 +814,7 @@ class MobileWebInterfaceTool:
                     'timestamp': time.time()
                 })
             except Exception as e:
-                print(f"Vision capture failed: {e} - mobile_web_interface_tool.py:428")
+                print(f"Vision capture failed: {e} - mobile_web_interface_tool.py:817")
                 import traceback
                 traceback.print_exc()
                 return jsonify({
@@ -438,7 +827,7 @@ class MobileWebInterfaceTool:
         @self.app.route('/api/vision/analyze', methods=['POST'])
         def vision_analyze():
             try:
-                print("Vision analyze endpoint called - mobile_web_interface_tool.py:441")
+                print("Vision analyze endpoint called - mobile_web_interface_tool.py:830")
                 # Add project root to Python path
                 import sys
                 import os
@@ -462,16 +851,16 @@ class MobileWebInterfaceTool:
                         # Get the most recent screenshot
                         latest_screenshot = max(screenshots, key=lambda x: os.path.getctime(os.path.join(screenshots_dir, x)))
                         image_path = os.path.join(screenshots_dir, latest_screenshot)
-                        print(f"Analyzing screenshot: {image_path} - mobile_web_interface_tool.py:465")
+                        print(f"Analyzing screenshot: {image_path} - mobile_web_interface_tool.py:854")
 
                         # Perform OCR
                         screen = Image.open(image_path)
                         ocr_text = vision.perform_ocr(screen)
-                        print(f"OCR completed, text length: {len(ocr_text)} - mobile_web_interface_tool.py:470")
+                        print(f"OCR completed, text length: {len(ocr_text)} - mobile_web_interface_tool.py:859")
 
                         # Perform AI analysis
                         ai_analysis = multimodal_vision.analyze_image(image_path)
-                        print(f"AI analysis completed, length: {len(str(ai_analysis))} - mobile_web_interface_tool.py:474")
+                        print(f"AI analysis completed, length: {len(str(ai_analysis))} - mobile_web_interface_tool.py:863")
 
                         return jsonify({
                             'action': 'analyze',
@@ -482,7 +871,7 @@ class MobileWebInterfaceTool:
                             'timestamp': time.time()
                         })
                     else:
-                        print("No screenshots found for analysis - mobile_web_interface_tool.py:485")
+                        print("No screenshots found for analysis - mobile_web_interface_tool.py:874")
                         return jsonify({
                             'action': 'analyze',
                             'status': 'failed',
@@ -490,7 +879,7 @@ class MobileWebInterfaceTool:
                             'timestamp': time.time()
                         }), 400
                 else:
-                    print("Screenshots directory not found - mobile_web_interface_tool.py:493")
+                    print("Screenshots directory not found - mobile_web_interface_tool.py:882")
                     return jsonify({
                         'action': 'analyze',
                         'status': 'failed',
@@ -498,7 +887,7 @@ class MobileWebInterfaceTool:
                         'timestamp': time.time()
                     }), 400
             except Exception as e:
-                print(f"Vision analyze failed: {e} - mobile_web_interface_tool.py:501")
+                print(f"Vision analyze failed: {e} - mobile_web_interface_tool.py:890")
                 import traceback
                 traceback.print_exc()
                 return jsonify({
@@ -508,7 +897,7 @@ class MobileWebInterfaceTool:
                     'timestamp': time.time()
                 }), 500
             except Exception as e:
-                print(f"Vision analyze failed: {e} - mobile_web_interface_tool.py:511")
+                print(f"Vision analyze failed: {e} - mobile_web_interface_tool.py:900")
                 import traceback
                 traceback.print_exc()
                 return jsonify({
@@ -521,7 +910,7 @@ class MobileWebInterfaceTool:
         @self.app.route('/api/stable-diffusion/generate', methods=['POST'])
         def stable_diffusion_generate():
             try:
-                print("Stable Diffusion generate endpoint called - mobile_web_interface_tool.py:524")
+                print("Stable Diffusion generate endpoint called - mobile_web_interface_tool.py:913")
                 # Add project root to Python path
                 import sys
                 import os
@@ -601,7 +990,7 @@ class MobileWebInterfaceTool:
                                 'timestamp': time.time()
                             })
                         except Exception as img_error:
-                            print(f"Image processing error: {img_error} - mobile_web_interface_tool.py:604")
+                            print(f"Image processing error: {img_error} - mobile_web_interface_tool.py:993")
                             return jsonify({
                                 'action': 'generate',
                                 'status': 'completed',
@@ -621,7 +1010,7 @@ class MobileWebInterfaceTool:
                     })
 
             except Exception as e:
-                print(f"Stable Diffusion generate failed: {e} - mobile_web_interface_tool.py:624")
+                print(f"Stable Diffusion generate failed: {e} - mobile_web_interface_tool.py:1013")
                 import traceback
                 traceback.print_exc()
                 return jsonify({
@@ -2212,7 +2601,7 @@ class MobileWebInterfaceTool:
             "open web app", "start pokedex app", "interface server", "pokedex gui"
         ])
 
-    def execute(self, command: str) -> str:
+    def execute(self, command: str, **kwargs) -> str:
         """Execute interface operations"""
         try:
             command_lower = command.lower()
@@ -2374,12 +2763,12 @@ class MobileWebInterfaceTool:
 
 # Main execution block for standalone server
 if __name__ == "__main__":
-    print("Starting ULTRON Pokédex Web Interface Server... - mobile_web_interface_tool.py:2377")
-    print("Press Ctrl+C to stop the server - mobile_web_interface_tool.py:2378")
+    print("Starting ULTRON Pokédex Web Interface Server... - mobile_web_interface_tool.py:2766")
+    print("Press Ctrl+C to stop the server - mobile_web_interface_tool.py:2767")
 
     # Create and start the interface
     interface = MobileWebInterfaceTool()
 
     # Start the Flask server directly (this will block)
-    print(f"Starting Flask server on port {interface.port}... - mobile_web_interface_tool.py:2384")
+    print(f"Starting Flask server on port {interface.port}... - mobile_web_interface_tool.py:2773")
     interface.app.run(host='0.0.0.0', port=interface.port, debug=False, use_reloader=False)

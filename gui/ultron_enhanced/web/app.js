@@ -74,6 +74,7 @@ class UltronPokedexInterface {
         this.updateClock();
         this.updateDate();
         this.startLEDSequence();
+        this.initializeAriaStates();
     }
 
     cacheDomReferences() {
@@ -119,11 +120,38 @@ class UltronPokedexInterface {
     }
 
     setupEventListeners() {
+        // Navigation tab keyboard support
         document.querySelectorAll('.nav-button').forEach(btn => {
             btn.addEventListener('click', (event) => {
                 const section = event.currentTarget.dataset.section;
                 this.switchSection(section);
                 this.playSound('button');
+            });
+
+            // Keyboard navigation for tabs
+            btn.addEventListener('keydown', (event) => {
+                const navButtons = Array.from(document.querySelectorAll('.nav-button'));
+                const currentIndex = navButtons.indexOf(event.currentTarget);
+
+                switch (event.key) {
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        const prevIndex = currentIndex > 0 ? currentIndex - 1 : navButtons.length - 1;
+                        navButtons[prevIndex].focus();
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        const nextIndex = currentIndex < navButtons.length - 1 ? currentIndex + 1 : 0;
+                        navButtons[nextIndex].focus();
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        event.preventDefault();
+                        const section = event.currentTarget.dataset.section;
+                        this.switchSection(section);
+                        this.playSound('button');
+                        break;
+                }
             });
         });
 
@@ -537,12 +565,23 @@ class UltronPokedexInterface {
     }
 
     switchSection(sectionName) {
-        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`[data-section="${sectionName}"]`)?.classList.add('active');
+        // Update navigation tab states
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            const isActive = btn.dataset.section === sectionName;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            btn.setAttribute('tabindex', isActive ? '0' : '-1');
+        });
 
-        document.querySelectorAll('.section-content').forEach(section => section.classList.remove('active'));
-        document.getElementById(`${sectionName}-section`)?.classList.add('active');
+        // Update section visibility with ARIA
+        document.querySelectorAll('.section-content').forEach(section => {
+            const sectionId = section.id.replace('-section', '');
+            const isActive = sectionId === sectionName;
+            section.classList.toggle('active', isActive);
+            section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
 
+        // Update current section indicator
         const indicator = document.getElementById('current-section-indicator');
         if (indicator) {
             const icons = {
@@ -566,6 +605,9 @@ class UltronPokedexInterface {
 
         this.currentSection = sectionName;
         this.loadSectionData(sectionName);
+
+        // Announce section change to screen readers
+        this.announceToScreenReader(`Switched to ${sectionName} section`);
     }
 
     async loadSectionData(section) {
@@ -623,7 +665,7 @@ class UltronPokedexInterface {
 
         switch (true) {
             case lower === 'help':
-                this.addSystemMessage('Available commands: help, clear, status, theme <red|blue>, capture, analyze, shutdown, restart');
+                this.addSystemMessage('Available commands: help, clear, status, theme <red|blue|high-contrast|ultron-steampunk>, capture, analyze, shutdown, restart');
                 return;
             case lower === 'clear':
                 this.clearConsole();
@@ -681,17 +723,38 @@ class UltronPokedexInterface {
         }
     }
 
-    initializeTheme() {
-        this.changeTheme(this.currentTheme);
+    initializeAriaStates() {
+        // Set initial ARIA states for navigation tabs
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            const isActive = btn.dataset.section === this.currentSection;
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            btn.setAttribute('tabindex', isActive ? '0' : '-1');
+        });
+
+        // Set initial ARIA states for sections
+        document.querySelectorAll('.section-content').forEach(section => {
+            const sectionId = section.id.replace('-section', '');
+            const isActive = sectionId === this.currentSection;
+            section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
     }
 
     changeTheme(theme) {
-        if (!['red', 'blue'].includes(theme)) {
+        const validThemes = ['red', 'blue', 'high-contrast', 'ultron-steampunk'];
+        if (!validThemes.includes(theme)) {
             theme = 'red';
         }
         const body = document.getElementById('pokedex-body');
         if (body) {
-            body.className = `pokedex-body pokedex-${theme}`;
+            // Remove all theme classes first
+            body.classList.remove('pokedex-red', 'pokedex-blue');
+            // Add the appropriate theme class
+            if (theme === 'red' || theme === 'blue') {
+                body.className = `pokedex-body pokedex-${theme}`;
+            } else {
+                // For special themes, apply to document.body
+                document.body.className = theme;
+            }
         }
         this.currentTheme = theme;
     }
@@ -1722,11 +1785,86 @@ class UltronPokedexInterface {
             event.preventDefault();
             this.clearConsole();
         }
+
+        // Tab navigation for sections
+        if (event.altKey && event.key >= '1' && event.key <= '9') {
+            event.preventDefault();
+            const sectionIndex = parseInt(event.key) - 1;
+            const navButtons = document.querySelectorAll('.nav-button');
+            if (navButtons[sectionIndex]) {
+                const section = navButtons[sectionIndex].dataset.section;
+                this.switchSection(section);
+                this.playSound('button');
+            }
+        }
+
+        // Arrow key navigation for D-pad
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) {
+            switch (event.key) {
+                case 'ArrowUp':
+                    event.preventDefault();
+                    this.handleDPadInput('up');
+                    this.playSound('button');
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault();
+                    this.handleDPadInput('down');
+                    this.playSound('button');
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    this.handleDPadInput('left');
+                    this.playSound('button');
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    this.handleDPadInput('right');
+                    this.playSound('button');
+                    break;
+                case 'Enter':
+                    event.preventDefault();
+                    this.handleActionButton('A');
+                    this.playSound('confirm');
+                    break;
+                case 'Escape':
+                    event.preventDefault();
+                    this.handleActionButton('B');
+                    this.playSound('button');
+                    break;
+            }
+        }
+
+        // Voice toggle shortcut
+        if (event.ctrlKey && event.key === 'v') {
+            event.preventDefault();
+            this.toggleVoice();
+        }
+
+        // Settings shortcut
+        if (event.ctrlKey && event.key === ',') {
+            event.preventDefault();
+            this.switchSection('settings');
+            this.playSound('button');
+        }
     }
 
-    trackApiCall(endpoint) {
-        this.apiCallCounts[endpoint] = (this.apiCallCounts[endpoint] || 0) + 1;
-        console.debug(`[ULTRON] API ${endpoint} (${this.apiCallCounts[endpoint]}) - app.js:1429`);
+    announceToScreenReader(message) {
+        // Create or update a live region for screen reader announcements
+        let liveRegion = document.getElementById('sr-live-region');
+        if (!liveRegion) {
+            liveRegion = document.createElement('div');
+            liveRegion.id = 'sr-live-region';
+            liveRegion.setAttribute('aria-live', 'polite');
+            liveRegion.setAttribute('aria-atomic', 'true');
+            liveRegion.className = 'sr-only';
+            document.body.appendChild(liveRegion);
+        }
+        liveRegion.textContent = message;
+
+        // Clear the message after a short delay to allow re-announcement
+        setTimeout(() => {
+            liveRegion.textContent = '';
+        }, 1000);
     }
 
     async apiCall(endpoint, options = {}) {

@@ -85,6 +85,7 @@ class UltronAgent:
         self.event_system = None
         self.performance_monitor = None
         self.task_scheduler = None
+        self.platform_manager = None
 
         self.logger.info("ULTRON Agent core initialized")
 
@@ -137,6 +138,7 @@ class UltronAgent:
             await self._initialize_vision()
             await self._initialize_brain()
             await self._initialize_event_system()
+            await self._initialize_platform_manager()
             await self._initialize_idle_monitor()
             await self._initialize_keyboard_listener()
             await self._load_tools()
@@ -247,6 +249,17 @@ class UltronAgent:
         from utils.event_system import EventSystem
         self.event_system = EventSystem()
         self.logger.info("Event system initialized successfully")
+
+    async def _initialize_platform_manager(self):
+        """Initialize platform manager for cross-platform support"""
+        self.logger.info("Initializing platform manager...")
+        try:
+            from platform_manager import PlatformManager
+            self.platform_manager = PlatformManager()
+            self.logger.info("Platform manager initialized successfully")
+        except ImportError as e:
+            self.logger.error(f"Platform manager initialization failed: {e}")
+            self.platform_manager = None
 
     async def _initialize_idle_monitor(self):
         """Initialize idle monitor for auto-analysis triggering"""
@@ -846,6 +859,14 @@ class UltronAgent:
             status["systems"]["tools"] = len(self.tools) > 0
             status["systems"]["voice"] = self.voice is not None
             status["systems"]["config"] = self.config is not None
+            status["systems"]["platform_manager"] = self.platform_manager is not None
+
+            # Add platform information
+            if self.platform_manager:
+                status["platform"] = self.platform_manager.get_platform_info()
+                status["platform_features"] = (
+                    self.platform_manager.get_platform_specific_features()
+                )
 
             # Check identity awareness
             if self.brain:
