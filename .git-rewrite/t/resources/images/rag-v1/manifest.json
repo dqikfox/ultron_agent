@@ -1,7 +1,0 @@
-{
-  "type": "plugin",
-  "runner": "node",
-  "owner": "havikz",
-  "name": "rag-v1",
-  "revision": 4
-}
