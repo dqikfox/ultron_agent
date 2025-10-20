@@ -128,10 +128,12 @@ body {
 
     overflow-x: hidden;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0;
     padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 /* Loading Screen */
@@ -203,7 +205,8 @@ body {
 /* Main Interface */
 .main-interface {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1000px;
+    margin: 0 auto;
     transition: opacity 0.5s ease;
 }
 
@@ -215,9 +218,7 @@ body {
 /* Main Pokédex Container */
 .pokedex-container {
     perspective: 1000px;
-    max-width: 900px;
     width: 100%;
-    margin: 0 auto;
 }
 
 .pokedex-body {
@@ -531,6 +532,10 @@ body {
 .console-output::-webkit-scrollbar-thumb {
     background: #00ff41;
     border-radius: 4px;
+}
+
+.console-output::-webkit-scrollbar-thumb:hover {
+    background: #10b981;
 }
 
 .message {
@@ -1718,8 +1723,8 @@ select:focus-visible {
 }
 
 .tool-detail-status.inactive {
-    background: rgba(255, 65, 65, 0.2);
-    color: #ff4141;
+    background: rgba(255, 0, 0, 0.2);
+    color: #ff0000;
 }
 
 .tool-detail-description {
@@ -2831,4 +2836,811 @@ body.ultron-steampunk .footer-value {
 @keyframes footer-shift {
     from { transform: translate3d(-4%, 0, 0); }
     to { transform: translate3d(4%, 0, 0); }
+}
+
+/* === HIGH CONTRAST THEME === */
+body.high-contrast {
+    font-family: 'Press Start 2P', monospace;
+    background: #000000;
+    color: #ffffff;
+    position: relative;
+}
+
+/* High contrast base elements */
+body.high-contrast * {
+    border-color: #ffffff !important;
+}
+
+body.high-contrast .pokedex-body {
+    background: #000000;
+    border: 4px solid #ffffff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+body.high-contrast .pokedex-red {
+    background: #000000;
+    border: 4px solid #ff0000;
+}
+
+body.high-contrast .pokedex-blue {
+    background: #000000;
+    border: 4px solid #0000ff;
+}
+
+/* LED lights - high contrast */
+body.high-contrast .led-light {
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .led-red {
+    background: radial-gradient(circle at 30% 30%, #ff0000, #800000);
+    box-shadow: 0 0 20px #ff0000;
+}
+
+body.high-contrast .led-blue {
+    background: radial-gradient(circle at 30% 30%, #0000ff, #000080);
+    box-shadow: 0 0 20px #0000ff;
+}
+
+body.high-contrast .led-yellow {
+    background: radial-gradient(circle at 30% 30%, #ffff00, #808000);
+    box-shadow: 0 0 20px #ffff00;
+}
+
+body.high-contrast .led-green {
+    background: radial-gradient(circle at 30% 30%, #00ff00, #008000);
+    box-shadow: 0 0 20px #00ff00;
+}
+
+/* Navigation panel - high contrast */
+body.high-contrast .navigation-panel {
+    background: #000000;
+    border: 3px solid #ffffff;
+}
+
+body.high-contrast .pokedex-title {
+    color: #ffffff;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+body.high-contrast .current-section {
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+}
+
+body.high-contrast .section-indicator {
+    color: #ffff00;
+    text-shadow: 0 0 8px #ffff00;
+}
+
+body.high-contrast .nav-button {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .nav-button:hover {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+}
+
+body.high-contrast .nav-button.active {
+    background: #ffff00;
+    border-color: #000000;
+    color: #000000;
+    box-shadow: 0 0 15px #ffff00;
+}
+
+/* Main screen - high contrast */
+body.high-contrast .screen-border {
+    background: #000000;
+    border: 4px solid #ffffff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+}
+
+body.high-contrast .screen-content {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+/* Section content - high contrast */
+body.high-contrast .section-content {
+    color: #ffffff;
+}
+
+body.high-contrast .section-title {
+    color: #ffff00;
+    text-shadow: 0 0 10px #ffff00;
+    border-bottom: 3px solid #ffff00;
+}
+
+/* Console styles - high contrast */
+body.high-contrast .console-output {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .console-output::-webkit-scrollbar-thumb {
+    background: #ffffff;
+}
+
+body.high-contrast .console-input-container {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .console-prompt {
+    color: #ffff00;
+}
+
+body.high-contrast .console-input {
+    background: #000000;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .console-input::placeholder {
+    color: #cccccc;
+}
+
+/* System status - high contrast */
+body.high-contrast .system-card {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .card-title {
+    color: #ffff00;
+}
+
+body.high-contrast .card-value {
+    color: #ffffff;
+}
+
+body.high-contrast .bar-fill {
+    background: linear-gradient(90deg, #ffff00, #ffaa00);
+}
+
+/* Vision controls - high contrast */
+body.high-contrast .vision-controls {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .vision-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .vision-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+body.high-contrast .vision-display {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .vision-placeholder {
+    color: #cccccc;
+}
+
+/* Tasks and files - high contrast */
+body.high-contrast .task-list,
+body.high-contrast .file-browser {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .task-placeholder,
+body.high-contrast .file-placeholder {
+    color: #cccccc;
+}
+
+body.high-contrast .file-path {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffff00;
+}
+
+/* Settings - high contrast */
+body.high-contrast .settings-grid .setting-group {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .setting-group label {
+    color: #ffff00;
+}
+
+body.high-contrast .setting-group select,
+body.high-contrast .setting-group input {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .setting-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .setting-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Control panel - high contrast */
+body.high-contrast .d-pad {
+    background: #000000;
+    border: 4px solid #ffffff;
+}
+
+body.high-contrast .d-pad-center {
+    background: #ffffff;
+    border: 2px solid #000000;
+}
+
+body.high-contrast .d-pad-up,
+body.high-contrast .d-pad-down,
+body.high-contrast .d-pad-left,
+body.high-contrast .d-pad-right {
+    color: #ffffff;
+}
+
+body.high-contrast .d-pad-up:hover,
+body.high-contrast .d-pad-down:hover,
+body.high-contrast .d-pad-left:hover,
+body.high-contrast .d-pad-right:hover {
+    color: #ffff00;
+}
+
+body.high-contrast .action-btn {
+    background: #000000;
+    border: 4px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .action-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    transform: translateY(-2px);
+}
+
+body.high-contrast .btn-a {
+    border-color: #ff0000;
+}
+
+body.high-contrast .btn-b {
+    border-color: #0000ff;
+}
+
+/* System controls - high contrast */
+body.high-contrast .system-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .system-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Modal styles - high contrast */
+body.high-contrast .modal-content {
+    background: #000000;
+    border: 4px solid #ffffff;
+}
+
+body.high-contrast .modal-title {
+    color: #ffff00;
+    text-shadow: 0 0 10px #ffff00;
+}
+
+body.high-contrast .power-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .power-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* AutoGen Studio section - high contrast */
+body.high-contrast .autogen-content {
+    color: #ffffff;
+}
+
+body.high-contrast .status-card {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .status-card h3 {
+    color: #ffff00;
+}
+
+body.high-contrast .autogen-metrics .metric-value {
+    color: #ffffff;
+}
+
+body.high-contrast .agent-list {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .agent-item {
+    color: #ffffff;
+    border-bottom: 1px solid #ffffff;
+}
+
+body.high-contrast .autogen-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .autogen-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .autogen-btn.primary {
+    background: #0000ff;
+    border-color: #ffffff;
+}
+
+body.high-contrast .autogen-btn.primary:hover {
+    background: #ffffff;
+    color: #0000ff;
+}
+
+body.high-contrast .autogen-btn.secondary {
+    background: #800080;
+    border-color: #ffffff;
+}
+
+body.high-contrast .autogen-btn.secondary:hover {
+    background: #ffffff;
+    color: #800080;
+}
+
+body.high-contrast .command-btn {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .command-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .autogen-output {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .output-header {
+    color: #ffff00;
+}
+
+body.high-contrast .output-content {
+    color: #ffffff;
+}
+
+body.high-contrast .output-message.system-message .message-content {
+    color: #ffffff;
+}
+
+body.high-contrast .output-message.user-message .message-content {
+    color: #00ffff;
+}
+
+body.high-contrast .output-message.error-message .message-content {
+    color: #ff0000;
+}
+
+body.high-contrast .metric-value.status-running {
+    color: #00ff00;
+}
+
+body.high-contrast .metric-value.status-stopped {
+    color: #ff0000;
+}
+
+/* Profile section - high contrast */
+body.high-contrast .profile-content {
+    color: #ffffff;
+}
+
+body.high-contrast .profile-header {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .profile-avatar .avatar-placeholder {
+    border: 3px solid #ffffff;
+}
+
+body.high-contrast .profile-info h2 {
+    color: #ffff00;
+}
+
+body.high-contrast .profile-info p {
+    color: #ffffff;
+}
+
+body.high-contrast .profile-status .status-online {
+    color: #00ff00;
+}
+
+body.high-contrast .detail-card {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .detail-card h3 {
+    color: #ffff00;
+}
+
+body.high-contrast .detail-item {
+    border-bottom: 1px solid #ffffff;
+}
+
+body.high-contrast .detail-label {
+    color: #ffffff;
+}
+
+body.high-contrast .detail-value {
+    color: #cccccc;
+}
+
+body.high-contrast .profile-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .profile-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .profile-btn.danger {
+    border-color: #ff0000;
+}
+
+body.high-contrast .profile-btn.danger:hover {
+    background: #ff0000;
+    color: #ffffff;
+}
+
+/* Tools integration - high contrast */
+body.high-contrast .tools-content {
+    color: #ffffff;
+}
+
+body.high-contrast .tools-header {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .tools-stats .stat-value {
+    color: #ffffff;
+}
+
+body.high-contrast .tool-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
+}
+
+body.high-contrast .tool-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.4);
+}
+
+body.high-contrast .tools-grid {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .tool-card {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .tool-card:hover {
+    background: #ffffff;
+    border-color: #000000;
+    box-shadow: 0 8px 16px rgba(255, 255, 255, 0.3);
+}
+
+body.high-contrast .tool-card.selected {
+    background: #ffff00;
+    border-color: #000000;
+    box-shadow: 0 0 20px #ffff00;
+}
+
+body.high-contrast .tool-name {
+    color: #ffff00;
+}
+
+body.high-contrast .tool-status.active {
+    background: rgba(0, 255, 0, 0.2);
+    color: #00ff00;
+}
+
+body.high-contrast .tool-status.inactive {
+    background: rgba(255, 0, 0, 0.2);
+    color: #ff0000;
+}
+
+body.high-contrast .tool-status.loading {
+    background: rgba(255, 255, 0, 0.2);
+    color: #ffff00;
+}
+
+body.high-contrast .tool-description {
+    color: #cccccc;
+}
+
+body.high-contrast .tool-meta {
+    color: #cccccc;
+}
+
+body.high-contrast .tool-details {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .tool-info-placeholder {
+    color: #cccccc;
+}
+
+body.high-contrast .tool-detail-header .tool-detail-info h3 {
+    color: #ffff00;
+}
+
+body.high-contrast .tool-detail-status.active {
+    background: rgba(0, 255, 0, 0.2);
+    color: #00ff00;
+}
+
+body.high-contrast .tool-detail-status.inactive {
+    background: rgba(255, 0, 0, 0.2);
+    color: #ff0000;
+}
+
+body.high-contrast .tool-detail-description {
+    color: #cccccc;
+}
+
+body.high-contrast .tool-detail-meta-item {
+    background: #000000;
+    border: 1px solid #ffffff;
+}
+
+body.high-contrast .tool-detail-meta-item h4 {
+    color: #ffff00;
+}
+
+body.high-contrast .tool-detail-meta-item p {
+    color: #cccccc;
+}
+
+/* LLM Chat section - high contrast */
+body.high-contrast .llm-chat-content {
+    color: #ffffff;
+}
+
+body.high-contrast .llm-chat-header {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .model-name {
+    color: #ffff00;
+}
+
+body.high-contrast .chat-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .chat-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .chat-messages {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .chat-message {
+    background: #000000;
+    border-left: 4px solid #ffff00;
+}
+
+body.high-contrast .message-header {
+    color: #ffff00;
+}
+
+body.high-contrast .message-text {
+    color: #ffffff;
+}
+
+body.high-contrast .message-time {
+    color: #cccccc;
+}
+
+body.high-contrast .chat-input-container {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast .chat-input {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .chat-input::placeholder {
+    color: #cccccc;
+}
+
+body.high-contrast .send-btn {
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .send-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .voice-btn {
+    background: #0000ff;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .voice-btn:hover {
+    background: #ffffff;
+    color: #0000ff;
+}
+
+body.high-contrast .quick-action-btn {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+body.high-contrast .quick-action-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* ElevenLabs widget - high contrast */
+body.high-contrast .elevenlabs-text-overlay {
+    background: rgba(0, 0, 0, 0.95);
+}
+
+body.high-contrast .elevenlabs-text-container {
+    background: #000000;
+    border: 4px solid #ffffff;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+body.high-contrast .elevenlabs-text-container .text-header {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .elevenlabs-text-container .close-overlay-btn {
+    background: #000000;
+    color: #ffffff;
+}
+
+body.high-contrast .elevenlabs-text-container .close-overlay-btn:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .conversation-message {
+    background: #000000;
+    border-left: 3px solid #ffff00;
+}
+
+body.high-contrast .conversation-message.user-msg {
+    background: #0000ff;
+    border-left: none;
+    border-right: 3px solid #ffffff;
+}
+
+body.high-contrast .conversation-message .msg-content {
+    color: #ffffff;
+}
+
+body.high-contrast .control-btn {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast .control-btn:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+body.high-contrast .elevenlabs-toggle-floating {
+    background: #ffffff;
+    border: 3px solid #000000;
+    color: #000000;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+}
+
+body.high-contrast .elevenlabs-toggle-floating:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+body.high-contrast .tts-indicator {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+}
+
+/* Utility classes - high contrast */
+body.high-contrast .pixel-border {
+    border: 3px solid #ffffff;
+    background: #000000;
+}
+
+/* Focus and selection - high contrast */
+body.high-contrast ::selection {
+    background: #ffff00;
+    color: #000000;
+}
+
+body.high-contrast button:focus-visible,
+body.high-contrast input:focus-visible,
+body.high-contrast textarea:focus-visible,
+body.high-contrast select:focus-visible {
+    outline: 3px solid #ffff00;
+    outline-offset: 2px;
+}
+
+/* Scrollbar - high contrast */
+body.high-contrast ::-webkit-scrollbar {
+    width: 12px;
+}
+
+body.high-contrast ::-webkit-scrollbar-track {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+body.high-contrast ::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border: 2px solid #000000;
+}
+
+body.high-contrast ::-webkit-scrollbar-thumb:hover {
+    background: #ffff00;
 }

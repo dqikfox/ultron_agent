@@ -995,14 +995,13 @@ def main():
     if AGENT_AVAILABLE:
         try:
             print("Initializing ULTRON Agent... - web_gui_server.py:516")
-            # Temporarily disable agent initialization to fix JAX import issues
-            print("Agent initialization temporarily disabled due to JAX import issues - web_gui_server.py:518")
-            print("Starting web server without agent backend - web_gui_server.py:519")
+            agent = UltronAgent()
+            print("Agent initialized successfully - web_gui_server.py:518")
         except Exception as e:
-            print(f"Agent initialization failed: {e} - web_gui_server.py:522")
-            print("Starting web server without agent backend - web_gui_server.py:523")
+            print(f"Agent initialization failed: {e} - web_gui_server.py:520")
+            print("Starting web server without agent backend - web_gui_server.py:521")
     else:
-        print("Starting web server in standalone mode - web_gui_server.py:525")
+        print("Starting web server in standalone mode - web_gui_server.py:523")
 
     # Create and start web server
     server = UltronWebServer(agent_ref=agent, port=8080)

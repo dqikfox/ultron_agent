@@ -111,7 +111,10 @@
         "file:///c%3A/Projects/ultron_agent/.continue/agents/new-agent-1.yaml"
       ]
     },
-    "github.copilot.nextEditSuggestions.enabled": true
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "amazonQ.allowFeatureDevelopmentToRunCodeAndTests": {
+      
+    }
   },
   "extensions": {
     "recommendations": [
