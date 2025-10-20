@@ -43,13 +43,15 @@ The modern, accessible interface designed for all users:
 
 ```bash
 # Launch Pokédex GUI
-python pokedex_ultron_gui.py
+python -m http.server 8000 --directory gui/ultron_enhanced/web/
+# Then open: http://localhost:8000/index.html
 
 # Or specify in config
 ultron --gui pokedex
 ```
 
 **Features:**
+
 - Voice-to-text input with visual feedback
 - Accessibility features for disabled users
 - Dark/light theme support
@@ -72,6 +74,7 @@ uvicorn agent_core:app --host 0.0.0.0 --port 8000
 Access at: `http://localhost:8000`
 
 **Features:**
+
 - RESTful API endpoints
 - WebSocket real-time communication
 - Mobile-responsive design
@@ -104,6 +107,7 @@ ultron "system status" --format table
 ULTRON Agent supports natural language voice commands:
 
 #### System Control
+
 ```
 "Show system status"
 "Monitor CPU usage"
@@ -115,6 +119,7 @@ ULTRON Agent supports natural language voice commands:
 ```
 
 #### File Operations
+
 ```
 "Open file explorer"
 "Create new folder called Projects"
@@ -125,6 +130,7 @@ ULTRON Agent supports natural language voice commands:
 ```
 
 #### Web and Search
+
 ```
 "Search Wikipedia for artificial intelligence"
 "Open YouTube and search for Python tutorials"
@@ -135,6 +141,7 @@ ULTRON Agent supports natural language voice commands:
 ```
 
 #### Communication
+
 ```
 "Send email to john@example.com with subject 'Meeting tomorrow'"
 "Create a calendar event for 3 PM meeting"
@@ -176,6 +183,7 @@ Configure voice settings in `ultron_config.json`:
 ### Available Tools
 
 #### Web Tools
+
 ```bash
 # Web search
 ultron "search for 'machine learning tutorials'"
@@ -190,6 +198,7 @@ ultron "make GET request to https://api.github.com/users/octocat"
 ```
 
 #### File Tools
+
 ```bash
 # File reading
 ultron "read file config.json"
@@ -204,6 +213,7 @@ ultron --tool file_organizer --path "~/Downloads"
 ```
 
 #### System Tools
+
 ```bash
 # Process management
 ultron "list all Python processes"
@@ -219,6 +229,7 @@ ultron "close all browser windows"
 ```
 
 #### Communication Tools
+
 ```bash
 # Email
 ultron "compose email to team@company.com about project update"
@@ -259,6 +270,7 @@ Create custom command aliases in `ultron_config.json`:
 ```
 
 Use custom commands:
+
 ```bash
 ultron daily_report
 ultron backup_work
@@ -269,11 +281,13 @@ ultron backup_work
 ### REST API Endpoints
 
 #### Health Check
+
 ```bash
 curl http://localhost:8000/health
 ```
 
 #### Send Query
+
 ```bash
 curl -X POST http://localhost:8000/query \
   -H "Content-Type: application/json" \
@@ -281,11 +295,13 @@ curl -X POST http://localhost:8000/query \
 ```
 
 #### System Status
+
 ```bash
 curl http://localhost:8000/status
 ```
 
 #### Tool Execution
+
 ```bash
 curl -X POST http://localhost:8000/tools/web_search \
   -H "Content-Type: application/json" \
@@ -301,7 +317,7 @@ const ws = new WebSocket('ws://localhost:8000/ws');
 
 ws.onopen = function(event) {
     console.log('Connected to ULTRON Agent');
-    
+
     // Send a message
     ws.send(JSON.stringify({
         type: 'query',
@@ -326,15 +342,15 @@ import asyncio
 async def main():
     # Initialize agent
     agent = UltronAgent()
-    
+
     # Send query
     response = await agent.process_query("What's the weather like?")
     print(response)
-    
+
     # Use specific tool
     result = await agent.execute_tool("web_search", query="Python news")
     print(result)
-    
+
     # System operations
     status = await agent.get_system_status()
     print(f"CPU: {status['cpu_percent']}%")
@@ -399,17 +415,17 @@ steps:
     tool: "weather"
     params:
       location: "New York"
-  
+
   - name: "News Summary"
     tool: "web_search"
     params:
       query: "today's tech news"
       summarize: true
-  
+
   - name: "Calendar Review"
     tool: "calendar"
     action: "today_events"
-  
+
   - name: "Send Summary"
     tool: "email"
     params:
@@ -419,6 +435,7 @@ steps:
 ```
 
 Execute workflows:
+
 ```bash
 # Run specific workflow
 ultron --workflow daily_routine
@@ -441,25 +458,25 @@ from typing import Dict, Any
 
 class MyCustomTool(BaseTool):
     """Custom tool for specific functionality."""
-    
+
     @staticmethod
     def match(user_input: str) -> bool:
         """Check if this tool should handle the input."""
-        return any(keyword in user_input.lower() 
+        return any(keyword in user_input.lower()
                   for keyword in ["my tool", "custom function"])
-    
+
     @staticmethod
     async def execute(**kwargs) -> Dict[str, Any]:
         """Execute the tool's functionality."""
         # Your custom logic here
         result = "Custom tool executed successfully"
-        
+
         return {
             "success": True,
             "result": result,
             "data": kwargs
         }
-    
+
     @staticmethod
     def schema() -> Dict[str, Any]:
         """Return JSON schema for API documentation."""
@@ -480,6 +497,7 @@ class MyCustomTool(BaseTool):
 ```
 
 Register the plugin:
+
 ```python
 # In your ultron_config.json
 {
@@ -600,6 +618,7 @@ ultron config set security.authentication.enabled true
 ### Common Issues
 
 #### Voice Not Working
+
 ```bash
 # Test audio system
 ultron --test-audio
@@ -612,6 +631,7 @@ ultron voice reset
 ```
 
 #### Slow Response Times
+
 ```bash
 # Check system resources
 ultron system status
@@ -624,6 +644,7 @@ ultron optimize --auto
 ```
 
 #### API Errors
+
 ```bash
 # Test API connectivity
 ultron test api
@@ -666,6 +687,7 @@ ultron factory-reset --keep-data
 ## 📚 Examples and Use Cases
 
 ### Personal Assistant
+
 ```bash
 # Morning routine
 ultron "good morning" # Triggers weather, news, calendar
@@ -680,6 +702,7 @@ ultron "remind me to call mom when I get home"
 ```
 
 ### Development Assistant
+
 ```bash
 # Code analysis
 ultron "analyze this Python file for bugs"
@@ -695,6 +718,7 @@ ultron "create pull request for feature branch"
 ```
 
 ### Business Automation
+
 ```bash
 # Report generation
 ultron "generate weekly sales report"
@@ -710,6 +734,7 @@ ultron "export filtered data to new spreadsheet"
 ```
 
 ### Research Assistant
+
 ```bash
 # Information gathering
 ultron "research latest developments in quantum computing"
@@ -727,18 +752,21 @@ ultron "create bibliography from my research notes"
 ## 🚀 Advanced Tips
 
 ### Performance Optimization
+
 - Use local models for faster responses
 - Enable caching for repeated queries
 - Configure appropriate timeout values
 - Monitor resource usage regularly
 
 ### Customization
+
 - Create custom voice commands
 - Develop domain-specific tools
 - Set up automated workflows
 - Personalize the interface
 
 ### Integration
+
 - Connect with existing tools and services
 - Use API endpoints for external applications
 - Set up webhook notifications
