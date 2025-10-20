@@ -8,7 +8,7 @@ import os
 import subprocess
 import time
 from typing import Dict, Any, Optional
-from utils.ultron_logger import log_info, log_error
+from utils.ultron_logger import log_info, log_error, log_ai_decision, log_file_operation
 
 
 class StableDiffusionTool:
@@ -47,6 +47,14 @@ class StableDiffusionTool:
             if not params.get('prompt'):
                 return ("Please provide a prompt for image generation. "
                         "Example: 'generate image of a futuristic city'")
+
+            # Log AI decision to generate image
+            log_ai_decision(
+                "stable_diffusion_tool",
+                f"Generating image with prompt: {params['prompt']}",
+                ai_model="stable_diffusion",
+                confidence_score=0.9
+            )
 
             # Try webui first, fallback to CLI
             result = self._generate_with_webui(params)
@@ -91,12 +99,12 @@ class StableDiffusionTool:
             # Check if webui is running (simplified check)
             import requests
             response = requests.get(
-                'http://127.0.0.1:8080/sdapi/v1/sd-models', timeout=5)
+                'http://127.0.0.1:7860/sdapi/v1/sd-models', timeout=5)
             if response.status_code != 200:
                 return None
 
             # Use WebUI API
-            api_url = 'http://127.0.0.1:8080/sdapi/v1/txt2img'
+            api_url = 'http://127.0.0.1:7860/sdapi/v1/txt2img'
 
             payload = {
                 'prompt': params['prompt'],
@@ -120,6 +128,14 @@ class StableDiffusionTool:
 
                 with open(filepath, 'wb') as f:
                     f.write(image_data)
+
+                # Log file operation
+                log_file_operation(
+                    "stable_diffusion_tool",
+                    f"Saved generated image to {filepath}",
+                    filepath,
+                    "create"
+                )
 
                 return filepath
 
@@ -163,7 +179,17 @@ class StableDiffusionTool:
                         files,
                         key=lambda x: os.path.getctime(
                             os.path.join(self.output_dir, x)))
-                    return os.path.join(self.output_dir, latest)
+                    filepath = os.path.join(self.output_dir, latest)
+
+                    # Log file operation
+                    log_file_operation(
+                        "stable_diffusion_tool",
+                        f"Saved generated image to {filepath}",
+                        filepath,
+                        "create"
+                    )
+
+                    return filepath
 
         except Exception as e:
             log_error("stable_diffusion_tool", f"CLI generation failed: {e}")

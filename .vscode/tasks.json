@@ -38,6 +38,24 @@
 				"echo": true,
 				"reveal": "always"
 			}
+		},
+		{
+			"label": "Check SD Models",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"check_sd_models.py"
+			],
+			"group": "test"
+		},
+		{
+			"label": "Simple Model Check",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"simple_check.py"
+			],
+			"group": "test"
 		}
 	]
 }
