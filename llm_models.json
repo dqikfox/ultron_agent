@@ -1,0 +1,174 @@
+{
+  "models": [
+    {
+      "name": "qwen2.5vl:3b",
+      "size": 3200627168,
+      "modified": "2025-10-17T00:19:57.6468685+11:00"
+    },
+    {
+      "name": "llava:7b",
+      "size": 4733363377,
+      "modified": "2025-10-16T12:36:40.7930285+11:00"
+    },
+    {
+      "name": "qwen2.5vl:7b",
+      "size": 5969245856,
+      "modified": "2025-10-16T12:04:54.5701327+11:00"
+    },
+    {
+      "name": "qwen3-vl:235b-cloud",
+      "size": 384,
+      "modified": "2025-10-16T10:57:18.8623287+11:00"
+    },
+    {
+      "name": "llama3.1:latest",
+      "size": 4920753328,
+      "modified": "2025-10-11T22:56:18.5672788+11:00"
+    },
+    {
+      "name": "gpt-oss:20b-cloud",
+      "size": 381,
+      "modified": "2025-10-06T16:13:45.6972344+11:00"
+    },
+    {
+      "name": "mistral-nemo:12b",
+      "size": 7071713227,
+      "modified": "2025-09-27T04:27:00.2621905+10:00"
+    },
+    {
+      "name": "deepseek-r1:14b",
+      "size": 8988112209,
+      "modified": "2025-09-27T03:39:03.0530135+10:00"
+    },
+    {
+      "name": "openchat:7b",
+      "size": 4109876386,
+      "modified": "2025-09-27T03:19:00.2328833+10:00"
+    },
+    {
+      "name": "deepseek-r1:8b",
+      "size": 5225376047,
+      "modified": "2025-09-27T03:18:51.147706+10:00"
+    },
+    {
+      "name": "llava:13b",
+      "size": 8011256494,
+      "modified": "2025-09-27T02:19:58.1752078+10:00"
+    },
+    {
+      "name": "qwen3-coder:480b-cloud",
+      "size": 382,
+      "modified": "2025-09-25T14:20:36.3622661+10:00"
+    },
+    {
+      "name": "HammerAI/omega-darker-final-directive:latest",
+      "size": 19345940456,
+      "modified": "2025-09-21T01:52:04.8086567+10:00"
+    },
+    {
+      "name": "devstral:latest",
+      "size": 14333928046,
+      "modified": "2025-09-18T03:20:56.3846277+10:00"
+    },
+    {
+      "name": "mistral-small3.2:latest",
+      "size": 15177384862,
+      "modified": "2025-09-18T02:31:30.3936361+10:00"
+    },
+    {
+      "name": "gerard/ultron:latest",
+      "size": 4661224723,
+      "modified": "2025-09-17T08:24:13.8963832+10:00"
+    },
+    {
+      "name": "taozhiyuai/llama-3-8b-ultra-instruct:q4_k_m",
+      "size": 4920735051,
+      "modified": "2025-09-17T08:05:36.83309+10:00"
+    },
+    {
+      "name": "wizardlm2:7b",
+      "size": 4108928625,
+      "modified": "2025-09-17T08:03:08.0428408+10:00"
+    },
+    {
+      "name": "embeddinggemma:latest",
+      "size": 621875917,
+      "modified": "2025-09-17T07:57:52.6840776+10:00"
+    },
+    {
+      "name": "exaone-deep:7.8b",
+      "size": 4770665152,
+      "modified": "2025-09-16T23:48:07.6787072+10:00"
+    },
+    {
+      "name": "gemma3:12b",
+      "size": 8149190253,
+      "modified": "2025-09-15T05:15:39.8799234+10:00"
+    },
+    {
+      "name": "NeuroEquality/neuralquantum-coder:latest",
+      "size": 13780174178,
+      "modified": "2025-09-13T00:23:57.0243727+10:00"
+    },
+    {
+      "name": "qwen2.5:14b",
+      "size": 8988124069,
+      "modified": "2025-09-09T03:09:56.0468235+10:00"
+    },
+    {
+      "name": "gpt-oss:20b",
+      "size": 13780173724,
+      "modified": "2025-09-08T19:27:21.1850889+10:00"
+    },
+    {
+      "name": "qwen2.5-coder:1.5b",
+      "size": 986062089,
+      "modified": "2025-09-06T22:48:51.2689329+10:00"
+    },
+    {
+      "name": "llama3.1:8b",
+      "size": 4920753328,
+      "modified": "2025-09-06T20:34:48.7748341+10:00"
+    },
+    {
+      "name": "falcon3:7b",
+      "size": 4569738977,
+      "modified": "2025-09-06T19:21:34.7614205+10:00"
+    },
+    {
+      "name": "qwen2.5-coder:3b",
+      "size": 1929912626,
+      "modified": "2025-09-06T10:40:08.5498321+10:00"
+    },
+    {
+      "name": "qwen2.5-coder:0.5b",
+      "size": 397821516,
+      "modified": "2025-09-06T10:22:26.6635509+10:00"
+    },
+    {
+      "name": "qwen2.5vl:latest",
+      "size": 5969245856,
+      "modified": "2025-09-05T22:53:45.607574+10:00"
+    },
+    {
+      "name": "llama3.2:latest",
+      "size": 2019393189,
+      "modified": "2025-09-05T20:02:17.9999065+10:00"
+    },
+    {
+      "name": "mistral:7b",
+      "size": 4372824384,
+      "modified": "2025-09-03T01:45:12.1086831+10:00"
+    },
+    {
+      "name": "qwen2.5-coder:7b",
+      "size": 4683087561,
+      "modified": "2025-08-30T16:04:38.788357+10:00"
+    },
+    {
+      "name": "mapler/gpt2:latest",
+      "size": 328092260,
+      "modified": "2025-08-30T09:11:07.0865983+10:00"
+    }
+  ]
+}

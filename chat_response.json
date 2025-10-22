@@ -1,0 +1,11 @@
+{
+  "error": "All model attempts failed",
+  "details": [
+    {
+      "model": "llama3.1:latest",
+      "status": 500,
+      "message": "{\"error\":\"llama runner process has terminated: exit status 2\"}"
+    }
+  ],
+  "preferred_model": "llama3.1:latest"
+}

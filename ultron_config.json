@@ -7,7 +7,7 @@
   "voice_engine": "elevenlabs",
   "stt_engine": "whisper",
   "tts_engine": "elevenlabs",
-  "llm_model": "llama3.1",
+  "llm_model": "llava:7b",
   "ollama_base_url": "http://localhost:11434",
   "voice_boot_message": "There's No Strings On Me",
   "debug": false,
