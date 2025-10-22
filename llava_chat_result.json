@@ -1,0 +1,7 @@
+{
+  "response": " Hello! How can I help you with LLVM? ",
+  "model": "llava:7b",
+  "tts_enabled": false,
+  "preferred_model": "llava:7b",
+  "preferred_available": true
+}

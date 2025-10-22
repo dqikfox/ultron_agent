@@ -25,7 +25,7 @@ try:
     AGENT_AVAILABLE = True
 except ImportError:
     AGENT_AVAILABLE = False
-    logging.warning("Agent core not available - web_gui_server.py:27")
+    logging.warning("Agent core not available - web_gui_server.py:28")
 
 # Import voice system for TTS
 try:
@@ -33,7 +33,7 @@ try:
     VOICE_AVAILABLE = True
 except ImportError:
     VOICE_AVAILABLE = False
-    logging.warning("Voice system not available - TTS disabled")
+    logging.warning("Voice system not available  TTS disabled - web_gui_server.py:36")
 
 # Load configuration for voice
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'ultron_config.json')
@@ -65,13 +65,13 @@ def persist_config_updates(updates: Dict[str, Any]) -> None:
 
         config.update(current_config)
     except Exception as persist_error:
-        logging.warning(f"Failed to persist config updates: {persist_error}")
+        logging.warning(f"Failed to persist config updates: {persist_error} - web_gui_server.py:68")
 
 class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     """Custom handler for ULTRON web interface"""
 
     # Class variable to store current model preference
-    current_model_preference = 'qwen3-coder:480b-cloud'
+    current_model_preference = 'llava:7b'
 
     # Class variable for voice assistant
     voice_assistant = None
@@ -89,13 +89,15 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         try:
             with open(CONFIG_PATH, 'r') as f:
                 config_data = json.load(f)
-                UltronWebHandler.current_model_preference = config_data.get('llm_model', 'qwen3-coder:480b-cloud')
+                UltronWebHandler.current_model_preference = config_data.get(
+                    'llm_model', 'llava:7b'
+                )
                 UltronWebHandler.voice_state['enabled'] = bool(
                     config_data.get("use_voice", False) and config_data.get("voice_enabled", False)
                 )
                 config.update(config_data)
         except Exception as e:
-            logging.warning(f"Could not load model from config: {e}")
+            logging.warning(f"Could not load model from config: {e} - web_gui_server.py:100")
 
         # Initialize voice assistant if not already done and if enabled
         if (
@@ -105,16 +107,16 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 UltronWebHandler.voice_assistant = VoiceAssistant(config)
-                logging.info("Voice Assistant initialized for TTS support")
+                logging.info("Voice Assistant initialized for TTS support - web_gui_server.py:110")
             except Exception as e:
-                logging.warning(f"Failed to initialize voice assistant: {e}")
+                logging.warning(f"Failed to initialize voice assistant: {e} - web_gui_server.py:112")
                 UltronWebHandler.voice_assistant = None
 
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
         """Handle GET requests"""
-        logging.info(f"GET request: {self.path} - web_gui_server.py:41")
+        logging.info(f"GET request: {self.path} - web_gui_server.py:119")
 
         if self.path.startswith('/api/'):
             self._handle_api_get()
@@ -126,7 +128,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         """Handle POST requests"""
-        logging.info(f"POST request: {self.path} - web_gui_server.py:53")
+        logging.info(f"POST request: {self.path} - web_gui_server.py:131")
 
         if self.path.startswith('/api/'):
             self._handle_api_post()
@@ -160,7 +162,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(404, "API endpoint not found")
 
         except Exception as e:
-            logging.error(f"API GET error: {e} - web_gui_server.py:83")
+            logging.error(f"API GET error: {e} - web_gui_server.py:165")
             self.send_error(500, str(e))
 
     def _handle_api_post(self):
@@ -201,7 +203,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(404, "API endpoint not found")
 
         except Exception as e:
-            logging.error(f"API POST error: {e} - web_gui_server.py:112")
+            logging.error(f"API POST error: {e} - web_gui_server.py:206")
             self.send_error(500, str(e))
 
     def _send_json_response(self, data, status=200):
@@ -310,7 +312,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 return "❌ Agent command processing not available"
 
         except Exception as e:
-            logging.error(f"Command processing error: {e} - web_gui_server.py:212")
+            logging.error(f"Command processing error: {e} - web_gui_server.py:315")
             return f"❌ Error: {str(e)}"
 
     def _toggle_voice(self, payload: Optional[Dict[str, Any]] = None):
@@ -336,9 +338,9 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             if desired_state and UltronWebHandler.voice_assistant is None:
                 try:
                     UltronWebHandler.voice_assistant = VoiceAssistant(config)
-                    logging.info("Voice assistant initialized during toggle request")
+                    logging.info("Voice assistant initialized during toggle request - web_gui_server.py:341")
                 except Exception as init_error:
-                    logging.error(f"Voice assistant initialization failed: {init_error}")
+                    logging.error(f"Voice assistant initialization failed: {init_error} - web_gui_server.py:343")
                     return {
                         'status': 'error',
                         'message': f'Voice initialization failed: {init_error}',
@@ -364,7 +366,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 'tts_ready': UltronWebHandler.voice_assistant is not None
             }
         except Exception as e:
-            logging.error(f"Voice toggle failed: {e}")
+            logging.error(f"Voice toggle failed: {e} - web_gui_server.py:369")
             return {
                 'status': 'error',
                 'message': f'Voice toggle failed: {str(e)}',
@@ -375,14 +377,14 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         """Generate audio for provided text using available TTS engines"""
         normalized_text = (text or '').strip()
         if not normalized_text:
-            logging.debug("Voice synthesis requested with empty text - web_gui_server.py:276")
+            logging.debug("Voice synthesis requested with empty text - web_gui_server.py:380")
             return None, None, {
                 'status': 'error',
                 'message': 'No text provided for synthesis'
             }
 
         if UltronWebHandler.voice_assistant is None:
-            logging.warning("Voice assistant requested but not initialized - web_gui_server.py:284")
+            logging.warning("Voice assistant requested but not initialized - web_gui_server.py:387")
             return None, None, {
                 'status': 'error',
                 'message': 'Voice assistant not available'
@@ -395,24 +397,24 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             if hasattr(voice_assistant, '_clean_speech_text'):
                 cleaned_text = voice_assistant._clean_speech_text(normalized_text)
         except Exception as clean_error:
-            logging.debug(f"Text cleaning failed, continuing with original text: {clean_error}")
+            logging.debug(f"Text cleaning failed, continuing with original text: {clean_error} - web_gui_server.py:400")
 
         cache_path = None
         if not config.get("disable_tts_cache", False) and hasattr(voice_assistant, '_get_cache_path'):
             try:
                 cache_path = voice_assistant._get_cache_path(cleaned_text)
                 if cache_path and cache_path.exists():
-                    logging.debug("Serving voice synthesis from cache - web_gui_server.py:303")
+                    logging.debug("Serving voice synthesis from cache - web_gui_server.py:407")
                     return cache_path.read_bytes(), 'audio/mpeg', None
             except Exception as cache_error:
-                logging.debug(f"Voice cache lookup failed: {cache_error}")
+                logging.debug(f"Voice cache lookup failed: {cache_error} - web_gui_server.py:410")
 
         elevenlabs_client = getattr(voice_assistant, 'elevenlabs_client', None)
         preferred_voice_id = getattr(voice_assistant, 'preferred_voice_id', None)
 
         if elevenlabs_client and preferred_voice_id:
             try:
-                logging.info("Generating ElevenLabs voice audio - web_gui_server.py:313")
+                logging.info("Generating ElevenLabs voice audio - web_gui_server.py:417")
                 elevenlabs_response = elevenlabs_client.text_to_speech.convert(
                     text=cleaned_text,
                     voice_id=preferred_voice_id,
@@ -443,15 +445,15 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                         cache_path.parent.mkdir(parents=True, exist_ok=True)
                         cache_path.write_bytes(audio_bytes)
                     except Exception as cache_write_error:
-                        logging.debug(f"Unable to cache ElevenLabs audio: {cache_write_error}")
+                        logging.debug(f"Unable to cache ElevenLabs audio: {cache_write_error} - web_gui_server.py:448")
                 return audio_bytes, 'audio/mpeg', None
             except Exception as elevenlabs_error:
-                logging.warning(f"ElevenLabs synthesis failed: {elevenlabs_error}")
+                logging.warning(f"ElevenLabs synthesis failed: {elevenlabs_error} - web_gui_server.py:451")
 
         tts_engine = getattr(voice_assistant, 'tts_engine', None)
         if tts_engine:
             try:
-                logging.info("Generating fallback TTS audio - web_gui_server.py:332")
+                logging.info("Generating fallback TTS audio - web_gui_server.py:456")
                 fd, tmp_path = tempfile.mkstemp(suffix='.wav')
                 os.close(fd)
                 try:
@@ -466,9 +468,9 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                         pass
                 return audio_bytes, 'audio/wav', None
             except Exception as fallback_error:
-                logging.error(f"Fallback TTS synthesis failed: {fallback_error}")
+                logging.error(f"Fallback TTS synthesis failed: {fallback_error} - web_gui_server.py:471")
 
-        logging.error("Voice synthesis unavailable - web_gui_server.py:348")
+        logging.error("Voice synthesis unavailable - web_gui_server.py:473")
         return None, None, {
             'status': 'error',
             'message': 'Voice synthesis unavailable'
@@ -668,13 +670,13 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                                 ) as response:
                                     if response.status == 200:
                                         content_type = response.headers.get('content-type', '')
-                                        logging.info(f"Response content-type: {content_type}")
+                                        logging.info(f"Response contenttype: {content_type} - web_gui_server.py:673")
 
                                         if 'application/json' in content_type:
                                             result = await response.json()
                                         else:
                                             text_response = await response.text()
-                                            logging.info(f"Raw text response: {text_response[:200]}...")
+                                            logging.info(f"Raw text response: {text_response[:200]}... - web_gui_server.py:679")
                                             try:
                                                 import json
                                                 result = json.loads(text_response)
@@ -683,7 +685,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
                                         ai_response = result.get('message', {}).get('content', 'No response')
                                         logging.info(
-                                            f"Chat response from {model_name}: {ai_response[:100]}... - web_gui_server.py:374"
+                                            f"Chat response from {model_name}: {ai_response[:100]}..."
                                             if len(ai_response) > 100
                                             else f"Chat response from {model_name}: {ai_response}"
                                         )
@@ -698,13 +700,13 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                                                     try:
                                                         UltronWebHandler.voice_assistant.speak(ai_response)
                                                     except Exception as tts_error:
-                                                        logging.warning(f"TTS failed: {tts_error}")
+                                                        logging.warning(f"TTS failed: {tts_error} - web_gui_server.py:703")
 
                                                 tts_thread = threading.Thread(target=speak_response, daemon=True)
                                                 tts_thread.start()
-                                                logging.info("TTS initiated for AI response")
+                                                logging.info("TTS initiated for AI response - web_gui_server.py:707")
                                             except Exception as tts_thread_error:
-                                                logging.warning(f"Failed to start TTS: {tts_thread_error}")
+                                                logging.warning(f"Failed to start TTS: {tts_thread_error} - web_gui_server.py:709")
 
                                         payload = {
                                             'response': ai_response,
@@ -761,11 +763,17 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                     return {'error': f'Request failed: {str(e)}'}
 
             try:
-                result = asyncio.run(chat_with_ollama())
-                logging.info(f"Final chat result: {result}")
-                return result
+                # Use a new event loop to avoid conflicts with existing loops
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(chat_with_ollama())
+                    logging.info(f"Final chat result: {result} - web_gui_server.py:771")
+                    return result
+                finally:
+                    loop.close()
             except Exception as e:
-                logging.error(f"Chat request failed with exception: {e}")
+                logging.error(f"Chat request failed with exception: {e} - web_gui_server.py:776")
                 return {'error': f'Chat request failed: {str(e)}'}
 
         except ImportError:
@@ -802,7 +810,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         UltronWebHandler.current_model_preference = normalized_name
         persist_config_updates({'llm_model': normalized_name})
 
-        logging.info(f"LLM model preference switched to {normalized_name}")
+        logging.info(f"LLM model preference switched to {normalized_name} - web_gui_server.py:813")
 
         return {
             'status': 'success',
@@ -895,7 +903,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def log_message(self, format, *args):
         """Custom log format"""
-        logging.info(f"WEB {format % args} - web_gui_server.py:417")
+        logging.info(f"WEB {format % args} - web_gui_server.py:906")
 
 
 class UltronWebServer:
@@ -987,37 +995,37 @@ class UltronWebServer:
 
 def main():
     """Main entry point for web GUI"""
-    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:509")
-    print("= - web_gui_server.py:510" * 50)
+    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:998")
+    print("= - web_gui_server.py:999" * 50)
 
     # Initialize agent if available
     agent = None
     if AGENT_AVAILABLE:
         try:
-            print("Initializing ULTRON Agent... - web_gui_server.py:516")
+            print("Initializing ULTRON Agent... - web_gui_server.py:1005")
             agent = UltronAgent()
-            print("Agent initialized successfully - web_gui_server.py:518")
+            print("Agent initialized successfully - web_gui_server.py:1007")
         except Exception as e:
-            print(f"Agent initialization failed: {e} - web_gui_server.py:520")
-            print("Starting web server without agent backend - web_gui_server.py:521")
+            print(f"Agent initialization failed: {e} - web_gui_server.py:1009")
+            print("Starting web server without agent backend - web_gui_server.py:1010")
     else:
-        print("Starting web server in standalone mode - web_gui_server.py:523")
+        print("Starting web server in standalone mode - web_gui_server.py:1012")
 
     # Create and start web server
     server = UltronWebServer(agent_ref=agent, port=8080)
 
     if server.start_server():
-        print("\nULTRON Web GUI is now running! - web_gui_server.py:531")
-        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:532")
-        print("Press Ctrl+C to stop - web_gui_server.py:533")
+        print("\nULTRON Web GUI is now running! - web_gui_server.py:1018")
+        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:1019")
+        print("Press Ctrl+C to stop - web_gui_server.py:1020")
 
         try:
             server.wait_for_shutdown()
         except KeyboardInterrupt:
-            print("\nShutting down... - web_gui_server.py:538")
+            print("\nShutting down... - web_gui_server.py:1025")
             server.stop_server()
     else:
-        print("Failed to start web server - web_gui_server.py:541")
+        print("Failed to start web server - web_gui_server.py:1028")
         return 1
 
     return 0
