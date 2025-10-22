@@ -14,7 +14,7 @@ title ULTRON Agent 3.0 - Master Launcher
 set "PYTHON_CMD=python"
 set "OLLAMA_CMD=%USERPROFILE%\AppData\Local\Programs\Ollama\ollama.exe"
 set "LOG_FILE=ultron_master_startup.log"
-set "OLLAMA_MODEL=qwen3-coder:480b-cloud"
+set "OLLAMA_MODEL=llava:7b"
 set "OLLAMA_PORT=11434"
 set "WEB_GUI_PORT=8080"
 set "FRONTEND_PORT=5175"
