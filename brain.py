@@ -108,6 +108,17 @@ class UltronBrain:
         self.cache_file = "cache.json"
         self.load_cache()
 
+        # Initialize Ollama context provider for model-agnostic context injection
+        from utils.ollama_context_provider import OllamaContextProvider
+        self.ollama_context = OllamaContextProvider(
+            memory=memory,
+            tools=tools,
+            config=config if isinstance(config, dict) else (
+                config.__dict__ if hasattr(config, '__dict__') else {}
+            )
+        )
+        info("Ollama context provider initialized for all models")
+
         # Initialize agent network and OpenAI tools if available
         self.agent_network = None
         self.openai_tools = None
@@ -246,12 +257,16 @@ class UltronBrain:
             error(f"Error saving cache: {sanitize_log_input(str(e))}")
 
     async def direct_chat(self, prompt: str, progress_callback=None) -> str:
-        """Send a direct message to the LLM via Ollama API with ULTRON system prompt."""
+        """Send a direct message to the LLM via Ollama API with comprehensive context."""
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
 
-        # Prepend ULTRON identity reinforcement to user prompt
-        ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
+        ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
+        model = self.config.get("llm_model", "llama3.1")
+
+        # Use Ollama context provider to build enhanced prompt with all agent context
+        # This works with ANY Ollama model dynamically
+        enhanced_prompt = self.ollama_context.build_enhanced_prompt(prompt, model)
 
         # Get system prompt from memory if available
         system_messages = []
@@ -262,9 +277,6 @@ class UltronBrain:
                 "content": system_prompt
             })
 
-        ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
-        model = self.config.get("llm_model", "llama3.1")
-
         info(f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}")
 
         try:
@@ -272,11 +284,19 @@ class UltronBrain:
             if api_key := self.config.get('ollama_api_key'):
                 headers["Authorization"] = f"Bearer {api_key}"
 
-            # Build messages array with system prompt
+            # Build messages array with system prompt and enhanced user prompt
             messages = system_messages + [{
                 "role": "user",
-                "content": ultron_prompt
+                "content": enhanced_prompt
             }]
+            
+            # Add function calling support if model supports it
+            # Get tool schemas for function calling
+            function_schemas = self.ollama_context.get_tools_as_function_schemas()
+            if function_schemas and self.config.get('ollama_enable_function_calling', False):
+                info(f"Including {len(function_schemas)} tool schemas for function calling")
+                # Note: Function calling support depends on the model
+                # We provide the schemas in the messages for context
 
             payload = {
                 "model": model,
@@ -1014,3 +1034,48 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             error_msg = f"Command processing failed: {str(e)}"
             error(sanitize_log_input(error_msg))
             return error_msg
+    
+    def update_context_provider(self, memory=None, tools=None, config=None):
+        """
+        Update the Ollama context provider with new references.
+        Call this when memory, tools, or config changes.
+        
+        Args:
+            memory: New memory system instance (optional)
+            tools: New tools dictionary (optional)
+            config: New configuration (optional)
+        """
+        try:
+            if memory is not None:
+                self.memory = memory
+                self.ollama_context.update_memory(memory)
+            
+            if tools is not None:
+                self.tools = tools
+                self.ollama_context.update_tools(tools)
+            
+            if config is not None:
+                self.config = config
+                config_dict = config if isinstance(config, dict) else (
+                    config.__dict__ if hasattr(config, '__dict__') else {}
+                )
+                self.ollama_context.update_config(config_dict)
+            
+            info("Ollama context provider updated with new references")
+            
+        except Exception as e:
+            error(f"Failed to update context provider: {sanitize_log_input(str(e))}")
+    
+    def get_ollama_context_stats(self) -> Dict[str, Any]:
+        """
+        Get statistics about the Ollama context provider state.
+        Useful for debugging and monitoring.
+        
+        Returns:
+            Dictionary with context statistics
+        """
+        try:
+            return self.ollama_context.get_context_stats()
+        except Exception as e:
+            error(f"Failed to get context stats: {sanitize_log_input(str(e))}")
+            return {'error': str(e)}

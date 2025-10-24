@@ -94,5 +94,11 @@
     "max_memory": null,
     "enable_quantization": true,
     "quantization_type": "int8"
-  }
+  },
+  "ollama_include_memory": true,
+  "ollama_include_tools": true,
+  "ollama_include_capabilities": true,
+  "ollama_max_memory_items": 10,
+  "ollama_max_tool_schemas": 20,
+  "ollama_enable_function_calling": false
 }
