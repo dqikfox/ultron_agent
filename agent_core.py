@@ -242,6 +242,21 @@ class UltronAgent:
         except ImportError as e:
             self.logger.error(f"Brain system initialization failed: {e}")
             self.brain = None
+    
+    def update_brain_context(self):
+        """Update brain's context provider with current agent state"""
+        if self.brain and hasattr(self.brain, 'update_context_provider'):
+            try:
+                config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                               else {})
+                self.brain.update_context_provider(
+                    memory=self.memory,
+                    tools=self.tools,
+                    config=config_dict
+                )
+                self.logger.info("Brain context provider updated with current agent state")
+            except Exception as e:
+                self.logger.error(f"Failed to update brain context: {e}")
 
     async def _initialize_event_system(self):
         """Initialize event system for inter-component communication"""
@@ -567,6 +582,9 @@ class UltronAgent:
                             self.logger.error(f"Failed to register tool {name}: {e2}")
             except Exception as e:
                 self.logger.error(f"Failed to inspect tool classes in {tool_file}: {e}")
+        
+        # Update brain context after all tools are loaded
+        self.update_brain_context()
 
     async def speak(self, text: str, async_mode: bool = True) -> bool:
         """Speak text using the initialized voice system."""
