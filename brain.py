@@ -12,7 +12,7 @@ from asyncio import (
 )
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
 # Create fallback functions for security utils if not available
 try:
@@ -110,6 +110,8 @@ class UltronBrain:
 
         # Initialize Ollama context provider for model-agnostic context injection
         from utils.ollama_context_provider import OllamaContextProvider
+        from utils.model_capabilities_registry import get_model_capabilities_registry
+        
         self.ollama_context = OllamaContextProvider(
             memory=memory,
             tools=tools,
@@ -118,6 +120,10 @@ class UltronBrain:
             )
         )
         info("Ollama context provider initialized for all models")
+        
+        # Initialize model capabilities registry
+        self.model_registry = get_model_capabilities_registry()
+        info("Model capabilities registry initialized")
 
         # Initialize agent network and OpenAI tools if available
         self.agent_network = None
@@ -264,6 +270,13 @@ class UltronBrain:
         ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
         model = self.config.get("llm_model", "llama3.1")
 
+        # Check model capabilities
+        model_caps = self.model_registry.get_capabilities(model)
+        if model_caps:
+            info(f"Using model {model} with capabilities: vision={model_caps.supports_vision}, "
+                 f"function_calling={model_caps.supports_function_calling}, "
+                 f"context_length={model_caps.max_context_length}")
+
         # Use Ollama context provider to build enhanced prompt with all agent context
         # This works with ANY Ollama model dynamically
         enhanced_prompt = self.ollama_context.build_enhanced_prompt(prompt, model)
@@ -293,7 +306,12 @@ class UltronBrain:
             # Add function calling support if model supports it
             # Get tool schemas for function calling
             function_schemas = self.ollama_context.get_tools_as_function_schemas()
-            if function_schemas and self.config.get('ollama_enable_function_calling', False):
+            enable_function_calling = (
+                self.config.get('ollama_enable_function_calling', False) and
+                model_caps and model_caps.supports_function_calling
+            )
+            
+            if function_schemas and enable_function_calling:
                 info(f"Including {len(function_schemas)} tool schemas for function calling")
                 # Note: Function calling support depends on the model
                 # We provide the schemas in the messages for context
@@ -1079,3 +1097,73 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
         except Exception as e:
             error(f"Failed to get context stats: {sanitize_log_input(str(e))}")
             return {'error': str(e)}
+    
+    def get_model_info(self, model_name: str = None) -> Dict[str, Any]:
+        """
+        Get information about a model's capabilities.
+        
+        Args:
+            model_name: Model name (uses current model if not specified)
+            
+        Returns:
+            Dictionary with model information
+        """
+        try:
+            model = model_name or self.config.get("llm_model", "llama3.1")
+            caps = self.model_registry.get_capabilities(model)
+            
+            if caps:
+                return {
+                    'model_name': model,
+                    'supports_vision': caps.supports_vision,
+                    'supports_function_calling': caps.supports_function_calling,
+                    'max_context_length': caps.max_context_length,
+                    'specializations': caps.specializations,
+                    'tested': caps.tested
+                }
+            else:
+                return {
+                    'model_name': model,
+                    'error': 'Model capabilities not found'
+                }
+                
+        except Exception as e:
+            error(f"Failed to get model info: {sanitize_log_input(str(e))}")
+            return {'error': str(e)}
+    
+    def list_available_models(self) -> List[str]:
+        """
+        List all models known to the capabilities registry.
+        
+        Returns:
+            List of model names
+        """
+        try:
+            stats = self.model_registry.get_registry_stats()
+            return stats.get('models', [])
+        except Exception as e:
+            error(f"Failed to list models: {sanitize_log_input(str(e))}")
+            return []
+    
+    def find_best_model_for_task(self, task_type: str) -> Optional[str]:
+        """
+        Find the best model for a specific task.
+        
+        Args:
+            task_type: Type of task (vision, coding, reasoning, etc.)
+            
+        Returns:
+            Model name or None
+        """
+        try:
+            available = self.list_available_models()
+            best = self.model_registry.find_best_model_for_task(task_type, available)
+            
+            if best:
+                info(f"Recommended model for '{task_type}': {best}")
+            
+            return best
+            
+        except Exception as e:
+            error(f"Failed to find best model: {sanitize_log_input(str(e))}")
+            return None
