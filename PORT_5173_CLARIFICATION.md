@@ -82,7 +82,7 @@ If you specifically need port 5173 for another application (like a Vite project)
 
 ## Summary
 
-**Remember**: 
+**Remember**:
 - ✅ Use http://localhost:8080 (main GUI)
 - ✅ Use http://localhost:5175 (frontend UI)
 - ❌ Do NOT use http://localhost:5173 (not configured)

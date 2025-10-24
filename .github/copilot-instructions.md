@@ -19,6 +19,9 @@ This is a **multi-modal AI agent platform** with voice-first architecture, combi
 
 ### GUI & Service Architecture
 - **PRIMARY GUI**: `gui/ultron_enhanced/web/index.html` - Pokédex-style retro interface on port 8080
+  - **CRITICAL**: Only edit files in `gui/ultron_enhanced/web/` directory
+  - Core files: `index.html`, `app.js`, `styles.css`
+  - DO NOT modify `#app` CSS (breaks centering) or `handleStartupAnnouncement()` (voice auto-enable)
 - **WEB SERVER**: `web_gui_server.py` - Custom HTTP handler serving static GUI, WebSocket integration with agent
 - **API SERVER**: `api_server.py` - Flask REST API on port 5000 with `/health`, `/command`, `/api/tools/*` endpoints
 - **MOBILE INTERFACE**: `tools/mobile_web_interface_tool.py` - Flask app on port 8001
@@ -72,6 +75,10 @@ All test results are logged to `ultron_master_startup.log`. If any test fails, u
    ```
 
 3. **PRIMARY GUI ONLY**: Edit `gui/ultron_enhanced/web/index.html` - ignore all other GUI files
+   - **NEVER modify**: `#app` CSS element (breaks child centering)
+   - **NEVER modify**: `handleStartupAnnouncement()` to enable voice automatically
+   - **NEVER modify**: `dequeueSpeech()` queue processing flow (causes dual TTS)
+   - See `VOICE_MICROPHONE_DOCUMENTATION.md` for voice system details
 
 4. **TOOL DISCOVERY**: Place new tools in `tools/` directory - auto-discovered on startup
 
@@ -346,6 +353,18 @@ if validate_file_path(requested_path):
 2. Set environment variable: `export ELEVENLABS_APIKEY=your_key`
 3. Use `voice.py` methods: `speak()`, `listen()`, `start_realtime()`
 4. Handle fallbacks gracefully (pyttsx3 → console)
+5. **IMPORTANT**: See `VOICE_MICROPHONE_DOCUMENTATION.md` for complete voice system architecture, TTS queue processing, and troubleshooting
+
+### Voice System Critical Rules (DO NOT VIOLATE):
+1. **NEVER auto-enable voice** - User must click microphone button manually
+2. **NEVER modify `dequeueSpeech()` without understanding TTS queue flow** - Causes dual TTS
+3. **ALWAYS use early `return;` after successful TTS playback** - Prevents fallback execution
+4. **NEVER remove `this.voiceEnabled = false` from `handleStartupAnnouncement()`**
+5. **Voice/mic functionality is CRITICAL** - Test thoroughly after any changes to `app.js`
+   ```
+2. Set environment variable: `export ELEVENLABS_APIKEY=your_key`
+3. Use `voice.py` methods: `speak()`, `listen()`, `start_realtime()`
+4. Handle fallbacks gracefully (pyttsx3 → console)
 
 ### Adding API Endpoints
 1. Add routes to `api_server.py` (Flask):
@@ -506,6 +525,53 @@ log_file_operation(
 5. **Async Context**: Most operations are async - use `asyncio.run()` for sync entry points
 6. **Model Timeouts**: `deepseek-r1:14b` has known timeout issues - use `llava:7b` or `qwen3-coder:480b-cloud`
 
+## Recent Critical Fixes (2025-10-24)
+
+### Voice Feedback Loop Prevention
+**Issue**: Microphone was recording ULTRON's TTS output and looping it back as input
+**Fix Applied**:
+- Full destruction of recognition instance before TTS: `this.recognition = null`
+- 200ms microphone release delay before audio playback
+- Increased post-TTS delay from 500ms to 1000ms
+- Applied to both API TTS and browser TTS fallback
+
+**Files Modified**: `gui/ultron_enhanced/web/app.js` (Lines 1818-1935)
+
+**Critical Takeaway**: Voice recognition must be COMPLETELY stopped and destroyed before TTS playback begins. A 1-second delay after TTS finishes ensures no feedback loop occurs.
+
+### GUI Layout & Positioning
+**Issue**: Footer and GUI elements not properly positioned/centered
+**Fix Applied**:
+- `.ultron-footer-status`: Changed from `position: relative` to `position: fixed; bottom: 0;`
+- `#app` element: Reverted flex properties that broke child centering
+- `.start-screen`: Added full-screen fixed positioning with flexbox centering
+
+**Files Modified**: `gui/ultron_enhanced/web/styles.css` (Lines 2320, 2329, 2764, 964)
+
+### Voice System Fixes
+**Issue 1**: Voice auto-enabled on startup despite user preference
+**Fix Applied**:
+- `handleStartupAnnouncement()`: Force `this.voiceEnabled = false` on startup
+- `renderDashboardSnapshot()`: Removed auto-enable logic from server status
+
+**Issue 2**: Dual TTS - Both API and browser TTS playing simultaneously
+**Root Cause**: `finally` block in `dequeueSpeech()` always ran, processing queue even after successful API TTS
+**Fix Applied**:
+- Added early `return;` statements after successful TTS playback
+- Moved queue processing into `onended`/`onend` callbacks
+- `finally` block only runs if BOTH TTS methods fail
+
+**Files Modified**: `gui/ultron_enhanced/web/app.js` (Lines 360, 520, 1841)
+
+**Critical Takeaway**: Voice/microphone functionality is FULLY OPERATIONAL after these fixes. Any further modifications to `app.js` voice methods MUST preserve:
+1. Manual voice activation (no auto-enable)
+2. Early returns in TTS queue processing
+3. Microphone pause/resume during TTS playback
+
+**Documentation**: See `VOICE_MICROPHONE_DOCUMENTATION.md` and `FIXES_SUMMARY_2025-10-24.md` for complete details.
+
+## Known Issues & Gotcas (Legacy)
+
 ## Troubleshooting Guide
 
 ### Ollama Backend Issues ("Chat backend unavailable")
@@ -575,6 +641,32 @@ Stop-Process -Name "ollama", "python" -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 3
 .\run.bat
 ```
+
+---
+
+## Documentation Index
+
+### Core Documentation
+- **Developer Guide**: This file (`.github/copilot-instructions.md`)
+- **Voice System**: `VOICE_MICROPHONE_DOCUMENTATION.md` - Complete voice/microphone system guide
+- **System Architecture**: `SYSTEM_ARCHITECTURE.md` - Service connections, ports, data flow
+- **Setup Guide**: `SETUP_CHECKLIST.md` - Step-by-step installation and configuration
+- **Recent Fixes**: `FIXES_SUMMARY_2025-10-24.md` - Latest bug fixes and improvements
+
+### Quick Reference
+- **Inline Comments**: Critical code sections now have dependency comments
+  - `gui/ultron_enhanced/web/app.js` - Voice system comments (Lines 383, 1686, 1873)
+  - `gui/ultron_enhanced/web/styles.css` - CSS critical warnings (Lines 2320, 2779)
+- **Startup Logs**: `ultron_master_startup.log` - Health check results
+- **Component Logs**: `logs/<component>.log` - Service-specific logs
+
+### Architecture Diagrams
+See `SYSTEM_ARCHITECTURE.md` for:
+- System component diagram
+- Port dependency chart
+- Service startup sequence
+- Command execution flow
+- Voice system data flow
 
 ---
 
