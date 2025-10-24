@@ -28,7 +28,7 @@ This is a **multi-modal AI agent platform** with voice-first architecture, combi
 
 ### Standard Development
 ```bash
-# Production: Full system startup (Ollama + all services)
+# Production: Full system startup (Ollama + all services + health checks)
 run.bat
 
 # Development: Minimal agent only
@@ -42,6 +42,16 @@ python web_gui_server.py
 # - "Pull Models"
 # - "Run Ultron Assistant"
 ```
+
+**run.bat Health Checks** (v3.0):
+The master launcher now includes 5 automated tests that validate Ollama integration before starting services:
+1. **Service Availability**: Verifies Ollama HTTP endpoint responding
+2. **Model Availability**: Confirms llava:7b is loaded
+3. **Text Generation**: Tests basic generation capability (15s timeout)
+4. **Chat API**: Validates conversational endpoint (15s timeout)
+5. **Context Retention**: Ensures multi-turn memory works
+
+All test results are logged to `ultron_master_startup.log`. If any test fails, user is prompted to continue or abort startup.
 
 ### Critical Development Rules
 1. **BEFORE ANY FILE EDIT**:
@@ -358,6 +368,7 @@ if validate_file_path(requested_path):
    - `logs/brain.log` - AI reasoning
    - `logs/ai_activities.log` - AI decisions
    - `logs/file_changes.log` - File operations
+   - `ultron_master_startup.log` - Startup health checks and test results
 
 2. **Use VS Code Debugger**: Launch configurations in `.vscode/launch.json`
 
@@ -368,6 +379,12 @@ if validate_file_path(requested_path):
    ```
 
 4. **Performance Metrics**: Check `utils/performance_profiler.py` outputs
+
+5. **Startup Health Checks**: Review `ultron_master_startup.log` for test results:
+   ```
+   [TEST] Summary: Passed=5 Failed=0
+   ```
+   If tests fail, check which specific test failed and see troubleshooting guide below
 
 ### Switching AI Models
 1. **Via Config**: Edit `ultron_config.json`:
@@ -488,6 +505,76 @@ log_file_operation(
 4. **Tool Discovery**: Tools must be in `tools/` directory root - subdirectories not scanned
 5. **Async Context**: Most operations are async - use `asyncio.run()` for sync entry points
 6. **Model Timeouts**: `deepseek-r1:14b` has known timeout issues - use `llava:7b` or `qwen3-coder:480b-cloud`
+
+## Troubleshooting Guide
+
+### Ollama Backend Issues ("Chat backend unavailable")
+
+**Symptoms**: "⚠️ System Alert: Chat backend unavailable" or connection errors
+
+**Quick Diagnostics**:
+```powershell
+# 1. Check if Ollama is running
+curl http://localhost:11434/api/tags
+
+# 2. Check Ollama process
+Get-Process | Where-Object {$_.ProcessName -like "*ollama*"}
+
+# 3. Test model availability
+ollama list | findstr "llava"
+
+# 4. Check agent logs
+Get-Content logs\brain.log -Tail 50
+```
+
+**Common Fixes**:
+
+1. **Restart Ollama Service**:
+   ```powershell
+   # Kill existing processes
+   Stop-Process -Name "ollama" -Force
+
+   # Restart via run.bat
+   .\run.bat
+   ```
+
+2. **Verify Model Configuration**:
+   - Check `ultron_config.json`: `"llm_model": "llava:7b"`
+   - Check `run.bat`: `OLLAMA_MODEL=llava:7b`
+   - Ensure both match and model is pulled
+
+3. **Test Direct Ollama Connection**:
+   ```powershell
+   # Test generation
+   curl -X POST http://localhost:11434/api/generate `
+     -H "Content-Type: application/json" `
+     -d '{"model": "llava:7b", "prompt": "test", "stream": false}'
+   ```
+
+4. **Check for Port Conflicts**:
+   ```powershell
+   # Verify port 11434 is available
+   Get-NetTCPConnection -LocalPort 11434 -ErrorAction SilentlyContinue
+   ```
+
+5. **Review Agent Connection Settings**:
+   - Verify `brain.py` timeout settings (default: 30s)
+   - Check `ollama_base_url` in config matches actual service
+   - Look for connection errors in `logs/brain.log`
+
+**Advanced Troubleshooting**:
+- **High Memory Usage**: Ollama may be out of memory - restart or use smaller model
+- **Model Loading Failures**: Re-pull model: `ollama pull llava:7b`
+- **Network Proxy Issues**: Check if corporate proxy blocks localhost:11434
+- **Antivirus Interference**: Whitelist Ollama executable and port 11434
+
+**Recovery Steps**:
+```powershell
+# Full system restart
+Stop-Process -Name "ollama", "python" -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 3
+.\run.bat
+```
 
 ---
 

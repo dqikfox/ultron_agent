@@ -161,7 +161,7 @@
                                     <span class="nav-icon">🤖</span>
                                     <span class="nav-label">AUTOGEN</span>
                                 </button>
-                                <button class="nav-button" data-section="assistant" role="tab" aria-selected="false" aria-controls="assistant-section" tabindex="-1" onclick="window.open('http://localhost:5173', '_blank')">
+                                <button class="nav-button" data-section="assistant" role="tab" aria-selected="false" aria-controls="assistant-section" tabindex="-1" onclick="window.open('http://localhost:8002', '_blank')">
                                     <span class="nav-icon">🤖</span>
                                     <span class="nav-label">AI CHAT</span>
                                 </button>
@@ -642,27 +642,159 @@
                                     </div>
                                 </div>
 
-                                <!-- NVIDIA Section -->
-                                <div id="nvidia-section" class="section-content">
-                                    <div class="section-title">NVIDIA AI INTERFACE</div>
-                                    <div class="nvidia-content">
-                                        <div class="nvidia-status">
-                                            <div class="status-card">
-                                                <h3>GPU Status</h3>
-                                                <div class="nvidia-metrics" id="nvidia-metrics">
-                                                    <div class="metric">Loading NVIDIA information...</div>
-                                                </div>
+                                <!-- NVIDIA ATLAS Section -->
+                                <div id="nvidia-section" class="section-content atlas-nvidia-section">
+                                    <div class="atlas-bg-pattern"></div>
+                                    <div class="section-title atlas-title">
+                                        <span class="atlas-icon">⚡</span>
+                                        ATLAS NEURAL CORE
+                                        <span class="atlas-status-pulse"></span>
+                                    </div>
+
+                                    <!-- ATLAS Neural Grid -->
+                                    <div class="atlas-neural-grid">
+                                        <!-- Left Panel - GPU Core Status -->
+                                        <div class="atlas-panel atlas-panel-left">
+                                            <div class="atlas-panel-header">
+                                                <div class="atlas-header-glow"></div>
+                                                <span class="atlas-header-icon">🔷</span>
+                                                QUANTUM GPU CORE
                                             </div>
-                                            <div class="status-card">
-                                                <h3>Available Models</h3>
-                                                <div class="model-list" id="model-list">
-                                                    <div class="model-item">Loading models...</div>
+                                            <div class="atlas-metrics-container" id="nvidia-metrics">
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">STATUS</span>
+                                                    <span class="metric-value atlas-glow-blue">ONLINE</span>
+                                                </div>
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">POWER</span>
+                                                    <span class="metric-value atlas-glow-orange">87%</span>
+                                                </div>
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">TEMP</span>
+                                                    <span class="metric-value">65°C</span>
+                                                </div>
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">MEMORY</span>
+                                                    <span class="metric-value">8.2 / 12 GB</span>
+                                                </div>
+                                                <div class="atlas-energy-bar">
+                                                    <div class="energy-fill" style="width: 68%"></div>
+                                                    <div class="energy-glow"></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="nvidia-actions">
-                                            <button class="action-btn primary" onclick="ultronInterface.loadNvidiaStatus()">Refresh Status</button>
-                                            <button class="action-btn" onclick="window.open('http://localhost:5173', '_blank')">Open NVIDIA Chat</button>
+
+                                        <!-- Center Panel - Neural Models -->
+                                        <div class="atlas-panel atlas-panel-center">
+                                            <div class="atlas-panel-header">
+                                                <div class="atlas-header-glow"></div>
+                                                <span class="atlas-header-icon">🧠</span>
+                                                NEURAL ARCHITECTURE
+                                            </div>
+                                            <div class="atlas-models-grid" id="model-list">
+                                                <div class="atlas-model-card active">
+                                                    <div class="model-card-glow"></div>
+                                                    <div class="model-icon">🤖</div>
+                                                    <div class="model-name">Llama 4 Maverick</div>
+                                                    <div class="model-specs">17B • 128K Context</div>
+                                                    <div class="model-status">
+                                                        <span class="status-dot active"></span>
+                                                        READY
+                                                    </div>
+                                                </div>
+                                                <div class="atlas-model-card">
+                                                    <div class="model-card-glow"></div>
+                                                    <div class="model-icon">⚡</div>
+                                                    <div class="model-name">GPTOSS 120B</div>
+                                                    <div class="model-specs">120B • Ultra Scale</div>
+                                                    <div class="model-status">
+                                                        <span class="status-dot active"></span>
+                                                        READY
+                                                    </div>
+                                                </div>
+                                                <div class="atlas-model-card">
+                                                    <div class="model-card-glow"></div>
+                                                    <div class="model-icon">🔥</div>
+                                                    <div class="model-name">Llama 3.3 70B</div>
+                                                    <div class="model-specs">70B • High Precision</div>
+                                                    <div class="model-status">
+                                                        <span class="status-dot active"></span>
+                                                        READY
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Panel - System Control -->
+                                        <div class="atlas-panel atlas-panel-right">
+                                            <div class="atlas-panel-header">
+                                                <div class="atlas-header-glow"></div>
+                                                <span class="atlas-header-icon">⚙️</span>
+                                                COMMAND MATRIX
+                                            </div>
+                                            <div class="atlas-control-panel">
+                                                <div class="atlas-stats-display">
+                                                    <div class="stat-item">
+                                                        <div class="stat-icon">📡</div>
+                                                        <div class="stat-info">
+                                                            <div class="stat-label">UPLINK</div>
+                                                            <div class="stat-value atlas-glow-blue">ACTIVE</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <div class="stat-icon">🔐</div>
+                                                        <div class="stat-info">
+                                                            <div class="stat-label">API KEYS</div>
+                                                            <div class="stat-value atlas-glow-orange">2/2</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <div class="stat-icon">⚡</div>
+                                                        <div class="stat-info">
+                                                            <div class="stat-label">WEBSOCKET</div>
+                                                            <div class="stat-value atlas-glow-blue">ENABLED</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="atlas-action-buttons">
+                                                    <button class="atlas-btn atlas-btn-primary" onclick="ultronInterface.loadNvidiaStatus()">
+                                                        <span class="btn-glow"></span>
+                                                        <span class="btn-icon">🔄</span>
+                                                        <span class="btn-text">SYNC NEURAL CORE</span>
+                                                    </button>
+                                                    <button class="atlas-btn atlas-btn-launch" onclick="window.open('http://localhost:8002', '_blank')">
+                                                        <span class="btn-glow"></span>
+                                                        <span class="btn-icon">🚀</span>
+                                                        <span class="btn-text">LAUNCH ATLAS INTERFACE</span>
+                                                    </button>
+                                                </div>
+
+                                                <div class="atlas-network-viz">
+                                                    <div class="network-node node-1"></div>
+                                                    <div class="network-node node-2"></div>
+                                                    <div class="network-node node-3"></div>
+                                                    <div class="network-line line-1"></div>
+                                                    <div class="network-line line-2"></div>
+                                                    <div class="network-line line-3"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ATLAS Footer Info -->
+                                    <div class="atlas-footer">
+                                        <div class="footer-line"></div>
+                                        <div class="footer-content">
+                                            <span class="footer-label">NEURAL INTERFACE</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-value">PORT 8002</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-label">PROTOCOL</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-value">HTTP/WS</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-label atlas-glow-blue">ATLAS ONLINE</span>
                                         </div>
                                     </div>
                                 </div>
@@ -856,20 +988,24 @@
             <div class="ultron-footer-status" role="status" aria-live="polite">
                 <div class="footer-glow"></div>
                 <div class="footer-metric">
-                    <span class="footer-label">SYSTEM VECTOR</span>
-                    <span class="footer-value" id="footer-vector">STABLE</span>
+                    <span class="footer-label">Ollama</span>
+                    <span class="footer-value" id="footer-ollama">OFFLINE</span>
                 </div>
                 <div class="footer-metric">
-                    <span class="footer-label">NEURAL SYNC</span>
-                    <span class="footer-value" id="footer-sync">99.2%</span>
+                    <span class="footer-label">Uptime</span>
+                    <span class="footer-value" id="footer-uptime">00:00:00</span>
                 </div>
                 <div class="footer-metric">
-                    <span class="footer-label">AETHER FLOW</span>
-                    <span class="footer-value" id="footer-flow">PRIME</span>
+                    <span class="footer-label">ElevenLabs Voice</span>
+                    <span class="footer-value" id="footer-voice">DISABLED</span>
                 </div>
                 <div class="footer-metric">
-                    <span class="footer-label">OPERATOR</span>
-                    <span class="footer-value">SIGNED IN</span>
+                    <span class="footer-label">LLM</span>
+                    <span class="footer-value" id="footer-llm-model">QWEN3-CODER:480B-CLOUD</span>
+                </div>
+                <div class="footer-metric">
+                    <span class="footer-label">LLM Status</span>
+                    <span class="footer-value" id="footer-llm-status">OFFLINE</span>
                 </div>
             </div>
         </div>
@@ -1169,29 +1305,22 @@
 
 <!-- Emergency initialization script -->
 <script>
-    // Force initialization after a delay if not already done
+    // Emergency initialization disabled - main initialization should work now
+    // Keeping error handler for debugging
     setTimeout(() => {
-        console.log('Emergency check starting'); // Debug log
         if (!window.ultronInterface) {
-            console.log('Emergency instantiating'); // Debug log
-            console.log('🚨 Emergency initialization triggered - app.js:2387');
-            try {
-                window.ultronInterface = new UltronPokedexInterface();
-                console.log('✅ Emergency initialization successful - app.js:2390');
-            } catch (error) {
-                console.error('❌ Emergency initialization failed: - app.js:2392', error);
-            }
+            console.warn('⚠️ ULTRON Interface not initialized after 2 seconds. Check browser console for errors.');
         } else {
-            console.log('Emergency skipped - interface already exists'); // Debug log
+            console.log('✅ ULTRON Interface initialized successfully');
         }
     }, 2000);
 
     // Add global error handler
     window.addEventListener('error', (event) => {
-        console.error('🚨 Global JavaScript error: - app.js:2399', event.error);
-        console.error('Error message: - app.js:2400', event.message);
-        console.error('Error file: - app.js:2401', event.filename);
-        console.error('Error line: - app.js:2402', event.lineno);
+        console.error('🚨 Global JavaScript error:', event.error);
+        console.error('Error message:', event.message);
+        console.error('Error file:', event.filename);
+        console.error('Error line:', event.lineno);
     });
 
     // Stable Diffusion Interface
