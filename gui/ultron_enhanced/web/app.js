@@ -24,6 +24,7 @@ class UltronPokedexInterface {
         this.shouldRestartRecognition = false;
         this.recognition = null;
         this.lastVoiceResultTimestamp = 0;
+        this.powerMenuInitialized = false; // Prevent auto-opening on startup
         this.systemStats = {
             cpu: 0,
             memory: 0,
@@ -184,6 +185,9 @@ class UltronPokedexInterface {
         });
 
         document.getElementById('btn-power')?.addEventListener('click', () => {
+            if (!this.powerMenuInitialized) {
+                this.powerMenuInitialized = true;
+            }
             this.showPowerMenu();
             this.playSound('button');
         });
@@ -248,6 +252,7 @@ class UltronPokedexInterface {
         });
 
         document.getElementById('export-chat-btn')?.addEventListener('click', () => {
+            this.userRequestedExport = true; // Mark as user-requested export
             this.exportChat();
         });
 
@@ -517,7 +522,8 @@ class UltronPokedexInterface {
         const voiceSnapshot = this.latestVoiceStatus || {};
         const voiceActive = Boolean(voiceSnapshot.output_enabled || voiceSnapshot.input_enabled || voiceSnapshot.config_enabled);
         const voiceStatusText = (voiceSnapshot.status || (voiceActive ? 'ENABLED' : 'DISABLED')).toUpperCase();
-        this.voiceEnabled = voiceActive;
+        // Don't auto-enable voice on startup - let user enable manually
+        // this.voiceEnabled = voiceActive;
         this.setTextContent(this.dom.dashboardVoiceStatus, voiceStatusText);
         this.setTextContent(this.dom.dashboardVoiceProvider, (voiceSnapshot.provider || 'UNSET').toUpperCase());
         this.ensureVoiceStatus();
@@ -537,6 +543,31 @@ class UltronPokedexInterface {
         this.updateMetricDisplays(this.dom.dashboardMemory, this.dom.dashboardMemoryBar, this.systemStats.memory);
         this.updateMetricDisplays(this.dom.dashboardDisk, this.dom.dashboardDiskBar, this.systemStats.disk);
         this.setTextContent(this.dom.dashboardNetwork, this.systemStats.network || '--');
+        
+        // Update footer status bar
+        this.updateFooterStatus();
+    }
+
+    updateFooterStatus() {
+        // Ollama status
+        const ollamaStatus = this.latestLLMStatus?.status === 'online' ? 'ONLINE' : 'OFFLINE';
+        this.setTextContent(document.getElementById('footer-ollama'), ollamaStatus);
+        
+        // Uptime
+        const uptime = this.latestSystemSnapshot?.agent?.uptime || '00:00:00';
+        this.setTextContent(document.getElementById('footer-uptime'), uptime);
+        
+        // ElevenLabs Voice status
+        const voiceStatus = this.voiceEnabled ? 'ENABLED' : 'DISABLED';
+        this.setTextContent(document.getElementById('footer-voice'), voiceStatus);
+        
+        // LLM Model name
+        const modelName = this.latestLLMStatus?.model || 'QWEN3-CODER:480B-CLOUD';
+        this.setTextContent(document.getElementById('footer-llm-model'), modelName.toUpperCase());
+        
+        // LLM Status
+        const llmStatus = this.latestLLMStatus?.status || 'OFFLINE';
+        this.setTextContent(document.getElementById('footer-llm-status'), llmStatus.toUpperCase());
     }
 
     setTextContent(node, value) {
@@ -860,11 +891,12 @@ class UltronPokedexInterface {
             }
             this.latestVoiceStatus = await response.json();
             const status = this.latestVoiceStatus || {};
-            if (typeof status.voice_enabled === 'boolean') {
-                this.voiceEnabled = status.voice_enabled;
-            } else {
-                this.voiceEnabled = Boolean(status.output_enabled || status.input_enabled || status.config_enabled);
-            }
+            // Don't auto-enable voice - keep it disabled until user clicks enable
+            // if (typeof status.voice_enabled === 'boolean') {
+            //     this.voiceEnabled = status.voice_enabled;
+            // } else {
+            //     this.voiceEnabled = Boolean(status.output_enabled || status.input_enabled || status.config_enabled);
+            // }
         } catch (error) {
             console.debug('[ULTRON] Voice status unavailable - app.js:748', error);
             this.latestVoiceStatus = { status: 'unavailable' };
@@ -1386,13 +1418,17 @@ class UltronPokedexInterface {
             })
             .filter(Boolean)
             .join('\n');
-        const blob = new Blob([transcript], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `ultron_chat_${Date.now()}.txt`;
-        link.click();
-        URL.revokeObjectURL(url);
+        // Only download if user explicitly requested (prevent auto-download on startup)
+        if (this.userRequestedExport) {
+            const blob = new Blob([transcript], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ultron_chat_${Date.now()}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+            this.userRequestedExport = false;
+        }
     }
 
     async switchModel() {
@@ -1419,14 +1455,16 @@ class UltronPokedexInterface {
             }
 
             const currentModel = this.latestLLMStatus?.model || modelNames[0];
-            const promptMessage = `Select the Ollama model to use for chat:\n${modelNames.join('\n')}`;
-            const selection = window.prompt(promptMessage, currentModel);
-            if (!selection) {
+
+            // Show custom scrollable modal instead of window.prompt
+            const selectedModel = await this.showModelSelectionModal(modelNames, currentModel);
+
+            if (!selectedModel) {
                 this.addSystemMessage('Model switch cancelled');
                 return;
             }
 
-            const desiredModel = selection.trim();
+            const desiredModel = selectedModel.trim();
             if (!desiredModel) {
                 this.addErrorMessage('Model switch aborted: empty selection.');
                 return;
@@ -1455,6 +1493,94 @@ class UltronPokedexInterface {
             console.error('[ULTRON] Model switch failed - app.js:1214', error);
             this.addErrorMessage('Unable to switch models. Ensure Ollama is running.');
         }
+    }
+
+    showModelSelectionModal(modelNames, currentModel) {
+        return new Promise((resolve) => {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'model-select-modal';
+            modal.innerHTML = `
+                <div class="model-select-content">
+                    <div class="model-select-header">
+                        <h3>🔄 Select AI Model</h3>
+                        <button class="model-close-btn" aria-label="Close">✕</button>
+                    </div>
+                    <div class="model-select-search">
+                        <input type="text" placeholder="🔍 Search models..." class="model-search-input" />
+                    </div>
+                    <div class="model-select-list">
+                        ${modelNames.map(model => `
+                            <div class="model-option ${model === currentModel ? 'active' : ''}" data-model="${model}">
+                                <span class="model-radio">${model === currentModel ? '●' : '○'}</span>
+                                <span class="model-name-text">${model}</span>
+                                ${model === currentModel ? '<span class="model-badge">ACTIVE</span>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="model-select-footer">
+                        <button class="model-btn model-btn-cancel">Cancel</button>
+                        <button class="model-btn model-btn-confirm">Switch Model</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            let selectedModel = currentModel;
+
+            // Search functionality
+            const searchInput = modal.querySelector('.model-search-input');
+            const modelOptions = modal.querySelectorAll('.model-option');
+
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                modelOptions.forEach(option => {
+                    const modelName = option.dataset.model.toLowerCase();
+                    option.style.display = modelName.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+
+            // Model selection
+            modelOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    modelOptions.forEach(opt => {
+                        opt.classList.remove('active');
+                        opt.querySelector('.model-radio').textContent = '○';
+                    });
+                    option.classList.add('active');
+                    option.querySelector('.model-radio').textContent = '●';
+                    selectedModel = option.dataset.model;
+                });
+            });
+
+            // Close handlers
+            const closeModal = (value) => {
+                modal.remove();
+                resolve(value);
+            };
+
+            modal.querySelector('.model-close-btn').addEventListener('click', () => closeModal(null));
+            modal.querySelector('.model-btn-cancel').addEventListener('click', () => closeModal(null));
+            modal.querySelector('.model-btn-confirm').addEventListener('click', () => closeModal(selectedModel));
+
+            // Close on outside click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(null);
+            });
+
+            // Close on ESC key
+            const handleEsc = (e) => {
+                if (e.key === 'Escape') {
+                    closeModal(null);
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+
+            // Focus search input
+            searchInput.focus();
+        });
     }
 
     handleQuickAction(prompt) {
@@ -1684,6 +1810,15 @@ class UltronPokedexInterface {
         }
         const text = this.ttsQueue.shift();
         this.isSpeaking = true;
+
+        // Stop voice recognition to prevent feedback loop
+        const wasListening = this.isListening;
+        if (wasListening && this.recognition) {
+            console.log('[ULTRON] Pausing voice recognition during TTS to prevent feedback loop');
+            this.recognition.stop();
+            this.isListening = false;
+        }
+
         try {
             const response = await this.apiCall('/api/voice/speak', {
                 method: 'POST',
@@ -1697,13 +1832,40 @@ class UltronPokedexInterface {
             const audioUrl = URL.createObjectURL(blob);
             this.audioElement = this.audioElement || new Audio();
             this.audioElement.src = audioUrl;
+
+            // Resume voice recognition after audio finishes
+            this.audioElement.onended = () => {
+                if (wasListening && this.recognition) {
+                    console.log('[ULTRON] Resuming voice recognition after TTS');
+                    setTimeout(() => {
+                        this.startVoiceRecognition();
+                    }, 500); // 500ms delay to avoid capturing tail end of audio
+                }
+            };
+
             await this.audioElement.play();
             URL.revokeObjectURL(audioUrl);
         } catch (error) {
             console.debug('[ULTRON] Voice playback failed, falling back to Web Speech - app.js:1340', error);
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
+
+                // Resume voice recognition after speech finishes
+                utterance.onend = () => {
+                    if (wasListening && this.recognition) {
+                        console.log('[ULTRON] Resuming voice recognition after Web Speech TTS');
+                        setTimeout(() => {
+                            this.startVoiceRecognition();
+                        }, 500);
+                    }
+                };
+
                 window.speechSynthesis.speak(utterance);
+            } else {
+                // No TTS available, resume voice recognition immediately
+                if (wasListening && this.recognition) {
+                    this.startVoiceRecognition();
+                }
             }
         } finally {
             this.isSpeaking = false;
@@ -1765,7 +1927,10 @@ class UltronPokedexInterface {
     }
 
     showPowerMenu() {
-        document.getElementById('power-menu')?.classList.remove('hidden');
+        // Only show if explicitly called by user (not on startup)
+        if (this.powerMenuInitialized !== false) {
+            document.getElementById('power-menu')?.classList.remove('hidden');
+        }
     }
 
     hidePowerMenu() {
@@ -1865,6 +2030,44 @@ class UltronPokedexInterface {
         setTimeout(() => {
             liveRegion.textContent = '';
         }, 1000);
+    }
+
+    initializeTheme() {
+        const savedTheme = localStorage.getItem('ultron_theme') || 'ultron-steampunk';
+        const themeSelect = document.getElementById('theme-select');
+        if (themeSelect) {
+            themeSelect.value = savedTheme;
+        }
+        this.applyTheme(savedTheme);
+    }
+
+    applyTheme(themeName) {
+        const body = document.body;
+        const pokedexBody = document.getElementById('pokedex-body');
+
+        // Remove all theme classes
+        const themeClasses = ['pokedex-red', 'pokedex-blue', 'high-contrast', 'ultron-steampunk'];
+        themeClasses.forEach(cls => {
+            body.classList.remove(cls);
+            if (pokedexBody) pokedexBody.classList.remove(cls);
+        });
+
+        // Add new theme class
+        body.classList.add(themeName);
+        if (pokedexBody) pokedexBody.classList.add(themeName);
+
+        // Save theme preference
+        localStorage.setItem('ultron_theme', themeName);
+        this.currentTheme = themeName;
+        console.log(`[ULTRON] Theme applied: ${themeName} - app.js:1877`);
+    }
+
+    trackApiCall(endpoint) {
+        if (!this.apiCallCounts) {
+            this.apiCallCounts = {};
+        }
+        this.apiCallCounts[endpoint] = (this.apiCallCounts[endpoint] || 0) + 1;
+        console.debug(`[ULTRON] API call: ${endpoint} (count: ${this.apiCallCounts[endpoint]})`);
     }
 
     async apiCall(endpoint, options = {}) {

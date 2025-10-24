@@ -187,7 +187,52 @@ if !errorlevel! equ 0 (
 echo.
 
 :: 8. Startup Complete
-echo [SUCCESS] ULTRON Agent 3.0 startup sequence complete!
+echo echo.
+
+:: 9. Start Ngrok Tunnel (Optional)
+where ngrok >nul 2>&1
+if !errorlevel! equ 0 (
+    call :info "Starting Ngrok tunnel for remote access..."
+    start "ULTRON Ngrok Tunnel" /MIN cmd /c "ngrok http 8080"
+    
+    :: Wait for ngrok to initialize
+    timeout /t 5 /nobreak >nul
+    
+    :: Get the public URL from ngrok API
+    for /f "tokens=*" %%i in ('curl -s http://localhost:4040/api/tunnels ^| findstr /C:"public_url" ^| findstr /C:"https://"') do (
+        set NGROK_LINE=%%i
+    )
+    
+    :: Extract URL (basic parsing)
+    if defined NGROK_LINE (
+        for /f "tokens=2 delims=:," %%a in ("!NGROK_LINE!") do (
+            set NGROK_RAW=%%a
+            set NGROK_URL=!NGROK_RAW:"=!
+            set NGROK_URL=!NGROK_URL: =!
+            set NGROK_URL=https:!NGROK_URL!
+        )
+    )
+    
+    if defined NGROK_URL (
+        call :info "Ngrok tunnel started: !NGROK_URL!"
+        call :info "Opening ngrok URL in browser..."
+        start !NGROK_URL!
+        echo    Dashboard: http://localhost:4040
+    ) else (
+        call :info "Ngrok started but couldn't get URL - check http://localhost:4040"
+    )
+) else (
+    call :info "Ngrok not found - skipping tunnel (install from https://ngrok.com/download)"
+)
+echo.
+
+:: 10. Auto-open Local Web GUI
+call :info "Opening local Web GUI in browser..."
+start http://localhost:8080
+echo.
+
+:: 11. Startup Complete
+call :success "ULTRON Agent 3.0 startup sequence complete!"
 echo.
 echo ╔══════════════════════════════════════════════════════════════╗
 echo ║                    ULTRON AGENT 3.0                         ║

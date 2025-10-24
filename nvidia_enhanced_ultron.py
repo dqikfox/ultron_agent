@@ -2,89 +2,7 @@ import asyncio
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
-from typing import Dict, Any, List
-import logging
-from datetime import datetime
-
-    async def process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Process user message and generate AI response"""
-        try:
-            user_message = data.get('message', '')
-            session_id = data.get('session_id', 'default')
-
-            # Initialize conversation if needed
-            if session_id not in self.conversations:
-                self.conversations[session_id] = []
-
-            # Add user message to conversation
-            self.conversations[session_id].append({
-                'role': 'user',
-                'content': user_message,
-                'timestamp': datetime.now().isoformat()
-            })
-
-            # Generate AI response (placeholder - integrate with actual AI)
-            ai_response = await self.generate_ai_response(user_message, session_id)
-
-            # Add AI response to conversation
-            self.conversations[session_id].append({
-                'role': 'assistant',
-                'content': ai_response,
-                'timestamp': datetime.now().isoformat()
-            })
-
-            return {
-                "status": "success",
-                "response": ai_response,
-                "session_id": session_id
-            }
-
-        except Exception as e:
-            self.logger.error(f"Error processing data: {e}")
-            return {
-                "status": "error",
-                "response": "Sorry, I encountered an error processing your message.",
-                "error": str(e)
-            }
-
-    async def generate_ai_response(self, message: str, session_id: str) -> str:
-        """Generate AI response using NVIDIA models or fallback"""
-        try:
-            # Try NVIDIA API first
-            response = await self.call_nvidia_model(message, session_id)
-            if response:
-                return response
-
-            # Fallback to OpenAI if available
-            response = await self.call_openai_model(message, session_id)
-            if response:
-                return response
-
-            # Final fallback
-            return "I'm sorry, I'm currently unable to generate a response. Please try again later."
-
-        except Exception as e:
-            self.logger.error(f"Error generating AI response: {e}")
-            return "I encountered an error while processing your request."
-
-    async def call_nvidia_model(self, message: str, session_id: str) -> Optional[str]:
-        """Call NVIDIA model API"""
-        try:
-            # Placeholder for NVIDIA API integration
-            # This would integrate with actual NVIDIA API endpoints
-            return f"NVIDIA {self.current_model} response to: {message}"
-        except Exception as e:
-            self.logger.error(f"NVIDIA API error: {e}")
-            return None
-
-    async def call_openai_model(self, message: str, session_id: str) -> Optional[str]:
-        """Call OpenAI API as fallback"""
-        try:
-            # Placeholder for OpenAI integration
-            return f"OpenAI response to: {message}"
-        except Exception as e:
-            self.logger.error(f"OpenAI API error: {e}")
-            return Nonetaticfiles import StaticFiles
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import socketio
 from pathlib import Path
@@ -96,8 +14,10 @@ from datetime import datetime
 import uuid
 import traceback
 
+
 class NVIDIAEnhancedUltron:
     """Enhanced ULTRON with NVIDIA models and FastAPI/WebSocket architecture"""
+
     def __init__(self):
         self.nvidia_models = {
             "llama-4-maverick": "meta/llama-4-maverick-17b-128e-instruct",
@@ -106,10 +26,7 @@ class NVIDIAEnhancedUltron:
         }
         self.current_model = "llama-4-maverick"
         self.sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins="*")
-        self.app = FastAPI(title="ULTRON NVIDIA Enhanced Assistant")
-        self.app.mount("/static", StaticFiles(directory="static"), name="static")
-        self.setup_routes()
-        self.setup_socketio_events()
+        self.fastapi_app = FastAPI(title="ULTRON NVIDIA Enhanced Assistant")
         self.conversations: Dict[str, List[Dict]] = {}
         self.active_connections: List[WebSocket] = []
         self.context_memory = {}
@@ -117,13 +34,21 @@ class NVIDIAEnhancedUltron:
         self.user_preferences = {}
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        self.app = socketio.ASGIApp(self.sio, other_asgi_app=self.app)
 
-        @self.app.get("/", response_class=HTMLResponse)
+        # Setup routes before wrapping
+        self.setup_routes()
+        self.setup_socketio_events()
+
+        # Wrap FastAPI with SocketIO
+        self.app = socketio.ASGIApp(self.sio, other_asgi_app=self.fastapi_app)
+
+    def setup_routes(self):
+        """Setup FastAPI routes"""
+        @self.fastapi_app.get("/", response_class=HTMLResponse)
         async def get_index():
             return await self.get_enhanced_ui()
 
-        @self.app.get("/api/status")
+        @self.fastapi_app.get("/api/status")
         async def get_status():
             return {
                 "status": "operational",
@@ -133,34 +58,9 @@ class NVIDIAEnhancedUltron:
                 "api_key_status": "active"
             }
 
-    def setup_routes(self):
-        """Setup FastAPI routes"""
-        pass  # Routes are defined in __init__
-
-    def setup_socketio_events(self):
-        """Setup SocketIO event handlers"""
-        @self.sio.event
-        async def connect(sid, environ):
-            self.logger.info(f"🔌 NVIDIA Client connected: {sid}")
-            await self.sio.emit('connection_confirmed', {
-                'session_id': sid,
-                'available_models': list(self.nvidia_models.keys()),
-                'current_model': self.current_model
-            }, to=sid)
-
-        @self.sio.event
-        async def disconnect(sid):
-            self.logger.info(f"❌ NVIDIA Client disconnected: {sid}")
-
-        @self.sio.event
-        async def user_message(sid, data):
-            # Process the user message
-            response = await self.process_data(data)
-            await self.sio.emit('ai_response', response, to=sid)
-
-    def setup_routes(self):
-        """Setup FastAPI routes"""
-        pass  # Routes are defined in __init__
+        @self.fastapi_app.get("/health")
+        async def health_check():
+            return {"status": "ok", "service": "nvidia_enhanced_ultron"}
 
     def setup_socketio_events(self):
         """Setup SocketIO event handlers"""
@@ -409,14 +309,14 @@ if __name__ == "__main__":
     print("Llama 4 Maverick 17B 128E - nvidia_enhanced_ultron.py:214")
     print("GPTOSS 120B - nvidia_enhanced_ultron.py:215")
     print("Llama 3.3 70B - nvidia_enhanced_ultron.py:216")
-    print("🌐 Server running on: http://localhost:8000 - nvidia_enhanced_ultron.py:217")
+    print("🌐 Server running on: http://localhost:8002 - nvidia_enhanced_ultron.py:217")
     print("📡 WebSocket support: Active - nvidia_enhanced_ultron.py:218")
     print("🔑 NVIDIA API: Connected with 2 keys - nvidia_enhanced_ultron.py:219")
 
     uvicorn.run(
         "nvidia_enhanced_ultron:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True,
+        port=8002,
+        reload=False,
         log_level="info"
     )
