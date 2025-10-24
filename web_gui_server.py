@@ -158,6 +158,8 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json_response(self._get_files_list())
             elif self.path == '/api/vision/recent':
                 self._send_json_response(self._get_vision_recent())
+            elif self.path == '/api/nvidia/status':
+                self._send_json_response(self._get_nvidia_status())
             else:
                 self.send_error(404, "API endpoint not found")
 
@@ -202,19 +204,33 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.send_error(404, "API endpoint not found")
 
+        except ConnectionAbortedError as e:
+            # Client disconnected before receiving response - not an error
+            logging.debug(f"Client disconnected during API POST: {e} - web_gui_server.py:206")
+        except ConnectionResetError as e:
+            # Client reset connection - not an error
+            logging.debug(f"Client reset connection during API POST: {e} - web_gui_server.py:208")
         except Exception as e:
-            logging.error(f"API POST error: {e} - web_gui_server.py:206")
-            self.send_error(500, str(e))
+            logging.error(f"API POST error: {e} - web_gui_server.py:210")
+            try:
+                self.send_error(500, str(e))
+            except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+                # Can't send error if client already disconnected
+                pass
 
     def _send_json_response(self, data, status=200):
         """Send JSON response"""
-        response = json.dumps(data, indent=2)
-        self.send_response(status)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', len(response))
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(response.encode('utf-8'))
+        try:
+            response = json.dumps(data, indent=2)
+            self.send_response(status)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', len(response))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError) as e:
+            # Client disconnected before receiving full response - log as debug, not error
+            logging.debug(f"Client disconnected during JSON response: {e} - web_gui_server.py:227")
 
     def _send_audio_response(self, audio_bytes: bytes, content_type: str):
         """Send binary audio response"""
@@ -585,6 +601,65 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             return {'error': str(e)}
 
+    def _get_nvidia_status(self):
+        """Check NVIDIA Enhanced Chat service status on port 8002"""
+        try:
+            import socket
+            import requests
+
+            nvidia_host = "localhost"
+            nvidia_port = 8002
+
+            # Try socket check first (faster)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            socket_result = sock.connect_ex((nvidia_host, nvidia_port))
+            sock.close()
+
+            if socket_result == 0:
+                # Port is open, try to get health info
+                try:
+                    response = requests.get(
+                        f"http://{nvidia_host}:{nvidia_port}/health",
+                        timeout=3
+                    )
+                    if response.status_code == 200:
+                        return {
+                            'status': 'online',
+                            'port': nvidia_port,
+                            'url': f"http://{nvidia_host}:{nvidia_port}",
+                            'health': response.json() if response.text else {'status': 'ok'}
+                        }
+                    else:
+                        return {
+                            'status': 'online',
+                            'port': nvidia_port,
+                            'url': f"http://{nvidia_host}:{nvidia_port}",
+                            'health': {'status': 'responding'}
+                        }
+                except requests.RequestException:
+                    # Port open but no valid response
+                    return {
+                        'status': 'port_open',
+                        'port': nvidia_port,
+                        'url': f"http://{nvidia_host}:{nvidia_port}",
+                        'message': 'Port is open but service not responding'
+                    }
+            else:
+                return {
+                    'status': 'offline',
+                    'port': nvidia_port,
+                    'url': f"http://{nvidia_host}:{nvidia_port}",
+                    'message': 'NVIDIA service not running'
+                }
+        except Exception as e:
+            return {
+                'status': 'error',
+                'port': 8002,
+                'error': str(e),
+                'message': 'Failed to check NVIDIA service status'
+            }
+
     def _handle_llm_chat(self, message: str):
         """Handle LLM chat message"""
         try:
@@ -937,13 +1012,14 @@ class UltronWebServer:
             def handler_factory(*args, **kwargs):
                 return UltronWebHandler(*args, agent_ref=self.agent_ref, **kwargs)
 
-            # Create server
+            # Create server - bind to 0.0.0.0 for remote access
             socketserver.TCPServer.allow_reuse_address = True
-            self.server = socketserver.TCPServer(("", self.port), handler_factory)
+            self.server = socketserver.TCPServer(("0.0.0.0", self.port), handler_factory)
 
             self.logger.info(f"ULTRON Web Server starting on port {self.port}")
             self.logger.info(f"Serving from: {web_dir}")
             self.logger.info(f"Access GUI at: http://localhost:{self.port}")
+            self.logger.info(f"Remote access: http://YOUR_IP:{self.port}")
 
             # Start server in background thread
             self.running = True

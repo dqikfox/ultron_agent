@@ -42,6 +42,11 @@ cd ultron_agent
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Install Ollama (required for AI backend)
+# Download from: https://ollama.ai/download
+# Or use package manager:
+winget install Ollama.Ollama
 ```
 
 ### 2. Configuration
@@ -51,23 +56,51 @@ cp ultron_config.json.example ultron_config.json
 
 # Edit configuration with your API keys
 # Set OpenAI, Anthropic, or other API keys as needed
+# Default model: llava:7b (multimodal, vision-enabled)
 ```
 
-### 3. Launch
+### 3. Launch (Recommended Method)
 ```bash
-# Start the agent
+# Use the master launcher with automated health checks
+.\run.bat
+
+# This will:
+# 1. Clean up any existing processes
+# 2. Verify Python and required files
+# 3. Start/verify Ollama service
+# 4. Run 5 comprehensive health tests
+# 5. Launch Web GUI and Frontend UI
+# 6. Provide complete system status
+```
+
+**New in v3.0**: The launcher now includes **automated health checks** that validate your system before startup:
+- ✅ Service availability check
+- ✅ Model availability verification (llava:7b)
+- ✅ Text generation test
+- ✅ Chat API validation
+- ✅ Context retention test
+
+All test results are logged to `ultron_master_startup.log`. If any test fails, you'll be prompted to continue or abort.
+
+### 4. Alternative Launch Methods
+```bash
+# Development mode (minimal, no health checks)
 python main.py
 
-# Or use the enhanced launcher
-./run.bat
+# Web GUI only
+python web_gui_server.py
+
+# Run standalone health tests
+.\test_ollama_communication.ps1
 ```
 
-### 4. Access Interfaces
+### 5. Access Interfaces
 
-- **Pokédex GUI**: Retro gaming interface at `http://localhost:8081`
-- **Mobile Web Interface**: Modern responsive interface at `http://localhost:8001`
-- **CLI**: Interactive command-line interface
-- **API**: HTTP endpoints on `http://localhost:8001`
+- **Web GUI (Primary)**: Pokédex-style retro interface at `http://localhost:8080`
+- **Frontend UI**: Modern interface at `http://localhost:5175`
+- **Mobile Web Interface**: Responsive mobile UI at `http://localhost:8001`
+- **API Server**: REST endpoints on `http://localhost:5000` (when api_server.py is running)
+- **Ollama Backend**: AI model service at `http://localhost:11434`
 
 ## Configuration Features
 
@@ -242,7 +275,93 @@ ultron_agent_2/
 
 ## Troubleshooting
 
+### System Health Checks
+
+The `run.bat` launcher includes automated diagnostics. If you encounter issues:
+
+1. **Check Startup Log**:
+   ```bash
+   Get-Content ultron_master_startup.log -Tail 50
+   ```
+
+2. **Review Test Results**:
+   ```
+   [TEST] Summary: Passed=5 Failed=0
+   ```
+   - If tests fail, see which specific test failed
+   - Refer to `STARTUP_HEALTH_CHECKS.md` for troubleshooting
+
+3. **Run Standalone Tests**:
+   ```bash
+   .\test_ollama_communication.ps1
+   ```
+
 ### Common Issues
+
+#### "Chat backend unavailable" or Connection Errors
+
+**Symptoms**: "⚠️ System Alert: Chat backend unavailable"
+
+**Quick Fix**:
+```powershell
+# 1. Restart Ollama service
+Stop-Process -Name "ollama" -Force
+.\run.bat
+
+# 2. Verify Ollama is running
+curl http://localhost:11434/api/tags
+
+# 3. Check if model is loaded
+ollama list | findstr "llava"
+
+# 4. Check agent logs
+Get-Content logs\brain.log -Tail 50
+```
+
+**Detailed Diagnostics**:
+- Check port 11434 availability
+- Verify model pulled: `ollama pull llava:7b`
+- Review `ultron_master_startup.log` for health test failures
+- Ensure sufficient RAM for model loading (8GB+ recommended)
+
+#### Port Conflicts (8080, 5175, 11434)
+
+**Symptoms**: "Port already in use" or "Address already in use"
+
+**Fix**: The `run.bat` launcher now automatically kills conflicting processes. If issues persist:
+```powershell
+# Check what's using the port
+Get-NetTCPConnection -LocalPort 8080,5175,11434
+
+# Kill specific process
+Stop-Process -Id <PID> -Force
+
+# Or let run.bat handle it automatically
+.\run.bat
+```
+
+#### Health Tests Failing
+
+**Test 1 Failure (Service Availability)**:
+- Ollama not running or crashed
+- Port 11434 blocked by firewall
+- Fix: Restart Ollama service
+
+**Test 2 Failure (Model Availability)**:
+- Model not downloaded
+- Fix: `ollama pull llava:7b`
+
+**Test 3/4 Failure (Generation/Chat)**:
+- Model loading timeout
+- Insufficient memory
+- Fix: Wait for model warmup, check available RAM
+
+**Test 5 Failure (Context Retention)**:
+- Model not retaining context
+- May still work for single-turn conversations
+- Fix: Try different model or restart Ollama
+
+### AI Tool Issues
 
 1. **Sixth AI API Error**: Ensure VS Code launched with `--enable-proposed-api sixth.sixth-ai`
 2. **Amazon Q Connectivity**: Check network settings and proxy configuration
@@ -252,12 +371,27 @@ ultron_agent_2/
 ### Quick Fixes
 
 ```powershell
+# Full system restart (cleans everything)
+Stop-Process -Name "ollama", "python" -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 3
+.\run.bat
+
 # Restart with all AI tools
 & "$env:USERPROFILE\launch-vscode-ai.ps1" -WorkspacePath "." -WithProposedAPIs
 
 # Check extension status
 code --list-extensions --show-versions | findstr -i "amazon\|github\|sixth"
+
+# Verify all services
+Get-NetTCPConnection -LocalPort 8080,5175,11434 | Format-Table -AutoSize
 ```
+
+### Getting Help
+
+- 📖 **Full Documentation**: See `STARTUP_HEALTH_CHECKS.md` for detailed health check guide
+- 🔍 **Test Results**: Check `OLLAMA_TEST_RESULTS.md` for test suite documentation
+- 📝 **Logs**: Review service-specific logs in `logs/` directory
+- 🤖 **AI Instructions**: See `.github/copilot-instructions.md` for development guidance
 
 ## Customization
 
@@ -337,6 +471,45 @@ python tools/mobile_web_interface_tool.py
 **Ready to code with AI assistance!**
 
 ## 📝 Changelog
+
+### Version 3.0.2 - October 24, 2025
+
+**Major Update: Automated Health Checks & System Validation**
+
+- ✅ **NEW**: Comprehensive startup health check system in `run.bat`
+  - 5 automated tests validate Ollama integration before service launch
+  - Service availability, model availability, generation, chat, and context retention tests
+  - All results logged to `ultron_master_startup.log` with timestamps
+  - User prompt on test failures with option to continue or abort
+  - Auto-continue when all tests pass
+
+- ✅ **NEW**: Process cleanup at startup
+  - Automatically kills existing ULTRON Python processes
+  - Frees ports 8080, 5175 to prevent conflicts
+  - 2-second cooldown period for clean shutdown
+
+- ✅ **NEW**: Standalone test suite
+  - `test_ollama_communication.ps1` - PowerShell test script for manual validation
+  - Tests all 5 health checks independently
+  - Color-coded pass/fail output with detailed metrics
+  - Performance timing for each test
+
+- 📖 **Documentation Updates**:
+  - Added `STARTUP_HEALTH_CHECKS.md` - Complete health check system documentation
+  - Added `OLLAMA_TEST_RESULTS.md` - Test results and validation guide
+  - Updated `.github/copilot-instructions.md` - AI development guidelines
+  - Enhanced README with troubleshooting section for common Ollama issues
+
+- 🔧 **Improvements**:
+  - Better error messages with specific troubleshooting steps
+  - Detailed logging of all startup phases
+  - Graceful handling of model loading timeouts (15s per test)
+  - Port conflict detection and automatic resolution
+
+- 🐛 **Fixes**:
+  - Resolved port 5175 conflict issue with `frontend_server.py`
+  - Fixed "Chat backend unavailable" false alarms from stale logs
+  - Improved Ollama service detection and retry logic (5 attempts, 3s intervals)
 
 ### Version 3.0.1 - October 9, 2025
 

@@ -31,13 +31,14 @@ class UltronFrontendServer:
             original_dir = os.getcwd()
             os.chdir(self.gui_dir)
 
-            # Create server
+            # Create server - bind to 0.0.0.0 for remote access
             handler = http.server.SimpleHTTPRequestHandler
-            self.server = socketserver.TCPServer(("", self.port), handler)
+            self.server = socketserver.TCPServer(("0.0.0.0", self.port), handler)
 
             print(f"[FRONTEND] ULTRON Frontend Server starting... - frontend_server.py:37")
             print(f"[FRONTEND] Serving from: {self.gui_dir} - frontend_server.py:38")
             print(f"[FRONTEND] Frontend URL: http://localhost:{self.port} - frontend_server.py:39")
+            print(f"[FRONTEND] Remote access: http://YOUR_IP:{self.port} - frontend_server.py:40")
             print("[FRONTEND] - frontend_server.py:40" + "=" * 50)
 
             self.running = True
