@@ -49,6 +49,7 @@ class UltronPokedexInterface {
         this.latestLLMStatus = null;
         this.dom = {};
         this.voiceStartupAnnounced = false;
+        this.userRequestedExport = false; // Prevent auto-download on startup
 
         this.init();
     }
@@ -1822,24 +1823,30 @@ class UltronPokedexInterface {
         const text = this.ttsQueue.shift();
         this.isSpeaking = true;
 
+        // CRITICAL FIX: Capture ORIGINAL listening state before FIRST TTS starts
+        // This property persists across all queue items so we know the true starting state
+        if (!this.hasOwnProperty('ttsOriginalListeningState')) {
+            this.ttsOriginalListeningState = this.isListening;
+            console.log(`[ULTRON] DEBUG - Captured ORIGINAL listening state: ${this.ttsOriginalListeningState}`);
+        }
+
+        const wasListening = this.ttsOriginalListeningState;
+        console.log(`[ULTRON] DEBUG - wasListening: ${wasListening}, voiceEnabled: ${this.voiceEnabled}, isListening: ${this.isListening}, queueLength: ${this.ttsQueue.length}`);
+
         // CRITICAL FIX: Stop voice recognition IMMEDIATELY to prevent feedback loop
         // The microphone was recording the model's TTS output and looping it back
         // We must completely stop recognition before any audio plays
-        const wasListening = this.isListening;
-        if (this.recognition) {
-            console.log('[ULTRON] Stopping voice recognition during TTS to prevent feedback loop - app.js:1825');
-            this.shouldRestartRecognition = false; // Prevent auto-restart
+        if (this.recognition && this.isListening) {
+            console.log('[ULTRON] Pausing voice recognition during TTS to prevent feedback loop - app.js:1825');
+            this.shouldRestartRecognition = false; // Temporarily prevent auto-restart during TTS
             this.isListening = false;
-            
+
             try {
                 this.recognition.stop();
-                this.recognition = null; // Fully destroy the recognition instance
             } catch (error) {
-                console.debug('[ULTRON] Error stopping recognition - app.js:1836', error);
+                console.debug('[ULTRON] Error stopping recognition - app.js:1840', error);
             }
-        }
-
-        // Additional safeguard: Wait for microphone to fully release
+        }        // Additional safeguard: Wait for microphone to fully release
         await new Promise(resolve => setTimeout(resolve, 200));
 
         try {
@@ -1865,25 +1872,33 @@ class UltronPokedexInterface {
             // Resume voice recognition ONLY AFTER audio completely finishes
             // This prevents the microphone from listening to ULTRON's own speech
             this.audioElement.onended = () => {
-                console.log('[ULTRON] TTS playback finished - app.js:1869');
-                
+                console.log('[ULTRON] TTS playback finished - app.js:1860');
+                console.log(`[ULTRON] DEBUG - After TTS: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+
                 // Wait additional time to ensure audio output is fully silent
                 setTimeout(() => {
-                    if (wasListening && this.voiceEnabled) {
-                        console.log('[ULTRON] Resuming voice recognition after TTS - app.js:1873');
-                        this.startVoiceRecognition();
-                    }
+                    console.log(`[ULTRON] DEBUG - Inside setTimeout: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}, queueLength=${this.ttsQueue.length}`);
 
-                    // CRITICAL: Process next item in TTS queue after current speech finishes
-                    // This ensures queue processing only happens AFTER successful playback
+                    // CRITICAL: Process next item in TTS queue first
                     this.isSpeaking = false;
-                    if (this.ttsQueue.length) {
+                    if (this.ttsQueue.length > 0) {
+                        console.log('[ULTRON] More items in TTS queue, processing next...');
                         this.dequeueSpeech();
+                    } else {
+                        // Queue is empty - NOW we can resume voice recognition
+                        console.log('[ULTRON] TTS queue empty, checking if should resume voice...');
+                        delete this.ttsOriginalListeningState; // Clear the saved state
+
+                        if (wasListening && this.voiceEnabled) {
+                            console.log('[ULTRON] Resuming voice recognition after TTS - app.js:1864');
+                            this.shouldRestartRecognition = true; // Re-enable auto-restart
+                            this.startVoiceRecognition();
+                        } else {
+                            console.log(`[ULTRON] NOT resuming voice - wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+                        }
                     }
                 }, 1000); // 1 second delay to ensure complete audio silence
-            };
-
-            await this.audioElement.play();
+            };            await this.audioElement.play();
             URL.revokeObjectURL(audioUrl);
 
             // CRITICAL: Early return prevents dual TTS bug
@@ -1901,19 +1916,27 @@ class UltronPokedexInterface {
 
                 // Resume voice recognition ONLY AFTER speech completely finishes
                 utterance.onend = () => {
-                    console.log('[ULTRON] Browser TTS finished - app.js:1903');
-                    
+                    console.log('[ULTRON] Browser TTS finished - app.js:1918');
+
                     // Wait additional time to ensure audio output is fully silent
                     setTimeout(() => {
-                        if (wasListening && this.voiceEnabled) {
-                            console.log('[ULTRON] Resuming voice recognition after Web Speech TTS - app.js:1907');
-                            this.startVoiceRecognition();
-                        }
-
-                        // Process next item in queue
+                        // CRITICAL: Process next item in TTS queue first
                         this.isSpeaking = false;
-                        if (this.ttsQueue.length) {
+                        if (this.ttsQueue.length > 0) {
+                            console.log('[ULTRON] More items in TTS queue (browser TTS), processing next...');
                             this.dequeueSpeech();
+                        } else {
+                            // Queue is empty - NOW we can resume voice recognition
+                            console.log('[ULTRON] TTS queue empty (browser TTS), checking if should resume voice...');
+                            delete this.ttsOriginalListeningState; // Clear the saved state
+
+                            if (wasListening && this.voiceEnabled) {
+                                console.log('[ULTRON] Resuming voice recognition after Web Speech TTS - app.js:1930');
+                                this.shouldRestartRecognition = true; // Re-enable auto-restart
+                                this.startVoiceRecognition();
+                            } else {
+                                console.log(`[ULTRON] NOT resuming voice (browser TTS) - wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+                            }
                         }
                     }, 1000); // 1 second delay to ensure complete audio silence
                 };

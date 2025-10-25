@@ -297,18 +297,41 @@
                                 </section>
 
                                 <!-- Vision Section -->
-                                <div id="vision-section" class="section-content">
-                                    <div class="section-title">OPTICAL ARRAY</div>
-                                    <div class="vision-controls">
-                                        <button class="vision-btn" id="capture-btn">📷 CAPTURE</button>
-                                        <button class="vision-btn" id="analyze-btn">🔍 ANALYZE</button>
-                                    </div>
-                                    <div class="vision-display" id="vision-display">
-                                        <div class="vision-placeholder">
-                                            Ready for screen capture and analysis
+                                <section id="vision-section" class="section-content" role="tabpanel" aria-labelledby="vision-tab" aria-hidden="true">
+                                    <h2 class="section-title">ENHANCED ULTRON CONTROL</h2>
+                                    <div class="section-content">
+                                        <div class="voice-control">
+                                            <button id="voiceBtn" class="voice-btn">🎤 Start Listening</button>
+                                            <div class="command-input">
+                                                <input type="text" id="commandInput" placeholder="Type command or use voice: 'hey ultron open chrome and search for cars'">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="quick-actions">
+                                            <button id="screenshotBtn" class="action-btn">📸 Enhanced Screenshot</button>
+                                            <button id="systemInfoBtn" class="action-btn">💻 System Info</button>
+                                        </div>
+                                        
+                                        <div id="status" class="status">Ready</div>
+                                        
+                                        <div id="results" class="results-container"></div>
+                                        
+                                        <div class="command-history">
+                                            <h4>📜 Command History</h4>
+                                            <div id="commandHistory"></div>
+                                        </div>
+                                        
+                                        <div class="capabilities">
+                                            <h4>🚀 System Capabilities</h4>
+                                            <div id="capabilities"></div>
+                                        </div>
+                                        
+                                        <div class="help-section">
+                                            <h4>💡 Example Commands</h4>
+                                            <div id="exampleCommands"></div>
                                         </div>
                                     </div>
-                                </div>
+                                </section>
 
                                 <!-- Tasks Section -->
                                 <div id="tasks-section" class="section-content">
@@ -1040,6 +1063,7 @@
     <script src="app.js"></script>
     <script src="comprehensive_test.js"></script>
     <script src="manual_test.js"></script>
+    <script src="enhanced_ultron.js"></script>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 
 <style>
