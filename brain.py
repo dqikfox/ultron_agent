@@ -4,6 +4,7 @@ Handles AI reasoning, planning, and communication with Ollama models
 """
 
 from utils.ultron_logger import ultron_logger, log_info, log_error, log_ai_decision
+from diagnostics import diagnostic_wrapper, track_metric
 from os import path as os_path
 from json import loads as json_loads, load as json_load, dump as json_dump, JSONDecodeError
 from requests import get as requests_get
@@ -367,6 +368,7 @@ class UltronBrain:
                 progress_callback(0, error_msg, error=True)
             return f"[LLM error: {sanitize_html_output(error_msg)}]"
 
+    @diagnostic_wrapper("brain", track_performance=True)
     def think(self, message):
         """Process a message and generate a response using Ollama"""
         try:
@@ -375,6 +377,7 @@ class UltronBrain:
             set_event_loop(loop)
             try:
                 response = loop.run_until_complete(self.direct_chat(message))
+                track_metric("brain", "message_length", len(message), "characters")
                 return response
             finally:
                 loop.close()
@@ -383,6 +386,7 @@ class UltronBrain:
             error(f"Error in think method: {sanitize_log_input(str(e))}")
             return f"Error processing request: {sanitize_html_output(str(e))}"
 
+    @diagnostic_wrapper("brain", track_performance=True)
     async def plan_and_act(self, message, progress_callback=None):
         """Enhanced planning and action execution with Ollama integration"""
 

@@ -17,6 +17,7 @@ import re
 
 # ULTRON Agent imports
 from utils.ultron_logger import log_info, log_error, log_ai_decision
+from diagnostics import diagnostic_wrapper, track_metric
 
 
 class WebScrapingTool:
@@ -43,10 +44,12 @@ class WebScrapingTool:
             "web analysis", "scrape content", "website data", "html extraction"
         ])
 
+    @diagnostic_wrapper("web_scraping", track_performance=True)
     def execute(self, command: str) -> str:
         """Execute web scraping operations"""
         try:
             command_lower = command.lower()
+            track_metric("web_scraping", "commands_processed", 1, "count")
 
             if "scrape website" in command_lower or "scrape site" in command_lower:
                 url = self._extract_url(command)

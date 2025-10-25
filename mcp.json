@@ -1,0 +1,58 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
+  "servers": {
+    "browsermcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@browsermcp/mcp@latest"],
+      "description": "Browser automation and control through MCP",
+      "env": {}
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "description": "GitHub repository access and management",
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github-token}"
+      }
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
+      "description": "Local filesystem access for ULTRON Agent workspace",
+      "env": {}
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "description": "PostgreSQL database integration",
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "${input:postgres-url}"
+      }
+    },
+    "puppeteer": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "description": "Headless browser automation with Puppeteer",
+      "env": {}
+    }
+  },
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "github-token",
+      "description": "GitHub Personal Access Token for repository access",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "postgres-url",
+      "description": "PostgreSQL connection string (postgresql://user:pass@host:port/db)",
+      "password": true
+    }
+  ]
+}

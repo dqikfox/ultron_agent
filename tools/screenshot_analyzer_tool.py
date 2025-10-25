@@ -63,10 +63,10 @@ class ScreenshotAnalyzerTool:
             return f"Screenshot analysis error: {str(e)}"
     
     def _analyze_screenshot(self, image_path: str) -> str:
-        """Analyze screenshot with AI vision model"""
+        """Analyze screenshot with OCR and smart analysis"""
         try:
-            # Try Ollama vision model first
-            description = self._analyze_with_ollama(image_path)
+            # Use OCR to read actual text
+            description = self._analyze_with_ocr(image_path)
             if description:
                 return description
             
@@ -74,35 +74,44 @@ class ScreenshotAnalyzerTool:
             return self._basic_description(image_path)
             
         except Exception as e:
-            log_error("screenshot_analyzer", f"AI analysis failed: {e}")
-            return f"AI analysis failed: {str(e)}"
+            log_error("screenshot_analyzer", f"Analysis failed: {e}")
+            return f"Analysis failed: {str(e)}"
     
     def _analyze_with_ollama(self, image_path: str) -> str:
         """Analyze with Ollama vision model"""
         try:
-            # Encode image to base64
-            with open(image_path, "rb") as image_file:
-                image_data = base64.b64encode(image_file.read()).decode('utf-8')
+            # First try with qwen2.5vl model (better for vision)
+            models_to_try = ["qwen2.5vl:7b", "qwen2.5vl:3b", "llava:7b"]
             
-            # Prepare request for Ollama vision model
-            payload = {
-                "model": "llava:7b",
-                "prompt": "Describe this screenshot in detail. What applications, windows, or content do you see? What is the user doing? Be specific and comprehensive.",
-                "images": [image_data],
-                "stream": False
-            }
+            for model in models_to_try:
+                try:
+                    # Encode image to base64
+                    with open(image_path, "rb") as image_file:
+                        image_data = base64.b64encode(image_file.read()).decode('utf-8')
+                    
+                    # Prepare request for Ollama vision model
+                    payload = {
+                        "model": model,
+                        "prompt": "Describe this screenshot in detail. What do you see on the screen? What applications or windows are open? Be specific.",
+                        "images": [image_data],
+                        "stream": False
+                    }
+                    
+                    response = requests.post("http://localhost:11434/api/generate", 
+                                           json=payload, timeout=30)
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        description = result.get("response", "")
+                        if description.strip():
+                            log_info("screenshot_analyzer", f"AI vision analysis completed with {model}")
+                            return f"AI Vision Analysis ({model}):\n\n{description}"
+                    
+                except Exception as model_error:
+                    log_error("screenshot_analyzer", f"Model {model} failed: {model_error}")
+                    continue
             
-            response = requests.post("http://localhost:11434/api/generate", 
-                                   json=payload, timeout=60)
-            
-            if response.status_code == 200:
-                result = response.json()
-                description = result.get("response", "")
-                log_info("screenshot_analyzer", "AI vision analysis completed")
-                return description
-            else:
-                log_error("screenshot_analyzer", f"Ollama API error: {response.status_code}")
-                return None
+            return None
                 
         except Exception as e:
             log_error("screenshot_analyzer", f"Ollama analysis error: {e}")
