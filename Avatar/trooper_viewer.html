@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON 3D Model Viewer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            overflow: hidden;
+            color: #00ff41;
+        }
+
+        #canvas-3d {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        h1 {
+            color: #00ff41;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #00ff41;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            min-width: 200px;
+        }
+
+        .controls h2 {
+            color: #00ff41;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff41;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 255, 65, 0.1);
+            border-top: 4px solid #00ff41;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas-3d"></canvas>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>LOADING TROOPER MODEL...</p>
+    </div>
+
+    <div class="ui-overlay" style="display:none;" id="title">
+        <h1>ULTRON TROOPER</h1>
+        <p>3D Model Viewer</p>
+    </div>
+
+    <div class="controls" style="display:none;" id="controls">
+        <h2>⚙️ CONTROLS</h2>
+        <button onclick="viewer.toggleRotation()">⏯️ Auto-Rotate</button>
+        <button onclick="viewer.toggleWireframe()">🔲 Wireframe</button>
+        <button onclick="viewer.resetView()">📷 Reset View</button>
+        <button onclick="viewer.cycleLight()">💡 Lighting</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        class TrooperViewer {
+            constructor() {
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x0a0a0a);
+                this.scene.fog = new THREE.Fog(0x0a0a0a, 10, 50);
+
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 2, 5);
+
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: document.getElementById('canvas-3d'),
+                    antialias: true
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.shadowMap.enabled = true;
+
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+
+                this.model = null;
+                this.isRotating = true;
+                this.lightMode = 0;
+
+                this.setupLights();
+                this.addGrid();
+                this.loadModel();
+
+                window.addEventListener('resize', () => this.onResize());
+                this.animate();
+            }
+
+            setupLights() {
+                const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+                this.scene.add(ambient);
+
+                this.keyLight = new THREE.DirectionalLight(0x00ff41, 1);
+                this.keyLight.position.set(5, 10, 5);
+                this.keyLight.castShadow = true;
+                this.scene.add(this.keyLight);
+
+                this.fillLight = new THREE.DirectionalLight(0x4169e1, 0.5);
+                this.fillLight.position.set(-5, 5, -5);
+                this.scene.add(this.fillLight);
+
+                const rim = new THREE.DirectionalLight(0x00ffff, 0.6);
+                rim.position.set(0, 5, -10);
+                this.scene.add(rim);
+            }
+
+            addGrid() {
+                const grid = new THREE.GridHelper(20, 20, 0x00ff41, 0x1a1a2e);
+                grid.material.opacity = 0.3;
+                grid.material.transparent = true;
+                this.scene.add(grid);
+            }
+
+            loadModel() {
+                const mtlLoader = new THREE.MTLLoader();
+                mtlLoader.setPath('TOON TROOPER/');
+
+                mtlLoader.load('TROOPER.mtl', (materials) => {
+                    materials.preload();
+
+                    const objLoader = new THREE.OBJLoader();
+                    objLoader.setMaterials(materials);
+                    objLoader.setPath('TOON TROOPER/');
+
+                    objLoader.load(
+                        'TROOPER.obj',
+                        (object) => {
+                            this.model = object;
+
+                            // Center and scale
+                            const box = new THREE.Box3().setFromObject(object);
+                            const center = box.getCenter(new THREE.Vector3());
+                            const size = box.getSize(new THREE.Vector3());
+                            const maxDim = Math.max(size.x, size.y, size.z);
+                            const scale = 3 / maxDim;
+
+                            object.scale.setScalar(scale);
+                            object.position.sub(center.multiplyScalar(scale));
+                            object.position.y = 0;
+
+                            // Enable shadows
+                            object.traverse((child) => {
+                                if (child.isMesh) {
+                                    child.castShadow = true;
+                                    child.receiveShadow = true;
+                                    // Add green tint for ULTRON theme
+                                    if (child.material) {
+                                        child.material.emissive = new THREE.Color(0x00ff41);
+                                        child.material.emissiveIntensity = 0.1;
+                                    }
+                                }
+                            });
+
+                            this.scene.add(object);
+
+                            // Hide loading, show UI
+                            document.getElementById('loading').style.display = 'none';
+                            document.getElementById('title').style.display = 'block';
+                            document.getElementById('controls').style.display = 'block';
+                        },
+                        (xhr) => {
+                            const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+                            console.log(`Loading: ${percent}%`);
+                        },
+                        (error) => {
+                            console.error('Error loading model:', error);
+                            document.getElementById('loading').innerHTML =
+                                '<div class="spinner"></div><p>❌ ERROR LOADING MODEL<br><small>Check console for details</small></p>';
+                        }
+                    );
+                });
+            }
+
+            toggleRotation() {
+                this.isRotating = !this.isRotating;
+            }
+
+            toggleWireframe() {
+                if (!this.model) return;
+                this.model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.wireframe = !child.material.wireframe;
+                    }
+                });
+            }
+
+            resetView() {
+                this.camera.position.set(0, 2, 5);
+                this.controls.target.set(0, 0, 0);
+            }
+
+            cycleLight() {
+                this.lightMode = (this.lightMode + 1) % 3;
+                const colors = [
+                    { key: 0x00ff41, fill: 0x4169e1 },  // Green/Blue
+                    { key: 0x4169e1, fill: 0x00ffff },  // Blue/Cyan
+                    { key: 0xff0000, fill: 0xff4500 }   // Red/Orange
+                ];
+                this.keyLight.color.setHex(colors[this.lightMode].key);
+                this.fillLight.color.setHex(colors[this.lightMode].fill);
+            }
+
+            onResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                if (this.model && this.isRotating) {
+                    this.model.rotation.y += 0.01;
+                }
+
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        let viewer;
+        window.addEventListener('DOMContentLoaded', () => {
+            viewer = new TrooperViewer();
+        });
+    </script>
+</body>
+</html>

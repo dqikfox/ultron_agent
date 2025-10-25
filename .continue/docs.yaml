@@ -1,0 +1,13 @@
+title: "ULTRON Agent Documentation"
+startUrl: "file://./README.md"
+rootUrl: "file://./"
+ignore:
+  - "node_modules/**"
+  - ".git/**"
+  - "**/*.pyc"
+  - "__pycache__/**"
+  - ".venv/**"
+  - "logs/**"
+  - "screenshots/**"
+  - "Oracle_JDK-24/**"
+faviconUrl: "assets/favicon.png"
