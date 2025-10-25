@@ -1,0 +1,8 @@
+Screenshot Analysis (Basic Mode)
+Timestamp: Fri Oct 24 20:11:29 2025
+Image Size: 1920x1080 pixels
+Color Mode: RGB
+File Size: 412240 bytes
+Location: screenshots\screenshot_1761297089.png
+
+Note: AI vision analysis was not available. This is a basic technical description of the screenshot file.

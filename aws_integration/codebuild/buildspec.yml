@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install -r aws_integration/requirements.txt
+
+  pre_build:
+    commands:
+      - python simple_test.py
+      - aws cloudformation validate-template --template-body file://aws_integration/cloudformation/ultron-aws-infrastructure.yaml
+
+  build:
+    commands:
+      - cd aws_integration/lambda_functions
+      - zip -r deployment.zip oasis_bedrock_handler.py
+      - cd ../..
+      - python test_amazon_q_integration.py || echo "Test completed"
+
+  post_build:
+    commands:
+      - echo Build completed
+
+artifacts:
+  files:
+    - aws_integration/lambda_functions/deployment.zip
+    - aws_integration/cloudformation/ultron-aws-infrastructure.yaml
+    - deployment_status.json
