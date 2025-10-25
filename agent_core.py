@@ -13,6 +13,7 @@ import importlib
 import inspect
 from datetime import datetime
 from enum import Enum
+from diagnostics import diagnostic_wrapper, track_metric, get_diagnostics
 
 try:
     import keyboard
@@ -66,9 +67,12 @@ class UltronAgent:
         self.config = self._load_config(config_path)
         self.logger = self._setup_logging()
 
-        # Initialize performance profiler
+        # Initialize diagnostics system
         config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
                        else {})
+        self.diagnostics = get_diagnostics(config_dict)
+
+        # Initialize performance profiler
         self.performance_profiler = get_performance_profiler(config_dict)
 
         # Core components per copilot instructions
@@ -614,10 +618,12 @@ class UltronAgent:
             self.logger.error(f"Voice speaking failed: {exc}")
             return False
 
+    @diagnostic_wrapper("agent_core", track_performance=True)
     async def handle_voice_command(self, command: str):
         """Process a voice command through the agent system"""
         try:
             self.logger.info(f"Processing voice command: {command}")
+            track_metric("agent_core", "voice_commands", 1, "count")
 
             # Process through brain for AI response
             if self.brain:

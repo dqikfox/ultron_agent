@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="093382ce-0385-4c8a-a9d6-d399d2b252bd" name="Changes" comment="Add AWS and Amazon Q integration with documentation&#10;&#10;Introduced Amazon Q Developer integration and AWS infrastructure support, including new GitHub workflows for code review and deployment, Lambda handlers, cost monitoring, and Bedrock tool integration. Added comprehensive documentation: setup checklist, architecture guide, integration guides, and inline code comments for critical voice and GUI logic. Updated developer instructions and fixed critical GUI and voice system bugs, ensuring robust voice/microphone handling and improved layout.">
+      <change beforePath="$PROJECT_DIR$/../VOICE_FEEDBACK_FIX.md" beforeDir="false" afterPath="$PROJECT_DIR$/../VOICE_FEEDBACK_FIX.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gui/ultron_enhanced/web/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/../gui/ultron_enhanced/web/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../run.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../run.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/screenshot_analyzer_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/screenshot_analyzer_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ultron_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../ultron_config.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;dqikfox&quot;
+  }
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOPT35mc6vbPj1&quot;,
+        &quot;number&quot;: 55
+      },
+      &quot;lastSeen&quot;: 1761360053196
+    }
+  ]
+}</component>
+  <component name="GithubProjectSettings">
+    <option name="branchProtectionPatterns">
+      <list>
+        <option value="x" />
+      </list>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/dqikfox/ultron_agent.git&quot;,
+    &quot;accountId&quot;: &quot;a1da0e77-b021-4062-b576-41b5a99146cb&quot;
+  }
+}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="34W2HhfHL5PomCKLx4CSgO9aDQc" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-PY-252.25557.178" />
+        <option value="bundled-python-sdk-ce6832f46686-7b97d883f26b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.25557.178" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="093382ce-0385-4c8a-a9d6-d399d2b252bd" name="Changes" comment="" />
+      <created>1761314921696</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761314921696</updated>
+      <workItem from="1761314923714" duration="10000" />
+      <workItem from="1761354577500" duration="37000" />
+      <workItem from="1761354823780" duration="2259000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add AWS and Amazon Q integration with documentation&#10;&#10;Introduced Amazon Q Developer integration and AWS infrastructure support, including new GitHub workflows for code review and deployment, Lambda handlers, cost monitoring, and Bedrock tool integration. Added comprehensive documentation: setup checklist, architecture guide, integration guides, and inline code comments for critical voice and GUI logic. Updated developer instructions and fixed critical GUI and voice system bugs, ensuring robust voice/microphone handling and improved layout." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add AWS and Amazon Q integration with documentation&#10;&#10;Introduced Amazon Q Developer integration and AWS infrastructure support, including new GitHub workflows for code review and deployment, Lambda handlers, cost monitoring, and Bedrock tool integration. Added comprehensive documentation: setup checklist, architecture guide, integration guides, and inline code comments for critical voice and GUI logic. Updated developer instructions and fixed critical GUI and voice system bugs, ensuring robust voice/microphone handling and improved layout." />
+  </component>
+</project>
