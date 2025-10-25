@@ -12,10 +12,12 @@ This is a **multi-modal AI agent platform** with voice-first architecture, combi
 - **agent_core.py**: Primary integration hub. Initializes subsystems (config, voice, vision, tools), handles dynamic tool discovery from `tools/`, manages component lifecycle
 - **brain.py**: AI reasoning engine with Ollama integration at `http://localhost:11434`, async planning, response caching, multi-model support
 - **config.py**: Stub module - **ACTUAL CONFIG** is `ultron_config.json` (JSON format with `USE_ENV_*` pattern for secrets)
+- **mcp.json**: **NEW** Model Context Protocol server configuration - defines external tools (browser automation, GitHub, filesystem, databases)
 - **utils/ultron_logger.py**: **MANDATORY** centralized logging - use `log_info()`, `log_error()`, `log_ai_decision()`, `log_file_operation()`
 - **utils/model_awareness.py**: **CRITICAL** AI coordination - MUST call `should_modify_file()` before file edits
 - **utils/event_system.py**: Event bus for async pub/sub messaging between components
 - **tools/**: Auto-discovered plugins inheriting `ToolInterface` with `match()`, `execute()`, `schema()` methods
+- **tools/mcp_integration_tool.py**: **NEW** MCP server manager - provides unified access to external MCP-compatible tools
 
 ### GUI & Service Architecture
 - **PRIMARY GUI**: `gui/ultron_enhanced/web/index.html` - Pokédex-style retro interface on port 8080
@@ -263,12 +265,17 @@ Key tools in `tools/`:
 - `web_scraping_tool.py` - Web data extraction
 - `mobile_web_interface_tool.py` - Mobile web UI
 
-### Utilities
-- `utils/event_system.py` - Pub/sub event bus
-- `utils/ultron_logger.py` - Centralized logging (208 lines)
-- `utils/model_awareness.py` - AI coordination (401 lines)
-- `utils/performance_profiler.py` - System monitoring
-- `utils/port_manager.py` - Port conflict resolution
+### Documentation Directories
+- **Visual Studio Code**: `.vscode/` - Launch configurations, tasks, settings
+- **Continue.dev Rules**: `.continue/rules/` - Agent mode codebase awareness rules (7 files, 3000+ lines)
+  - `project-architecture.md` - System structure and patterns
+  - `coding-standards.md` - Python style and best practices
+  - `internal-documentation.md` - Company documentation links
+  - `external-codebases.md` - Framework and library references
+  - `common-tasks.md` - Step-by-step task guides
+  - `github-copilot-integration.md` - Multi-AI assistant coordination
+  - `ultron-tools-reference.md` - Tools, services, MCP servers reference
+- **Logs**: `logs/` - Service-specific log files
 
 ### Testing
 Testing framework: **pytest** with strict configuration
@@ -648,10 +655,19 @@ Start-Sleep -Seconds 3
 
 ### Core Documentation
 - **Developer Guide**: This file (`.github/copilot-instructions.md`)
+- **Documentation Hub**: `DOCUMENTATION_HUB.md` - Central index for all resources
+- **Continue.dev Integration**: `CONTINUE_INTEGRATION_COMPLETE.md` - Agent mode rules system
+- **Copilot + Continue.dev**: `COPILOT_CONTINUE_INTEGRATION.md` - Multi-AI assistant coordination
+- **MCP Integration**: `MCP_INTEGRATION_GUIDE.md` - Model Context Protocol servers setup and usage
 - **Voice System**: `VOICE_MICROPHONE_DOCUMENTATION.md` - Complete voice/microphone system guide
 - **System Architecture**: `SYSTEM_ARCHITECTURE.md` - Service connections, ports, data flow
 - **Setup Guide**: `SETUP_CHECKLIST.md` - Step-by-step installation and configuration
 - **Recent Fixes**: `FIXES_SUMMARY_2025-10-24.md` - Latest bug fixes and improvements
+
+### Internal Documentation Links
+- **API Documentation**: https://internal.docs/api - REST API endpoints and usage
+- **Architecture Guide**: https://internal.docs/architecture - System design and patterns
+- **Deployment Process**: https://internal.docs/deployment - Production deployment procedures
 
 ### Quick Reference
 - **Inline Comments**: Critical code sections now have dependency comments
@@ -659,6 +675,7 @@ Start-Sleep -Seconds 3
   - `gui/ultron_enhanced/web/styles.css` - CSS critical warnings (Lines 2320, 2779)
 - **Startup Logs**: `ultron_master_startup.log` - Health check results
 - **Component Logs**: `logs/<component>.log` - Service-specific logs
+- **MCP Quick Reference**: `MCP_QUICK_REFERENCE.md` - MCP command examples
 
 ### Architecture Diagrams
 See `SYSTEM_ARCHITECTURE.md` for:

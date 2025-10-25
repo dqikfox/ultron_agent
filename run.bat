@@ -248,7 +248,7 @@ echo.
 :: Port: 5175 (configurable via FRONTEND_PORT)
 :: Endpoint: http://localhost:5175/
 
-echo [8/9] Starting Frontend UI Server (port %FRONTEND_PORT%)...
+echo [8/11] Starting Frontend UI Server (port %FRONTEND_PORT%)...
 start "ULTRON Frontend UI" /MIN python frontend_server.py --port %FRONTEND_PORT%
 timeout /t 3 /nobreak >nul
 
@@ -263,13 +263,11 @@ echo.
 :: ──────────────────────────────────────────────────────────────────────
 :: STEP 8: NVIDIA ENHANCED CHAT SERVER STARTUP
 :: ──────────────────────────────────────────────────────────────────────
-:: STEP 8: NVIDIA ENHANCED CHAT SERVER STARTUP
-:: ──────────────────────────────────────────────────────────────────────
 :: Purpose: NVIDIA-enhanced AI chat service
 :: Port: 8002 (configurable via NVIDIA_CHAT_PORT)
 :: Endpoint: http://localhost:8002/health
 
-echo [9/9] Starting NVIDIA Chat Server (port 8002)...
+echo [9/11] Starting NVIDIA Chat Server (port 8002)...
 start "ULTRON NVIDIA Chat" /MIN python nvidia_enhanced_ultron.py
 timeout /t 3 /nobreak >nul
 
@@ -282,7 +280,45 @@ if !errorlevel! equ 0 (
 echo.
 
 :: ──────────────────────────────────────────────────────────────────────
-:: STEP 9: STARTUP COMPLETE
+:: STEP 9: API SERVER STARTUP
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: REST API for ULTRON services
+:: Port: 5000
+:: Endpoint: http://localhost:5000/health
+
+echo [10/11] Starting API Server (port 5000)...
+start "ULTRON API Server" /MIN python api_server.py
+timeout /t 3 /nobreak >nul
+
+curl -s "http://localhost:5000/health" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ API Server running
+) else (
+    echo       ⚠ API Server may not have started
+)
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 10: DIAGNOSTICS DASHBOARD STARTUP
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Real-time crash reporting and performance monitoring
+:: Port: 5001 (configurable via diagnostics_dashboard_port in config)
+:: Endpoint: http://localhost:5001
+
+echo [11/11] Starting Diagnostics Dashboard (port 5001)...
+start "ULTRON Diagnostics" /MIN python -m diagnostics.diagnostics_dashboard
+timeout /t 3 /nobreak >nul
+
+curl -s "http://localhost:5001/" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Diagnostics Dashboard running
+) else (
+    echo       ⚠ Diagnostics Dashboard may not have started
+)
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 11: STARTUP COMPLETE
 :: ──────────────────────────────────────────────────────────────────────
 
 :: Optional: Start Ngrok tunnel for remote access
@@ -291,11 +327,11 @@ if !errorlevel! equ 0 (
     echo [OPTIONAL] Starting Ngrok tunnel...
     start "ULTRON Ngrok Tunnel" /MIN cmd /c "ngrok http 8080"
     timeout /t 5 /nobreak >nul
-    
+
     for /f "tokens=*" %%i in ('curl -s http://localhost:4040/api/tunnels ^| findstr /C:"public_url" ^| findstr /C:"https://"') do (
         set NGROK_LINE=%%i
     )
-    
+
     if defined NGROK_LINE (
         for /f "tokens=2 delims=:," %%a in ("!NGROK_LINE!") do (
             set NGROK_RAW=%%a
@@ -304,7 +340,7 @@ if !errorlevel! equ 0 (
             set NGROK_URL=https:!NGROK_URL!
         )
     )
-    
+
     if defined NGROK_URL (
         echo          ✓ Ngrok tunnel: !NGROK_URL!
         echo          Dashboard: http://localhost:4040
@@ -329,6 +365,8 @@ echo    • Ollama LLM       : http://localhost:%OLLAMA_PORT%
 echo    • Web GUI          : http://localhost:%WEB_GUI_PORT%
 echo    • Frontend UI      : http://localhost:%FRONTEND_PORT%
 echo    • NVIDIA Chat      : http://localhost:8002
+echo    • API Server       : http://localhost:5000
+echo    • Diagnostics      : http://localhost:5001
 echo.
 echo    Opening Web GUI in browser...
 echo.

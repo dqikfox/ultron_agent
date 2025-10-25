@@ -14,7 +14,7 @@ The voice recognition system was not properly stopping the microphone before TTS
 
 ### Solution Implemented
 
-**File Modified**: `gui/ultron_enhanced/web/app.js`  
+**File Modified**: `gui/ultron_enhanced/web/app.js`
 **Functions Updated**: `dequeueSpeech()` (both API TTS and browser TTS fallback)
 
 #### Key Changes:
@@ -24,7 +24,7 @@ The voice recognition system was not properly stopping the microphone before TTS
    if (this.recognition) {
        this.shouldRestartRecognition = false; // Prevent auto-restart
        this.isListening = false;
-       
+
        try {
            this.recognition.stop();
            this.recognition = null; // Fully destroy the recognition instance
@@ -81,7 +81,7 @@ The voice recognition system was not properly stopping the microphone before TTS
 
 ### Expected Behavior
 
-✅ **CORRECT**: Microphone stops → TTS plays → 1 second silence → Microphone resumes  
+✅ **CORRECT**: Microphone stops → TTS plays → 1 second silence → Microphone resumes
 ❌ **INCORRECT** (old): Microphone active → TTS plays → Microphone captures TTS → Infinite loop
 
 ### Console Logging
@@ -152,17 +152,17 @@ Get-Process chrome,msedge,firefox | Stop-Process -Force
 
 ### What the Web App CAN'T Do
 
-❌ Cannot control browser window minimize/maximize state  
-❌ Cannot detect if window is minimized  
-❌ Cannot programmatically restore browser windows  
-❌ Cannot override OS window management  
+❌ Cannot control browser window minimize/maximize state
+❌ Cannot detect if window is minimized
+❌ Cannot programmatically restore browser windows
+❌ Cannot override OS window management
 
 ### What the Web App CAN Do
 
-✅ Run fullscreen mode (press F11 in browser)  
-✅ Detect browser tab visibility (`document.visibilityState`)  
-✅ Pause operations when tab is hidden  
-✅ Resume operations when tab becomes visible  
+✅ Run fullscreen mode (press F11 in browser)
+✅ Detect browser tab visibility (`document.visibilityState`)
+✅ Pause operations when tab is hidden
+✅ Resume operations when tab becomes visible
 
 ### Technical Explanation
 
@@ -240,6 +240,6 @@ Instead of minimizing, consider:
 
 ---
 
-**Last Updated**: October 24, 2025  
-**Status**: ✅ Voice feedback fix implemented and tested  
+**Last Updated**: October 24, 2025
+**Status**: ✅ Voice feedback fix implemented and tested
 **Status**: ℹ️ Window minimize/restore is browser/OS behavior (not a bug)
