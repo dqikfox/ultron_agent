@@ -1,0 +1,262 @@
+/* Enhanced ULTRON GUI Styles */
+
+.voice-control {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.voice-btn {
+    background: linear-gradient(45deg, #ff0000, #cc0000);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.voice-btn:hover {
+    background: linear-gradient(45deg, #cc0000, #990000);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+}
+
+.command-input {
+    width: 100%;
+}
+
+.command-input input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 4px;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.command-input input:focus {
+    outline: none;
+    border-color: #ff0000;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.quick-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    background: linear-gradient(45deg, #333, #555);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.action-btn:hover {
+    background: linear-gradient(45deg, #555, #777);
+    transform: translateY(-1px);
+}
+
+.status {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+}
+
+.status.info {
+    background: rgba(0, 100, 255, 0.2);
+    border: 1px solid rgba(0, 100, 255, 0.4);
+    color: #66ccff;
+}
+
+.status.success {
+    background: rgba(0, 255, 0, 0.2);
+    border: 1px solid rgba(0, 255, 0, 0.4);
+    color: #66ff66;
+}
+
+.status.error {
+    background: rgba(255, 0, 0, 0.2);
+    border: 1px solid rgba(255, 0, 0, 0.4);
+    color: #ff6666;
+}
+
+.status.warning {
+    background: rgba(255, 165, 0, 0.2);
+    border: 1px solid rgba(255, 165, 0, 0.4);
+    color: #ffaa66;
+}
+
+.results-container {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    min-height: 100px;
+}
+
+.command-result, .ocr-result {
+    margin-bottom: 15px;
+}
+
+.command-result h3, .ocr-result h3 {
+    color: #ff4444;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.result-content, .ocr-details {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.result-content pre, .text-content pre {
+    color: #cccccc;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.timestamp {
+    color: #888;
+    font-size: 0.8em;
+    font-family: 'Courier New', monospace;
+}
+
+.command-history {
+    margin-bottom: 20px;
+}
+
+.command-history h4 {
+    color: #ff4444;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border-left: 3px solid #ff4444;
+}
+
+.history-item.voice {
+    border-left-color: #44ff44;
+}
+
+.history-item.voice-enhanced {
+    border-left-color: #4444ff;
+}
+
+.history-item .command {
+    flex: 1;
+    color: #cccccc;
+    font-family: 'Courier New', monospace;
+}
+
+.history-item .type {
+    color: #888;
+    font-size: 0.8em;
+    margin: 0 10px;
+}
+
+.history-item .time {
+    color: #888;
+    font-size: 0.8em;
+    font-family: 'Courier New', monospace;
+}
+
+.capabilities {
+    margin-bottom: 20px;
+}
+
+.capabilities h4 {
+    color: #ff4444;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.capabilities ul {
+    list-style: none;
+    padding: 0;
+}
+
+.capabilities li {
+    padding: 5px 0;
+    color: #cccccc;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.help-section {
+    margin-bottom: 20px;
+}
+
+.help-section h4 {
+    color: #ff4444;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.example-command {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #cccccc;
+    font-family: 'Courier New', monospace;
+}
+
+.example-command:hover {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: rgba(255, 0, 0, 0.4);
+    transform: translateX(5px);
+}
+
+.analysis {
+    margin-top: 10px;
+}
+
+.analysis h4 {
+    color: #ff4444;
+    margin-bottom: 5px;
+}
+
+.analysis ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.analysis li {
+    color: #cccccc;
+    padding: 2px 0;
+}
+
+.analysis li:before {
+    content: "• ";
+    color: #ff4444;
+    font-weight: bold;
+}

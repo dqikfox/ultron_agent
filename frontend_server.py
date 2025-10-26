@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ULTRON Frontend Server - Serves the Pokédex GUI
-Runs on localhost:5173 to match your requirements
+Runs on localhost:5175 by default (override with --port or ULTRON_FRONTEND_PORT)
 """
 
 import http.server
@@ -11,9 +11,10 @@ import sys
 import threading
 import time
 from pathlib import Path
+import argparse
 
 class UltronFrontendServer:
-    def __init__(self, port=5173):
+    def __init__(self, port=5175):
         self.port = port
         self.gui_dir = Path(__file__).parent / "gui" / "ultron_enhanced" / "web"
         self.server = None
@@ -30,13 +31,14 @@ class UltronFrontendServer:
             original_dir = os.getcwd()
             os.chdir(self.gui_dir)
 
-            # Create server
+            # Create server - bind to 0.0.0.0 for remote access
             handler = http.server.SimpleHTTPRequestHandler
-            self.server = socketserver.TCPServer(("", self.port), handler)
+            self.server = socketserver.TCPServer(("0.0.0.0", self.port), handler)
 
             print(f"[FRONTEND] ULTRON Frontend Server starting... - frontend_server.py:37")
             print(f"[FRONTEND] Serving from: {self.gui_dir} - frontend_server.py:38")
             print(f"[FRONTEND] Frontend URL: http://localhost:{self.port} - frontend_server.py:39")
+            print(f"[FRONTEND] Remote access: http://YOUR_IP:{self.port} - frontend_server.py:40")
             print("[FRONTEND] - frontend_server.py:40" + "=" * 50)
 
             self.running = True
@@ -56,8 +58,16 @@ class UltronFrontendServer:
             self.running = False
             print("[FRONTEND] Frontend server stopped - frontend_server.py:57")
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Start the ULTRON frontend static server")
+    default_port = int(os.getenv("ULTRON_FRONTEND_PORT", 5175))
+    parser.add_argument("--port", type=int, default=default_port, help="Port to serve the frontend on")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    server = UltronFrontendServer()
+    args = parse_args()
+    server = UltronFrontendServer(port=args.port)
     try:
         server.start()
     except KeyboardInterrupt:

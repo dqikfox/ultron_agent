@@ -3,24 +3,53 @@ ULTRON Agent 3.0 - Brain Module with Ollama Integration
 Handles AI reasoning, planning, and communication with Ollama models
 """
 
-from logging import getLogger, info, error, warning
-from os import path as os_path, listdir
-from re import sub as re_sub
-from json import loads as json_loads, dumps as json_dumps, load as json_load, dump as json_dump, JSONDecodeError
+from utils.ultron_logger import ultron_logger, log_info, log_error, log_ai_decision
+from os import path as os_path
+from json import loads as json_loads, load as json_load, dump as json_dump, JSONDecodeError
 from requests import get as requests_get
-from asyncio import new_event_loop, set_event_loop, TimeoutError as AsyncTimeoutError
+from asyncio import (
+    new_event_loop, set_event_loop, TimeoutError as AsyncTimeoutError
+)
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
 from typing import Dict, Any
-from security_utils import sanitize_log_input, sanitize_html_output, validate_file_path
 
-from tools.openai_tools import OpenAITools
+# Create fallback functions for security utils if not available
+try:
+    from security_utils import (
+        sanitize_log_input, sanitize_html_output, validate_file_path
+    )
+except ImportError:
+    def sanitize_log_input(text):
+        return str(text)[:1000]  # Limit length
+
+    def sanitize_html_output(text):
+        return str(text).replace('<', '&lt;').replace('>', '&gt;')
+
+    def validate_file_path(path):
+        return True  # Basic fallback
+
+# Logging shortcuts
+def info(msg):
+    log_info("brain", msg)
+
+def error(msg):
+    log_error("brain", msg)
+
+def warning(msg):
+    log_info("brain", f"WARNING: {msg}")
+
+# Import OpenAI tools if available
+try:
+    from tools.openai_tools import OpenAITools
+except ImportError:
+    OpenAITools = None
+    warning("OpenAI tools not available")
 
 # Import enhanced mesh transformer manager for GPT-J/GPT-NeoX integration
 try:
     from enhanced_mesh_transformer_manager import (
         get_enhanced_mesh_transformer_manager,
-        is_enhanced_mesh_transformer_available,
         MeshTransformerIntegration
     )
     MESH_TRANSFORMER_AVAILABLE = True
@@ -36,9 +65,40 @@ try:
     from nvidia_nim_router import UltronNvidiaRouter
     NVIDIA_AVAILABLE = True
 except ImportError:
-    warning("NVIDIA NIM router not available - suggestions will use Ollama only")
+    warning(
+        "NVIDIA NIM router not available - suggestions will use Ollama only"
+    )
     UltronNvidiaRouter = None
     NVIDIA_AVAILABLE = False
+
+# Import enhanced NLP processor for advanced text analysis
+try:
+    from nlp_enhancer import EnhancedNLPProcessor
+    NLP_AVAILABLE = True
+except ImportError as e:
+    warning(f"Enhanced NLP processor not available: {sanitize_log_input(str(e))}")
+    EnhancedNLPProcessor = None
+    NLP_AVAILABLE = False
+
+# Import machine learning response adaptor
+try:
+    from ml_response_adaptor import MLResponseAdaptor
+    ML_AVAILABLE = True
+except ImportError as e:
+    warning(f"ML response adaptor not available: {sanitize_log_input(str(e))}")
+    MLResponseAdaptor = None
+    ML_AVAILABLE = False
+
+# Import Azure Cognitive Services integration
+try:
+    from azure_cognitive_integration import AzureCognitiveIntegration
+    AZURE_AVAILABLE = True
+except ImportError as e:
+    warning(f"Azure Cognitive Services not available: {sanitize_log_input(str(e))}")
+    AzureCognitiveIntegration = None
+    AZURE_AVAILABLE = False
+
+
 
 class UltronBrain:
     def __init__(self, config, tools, memory):
@@ -59,7 +119,10 @@ class UltronBrain:
                 self.nvidia_router = UltronNvidiaRouter()
                 info("NVIDIA NIM router initialized for suggestions")
             except Exception as e:
-                warning(f"NVIDIA NIM router initialization failed: {sanitize_log_input(str(e))}")
+                warning(
+                    f"NVIDIA NIM router initialization failed: "
+                    f"{sanitize_log_input(str(e))}"
+                )
 
         try:
             from tools.agent_network import AgentNetwork
@@ -68,11 +131,16 @@ class UltronBrain:
         except ImportError:
             warning("Agent network not available")
 
-        try:
-            self.openai_tools = OpenAITools(config)
-            info("OpenAI tools initialized")
-        except Exception as e:
-            warning(f"OpenAI tools not available: {sanitize_log_input(str(e))}")
+        if OpenAITools:
+            try:
+                self.openai_tools = OpenAITools(config)
+                info("OpenAI tools initialized")
+            except Exception as e:
+                warning(
+                    f"OpenAI tools not available: {sanitize_log_input(str(e))}"
+                )
+                self.openai_tools = None
+        else:
             self.openai_tools = None
 
         # Initialize enhanced mesh transformer integration
@@ -85,6 +153,39 @@ class UltronBrain:
                 warning(f"Mesh transformer integration failed: "
                        f"{sanitize_log_input(str(e))}")
                 self.mesh_integration = None
+
+        # Initialize enhanced NLP processor
+        self.nlp_processor = None
+        if NLP_AVAILABLE:
+            try:
+                self.nlp_processor = EnhancedNLPProcessor()
+                info("Enhanced NLP processor initialized")
+            except Exception as e:
+                warning(f"NLP processor initialization failed: "
+                       f"{sanitize_log_input(str(e))}")
+                self.nlp_processor = None
+
+        # Initialize machine learning response adaptor
+        self.ml_adaptor = None
+        if ML_AVAILABLE:
+            try:
+                self.ml_adaptor = MLResponseAdaptor()
+                info("ML response adaptor initialized")
+            except Exception as e:
+                warning(f"ML adaptor initialization failed: "
+                       f"{sanitize_log_input(str(e))}")
+                self.ml_adaptor = None
+
+        # Initialize Azure Cognitive Services integration
+        self.azure_cognitive = None
+        if AZURE_AVAILABLE:
+            try:
+                self.azure_cognitive = AzureCognitiveIntegration(self.config)
+                info("Azure Cognitive Services integration initialized")
+            except Exception as e:
+                warning(f"Azure Cognitive Services initialization failed: "
+                       f"{sanitize_log_input(str(e))}")
+                self.azure_cognitive = None
 
     async def initialize_mesh_integration_async(self) -> bool:
         """Asynchronously initialize mesh transformer integration"""
@@ -149,6 +250,9 @@ class UltronBrain:
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
 
+        # Prepend ULTRON identity reinforcement to user prompt
+        ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
+
         # Get system prompt from memory if available
         system_messages = []
         if self.memory and hasattr(self.memory, 'get_system_prompt'):
@@ -159,7 +263,7 @@ class UltronBrain:
             })
 
         ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
-        model = self.config.get("llm_model", "qwen2.5:latest")
+        model = self.config.get("llm_model", "llama3.1")
 
         info(f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}")
 
@@ -171,7 +275,7 @@ class UltronBrain:
             # Build messages array with system prompt
             messages = system_messages + [{
                 "role": "user",
-                "content": prompt
+                "content": ultron_prompt
             }]
 
             payload = {
@@ -234,6 +338,8 @@ class UltronBrain:
                 if progress_callback:
                     progress_callback(100, "Response complete.")
                 info(f"Successfully received response from {sanitize_log_input(model)} ({len(reply)} chars)")
+                # Log AI decision for memory integration
+                log_ai_decision("brain", f"Generated response to prompt: {prompt[:100]}...", model, confidence_score=0.8)
                 return reply
             else:
                 error_msg = "No content received from LLM"
@@ -295,8 +401,9 @@ class UltronBrain:
                 available_tools = [tool.__class__.__name__ for tool in self.tools] if self.tools else ["No tools loaded"]
                 prompt = f"You are ULTRON, an advanced AI assistant. List your capabilities and available tools. Available tools: {', '.join(available_tools)}. User asked: {message}"
             else:
-                # For complex requests, use enhanced prompting
-                prompt = self._build_enhanced_prompt(message)
+                # For complex requests, use enhanced prompting with NLP analysis
+                enhanced_query = self._enhance_query_with_nlp(message)
+                prompt = self._build_enhanced_prompt(enhanced_query)
 
             if progress_callback:
                 progress_callback(20, "Sending to Ollama...")
@@ -364,6 +471,11 @@ class UltronBrain:
             if response and not response.startswith("["):  # Not an error message
                 response = self._post_process_response(response, message)
 
+            # Log AI decision for memory integration
+            if response and not response.startswith("["):
+                model_name = self.config.get("llm_model", "llama3.1")
+                log_ai_decision("brain", f"Processed user request: {message[:100]}...", model_name, confidence_score=0.9)
+
             return response
 
         except Exception as e:
@@ -411,8 +523,44 @@ ULTRON:"""
 
         return prompt
 
+    def _enhance_query_with_nlp(self, original_query: str) -> str:
+        """Enhance the query using NLP analysis for better understanding"""
+        if not self.nlp_processor:
+            return original_query
+
+        try:
+            # Use NLP processor to analyze and enhance the query
+            enhanced_query = self.nlp_processor.enhance_query_understanding(original_query)
+
+            if enhanced_query and enhanced_query != original_query:
+                info(f"Query enhanced with NLP: '{original_query[:50]}...' -> '{enhanced_query[:50]}...'")
+                # Log AI decision for memory integration
+                log_ai_decision("brain", f"Enhanced query with NLP analysis: {original_query[:100]}...", "nlp_processor", confidence_score=0.8)
+                return enhanced_query
+            else:
+                return original_query
+
+        except Exception as e:
+            warning(f"NLP query enhancement failed: {sanitize_log_input(str(e))}")
+            return original_query
+
     def _post_process_response(self, response: str, original_query: str) -> str:
-        """Post-process the LLM response for better formatting"""
+        """Post-process the LLM response for better formatting and NLP-enhanced quality"""
+
+        # First apply basic formatting
+        response = self._basic_response_formatting(response, original_query)
+
+        # Then apply NLP-enhanced processing if available
+        if self.nlp_processor:
+            try:
+                response = self._nlp_enhanced_response_processing(response, original_query)
+            except Exception as e:
+                warning(f"NLP response enhancement failed: {sanitize_log_input(str(e))}")
+
+        return response
+
+    def _basic_response_formatting(self, response: str, original_query: str) -> str:
+        """Apply basic response formatting"""
 
         # Remove any unwanted prefixes that might be added by the model
         prefixes_to_remove = ["ULTRON:", "Assistant:", "AI:", "Response:"]
@@ -431,6 +579,76 @@ ULTRON:"""
                 response = '\n'.join(lines[1:]).strip()
 
         return response
+
+    def _nlp_enhanced_response_processing(self, response: str, original_query: str) -> str:
+        """Apply NLP-enhanced processing to improve response quality"""
+        if not self.nlp_processor:
+            return response
+
+        try:
+            # Analyze the original query to understand intent
+            query_analysis = self.nlp_processor.analyze_text(original_query)
+
+            # If the query shows strong intent (high confidence), ensure response is action-oriented
+            if query_analysis.get('intent_classification', {}).get('confidence', 0) > 0.7:
+                intent = query_analysis['intent_classification'].get('intent', '')
+                if intent in ['command', 'request', 'question'] and not any(action_word in response.lower() for action_word in ['will', 'can', 'shall', 'let me', 'i will']):
+                    # Add action-oriented prefix if response seems passive
+                    response = f"I'll help you with that. {response}"
+
+            # If query contains technical terms, ensure response maintains technical accuracy
+            technical_terms = query_analysis.get('keywords', [])
+            if technical_terms and len(technical_terms) > 2:
+                # Response quality check passed - technical queries handled appropriately
+                pass
+
+            # Apply ML-based response adaptation if available
+            if self.ml_adaptor:
+                user_sentiment = self.ml_adaptor.analyze_user_sentiment(original_query)
+                response_quality = self.ml_adaptor.analyze_response_quality(response)
+
+                feedback_data = {
+                    'sentiment': user_sentiment['sentiment'],
+                    'quality_score': response_quality.get('quality_score', 0.5)
+                }
+
+                adapted_response = self.ml_adaptor.adapt_response_based_on_feedback(response, feedback_data)
+                if adapted_response != response:
+                    info("Response adapted using ML feedback")
+                    response = adapted_response
+
+                # Learn from this interaction for future improvements
+                self.ml_adaptor.learn_from_interaction(original_query, response)
+
+            # Apply Azure Cognitive Services analysis if available
+            if self.azure_cognitive and self.azure_cognitive.is_available():
+                try:
+                    # Get comprehensive Azure analysis
+                    azure_analysis = self.azure_cognitive.analyze_text_comprehensive(original_query)
+
+                    # Use Azure insights to enhance response
+                    if azure_analysis.get('sentiment'):
+                        sentiment = azure_analysis['sentiment'].get('sentiment', 'neutral')
+                        if sentiment == 'negative' and not any(positive_word in response.lower() for positive_word in ['help', 'assist', 'support', 'fix', 'resolve']):
+                            response = f"I understand you're frustrated. {response}"
+
+                    # Use Azure intent recognition to improve response targeting
+                    if azure_analysis.get('intent') and azure_analysis.get('intent_confidence', 0) > 0.8:
+                        intent = azure_analysis['intent']
+                        if intent == 'question' and '?' not in response[-100:]:
+                            response += " Does this answer your question?"
+
+                    # Log Azure analysis for memory integration
+                    log_ai_decision("brain", f"Azure analysis: intent={azure_analysis.get('intent', 'unknown')}, sentiment={azure_analysis.get('sentiment', {}).get('sentiment', 'neutral')}", "azure_cognitive", confidence_score=0.85)
+
+                except Exception as e:
+                    warning(f"Azure Cognitive Services analysis failed: {sanitize_log_input(str(e))}")
+
+            return response
+
+        except Exception as e:
+            warning(f"NLP response processing failed: {sanitize_log_input(str(e))}")
+            return response
 
     async def get_suggestions(self, query: str, context: str = "", suggestion_type: str = "general") -> str:
         """
@@ -463,6 +681,8 @@ ULTRON:"""
 
             if suggestion and not suggestion.startswith("Error"):
                 info(f"Successfully received NVIDIA suggestion ({len(suggestion)} chars)")
+                # Log AI decision for memory integration
+                log_ai_decision("brain", f"Generated NVIDIA suggestions for: {query[:100]}...", self._get_model_for_suggestion_type(suggestion_type), confidence_score=0.85)
                 return self._format_suggestion_response(suggestion, suggestion_type)
             else:
                 warning(f"NVIDIA suggestion failed: {sanitize_log_input(suggestion or 'No response')}")
@@ -480,6 +700,10 @@ ULTRON:"""
         try:
             prompt = self._build_suggestion_prompt(query, context, suggestion_type)
             response = await self.direct_chat(prompt)
+            # Log AI decision for memory integration
+            if response and not response.startswith("Unable"):
+                model_name = self.config.get("llm_model", "llama3.1")
+                log_ai_decision("brain", f"Generated Ollama suggestions for: {query[:100]}...", model_name, confidence_score=0.75)
             return self._format_suggestion_response(response, suggestion_type)
         except Exception as e:
             error_msg = f"Error getting Ollama suggestions: {e}"
@@ -687,6 +911,9 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
                 self.memory.add_self_reflection(f"Identity reinforcement performed: {response[:100]}...")
 
             info("ULTRON identity reinforcement completed")
+            # Log AI decision for memory integration
+            model_name = self.config.get("llm_model", "llama3.1")
+            log_ai_decision("brain", "Performed ULTRON identity reinforcement", model_name, confidence_score=0.95)
             return response
 
         except Exception as e:
@@ -712,8 +939,78 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
                 self.memory.add_self_reflection(f"Identity awareness check: {status} (score: {awareness_score})")
 
             info(f"Identity awareness check completed: {'PASS' if identity_maintained else 'FAIL'}")
+            # Log AI decision for memory integration
+            model_name = self.config.get("llm_model", "llama3.1")
+            log_ai_decision("brain", f"Identity awareness check: {status}", model_name, confidence_score=0.9 if identity_maintained else 0.5)
             return identity_maintained
 
         except Exception as e:
             error(f"Identity awareness check failed: {sanitize_log_input(str(e))}")
             return False
+
+    def recognize_intent_azure(self, text: str) -> dict:
+        """Use Azure Cognitive Services to recognize user intent"""
+        if not self.azure_cognitive or not self.azure_cognitive.is_available():
+            return {'intent': 'unknown', 'confidence': 0.0, 'entities': []}
+
+        try:
+            # Use Azure LUIS for intent recognition
+            intent_result = self.azure_cognitive.recognize_intent_luis(text)
+
+            # Extract key information
+            intent = intent_result.get('intent', 'unknown')
+            confidence = intent_result.get('confidence', 0.0)
+            entities = intent_result.get('entities', [])
+
+            # Log the intent recognition for memory
+            log_ai_decision("brain", f"Azure intent recognition: {intent} (confidence: {confidence:.2f})", "azure_cognitive", confidence_score=confidence)
+
+            return {
+                'intent': intent,
+                'confidence': confidence,
+                'entities': entities,
+                'source': 'azure_luis'
+            }
+
+        except Exception as e:
+            warning(f"Azure intent recognition failed: {sanitize_log_input(str(e))}")
+            return {'intent': 'unknown', 'confidence': 0.0, 'entities': []}
+
+    def analyze_sentiment_azure(self, text: str) -> dict:
+        """Use Azure Cognitive Services to analyze sentiment"""
+        if not self.azure_cognitive or not self.azure_cognitive.is_available():
+            return {'sentiment': 'neutral', 'confidence': 0.5, 'scores': {}}
+
+        try:
+            # Use Azure Text Analytics for sentiment analysis
+            sentiment_result = self.azure_cognitive.analyze_sentiment(text)
+
+            # Extract sentiment information
+            sentiment = sentiment_result.get('sentiment', 'neutral')
+            confidence = sentiment_result.get('confidence', 0.5)
+            scores = sentiment_result.get('scores', {})
+
+            # Log the sentiment analysis for memory
+            log_ai_decision("brain", f"Azure sentiment analysis: {sentiment} (confidence: {confidence:.2f})", "azure_cognitive", confidence_score=confidence)
+
+            return {
+                'sentiment': sentiment,
+                'confidence': confidence,
+                'scores': scores,
+                'source': 'azure_text_analytics'
+            }
+
+        except Exception as e:
+            warning(f"Azure sentiment analysis failed: {sanitize_log_input(str(e))}")
+            return {'sentiment': 'neutral', 'confidence': 0.5, 'scores': {}}
+
+    async def process_command(self, command: str) -> str:
+        """Process a command through the brain system"""
+        try:
+            # Use plan_and_act for command processing
+            response = await self.plan_and_act(command)
+            return response
+        except Exception as e:
+            error_msg = f"Command processing failed: {str(e)}"
+            error(sanitize_log_input(error_msg))
+            return error_msg

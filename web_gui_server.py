@@ -10,6 +10,7 @@ import json
 import logging
 import threading
 import asyncio
+import tempfile
 from pathlib import Path
 from typing import Dict, Any, Optional
 import http.server
@@ -24,7 +25,7 @@ try:
     AGENT_AVAILABLE = True
 except ImportError:
     AGENT_AVAILABLE = False
-    logging.warning("Agent core not available - web_gui_server.py:27")
+    logging.warning("Agent core not available - web_gui_server.py:28")
 
 # Import voice system for TTS
 try:
@@ -32,44 +33,90 @@ try:
     VOICE_AVAILABLE = True
 except ImportError:
     VOICE_AVAILABLE = False
-    logging.warning("Voice system not available - TTS disabled")
+    logging.warning("Voice system not available  TTS disabled - web_gui_server.py:36")
 
 # Load configuration for voice
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'ultron_config.json')
+
 try:
-    with open('ultron_config.json', 'r') as f:
+    with open(CONFIG_PATH, 'r') as f:
         config = json.load(f)
 except FileNotFoundError:
     config = {"use_voice": False, "voice_enabled": False}
+
+
+def persist_config_updates(updates: Dict[str, Any]) -> None:
+    """Persist configuration updates to ultron_config.json."""
+    global config
+
+    if not updates:
+        return
+
+    try:
+        current_config: Dict[str, Any] = {}
+        if os.path.exists(CONFIG_PATH):
+            with open(CONFIG_PATH, 'r') as config_file:
+                current_config = json.load(config_file)
+
+        current_config.update(updates)
+
+        with open(CONFIG_PATH, 'w') as config_file:
+            json.dump(current_config, config_file, indent=2)
+
+        config.update(current_config)
+    except Exception as persist_error:
+        logging.warning(f"Failed to persist config updates: {persist_error} - web_gui_server.py:68")
 
 class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     """Custom handler for ULTRON web interface"""
 
     # Class variable to store current model preference
-    current_model_preference = 'qwen3-coder:480b-cloud'
+    current_model_preference = 'llava:7b'
 
     # Class variable for voice assistant
     voice_assistant = None
 
+    # Voice state shared across handler instances
+    voice_state = {
+        'enabled': config.get("use_voice", False) and config.get("voice_enabled", False),
+        'listening': False
+    }
+
     def __init__(self, *args, agent_ref=None, **kwargs):
         self.agent_ref = agent_ref
 
+        # Load model preference from config
+        try:
+            with open(CONFIG_PATH, 'r') as f:
+                config_data = json.load(f)
+                UltronWebHandler.current_model_preference = config_data.get(
+                    'llm_model', 'llava:7b'
+                )
+                UltronWebHandler.voice_state['enabled'] = bool(
+                    config_data.get("use_voice", False) and config_data.get("voice_enabled", False)
+                )
+                config.update(config_data)
+        except Exception as e:
+            logging.warning(f"Could not load model from config: {e} - web_gui_server.py:100")
+
         # Initialize voice assistant if not already done and if enabled
-        if (UltronWebHandler.voice_assistant is None and
-            VOICE_AVAILABLE and
-            config.get("use_voice", False) and
-            config.get("voice_enabled", False)):
+        if (
+            UltronWebHandler.voice_assistant is None
+            and VOICE_AVAILABLE
+            and UltronWebHandler.voice_state.get('enabled', False)
+        ):
             try:
                 UltronWebHandler.voice_assistant = VoiceAssistant(config)
-                logging.info("Voice Assistant initialized for TTS support")
+                logging.info("Voice Assistant initialized for TTS support - web_gui_server.py:110")
             except Exception as e:
-                logging.warning(f"Failed to initialize voice assistant: {e}")
+                logging.warning(f"Failed to initialize voice assistant: {e} - web_gui_server.py:112")
                 UltronWebHandler.voice_assistant = None
 
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
         """Handle GET requests"""
-        logging.info(f"GET request: {self.path} - web_gui_server.py:41")
+        logging.info(f"GET request: {self.path} - web_gui_server.py:119")
 
         if self.path.startswith('/api/'):
             self._handle_api_get()
@@ -81,7 +128,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         """Handle POST requests"""
-        logging.info(f"POST request: {self.path} - web_gui_server.py:53")
+        logging.info(f"POST request: {self.path} - web_gui_server.py:131")
 
         if self.path.startswith('/api/'):
             self._handle_api_post()
@@ -92,6 +139,8 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         """Handle API GET requests"""
         try:
             if self.path == '/api/status':
+                self._send_json_response(self._get_system_status())
+            elif self.path == '/api/system/stats':
                 self._send_json_response(self._get_system_status())
             elif self.path == '/api/agent/info':
                 self._send_json_response(self._get_agent_info())
@@ -107,11 +156,15 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json_response(self._get_brain_status())
             elif self.path == '/api/files':
                 self._send_json_response(self._get_files_list())
+            elif self.path == '/api/vision/recent':
+                self._send_json_response(self._get_vision_recent())
+            elif self.path == '/api/nvidia/status':
+                self._send_json_response(self._get_nvidia_status())
             else:
                 self.send_error(404, "API endpoint not found")
 
         except Exception as e:
-            logging.error(f"API GET error: {e} - web_gui_server.py:83")
+            logging.error(f"API GET error: {e} - web_gui_server.py:165")
             self.send_error(500, str(e))
 
     def _handle_api_post(self):
@@ -125,8 +178,17 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 response = self._process_command(data.get('command', ''))
                 self._send_json_response({'response': response})
             elif self.path == '/api/voice/toggle':
-                response = self._toggle_voice()
+                response = self._toggle_voice(data)
                 self._send_json_response(response)
+            elif self.path == '/api/voice/speak':
+                audio_bytes, content_type, error_payload = self._speak_text(data.get('text', ''))
+                if audio_bytes:
+                    self._send_audio_response(audio_bytes, content_type)
+                else:
+                    self._send_json_response(error_payload or {
+                        'status': 'error',
+                        'message': 'Voice synthesis unavailable'
+                    }, status=503)
             elif self.path == '/api/llm/chat':
                 response = self._handle_llm_chat(data.get('message', ''))
                 self._send_json_response(response)
@@ -136,22 +198,48 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             elif self.path == '/api/vision/capture':
                 response = self._capture_screen()
                 self._send_json_response(response)
+            elif self.path == '/api/vision/analyze':
+                response = self._analyze_vision()
+                self._send_json_response(response)
             else:
                 self.send_error(404, "API endpoint not found")
 
+        except ConnectionAbortedError as e:
+            # Client disconnected before receiving response - not an error
+            logging.debug(f"Client disconnected during API POST: {e} - web_gui_server.py:206")
+        except ConnectionResetError as e:
+            # Client reset connection - not an error
+            logging.debug(f"Client reset connection during API POST: {e} - web_gui_server.py:208")
         except Exception as e:
-            logging.error(f"API POST error: {e} - web_gui_server.py:112")
-            self.send_error(500, str(e))
+            logging.error(f"API POST error: {e} - web_gui_server.py:210")
+            try:
+                self.send_error(500, str(e))
+            except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+                # Can't send error if client already disconnected
+                pass
 
-    def _send_json_response(self, data):
+    def _send_json_response(self, data, status=200):
         """Send JSON response"""
-        response = json.dumps(data, indent=2)
+        try:
+            response = json.dumps(data, indent=2)
+            self.send_response(status)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', len(response))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError) as e:
+            # Client disconnected before receiving full response - log as debug, not error
+            logging.debug(f"Client disconnected during JSON response: {e} - web_gui_server.py:227")
+
+    def _send_audio_response(self, audio_bytes: bytes, content_type: str):
+        """Send binary audio response"""
         self.send_response(200)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', len(response))
+        self.send_header('Content-Type', content_type)
+        self.send_header('Content-Length', str(len(audio_bytes)))
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(response.encode('utf-8'))
+        self.wfile.write(audio_bytes)
 
     def _get_system_status(self):
         """Get system status information"""
@@ -240,21 +328,169 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 return "❌ Agent command processing not available"
 
         except Exception as e:
-            logging.error(f"Command processing error: {e} - web_gui_server.py:212")
+            logging.error(f"Command processing error: {e} - web_gui_server.py:315")
             return f"❌ Error: {str(e)}"
 
-    def _toggle_voice(self):
-        """Toggle voice listening"""
+    def _toggle_voice(self, payload: Optional[Dict[str, Any]] = None):
+        """Toggle voice listening and persist configuration."""
         try:
-            # Basic implementation - just acknowledge the toggle
-            # In a full implementation, this would start/stop speech recognition
+            desired_state = None
+            if isinstance(payload, dict):
+                if 'enable' in payload:
+                    desired_state = bool(payload.get('enable'))
+                elif 'voice_enabled' in payload:
+                    desired_state = bool(payload.get('voice_enabled'))
+
+            if desired_state is None:
+                desired_state = not UltronWebHandler.voice_state.get('enabled', False)
+
+            if not VOICE_AVAILABLE:
+                return {
+                    'status': 'error',
+                    'message': 'Voice subsystem unavailable on server',
+                    'voice_enabled': False
+                }
+
+            if desired_state and UltronWebHandler.voice_assistant is None:
+                try:
+                    UltronWebHandler.voice_assistant = VoiceAssistant(config)
+                    logging.info("Voice assistant initialized during toggle request - web_gui_server.py:341")
+                except Exception as init_error:
+                    logging.error(f"Voice assistant initialization failed: {init_error} - web_gui_server.py:343")
+                    return {
+                        'status': 'error',
+                        'message': f'Voice initialization failed: {init_error}',
+                        'voice_enabled': False
+                    }
+
+            UltronWebHandler.voice_state['enabled'] = desired_state
+            UltronWebHandler.voice_state['listening'] = False
+
+            persist_config_updates({
+                'voice_enabled': desired_state,
+                'use_voice': desired_state or config.get('use_voice', False)
+            })
+
+            status_label = 'enabled' if desired_state else 'disabled'
+            message = 'Voice chat enabled' if desired_state else 'Voice chat disabled'
+
             return {
-                'status': 'success',
-                'message': 'Voice toggle received (basic implementation)',
-                'voice_enabled': True
+                'status': status_label,
+                'message': message,
+                'voice_enabled': desired_state,
+                'listening': UltronWebHandler.voice_state['listening'],
+                'tts_ready': UltronWebHandler.voice_assistant is not None
             }
         except Exception as e:
-            return {'status': 'error', 'message': f'Voice toggle failed: {str(e)}'}
+            logging.error(f"Voice toggle failed: {e} - web_gui_server.py:369")
+            return {
+                'status': 'error',
+                'message': f'Voice toggle failed: {str(e)}',
+                'voice_enabled': UltronWebHandler.voice_state.get('enabled', False)
+            }
+
+    def _speak_text(self, text: str):
+        """Generate audio for provided text using available TTS engines"""
+        normalized_text = (text or '').strip()
+        if not normalized_text:
+            logging.debug("Voice synthesis requested with empty text - web_gui_server.py:380")
+            return None, None, {
+                'status': 'error',
+                'message': 'No text provided for synthesis'
+            }
+
+        if UltronWebHandler.voice_assistant is None:
+            logging.warning("Voice assistant requested but not initialized - web_gui_server.py:387")
+            return None, None, {
+                'status': 'error',
+                'message': 'Voice assistant not available'
+            }
+
+        voice_assistant = UltronWebHandler.voice_assistant
+        cleaned_text = normalized_text
+
+        try:
+            if hasattr(voice_assistant, '_clean_speech_text'):
+                cleaned_text = voice_assistant._clean_speech_text(normalized_text)
+        except Exception as clean_error:
+            logging.debug(f"Text cleaning failed, continuing with original text: {clean_error} - web_gui_server.py:400")
+
+        cache_path = None
+        if not config.get("disable_tts_cache", False) and hasattr(voice_assistant, '_get_cache_path'):
+            try:
+                cache_path = voice_assistant._get_cache_path(cleaned_text)
+                if cache_path and cache_path.exists():
+                    logging.debug("Serving voice synthesis from cache - web_gui_server.py:407")
+                    return cache_path.read_bytes(), 'audio/mpeg', None
+            except Exception as cache_error:
+                logging.debug(f"Voice cache lookup failed: {cache_error} - web_gui_server.py:410")
+
+        elevenlabs_client = getattr(voice_assistant, 'elevenlabs_client', None)
+        preferred_voice_id = getattr(voice_assistant, 'preferred_voice_id', None)
+
+        if elevenlabs_client and preferred_voice_id:
+            try:
+                logging.info("Generating ElevenLabs voice audio - web_gui_server.py:417")
+                elevenlabs_response = elevenlabs_client.text_to_speech.convert(
+                    text=cleaned_text,
+                    voice_id=preferred_voice_id,
+                    model_id="eleven_multilingual_v2"
+                )
+
+                if hasattr(voice_assistant, '_collect_audio_bytes'):
+                    audio_bytes = voice_assistant._collect_audio_bytes(elevenlabs_response)
+                else:
+                    audio_bytes = elevenlabs_response if isinstance(elevenlabs_response, (bytes, bytearray)) else b""
+
+                if not isinstance(audio_bytes, (bytes, bytearray)):
+                    try:
+                        audio_bytes = b"".join(
+                            chunk
+                            for chunk in audio_bytes
+                            if isinstance(chunk, (bytes, bytearray))
+                        )
+                    except TypeError:
+                        audio_bytes = bytes(audio_bytes)
+
+                audio_bytes = bytes(audio_bytes)
+                if not audio_bytes:
+                    raise ValueError("Empty ElevenLabs audio payload")
+
+                if cache_path:
+                    try:
+                        cache_path.parent.mkdir(parents=True, exist_ok=True)
+                        cache_path.write_bytes(audio_bytes)
+                    except Exception as cache_write_error:
+                        logging.debug(f"Unable to cache ElevenLabs audio: {cache_write_error} - web_gui_server.py:448")
+                return audio_bytes, 'audio/mpeg', None
+            except Exception as elevenlabs_error:
+                logging.warning(f"ElevenLabs synthesis failed: {elevenlabs_error} - web_gui_server.py:451")
+
+        tts_engine = getattr(voice_assistant, 'tts_engine', None)
+        if tts_engine:
+            try:
+                logging.info("Generating fallback TTS audio - web_gui_server.py:456")
+                fd, tmp_path = tempfile.mkstemp(suffix='.wav')
+                os.close(fd)
+                try:
+                    tts_engine.save_to_file(cleaned_text, tmp_path)
+                    tts_engine.runAndWait()
+                    with open(tmp_path, 'rb') as tmp_file:
+                        audio_bytes = tmp_file.read()
+                finally:
+                    try:
+                        os.remove(tmp_path)
+                    except OSError:
+                        pass
+                return audio_bytes, 'audio/wav', None
+            except Exception as fallback_error:
+                logging.error(f"Fallback TTS synthesis failed: {fallback_error} - web_gui_server.py:471")
+
+        logging.error("Voice synthesis unavailable - web_gui_server.py:473")
+        return None, None, {
+            'status': 'error',
+            'message': 'Voice synthesis unavailable'
+        }
 
     def _get_llm_status(self):
         """Get LLM status from Ollama"""
@@ -327,14 +563,18 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         """Get voice system status"""
         voice_available = UltronWebHandler.voice_assistant is not None
         voice_config_enabled = config.get("use_voice", False) and config.get("voice_enabled", False)
+        voice_enabled = UltronWebHandler.voice_state.get('enabled', voice_config_enabled)
+        listening = UltronWebHandler.voice_state.get('listening', False)
 
         return {
-            'status': 'available' if voice_available else 'disabled',
-            'input_enabled': voice_available and voice_config_enabled,
-            'output_enabled': voice_available and voice_config_enabled,
+            'status': 'listening' if listening else ('enabled' if voice_enabled else 'disabled'),
+            'input_enabled': voice_available and voice_enabled,
+            'output_enabled': voice_available and voice_enabled,
+            'listening': listening,
             'tts_ready': voice_available,
             'provider': 'elevenlabs' if voice_available else 'system_default',
-            'config_enabled': voice_config_enabled
+            'config_enabled': voice_config_enabled,
+            'voice_enabled': voice_enabled
         }
 
     def _get_brain_status(self):
@@ -361,6 +601,65 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             return {'error': str(e)}
 
+    def _get_nvidia_status(self):
+        """Check NVIDIA Enhanced Chat service status on port 8002"""
+        try:
+            import socket
+            import requests
+
+            nvidia_host = "localhost"
+            nvidia_port = 8002
+
+            # Try socket check first (faster)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            socket_result = sock.connect_ex((nvidia_host, nvidia_port))
+            sock.close()
+
+            if socket_result == 0:
+                # Port is open, try to get health info
+                try:
+                    response = requests.get(
+                        f"http://{nvidia_host}:{nvidia_port}/health",
+                        timeout=3
+                    )
+                    if response.status_code == 200:
+                        return {
+                            'status': 'online',
+                            'port': nvidia_port,
+                            'url': f"http://{nvidia_host}:{nvidia_port}",
+                            'health': response.json() if response.text else {'status': 'ok'}
+                        }
+                    else:
+                        return {
+                            'status': 'online',
+                            'port': nvidia_port,
+                            'url': f"http://{nvidia_host}:{nvidia_port}",
+                            'health': {'status': 'responding'}
+                        }
+                except requests.RequestException:
+                    # Port open but no valid response
+                    return {
+                        'status': 'port_open',
+                        'port': nvidia_port,
+                        'url': f"http://{nvidia_host}:{nvidia_port}",
+                        'message': 'Port is open but service not responding'
+                    }
+            else:
+                return {
+                    'status': 'offline',
+                    'port': nvidia_port,
+                    'url': f"http://{nvidia_host}:{nvidia_port}",
+                    'message': 'NVIDIA service not running'
+                }
+        except Exception as e:
+            return {
+                'status': 'error',
+                'port': 8002,
+                'error': str(e),
+                'message': 'Failed to check NVIDIA service status'
+            }
+
     def _handle_llm_chat(self, message: str):
         """Handle LLM chat message"""
         try:
@@ -379,7 +678,10 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 try:
                     async with aiohttp.ClientSession() as session:
                         # Get available models
-                        async with session.get(f"{ollama_url}/api/tags", timeout=aiohttp.ClientTimeout(total=10)) as models_response:
+                        async with session.get(
+                            f"{ollama_url}/api/tags",
+                            timeout=aiohttp.ClientTimeout(total=10)
+                        ) as models_response:
                             if models_response.status != 200:
                                 return {'error': 'Cannot connect to Ollama'}
 
@@ -388,11 +690,22 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                             if not models:
                                 return {'error': 'No models available'}
 
-                            # Use stored model preference, fallback to first available model
-                            available_models = [model['name'] for model in models]
-                            current_model = self.current_model_preference
-                            if current_model not in available_models:
-                                current_model = available_models[0]
+                            available_models = [model['name'] for model in models if model.get('name')]
+                            preferred_model = self.current_model_preference
+                            preferred_available = preferred_model in available_models
+
+                            models_to_try = []
+                            if preferred_model:
+                                models_to_try.append(preferred_model)
+
+                            fallback_model = None
+                            if not preferred_available and available_models:
+                                fallback_model = available_models[0]
+                                if fallback_model not in models_to_try:
+                                    models_to_try.append(fallback_model)
+
+                            if not models_to_try:
+                                return {'error': 'No models available to satisfy request'}
 
                         # Send chat message
                         messages = []
@@ -410,64 +723,112 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                             "content": message
                         })
 
-                        chat_data = {
-                            "model": current_model,
-                            "messages": messages,
-                            "stream": False
-                        }
-
                         headers = {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         }
-                        async with session.post(
-                            f"{ollama_url}/api/chat",
-                            json=chat_data,
-                            headers=headers,
-                            timeout=aiohttp.ClientTimeout(total=120)
-                        ) as response:
-                            if response.status == 200:
-                                # Handle different content types
-                                content_type = response.headers.get('content-type', '')
-                                logging.info(f"Response content-type: {content_type}")
+                        errors = []
 
-                                if 'application/json' in content_type:
-                                    result = await response.json()
-                                else:
-                                    # Handle text/plain response
-                                    text_response = await response.text()
-                                    logging.info(f"Raw text response: {text_response[:200]}...")
-                                    try:
-                                        import json
-                                        result = json.loads(text_response)
-                                    except json.JSONDecodeError:
-                                        return {'error': f'Invalid JSON response: {text_response[:100]}...'}
+                        for model_name in models_to_try:
+                            chat_data = {
+                                "model": model_name,
+                                "messages": messages,
+                                "stream": False
+                            }
 
-                                ai_response = result.get('message', {}).get('content', 'No response')
-                                # Debug logging
-                                logging.info(f"Chat response from {current_model}: {ai_response[:100]}... - web_gui_server.py:374" if len(ai_response) > 100 else f"Chat response from {current_model}: {ai_response}")
+                            try:
+                                async with session.post(
+                                    f"{ollama_url}/api/chat",
+                                    json=chat_data,
+                                    headers=headers,
+                                    timeout=aiohttp.ClientTimeout(total=120)
+                                ) as response:
+                                    if response.status == 200:
+                                        content_type = response.headers.get('content-type', '')
+                                        logging.info(f"Response contenttype: {content_type} - web_gui_server.py:673")
 
-                                # Add TTS support - speak the AI response
-                                if (UltronWebHandler.voice_assistant and
-                                    config.get("use_voice", False) and
-                                    config.get("voice_enabled", False)):
-                                    try:
-                                        # Use threading to avoid blocking the response
-                                        def speak_response():
+                                        if 'application/json' in content_type:
+                                            result = await response.json()
+                                        else:
+                                            text_response = await response.text()
+                                            logging.info(f"Raw text response: {text_response[:200]}... - web_gui_server.py:679")
                                             try:
-                                                UltronWebHandler.voice_assistant.speak(ai_response)
-                                            except Exception as e:
-                                                logging.warning(f"TTS failed: {e}")
+                                                import json
+                                                result = json.loads(text_response)
+                                            except json.JSONDecodeError:
+                                                return {'error': f'Invalid JSON response: {text_response[:100]}...'}
 
-                                        tts_thread = threading.Thread(target=speak_response, daemon=True)
-                                        tts_thread.start()
-                                        logging.info("TTS initiated for AI response")
-                                    except Exception as e:
-                                        logging.warning(f"Failed to start TTS: {e}")
+                                        ai_response = result.get('message', {}).get('content', 'No response')
+                                        logging.info(
+                                            f"Chat response from {model_name}: {ai_response[:100]}..."
+                                            if len(ai_response) > 100
+                                            else f"Chat response from {model_name}: {ai_response}"
+                                        )
 
-                                return {'response': ai_response, 'model': current_model, 'tts_enabled': UltronWebHandler.voice_assistant is not None}
-                            else:
-                                return {'error': f'Ollama error: {response.status}'}
+                                        if (
+                                            UltronWebHandler.voice_assistant and
+                                            config.get("use_voice", False) and
+                                            config.get("voice_enabled", False)
+                                        ):
+                                            try:
+                                                def speak_response():
+                                                    try:
+                                                        UltronWebHandler.voice_assistant.speak(ai_response)
+                                                    except Exception as tts_error:
+                                                        logging.warning(f"TTS failed: {tts_error} - web_gui_server.py:703")
+
+                                                tts_thread = threading.Thread(target=speak_response, daemon=True)
+                                                tts_thread.start()
+                                                logging.info("TTS initiated for AI response - web_gui_server.py:707")
+                                            except Exception as tts_thread_error:
+                                                logging.warning(f"Failed to start TTS: {tts_thread_error} - web_gui_server.py:709")
+
+                                        payload = {
+                                            'response': ai_response,
+                                            'model': model_name,
+                                            'tts_enabled': UltronWebHandler.voice_assistant is not None,
+                                            'preferred_model': preferred_model,
+                                            'preferred_available': preferred_available
+                                        }
+
+                                        if not preferred_available and model_name != preferred_model and fallback_model:
+                                            payload['warning'] = (
+                                                f'Preferred model "{preferred_model}" not available in Ollama. '
+                                                f'Using fallback "{model_name}".'
+                                            )
+
+                                        if errors:
+                                            payload['previous_errors'] = errors
+
+                                        return payload
+
+                                    error_body = await response.text()
+                                    errors.append({
+                                        'model': model_name,
+                                        'status': response.status,
+                                        'message': error_body[:200]
+                                    })
+
+                            except asyncio.TimeoutError:
+                                errors.append({'model': model_name, 'error': 'timeout'})
+                            except Exception as post_error:
+                                errors.append({'model': model_name, 'error': str(post_error)})
+
+                        if not preferred_available and fallback_model:
+                            return {
+                                'error': (
+                                    f'Preferred model "{preferred_model}" is not loaded in Ollama and '
+                                    f'fallback model "{fallback_model}" failed.'
+                                ),
+                                'details': errors,
+                                'preferred_model': preferred_model
+                            }
+
+                        return {
+                            'error': 'All model attempts failed',
+                            'details': errors,
+                            'preferred_model': preferred_model
+                        }
 
                 except asyncio.TimeoutError:
                     return {'error': 'AI model took too long to respond. Try using a smaller/faster model.'}
@@ -477,11 +838,17 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                     return {'error': f'Request failed: {str(e)}'}
 
             try:
-                result = asyncio.run(chat_with_ollama())
-                logging.info(f"Final chat result: {result}")
-                return result
+                # Use a new event loop to avoid conflicts with existing loops
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(chat_with_ollama())
+                    logging.info(f"Final chat result: {result} - web_gui_server.py:771")
+                    return result
+                finally:
+                    loop.close()
             except Exception as e:
-                logging.error(f"Chat request failed with exception: {e}")
+                logging.error(f"Chat request failed with exception: {e} - web_gui_server.py:776")
                 return {'error': f'Chat request failed: {str(e)}'}
 
         except ImportError:
@@ -489,9 +856,42 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
     def _switch_llm_model(self, model_name: str):
         """Switch LLM model preference"""
-        # Store the model preference for future chat requests
-        UltronWebHandler.current_model_preference = model_name
-        return {'status': 'success', 'message': f'Model preference set to {model_name}'}
+        normalized_name = (model_name or '').strip()
+        if not normalized_name:
+            return {'status': 'error', 'message': 'Model name is required'}
+
+        try:
+            import requests
+
+            ollama_url = "http://localhost:11434"
+            response = requests.get(f"{ollama_url}/api/tags", timeout=5)
+            if response.status_code != 200:
+                return {'status': 'error', 'message': 'Unable to reach Ollama to verify models'}
+
+            data = response.json()
+            models = data.get('models', [])
+            available_names = [model.get('name') for model in models if model.get('name')]
+
+            if normalized_name not in available_names:
+                suggestions = ', '.join(available_names[:5]) if available_names else 'none available'
+                return {
+                    'status': 'error',
+                    'message': f'Model "{normalized_name}" not found. Available models: {suggestions}'
+                }
+
+        except Exception as lookup_error:
+            return {'status': 'error', 'message': f'Failed to verify model: {lookup_error}'}
+
+        UltronWebHandler.current_model_preference = normalized_name
+        persist_config_updates({'llm_model': normalized_name})
+
+        logging.info(f"LLM model preference switched to {normalized_name} - web_gui_server.py:813")
+
+        return {
+            'status': 'success',
+            'message': f'Model preference set to {normalized_name}',
+            'model': normalized_name
+        }
 
     def _capture_screen(self):
         """Capture screen and return image path"""
@@ -508,9 +908,77 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
+    def _analyze_vision(self):
+        """Analyze captured image using AI"""
+        try:
+            if self.agent_ref and hasattr(self.agent_ref, 'vision') and self.agent_ref.vision is not None:
+                # Get the latest screenshot
+                screenshots_dir = getattr(self.agent_ref.vision, 'screenshots_dir', 'screenshots')
+                if os.path.exists(screenshots_dir):
+                    screenshots = [f for f in os.listdir(screenshots_dir) if f.startswith('screenshot_') and f.endswith('.png')]
+                    if screenshots:
+                        # Get the most recent screenshot
+                        latest_screenshot = max(screenshots, key=lambda x: os.path.getctime(os.path.join(screenshots_dir, x)))
+                        image_path = os.path.join(screenshots_dir, latest_screenshot)
+
+                        # Use multimodal vision tool for analysis
+                        from tools.multimodal_vision_tool import MultimodalVisionTool
+                        vision_tool = MultimodalVisionTool()
+                        analysis = vision_tool.analyze_image(image_path)
+
+                        return {
+                            'success': True,
+                            'analysis': analysis,
+                            'image_path': image_path
+                        }
+                    else:
+                        return {'success': False, 'error': 'No screenshots found'}
+                else:
+                    return {'success': False, 'error': 'Screenshots directory not found'}
+            else:
+                return {'success': False, 'error': 'Vision component not available'}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+
+
+    def _get_vision_recent(self):
+        """Get recent vision analysis results"""
+        try:
+            recent_analyses = []
+
+            # Check for recent screenshots and analyses
+            screenshots_dir = 'screenshots'
+            if os.path.exists(screenshots_dir):
+                screenshots = [f for f in os.listdir(screenshots_dir) if f.startswith('screenshot_') and f.endswith('.png')]
+                if screenshots:
+                    # Get the 5 most recent screenshots
+                    recent_screenshots = sorted(screenshots, key=lambda x: os.path.getctime(os.path.join(screenshots_dir, x)), reverse=True)[:5]
+
+                    for screenshot in recent_screenshots:
+                        screenshot_path = os.path.join(screenshots_dir, screenshot)
+                        timestamp = datetime.fromtimestamp(os.path.getctime(screenshot_path)).isoformat()
+
+                        recent_analyses.append({
+                            'timestamp': timestamp,
+                            'image_path': screenshot_path,
+                            'filename': screenshot,
+                            'analyzed': False  # We don't track analysis status yet
+                        })
+
+            return {
+                'success': True,
+                'recent_analyses': recent_analyses,
+                'count': len(recent_analyses)
+            }
+
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+
     def log_message(self, format, *args):
         """Custom log format"""
-        logging.info(f"WEB {format % args} - web_gui_server.py:417")
+        logging.info(f"WEB {format % args} - web_gui_server.py:906")
 
 
 class UltronWebServer:
@@ -544,25 +1012,26 @@ class UltronWebServer:
             def handler_factory(*args, **kwargs):
                 return UltronWebHandler(*args, agent_ref=self.agent_ref, **kwargs)
 
-            # Create server
+            # Create server - bind to 0.0.0.0 for remote access
             socketserver.TCPServer.allow_reuse_address = True
-            self.server = socketserver.TCPServer(("", self.port), handler_factory)
+            self.server = socketserver.TCPServer(("0.0.0.0", self.port), handler_factory)
 
             self.logger.info(f"ULTRON Web Server starting on port {self.port}")
             self.logger.info(f"Serving from: {web_dir}")
             self.logger.info(f"Access GUI at: http://localhost:{self.port}")
+            self.logger.info(f"Remote access: http://YOUR_IP:{self.port}")
 
             # Start server in background thread
             self.running = True
             self.server_thread = threading.Thread(target=self._run_server, daemon=True)
             self.server_thread.start()
 
-            # Open browser
-            try:
-                webbrowser.open(f"http://localhost:{self.port}")
-                self.logger.info("Browser opened automatically")
-            except:
-                self.logger.warning("Could not open browser automatically")
+            # Browser opening is handled by run.bat - don't open here to avoid conflicts
+            # try:
+            #     webbrowser.open(f"http://localhost:{self.port}")
+            #     self.logger.info("Browser opened automatically")
+            # except:
+            #     self.logger.warning("Could not open browser automatically")
 
             return True
 
@@ -602,39 +1071,37 @@ class UltronWebServer:
 
 def main():
     """Main entry point for web GUI"""
-    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:509")
-    print("= - web_gui_server.py:510" * 50)
+    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:998")
+    print("= - web_gui_server.py:999" * 50)
 
     # Initialize agent if available
     agent = None
     if AGENT_AVAILABLE:
         try:
-            print("Initializing ULTRON Agent... - web_gui_server.py:516")
+            print("Initializing ULTRON Agent... - web_gui_server.py:1005")
             agent = UltronAgent()
-            # Use asyncio to properly initialize the agent
-            asyncio.run(agent.initialize())
-            print(f"Agent initialized with status: {agent.status} - web_gui_server.py:520")
+            print("Agent initialized successfully - web_gui_server.py:1007")
         except Exception as e:
-            print(f"Agent initialization failed: {e} - web_gui_server.py:522")
-            print("Starting web server without agent backend - web_gui_server.py:523")
+            print(f"Agent initialization failed: {e} - web_gui_server.py:1009")
+            print("Starting web server without agent backend - web_gui_server.py:1010")
     else:
-        print("Starting web server in standalone mode - web_gui_server.py:525")
+        print("Starting web server in standalone mode - web_gui_server.py:1012")
 
     # Create and start web server
     server = UltronWebServer(agent_ref=agent, port=8080)
 
     if server.start_server():
-        print("\nULTRON Web GUI is now running! - web_gui_server.py:531")
-        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:532")
-        print("Press Ctrl+C to stop - web_gui_server.py:533")
+        print("\nULTRON Web GUI is now running! - web_gui_server.py:1018")
+        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:1019")
+        print("Press Ctrl+C to stop - web_gui_server.py:1020")
 
         try:
             server.wait_for_shutdown()
         except KeyboardInterrupt:
-            print("\nShutting down... - web_gui_server.py:538")
+            print("\nShutting down... - web_gui_server.py:1025")
             server.stop_server()
     else:
-        print("Failed to start web server - web_gui_server.py:541")
+        print("Failed to start web server - web_gui_server.py:1028")
         return 1
 
     return 0
