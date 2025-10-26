@@ -3,7 +3,7 @@ ULTRON Agent 3.0 - Brain Module with Ollama Integration
 Handles AI reasoning, planning, and communication with Ollama models
 """
 
-from utils.ultron_logger import ultron_logger, log_info, log_error, log_ai_decision
+from utils.ultron_logger import log_info, log_error, log_ai_decision
 from os import path as os_path
 from json import loads as json_loads, load as json_load, dump as json_dump, JSONDecodeError
 from requests import get as requests_get
