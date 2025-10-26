@@ -2201,3 +2201,294 @@ if (document.readyState === 'loading') {
 window.addEventListener('beforeunload', () => {
     window.ultronInterface?.destroy?.();
 });
+
+/* ========================================
+   ULTRON HUD OVERLAY CONTROLLER
+   Enhanced Visual Interface System
+   ======================================== */
+
+class UltronHUDController {
+    constructor() {
+        this.hudActive = false;
+        this.gauges = {
+            cpu: { element: null, value: 0, rotation: 0 },
+            memory: { element: null, value: 0, rotation: 0 },
+            network: { element: null, value: 0, rotation: 0 },
+            response: { element: null, value: 0, rotation: 0 }
+        };
+        this.particles = [];
+        this.maxParticles = 30;
+        this.init();
+    }
+
+    init() {
+        console.log('[HUD] Initializing ULTRON HUD Overlay System');
+
+        // Cache DOM elements
+        this.hudOverlay = document.getElementById('ultron-hud');
+        if (!this.hudOverlay) {
+            console.warn('[HUD] HUD overlay element not found');
+            return;
+        }
+
+        // Initialize gauge elements
+        this.gauges.cpu.element = document.getElementById('cpu-gauge');
+        this.gauges.memory.element = document.getElementById('mem-gauge');
+        this.gauges.network.element = document.getElementById('net-gauge');
+        this.gauges.response.element = document.getElementById('resp-gauge');
+
+        // Setup control buttons
+        this.setupControls();
+
+        // Add ULTRON eyes element
+        this.createUltronEyes();
+
+        // Add metallic overlay
+        this.createMetallicOverlay();
+
+        // Start particle system
+        this.initParticles();
+
+        // Start update loop
+        this.startUpdateLoop();
+
+        // Add ring segments
+        this.addRingSegments();
+
+        console.log('[HUD] HUD Overlay System initialized');
+    }
+
+    createUltronEyes() {
+        const eyesContainer = document.createElement('div');
+        eyesContainer.className = 'ultron-eyes';
+        eyesContainer.id = 'ultron-eyes';
+        eyesContainer.innerHTML = `
+            <div class="eye eye-left"></div>
+            <div class="eye eye-right energy-blue"></div>
+        `;
+        document.body.appendChild(eyesContainer);
+    }
+
+    createMetallicOverlay() {
+        const overlay = document.createElement('div');
+        overlay.className = 'metallic-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    setupControls() {
+        // HUD Toggle (Power button)
+        const powerBtn = document.getElementById('hud-power');
+        if (powerBtn) {
+            powerBtn.addEventListener('click', () => this.toggleHUD());
+        }
+
+        // Settings
+        const settingsBtn = document.getElementById('hud-settings');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => this.openSettings());
+        }
+
+        // Radar
+        const radarBtn = document.getElementById('hud-radar');
+        if (radarBtn) {
+            radarBtn.addEventListener('click', () => this.toggleRadar());
+        }
+
+        // Data Analytics
+        const dataBtn = document.getElementById('hud-data');
+        if (dataBtn) {
+            dataBtn.addEventListener('click', () => this.toggleDataView());
+        }
+
+        // Communications
+        const commsBtn = document.getElementById('hud-comms');
+        if (commsBtn) {
+            commsBtn.addEventListener('click', () => this.toggleComms());
+        }
+
+        // Add keyboard shortcut: Ctrl+H to toggle HUD
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'h') {
+                e.preventDefault();
+                this.toggleHUD();
+            }
+        });
+    }
+
+    toggleHUD() {
+        this.hudActive = !this.hudActive;
+        if (this.hudOverlay) {
+            this.hudOverlay.style.display = this.hudActive ? 'block' : 'none';
+        }
+
+        // Toggle ULTRON eyes
+        const eyes = document.getElementById('ultron-eyes');
+        if (eyes) {
+            if (this.hudActive) {
+                eyes.classList.add('active');
+            } else {
+                eyes.classList.remove('active');
+            }
+        }
+
+        console.log(`[HUD] HUD ${this.hudActive ? 'activated' : 'deactivated'}`);
+
+        // Play sound effect if available
+        if (window.ultronInterface && window.ultronInterface.playSound) {
+            window.ultronInterface.playSound(this.hudActive ? 'activate' : 'deactivate');
+        }
+    }
+
+    openSettings() {
+        console.log('[HUD] Opening HUD settings');
+        alert('HUD Settings:\n\n• Press Ctrl+H to toggle HUD\n• Gauges update in real-time\n• Click any control button for actions');
+    }
+
+    toggleRadar() {
+        console.log('[HUD] Toggling radar view');
+        // Toggle radar ring visibility or add radar overlay
+        const rings = document.querySelectorAll('.holo-ring');
+        rings.forEach((ring, index) => {
+            ring.style.opacity = ring.style.opacity === '0' ? '1' : '0';
+        });
+    }
+
+    toggleDataView() {
+        console.log('[HUD] Toggling data analytics view');
+        // Toggle gauge panels
+        const gaugePanels = document.querySelectorAll('.hud-gauge-panel');
+        gaugePanels.forEach(panel => {
+            panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+        });
+    }
+
+    toggleComms() {
+        console.log('[HUD] Toggling communications');
+        // Toggle status bar
+        const statusBar = document.querySelector('.hud-status-bar');
+        if (statusBar) {
+            statusBar.style.display = statusBar.style.display === 'none' ? 'flex' : 'none';
+        }
+    }
+
+    updateGauge(gaugeName, value, unit = '%') {
+        const gauge = this.gauges[gaugeName];
+        if (!gauge || !gauge.element) return;
+
+        gauge.value = value;
+
+        // Update display value
+        gauge.element.textContent = `${value}${unit}`;
+
+        // Update circular fill rotation (0-360 degrees maps to 0-100%)
+        const rotation = (value / 100) * 360;
+        const fillElement = gauge.element.closest('.hud-circular-gauge').querySelector('.gauge-fill');
+        if (fillElement) {
+            fillElement.style.transform = `rotate(${rotation}deg)`;
+
+            // Change color based on value
+            if (value > 80) {
+                fillElement.style.borderTopColor = '#ff0000';
+                fillElement.style.borderRightColor = '#ff0000';
+            } else if (value > 50) {
+                fillElement.style.borderTopColor = '#ff8c00';
+                fillElement.style.borderRightColor = '#ff8c00';
+            } else {
+                fillElement.style.borderTopColor = '#00ff41';
+                fillElement.style.borderRightColor = '#00ff41';
+            }
+        }
+    }
+
+    startUpdateLoop() {
+        // Update gauges with simulated/real data every 2 seconds
+        setInterval(() => {
+            if (!this.hudActive) return;
+
+            // Fetch real system stats if available
+            this.fetchSystemStats();
+        }, 2000);
+
+        // Animation loop for particles
+        const animateParticles = () => {
+            this.updateParticles();
+            requestAnimationFrame(animateParticles);
+        };
+        animateParticles();
+    }
+
+    async fetchSystemStats() {
+        try {
+            // Try to get real stats from API
+            const response = await fetch('/api/system/stats');
+            if (response.ok) {
+                const data = await response.json();
+                this.updateGauge('cpu', Math.round(data.cpu || 0));
+                this.updateGauge('memory', Math.round(data.memory || 0));
+                this.updateGauge('network', Math.round(data.network || 0), 'MB/s');
+                this.updateGauge('response', Math.round(data.response_time || 0), 'ms');
+            } else {
+                // Fallback to simulated data
+                this.updateSimulatedStats();
+            }
+        } catch (error) {
+            // Use simulated data if API unavailable
+            this.updateSimulatedStats();
+        }
+    }
+
+    updateSimulatedStats() {
+        // Simulate realistic system stats
+        this.updateGauge('cpu', Math.min(100, Math.max(0, this.gauges.cpu.value + (Math.random() - 0.5) * 10)));
+        this.updateGauge('memory', Math.min(100, Math.max(0, this.gauges.memory.value + (Math.random() - 0.5) * 5)));
+        this.updateGauge('network', Math.round(Math.random() * 10), 'MB/s');
+        this.updateGauge('response', Math.round(100 + Math.random() * 200), 'ms');
+    }
+
+    initParticles() {
+        const container = this.hudOverlay;
+        if (!container) return;
+
+        for (let i = 0; i < this.maxParticles; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'hud-particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particle.style.animationDuration = `${3 + Math.random() * 4}s`;
+            container.appendChild(particle);
+            this.particles.push(particle);
+        }
+    }
+
+    updateParticles() {
+        // Particles are CSS-animated, no JS updates needed
+        // Could add mouse interaction here if desired
+    }
+
+    addRingSegments() {
+        const outerRing = document.querySelector('.holo-ring-outer');
+        if (!outerRing) return;
+
+        // Add 12 tick marks around the outer ring
+        for (let i = 0; i < 12; i++) {
+            const segment = document.createElement('div');
+            segment.className = 'ring-segment';
+            const angle = (i * 30) - 90; // -90 to start at top
+            segment.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-285px)`;
+            outerRing.appendChild(segment);
+        }
+    }
+}
+
+// Initialize HUD Controller when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.ultronHUD = new UltronHUDController();
+        console.log('[HUD] Press Ctrl+H to toggle HUD overlay');
+    });
+} else {
+    window.ultronHUD = new UltronHUDController();
+    console.log('[HUD] Press Ctrl+H to toggle HUD overlay');
+}
+

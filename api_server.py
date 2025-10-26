@@ -220,6 +220,157 @@ def test_all_tools():
         return jsonify({"error": f"Failed to test tools: {str(e)}"}), 500
 
 
+@app.route("/api/feedback", methods=["POST"])
+def submit_feedback():
+    """Submit user feedback for system improvement."""
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"error": "No feedback data provided"}), 400
+
+        required_fields = ["type", "message"]
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields: type, message"}), 400
+
+        # Save feedback to file
+        from pathlib import Path
+        from datetime import datetime
+        import json
+
+        feedback_dir = Path(__file__).parent / "metrics" / "feedback"
+        feedback_dir.mkdir(parents=True, exist_ok=True)
+
+        feedback_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "type": data["type"],  # bug, feature, performance, usability
+            "message": data["message"],
+            "rating": data.get("rating", None),
+            "context": data.get("context", {}),
+            "user_agent": request.headers.get("User-Agent", "unknown")
+        }
+
+        feedback_file = feedback_dir / "user_feedback.json"
+        history = []
+        if feedback_file.exists():
+            with open(feedback_file, 'r') as f:
+                history = json.load(f)
+
+        history.append(feedback_entry)
+
+        with open(feedback_file, 'w') as f:
+            json.dump(history, f, indent=2)
+
+        return jsonify({
+            "success": True,
+            "message": "Feedback received successfully",
+            "feedback_id": len(history)
+        }), 201
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to submit feedback: {str(e)}"}), 500
+
+
+@app.route("/api/feedback/stats", methods=["GET"])
+def feedback_stats():
+    """Get feedback statistics and trends."""
+    try:
+        from pathlib import Path
+        import json
+
+        feedback_file = Path(__file__).parent / "metrics" / "feedback" / "user_feedback.json"
+
+        if not feedback_file.exists():
+            return jsonify({
+                "total": 0,
+                "by_type": {},
+                "avg_rating": None,
+                "recent": []
+            }), 200
+
+        with open(feedback_file, 'r') as f:
+            history = json.load(f)
+
+        # Calculate stats
+        by_type = {}
+        ratings = []
+        for entry in history:
+            entry_type = entry.get("type", "unknown")
+            by_type[entry_type] = by_type.get(entry_type, 0) + 1
+            if entry.get("rating"):
+                ratings.append(entry["rating"])
+
+        avg_rating = sum(ratings) / len(ratings) if ratings else None
+
+        return jsonify({
+            "total": len(history),
+            "by_type": by_type,
+            "avg_rating": round(avg_rating, 2) if avg_rating else None,
+            "recent": history[-10:]  # Last 10 entries
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to get feedback stats: {str(e)}"}), 500
+
+
+@app.route("/api/evolution/metrics", methods=["GET"])
+def evolution_metrics():
+    """Get evolution framework metrics."""
+    try:
+        from pathlib import Path
+        import json
+
+        metrics_file = Path(__file__).parent / "metrics" / "benchmarks.json"
+
+        if not metrics_file.exists():
+            return jsonify({"error": "No metrics available yet"}), 404
+
+        with open(metrics_file, 'r') as f:
+            history = json.load(f)
+
+        # Return recent metrics
+        return jsonify({
+            "total_snapshots": len(history),
+            "latest": history[-1] if history else None,
+            "history": history[-20:]  # Last 20 snapshots
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to get metrics: {str(e)}"}), 500
+
+
+@app.route("/api/evolution/suggestions", methods=["GET"])
+def evolution_suggestions():
+    """Get current improvement suggestions."""
+    try:
+        from pathlib import Path
+        import json
+
+        suggestions_file = Path(__file__).parent / "metrics" / "suggestions.json"
+
+        if not suggestions_file.exists():
+            return jsonify({
+                "message": "No suggestions available. Run: python self_improvement.py --scan",
+                "suggestions": []
+            }), 200
+
+        with open(suggestions_file, 'r') as f:
+            suggestions = json.load(f)
+
+        # Filter by priority if requested
+        priority = request.args.get("priority")
+        if priority:
+            suggestions = [s for s in suggestions if s["priority"] == priority]
+
+        return jsonify({
+            "total": len(suggestions),
+            "suggestions": suggestions
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to get suggestions: {str(e)}"}), 500
+
+
 if __name__ == "__main__":
     # Initialize a basic agent instance for testing
     try:

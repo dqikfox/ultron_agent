@@ -117,6 +117,10 @@ def get_copilot_advice() -> Dict[str, Any]:
     return copilot_monitor.get_stats()
 
 if __name__ == "__main__":
+    try:
     # Example usage
     print("Copilot Monitor Started")
     print(json.dumps(get_copilot_advice(), indent=2))
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

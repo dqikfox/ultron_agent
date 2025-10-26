@@ -58,8 +58,12 @@ class ProjectIntelligence:
 intelligence = ProjectIntelligence()
 
 if __name__ == "__main__":
+    try:
     async def main():
         system = await intelligence.monitor_system()
         print(json.dumps(system, indent=2))
     
     asyncio.run(main())
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

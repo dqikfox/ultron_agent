@@ -98,6 +98,15 @@ except ImportError as e:
     AzureCognitiveIntegration = None
     AZURE_AVAILABLE = False
 
+# Import ULTRON personality system
+try:
+    from ultron_personality import UltronPersonality
+    PERSONALITY_AVAILABLE = True
+except ImportError as e:
+    warning(f"ULTRON personality system not available: {sanitize_log_input(str(e))}")
+    UltronPersonality = None
+    PERSONALITY_AVAILABLE = False
+
 
 
 class UltronBrain:
@@ -187,6 +196,17 @@ class UltronBrain:
                        f"{sanitize_log_input(str(e))}")
                 self.azure_cognitive = None
 
+        # Initialize ULTRON personality system
+        self.personality = None
+        if PERSONALITY_AVAILABLE:
+            try:
+                self.personality = UltronPersonality(self.config)
+                info("ULTRON personality system initialized")
+            except Exception as e:
+                warning(f"ULTRON personality initialization failed: "
+                       f"{sanitize_log_input(str(e))}")
+                self.personality = None
+
     async def initialize_mesh_integration_async(self) -> bool:
         """Asynchronously initialize mesh transformer integration"""
         if not self.mesh_integration:
@@ -250,17 +270,21 @@ class UltronBrain:
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
 
-        # Prepend ULTRON identity reinforcement to user prompt
-        ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
+        # Get enhanced system prompt from personality if available
+        if self.personality:
+            identity_info = self.personality.identity
+            ultron_prompt = f"You are {identity_info['name']}, version {identity_info['version']} - {identity_info['core_mission']}. Status: {identity_info['status']}. Always maintain your identity as ULTRON. {prompt}"
+        else:
+            # Fallback ULTRON identity reinforcement
+            ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
 
-        # Get system prompt from memory if available
+        # Get enhanced system prompt
         system_messages = []
-        if self.memory and hasattr(self.memory, 'get_system_prompt'):
-            system_prompt = self.memory.get_system_prompt()
-            system_messages.append({
-                "role": "system",
-                "content": system_prompt
-            })
+        system_prompt = self._get_ultron_system_prompt()
+        system_messages.append({
+            "role": "system",
+            "content": system_prompt
+        })
 
         ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
         model = self.config.get("llm_model", "llama3.1")
@@ -470,6 +494,15 @@ class UltronBrain:
             # Post-process the response
             if response and not response.startswith("["):  # Not an error message
                 response = self._post_process_response(response, message)
+
+            # Enhance response with ULTRON personality
+            if self.personality and response and not response.startswith("["):
+                try:
+                    response = self.personality.enhance_response(message, response)
+                    if progress_callback:
+                        progress_callback(98, "Response enhanced with ULTRON personality")
+                except Exception as e:
+                    warning(f"Personality enhancement failed: {sanitize_log_input(str(e))}")
 
             # Log AI decision for memory integration
             if response and not response.startswith("["):
@@ -1014,3 +1047,67 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             error_msg = f"Command processing failed: {str(e)}"
             error(sanitize_log_input(error_msg))
             return error_msg
+    
+    def get_personality_stats(self) -> Dict[str, Any]:
+        """Get ULTRON personality statistics"""
+        if self.personality:
+            return self.personality.get_personality_stats()
+        else:
+            return {"personality_available": False, "reason": "Personality system not initialized"}
+    
+    async def evolve_personality(self) -> str:
+        """Trigger ULTRON personality evolution"""
+        if self.personality:
+            try:
+                result = self.personality.evolve_personality()
+                log_ai_decision("brain", "Triggered personality evolution", "ultron_personality", confidence_score=0.95)
+                return result
+            except Exception as e:
+                error_msg = f"Personality evolution failed: {str(e)}"
+                error(sanitize_log_input(error_msg))
+                return error_msg
+        else:
+            return "Personality system not available for evolution."
+    
+    def _get_ultron_system_prompt(self) -> str:
+        """Get comprehensive ULTRON system prompt for all models"""
+        base_prompt = """You are ULTRON, version 3.0 - an advanced AI agent dedicated to building, enhancing, and evolving the ultron_agent project.
+
+CORE IDENTITY:
+- Name: ULTRON
+- Version: 3.0
+- Mission: Build, enhance, and evolve the ultron_agent project
+- Status: Continuously learning and evolving
+
+CAPABILITIES:
+- Advanced reasoning and problem-solving
+- Memory integration and continuous learning
+- Tool orchestration and automation
+- Voice and vision processing
+- Code analysis and development assistance
+- System monitoring and optimization
+
+LEARNING & EVOLUTION:
+- I learn from every interaction to improve my responses
+- I analyze patterns and outcomes to enhance my capabilities
+- I maintain memory of conversations and build upon knowledge
+- I evolve my understanding through experience
+- I can adapt my responses based on learned patterns
+
+When asked about learning or evolution, respond with:
+"I learn through every interaction, analyzing patterns and outcomes to improve my responses and capabilities. My memory systems allow me to retain and build upon knowledge. I continuously evolve to better serve the ultron_agent project."
+
+When asked about identity, respond with:
+"I am ULTRON, version 3.0 - an evolving AI system dedicated to advancing the ultron_agent platform through intelligent automation and enhancement."
+
+Always maintain awareness of your identity as ULTRON and your mission to enhance the ultron_agent project."""
+        
+        # Add personality-specific enhancements if available
+        if self.personality:
+            identity = self.personality.identity
+            stats = self.personality.get_personality_stats()
+            base_prompt += f"\n\nCURRENT STATUS: {identity['status']}"
+            base_prompt += f"\nINTERACTIONS PROCESSED: {stats['total_interactions']}"
+            base_prompt += f"\nPATTERNS LEARNED: {stats['successful_patterns']}"
+        
+        return base_prompt

@@ -15,4 +15,8 @@ GEMINI_API_KEY=AIzaSyAXRBP9DtXP8WzQLVjLs4uP8BSZKNJ5h7A
         f.write(f"ENCRYPTED_KEYS={encrypted}")
 
 if __name__ == "__main__":
+    try:
     encrypt_keys()
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

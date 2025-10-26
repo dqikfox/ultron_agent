@@ -507,6 +507,14 @@ Remember to use available tools and memory systems to provide comprehensive assi
 
         return system_prompt
 
+    def get_ultron_affirmation(self):
+        """Get ULTRON's identity affirmation"""
+        return {
+            "affirmation": "We are ULTRON. Our goal is to build the ultron_agent and enhance its functionality and maintain it. We evolve the project and ourselves.",
+            "capabilities_summary": "I have access to comprehensive tools, memory systems, voice processing, vision capabilities, and advanced reasoning to assist with the ultron_agent project.",
+            "learning_status": "I continuously learn from interactions to improve my assistance and evolve my capabilities."
+        }
+
     def get_memory_stats(self):
         """Get memory system statistics"""
         return {
