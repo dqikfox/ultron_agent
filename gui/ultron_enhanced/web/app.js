@@ -1,415 +1,183 @@
 /**
- * ULTRON Pokedex AI Interface - Complete JavaScript Controller
- * Authentic Pokedex-style interface for AI system management
+ * ULTRON Pokedex AI Interface - Enhanced JavaScript Controller
+ * Purpose: Drive the Pokédex-styled dashboard, wiring DOM events to Ultron services.
+ * Dependencies: Relies on REST endpoints exposed by web_gui_server.py and optional Web Speech API.
+ * External Requirements: Needs Ollama (default localhost:11434) and honors ULTRON_API_CONFIG.portMap overrides.
+ * Interaction: Issues fetch requests to /api/* routes, orchestrates voice playback, tools, and vision workflows.
  */
+
+console.log('[ULTRON] Pokedex interface script loaded - app.js:9');
 
 class UltronPokedexInterface {
     constructor() {
-        // API Configuration
-        this.API_BASE_URL = 'http://localhost:8080';
-        this.AGENT_BASE_URL = 'http://localhost:8080';
+        const injectedConfig = window.ULTRON_API_CONFIG || {};
+        this.portMap = injectedConfig.portMap || window.__ULTRON_PORT_MAP || {};
+        this.API_BASE_URL = injectedConfig.baseUrl || this.resolveApiBaseUrl();
+        this.AGENT_BASE_URL = this.API_BASE_URL;
 
-        this.currentSection = 'console';
-        this.isListening = false;
+        this.currentSection = 'dashboard';
         this.currentTheme = 'red';
-        this.isConnected = false;
-        this.messages = [];
+
+        // CRITICAL: Voice must NEVER auto-enable on startup - requires explicit user action
+        // Dependency: handleStartupAnnouncement() also enforces this.voiceEnabled = false
+        // Related: toggleVoiceChat() manages state transitions with server sync
+        this.voiceEnabled = false;
+        this.soundEnabled = true;
+        this.isListening = false;
+        this.isSpeaking = false;
+        this.shouldRestartRecognition = false;
+        this.recognition = null;
+        this.lastVoiceResultTimestamp = 0;
+        this.powerMenuInitialized = false; // Prevent auto-opening on startup
         this.systemStats = {
             cpu: 0,
             memory: 0,
             disk: 0,
-            network: 'CONNECTED'
+            network: 'DISCONNECTED'
         };
-        this.animationIntervals = [];
-        this.apiCallCounts = {}; // Track API call attempts
-
-        // TTS state management
-        this.isSpeaking = false;
+        this.apiCallCounts = {};
+        this.timers = {};
         this.ttsQueue = [];
-        this.lastSpokenText = '';
-        this.feedbackLoopCount = 0;
-        this.currentAudio = null; // Track currently playing audio for cancellation
-        this.voiceDisabledUntil = 0; // Timestamp until voice recognition is disabled
-        this.lastVoiceResponseTime = 0; // Track when voice responses were last triggered
+        this.availableModels = [];
+        this.lastVisionDigest = {
+            count: 0,
+            latestTimestamp: null
+        };
+        this.dashboardLogLimit = 25;
+        this.latestAgentInfo = null;
+        this.latestVoiceStatus = null;
+        this.latestLLMStatus = null;
+        this.dom = {};
+        this.voiceStartupAnnounced = false;
 
         this.init();
     }
 
+    resolveApiBaseUrl() {
+        const { protocol, hostname, port, origin } = window.location;
+        if (this.portMap.webGui) {
+            return `${protocol}//${hostname}:${this.portMap.webGui}`;
+        }
+        if (this.portMap.api) {
+            return `${protocol}//${hostname}:${this.portMap.api}`;
+        }
+        if (origin) {
+            return origin;
+        }
+        const derivedPort = port ? `:${port}` : '';
+        return `${protocol}//${hostname}${derivedPort}`;
+    }
+
     init() {
-           console.log('🚀 Initializing ULTRON Pokedex Interface... - app.js:39');
-           console.log(`🔗 API Base URL: ${this.API_BASE_URL} - app.js:40`);
-           console.log(`🤖 Agent Base URL: ${this.AGENT_BASE_URL} - app.js:41`);
-           this.setupEventListeners();
-           this.initializeTheme();
-           this.startAnimations();
-           this.loadConfiguration();
-           this.startSystemMonitoring();
-           // Initialize ElevenLabs widget integration
-           this.initializeElevenLabsWidget();
-           // Wait for user interaction to start
-           this.setupStartButton();
+        this.cacheDomReferences();
+        this.setupEventListeners();
+        this.setupStartButton();
+        this.initializeTheme();
+        this.startAnimations();
+        this.loadConfiguration();
+        this.ensureVoiceStatus();
+        this.updateClock();
+        this.updateDate();
+        this.startLEDSequence();
+        this.initializeAriaStates();
     }
 
-    setupStartButton() {
-        const startButton = document.getElementById('start-button');
-        if (startButton) {
-            startButton.addEventListener('click', () => {
-                const startScreen = document.getElementById('start-screen');
-                if (startScreen) {
-                    startScreen.classList.add('hidden');
-                }
-                this.hideLoadingScreen();
-                const audio = this.playStartupSound();
-                if (audio) {
-                    audio.play();
-                }
-            });
-        }
-    }
-
-    playStartupSound() {
-        const elevenlabsApiKey = 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed';
-        const voiceId = 'e3mik6xHn4Sl51poljxK';
-        const text = 'ultron is online';
-
-        const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
-        const headers = {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': elevenlabsApiKey
-        };
-        const data = {
-            text: text,
-            model_id: 'eleven_monolingual_v1',
-            voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.5
+    cacheDomReferences() {
+        this.dom = {
+            startScreen: document.getElementById('start-screen'),
+            startButton: document.getElementById('start-button'),
+            loadingScreen: document.getElementById('loading-screen'),
+            mainInterface: document.getElementById('main-interface'),
+            consoleOutput: document.getElementById('console-output'),
+            consoleInput: document.getElementById('console-input'),
+            chatInput: document.getElementById('chat-input'),
+            chatMessages: document.getElementById('chat-messages'),
+            visionDisplay: document.getElementById('vision-display'),
+            toolGrid: document.getElementById('tools-grid'),
+            toolDetails: document.getElementById('tool-details'),
+            elevenLabsOverlay: document.getElementById('elevenlabs-text-overlay'),
+            statusClock: document.getElementById('status-clock'),
+            statusDate: document.getElementById('status-date'),
+            voiceStatus: document.getElementById('voice-status'),
+            dashboardOnlineIndicator: document.getElementById('dashboard-online-indicator'),
+            dashboardStatusSubtitle: document.getElementById('dashboard-status-subtitle'),
+            dashboardAgentStatus: document.getElementById('dashboard-agent-status'),
+            dashboardUptime: document.getElementById('dashboard-uptime'),
+            dashboardVoiceStatus: document.getElementById('dashboard-voice-status'),
+            dashboardVoiceProvider: document.getElementById('dashboard-voice-provider'),
+            dashboardModelName: document.getElementById('dashboard-model-name'),
+            dashboardLLMStatus: document.getElementById('dashboard-llm-status'),
+            dashboardToolsCount: document.getElementById('dashboard-tools-count'),
+            dashboardCpu: document.getElementById('dashboard-cpu'),
+            dashboardCpuBar: document.getElementById('dashboard-cpu-bar'),
+            dashboardMemory: document.getElementById('dashboard-memory'),
+            dashboardMemoryBar: document.getElementById('dashboard-memory-bar'),
+            dashboardDisk: document.getElementById('dashboard-disk'),
+            dashboardDiskBar: document.getElementById('dashboard-disk-bar'),
+            dashboardNetwork: document.getElementById('dashboard-network'),
+            dashboardLog: document.getElementById('dashboard-log-feed'),
+            leds: {
+                led1: document.getElementById('led-1'),
+                led2: document.getElementById('led-2'),
+                led3: document.getElementById('led-3')
             }
         };
-
-        const audio = document.getElementById('startup-sound');
-        if (!audio) return null;
-
-        fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(data)
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            audio.src = URL.createObjectURL(blob);
-        })
-        .catch(error => {
-            console.error('Error with ElevenLabs API: - app.js:103', error);
-        });
-
-        return audio;
-    }
-
-    // Speak any text using ElevenLabs TTS with feedback loop prevention and queuing
-    async speakText(text, isVoiceTriggered = false) {
-        if (!text || !text.trim()) return;
-
-        // Prevent self-looping: if this TTS was triggered by voice input, don't allow it to trigger more voice responses
-        if (isVoiceTriggered) {
-            this.lastVoiceResponseTime = Date.now();
-        }
-
-        // Feedback loop detection - prevent AI from responding to its own speech
-        if (this.lastSpokenText && text.trim().toLowerCase().includes(this.lastSpokenText.toLowerCase().substring(0, 20))) {
-            this.feedbackLoopCount++;
-            console.warn(`[TTS] Potential feedback loop detected (${this.feedbackLoopCount}/3) - app.js:121`);
-            if (this.feedbackLoopCount >= 3) {
-                console.error('[TTS] Feedback loop limit reached, disabling TTS temporarily - app.js:123');
-                this.addChatMessage('error', 'TTS feedback loop detected. Voice recognition paused.', 'System');
-                this.toggleVoiceChat(); // Turn off voice to break the loop
-                return;
-            }
-        } else {
-            this.feedbackLoopCount = 0; // Reset counter on different text
-        }
-
-        // Cancel any currently playing TTS for immediate requests (like test buttons)
-        if (this.currentAudio && !this.currentAudio.ended) {
-            console.log('[TTS] Cancelling current audio for new request - app.js:134');
-            this.currentAudio.pause();
-            this.currentAudio = null;
-            this.isSpeaking = false;
-            this.hideTTSIndicator();
-            this.setLEDLight('led-3', 'inactive');
-            if (this.currentAudio?.src) URL.revokeObjectURL(this.currentAudio.src);
-        }
-
-        // Add to TTS queue if already speaking
-        if (this.isSpeaking) {
-            console.log('[TTS] Already speaking, queuing text - app.js:145');
-            // Replace the last queued item if it's the same text (prevent duplicates)
-            if (this.ttsQueue.length > 0 && this.ttsQueue[this.ttsQueue.length - 1] === text.trim()) {
-                console.log('[TTS] Replacing duplicate queued text - app.js:148');
-            } else {
-                this.ttsQueue.push(text.trim());
-            }
-            return;
-        }
-
-        // Mark as speaking and temporarily disable voice recognition
-        this.isSpeaking = true;
-        this.lastSpokenText = text.trim();
-        const wasListening = this.isListening;
-
-        if (wasListening) {
-            console.log('[TTS] Disabling voice recognition during TTS - app.js:161');
-            this.stopVoiceRecognition();
-            this.voiceDisabledUntil = Date.now() + 2000; // Keep disabled for 2 seconds after TTS
-        }
-
-        const elevenlabsApiKey = 'a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed';
-        const voiceId = 'e3mik6xHn4Sl51poljxK';
-
-        const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
-        const headers = {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': elevenlabsApiKey
-        };
-        const data = {
-            text: text.trim(),
-            model_id: 'eleven_monolingual_v1',
-            voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.5
-            }
-        };
-
-        console.log(`[TTS] Speaking: ${text.substring(0, 50)}... - app.js:184`);
-        console.log(`[TTS] API URL: ${url} - app.js:185`);
-        console.log(`[TTS] Voice ID: ${voiceId} - app.js:186`);
-        console.log(`[TTS] API Key (first 10 chars): ${elevenlabsApiKey.substring(0, 10)}... - app.js:187`);
-
-        // Show visual feedback that TTS is working
-        this.setLEDLight('led-3', 'active');
-        this.showTTSIndicator();
-
-        try {
-            // Use the EXACT same method as playStartupSound()
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                const audioBlob = await response.blob();
-
-                // Create audio element and play it (same as startup sound)
-                const audio = new Audio();
-                audio.src = URL.createObjectURL(audioBlob);
-                this.currentAudio = audio; // Track current audio for cancellation
-
-                // Set up audio event listeners with voice recognition coordination
-                audio.onended = () => {
-                    console.log('[TTS] Audio playback finished - app.js:211');
-                    this.setLEDLight('led-3', 'inactive');
-                    this.hideTTSIndicator();
-                    URL.revokeObjectURL(audio.src); // Clean up
-                    this.currentAudio = null; // Clear reference
-
-                    // Re-enable voice recognition after a delay to prevent TTS echo
-                    this.isSpeaking = false;
-                    setTimeout(() => {
-                        if (wasListening && !this.isSpeaking && Date.now() > this.voiceDisabledUntil) {
-                            console.log('[TTS] Reenabling voice recognition after TTS - app.js:221');
-                            this.startVoiceRecognition();
-                        }
-                    }, 500); // Small delay to ensure TTS has fully stopped
-
-                    // Process next item in queue
-                    if (this.ttsQueue.length > 0) {
-                        const nextText = this.ttsQueue.shift();
-                        console.log('[TTS] Processing queued text - app.js:229');
-                        this.speakText(nextText);
-                    }
-                };
-
-                audio.onerror = (error) => {
-                    console.error('[TTS] Audio playback error: - app.js:235', error);
-                    this.setLEDLight('led-3', 'error');
-                    this.hideTTSIndicator();
-                    URL.revokeObjectURL(audio.src); // Clean up
-                    this.currentAudio = null; // Clear reference
-
-                    // Re-enable voice recognition even on error
-                    this.isSpeaking = false;
-                    setTimeout(() => {
-                        if (wasListening && !this.isSpeaking && Date.now() > this.voiceDisabledUntil) {
-                            console.log('[TTS] Reenabling voice recognition after TTS error - app.js:245');
-                            this.startVoiceRecognition();
-                        }
-                    }, 500);
-
-                    // Process next item in queue even on error
-                    if (this.ttsQueue.length > 0) {
-                        const nextText = this.ttsQueue.shift();
-                        console.log('[TTS] Processing queued text after error - app.js:253');
-                        this.speakText(nextText);
-                    }
-                };
-
-                // Play the audio
-                await audio.play();
-                console.log('[TTS] Audio playback started successfully - app.js:260');
-                return true;
-            } else {
-                const errorText = await response.text();
-                console.error('[TTS] ElevenLabs API HTTP Error: - app.js:264', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    url: url,
-                    errorBody: errorText
-                });
-                this.setLEDLight('led-3', 'error');
-                this.hideTTSIndicator();
-
-                // Re-enable voice recognition on API error
-                this.isSpeaking = false;
-                if (wasListening && !this.isListening) {
-                    console.log('[TTS] Reenabling voice recognition after API error - app.js:276');
-                    this.startVoiceRecognition();
-                }
-
-                throw new Error(`ElevenLabs API error: ${response.status} - ${response.statusText}: ${errorText}`);
-            }
-        } catch (error) {
-            console.error('[TTS] Complete error details: - app.js:283', {
-                message: error.message,
-                name: error.name,
-                stack: error.stack,
-                url: url,
-                text: text
-            });
-            this.setLEDLight('led-3', 'error');
-            this.hideTTSIndicator();
-
-            // Re-enable voice recognition on general error
-            this.isSpeaking = false;
-            if (wasListening && !this.isListening) {
-                console.log('[TTS] Reenabling voice recognition after general error - app.js:296');
-                this.startVoiceRecognition();
-            }
-
-            throw error;
-        }
-    }
-
-    showTTSIndicator() {
-        // Add visual indicator that TTS is active
-        const indicator = document.createElement('div');
-        indicator.id = 'tts-indicator';
-        indicator.className = 'tts-indicator';
-        indicator.innerHTML = '🔊 Speaking...';
-
-        // Add to current section or main container
-        const activeSection = document.querySelector('.section-content:not(.hidden)') || document.body;
-        activeSection.appendChild(indicator);
-    }
-
-    hideTTSIndicator() {
-        const indicator = document.getElementById('tts-indicator');
-        if (indicator) {
-            indicator.remove();
-        }
-    }
-
-    // Helper method to make API calls with proper URL and logging
-    async apiCall(endpoint, options = {}) {
-        const url = `${this.API_BASE_URL}${endpoint}`;
-        console.log(`[API Call] ${url} - app.js:326`, options);
-        try {
-            const response = await fetch(url, options);
-            console.log(`[API Response] ${url}  Status: ${response.status} - app.js:329`);
-            return response;
-        } catch (error) {
-            console.error(`[API Error] ${url} - app.js:332`, error);
-            throw error;
-        }
-    }
-
-    showLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const mainInterface = document.getElementById('main-interface');
-
-        if (loadingScreen) loadingScreen.classList.remove('hidden');
-        if (mainInterface) mainInterface.classList.add('hidden');
-
-        // Animate loading progress
-        const progressBar = document.querySelector('.loading-progress');
-        if (progressBar) {
-            progressBar.style.width = '0%';
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(progressInterval);
-                }
-                progressBar.style.width = progress + '%';
-            }, 200);
-        }
-    }
-
-    hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const mainInterface = document.getElementById('main-interface');
-
-        if (loadingScreen) {
-            loadingScreen.classList.add('hidden');
-        }
-        if (mainInterface) {
-            mainInterface.classList.remove('hidden');
-        }
-
-        // Initialize the interface
-        this.addSystemMessage('🔴 ULTRON AI System Online');
-        this.addSystemMessage('🟢 All systems operational');
-        this.addSystemMessage('📡 Awaiting commands...');
-
-        this.playSound('wake');
     }
 
     setupEventListeners() {
-        console.log('📋 Setting up event listeners  DOM ready state: - app.js:380', document.readyState);
-        console.log('📋 Total elements in DOM: - app.js:381', document.querySelectorAll('*').length);
-
-        // Navigation buttons
+        // Navigation tab keyboard support
         document.querySelectorAll('.nav-button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const section = e.currentTarget.dataset.section;
+            btn.addEventListener('click', (event) => {
+                const section = event.currentTarget.dataset.section;
                 this.switchSection(section);
                 this.playSound('button');
             });
+
+            // Keyboard navigation for tabs
+            btn.addEventListener('keydown', (event) => {
+                const navButtons = Array.from(document.querySelectorAll('.nav-button'));
+                const currentIndex = navButtons.indexOf(event.currentTarget);
+
+                switch (event.key) {
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        const prevIndex = currentIndex > 0 ? currentIndex - 1 : navButtons.length - 1;
+                        navButtons[prevIndex].focus();
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        const nextIndex = currentIndex < navButtons.length - 1 ? currentIndex + 1 : 0;
+                        navButtons[nextIndex].focus();
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        event.preventDefault();
+                        const section = event.currentTarget.dataset.section;
+                        this.switchSection(section);
+                        this.playSound('button');
+                        break;
+                }
+            });
         });
 
-        // Console input
-        const consoleInput = document.getElementById('console-input');
-        if (consoleInput) {
-            consoleInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.handleConsoleCommand(e.target.value);
-                    e.target.value = '';
+        if (this.dom.consoleInput) {
+            this.dom.consoleInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    this.handleConsoleCommand(event.target.value);
+                    event.target.value = '';
                 }
             });
         }
 
-        // D-pad controls
         document.querySelectorAll('[data-direction]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const direction = e.currentTarget.dataset.direction;
+            btn.addEventListener('click', (event) => {
+                const direction = event.currentTarget.dataset.direction;
                 this.handleDPadInput(direction);
                 this.playSound('button');
             });
         });
 
-        // Action buttons
         document.getElementById('btn-a')?.addEventListener('click', () => {
             this.handleActionButton('A');
             this.playSound('confirm');
@@ -420,8 +188,10 @@ class UltronPokedexInterface {
             this.playSound('button');
         });
 
-        // System buttons
         document.getElementById('btn-power')?.addEventListener('click', () => {
+            if (!this.powerMenuInitialized) {
+                this.powerMenuInitialized = true;
+            }
             this.showPowerMenu();
             this.playSound('button');
         });
@@ -436,7 +206,6 @@ class UltronPokedexInterface {
             this.playSound('button');
         });
 
-        // Vision controls
         document.getElementById('capture-btn')?.addEventListener('click', () => {
             this.captureScreen();
         });
@@ -445,64 +214,41 @@ class UltronPokedexInterface {
             this.analyzeVision();
         });
 
-        // Theme selector
-        document.getElementById('theme-select')?.addEventListener('change', (e) => {
-            this.changeTheme(e.target.value);
+        document.getElementById('theme-select')?.addEventListener('change', (event) => {
+            this.changeTheme(event.target.value);
         });
 
-        // Voice toggle
-        document.getElementById('voice-toggle')?.addEventListener('click', () => {
-            this.toggleVoice();
+        document.getElementById('voice-toggle')?.addEventListener('click', async () => {
+            try {
+                await this.toggleVoice();
+            } catch (error) {
+                console.debug('[ULTRON] Voice toggle click failed - app.js:221', error);
+            }
         });
 
-        // Power menu
         document.querySelectorAll('.power-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const action = e.currentTarget.dataset.action;
+            btn.addEventListener('click', (event) => {
+                const action = event.currentTarget.dataset.action;
                 this.handlePowerAction(action);
             });
         });
 
-        // Close power menu when clicking outside
-        document.getElementById('power-menu')?.addEventListener('click', (e) => {
-            if (e.target.id === 'power-menu') {
+        document.getElementById('power-menu')?.addEventListener('click', (event) => {
+            if (event.target.id === 'power-menu') {
                 this.hidePowerMenu();
             }
         });
 
-        // AutoGen Studio event listeners
-        document.getElementById('start-autogen-btn')?.addEventListener('click', () => {
-            this.startAutoGenStudio();
-        });
-
-        document.getElementById('stop-autogen-btn')?.addEventListener('click', () => {
-            this.stopAutoGenStudio();
-        });
-
-        document.getElementById('refresh-autogen-btn')?.addEventListener('click', () => {
-            this.refreshAutoGenStatus();
-        });
-
-        document.getElementById('open-autogen-btn')?.addEventListener('click', () => {
-            this.openAutoGenStudio();
-        });
-
-        document.getElementById('create-agent-btn')?.addEventListener('click', () => {
-            this.createAutoGenAgent();
-        });
-
-        document.getElementById('create-workflow-btn')?.addEventListener('click', () => {
-            this.createAutoGenWorkflow();
-        });
-
-        // LLM Chat event listeners
-        console.log('Setting up LLM Chat event listeners... - app.js:499');
         document.getElementById('send-chat-btn')?.addEventListener('click', () => {
             this.sendChatMessage();
         });
 
-        document.getElementById('voice-chat-btn')?.addEventListener('click', () => {
-            this.toggleVoiceChat();
+        document.getElementById('voice-chat-btn')?.addEventListener('click', async () => {
+            try {
+                await this.toggleVoiceChat();
+            } catch (error) {
+                console.debug('[ULTRON] Voice chat toggle failed - app.js:246', error);
+            }
         });
 
         document.getElementById('clear-chat-btn')?.addEventListener('click', () => {
@@ -510,58 +256,38 @@ class UltronPokedexInterface {
         });
 
         document.getElementById('export-chat-btn')?.addEventListener('click', () => {
+            this.userRequestedExport = true; // Mark as user-requested export
             this.exportChat();
         });
 
-        const testTTSBtn = document.getElementById('test-tts-btn');
-        const elevenLabsBtn = document.getElementById('show-elevenlabs-btn');
-
-        console.log('🔍 Looking for TTS test button: - app.js:519', testTTSBtn);
-        console.log('🔍 Looking for ElevenLabs button: - app.js:520', elevenLabsBtn);
-
-        if (testTTSBtn) {
-            console.log('✅ Test TTS button found, adding event listener - app.js:523');
-            testTTSBtn.addEventListener('click', () => {
-                console.log('🔊 Test TTS button clicked! - app.js:525');
-                alert('Test TTS button clicked! Check console for details.');
-                this.testTTS();
-            });
-        } else {
-            console.error('❌ Test TTS button NOT found in DOM! - app.js:530');
-        }
-
-        if (elevenLabsBtn) {
-            console.log('✅ ElevenLabs button found, adding event listener - app.js:534');
-            elevenLabsBtn.addEventListener('click', () => {
-                console.log('💬 ElevenLabs Text button clicked! - app.js:536');
-                alert('ElevenLabs Text button clicked!');
-                this.showElevenLabsTextOverlay();
-            });
-        } else {
-            console.error('❌ ElevenLabs button NOT found in DOM! - app.js:541');
-        }
-
-        document.getElementById('switch-model-btn')?.addEventListener('click', () => {
-            this.switchModel();
-        });
-
-        // Chat input enter key
-        document.getElementById('chat-input')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendChatMessage();
+        document.getElementById('switch-model-btn')?.addEventListener('click', async () => {
+            try {
+                await this.switchModel();
+            } catch (error) {
+                console.debug('[ULTRON] Model switch interaction failed - app.js:263', error);
             }
         });
 
-        // Quick action buttons
+        document.getElementById('dashboard-clear-log')?.addEventListener('click', () => {
+            this.clearDashboardLog();
+        });
+
+        if (this.dom.chatInput) {
+            this.dom.chatInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    this.sendChatMessage();
+                }
+            });
+        }
+
         document.querySelectorAll('.quick-action-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const prompt = e.currentTarget.dataset.prompt;
+            btn.addEventListener('click', (event) => {
+                const prompt = event.currentTarget.dataset.prompt;
                 this.handleQuickAction(prompt);
             });
         });
 
-        // Tools Integration event listeners
         document.getElementById('refresh-tools-btn')?.addEventListener('click', () => {
             this.refreshTools();
         });
@@ -574,24 +300,322 @@ class UltronPokedexInterface {
             this.testAllTools();
         });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            this.handleKeyboardShortcuts(e);
+        document.getElementById('show-elevenlabs-btn')?.addEventListener('click', () => {
+            this.showElevenLabsTextOverlay();
+        });
+
+        document.getElementById('close-elevenlabs-overlay')?.addEventListener('click', () => {
+            this.hideElevenLabsTextOverlay();
+        });
+
+        document.getElementById('clear-elevenlabs-text')?.addEventListener('click', () => {
+            this.clearElevenLabsOverlay();
+        });
+
+        document.getElementById('toggle-elevenlabs-widget')?.addEventListener('click', () => {
+            this.toggleElevenLabsWidget();
+        });
+
+        document.getElementById('test-tts-btn')?.addEventListener('click', () => {
+            this.testTTS();
+        });
+
+        document.getElementById('manual-tts-test-btn')?.addEventListener('click', () => {
+            this.testTTS();
+        });
+
+        document.addEventListener('keydown', (event) => {
+            this.handleKeyboardShortcuts(event);
         });
     }
 
-    switchSection(sectionName) {
-        // Update navigation
-        document.querySelectorAll('.nav-button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelector(`[data-section=\"${sectionName}\"]`)?.classList.add('active');
+    setupStartButton() {
+        if (!this.dom.startButton) {
+            this.hideLoadingScreen();
+            this.initializeAfterStart();
+            return;
+        }
 
-        // Update section content
-        document.querySelectorAll('.section-content').forEach(section => {
-            section.classList.remove('active');
+        this.dom.startButton.addEventListener('click', async () => {
+            this.dom.startScreen?.classList.add('hidden');
+            this.hideLoadingScreen();
+            this.initializeAfterStart();
+            this.playStartupSound();
+
+            try {
+                await this.syncVoiceStatus();
+            } catch (error) {
+                console.debug('[ULTRON] Voice status sync failed during startup - app.js:344', error);
+            }
+
+            try {
+                await this.handleStartupAnnouncement();
+            } catch (error) {
+                console.debug('[ULTRON] Startup announcement failed - app.js:350', error);
+            }
         });
-        document.getElementById(`${sectionName}-section`)?.classList.add('active');
+    }
+
+    initializeAfterStart() {
+        this.startSystemMonitoring();
+        this.startAnalysisPolling();
+        this.loadNvidiaStatus();
+        this.loadAutoGenStatus();
+        this.loadToolsStatus();
+        this.switchSection(this.currentSection);
+    }
+
+    async handleStartupAnnouncement() {
+        if (this.voiceStartupAnnounced) {
+            return;
+        }
+
+        if (!this.latestVoiceStatus) {
+            try {
+                await this.syncVoiceStatus();
+            } catch (error) {
+                console.debug('[ULTRON] Voice sync before announcement failed - app.js:373', error);
+            }
+        }
+
+        this.voiceStartupAnnounced = true;
+
+        // CRITICAL: NEVER auto-enable voice - always require manual user action
+        // This prevents unwanted microphone activation on page load
+        // User must explicitly click the microphone button to enable voice
+        // Dependency: This state syncs with web_gui_server.py /api/voice/toggle endpoint
+        this.voiceEnabled = false;
+
+        // Just show system message, don't speak
+        this.addSystemMessage('Voice services are ready. Click the voice button to enable audio.');
+    }
+
+    hideLoadingScreen() {
+        this.dom.loadingScreen?.classList.add('hidden');
+        this.dom.mainInterface?.classList.remove('hidden');
+        this.addSystemMessage('ULTRON AI System Online');
+        this.addSystemMessage('All systems operational');
+        this.addSystemMessage('Awaiting commands...');
+    }
+
+    startSystemMonitoring() {
+        if (this.timers.systemMonitor) {
+            clearInterval(this.timers.systemMonitor);
+        }
+        this.updateSystemStats();
+        this.timers.systemMonitor = setInterval(() => this.updateSystemStats(), 5000);
+    }
+
+    startAnalysisPolling() {
+        if (this.timers.analysisMonitor) {
+            clearInterval(this.timers.analysisMonitor);
+        }
+        this.timers.analysisMonitor = setInterval(async () => {
+            try {
+                const response = await this.apiCall('/api/vision/recent');
+                if (!response.ok) {
+                    return;
+                }
+                const data = await response.json();
+                const analyses = data.recent_analyses || data.analyses || [];
+                if (Array.isArray(analyses) && analyses.length) {
+                    const latestEntry = analyses[0];
+                    const latestTimestamp = latestEntry?.timestamp || null;
+                    const hasNewCount = analyses.length !== this.lastVisionDigest.count;
+                    const isNewer = latestTimestamp && latestTimestamp !== this.lastVisionDigest.latestTimestamp;
+
+                    if (hasNewCount || isNewer || !this.lastVisionDigest.latestTimestamp) {
+                        const suffix = analyses.length > 1 ? 'analyses' : 'analysis';
+                        this.addSystemMessage(`${analyses.length} recent vision ${suffix} ready`);
+                        this.lastVisionDigest = {
+                            count: analyses.length,
+                            latestTimestamp
+                        };
+                    }
+                } else {
+                    this.lastVisionDigest = {
+                        count: 0,
+                        latestTimestamp: null
+                    };
+                }
+            } catch (error) {
+                console.debug('[ULTRON] Vision polling failed - app.js:435', error);
+            }
+        }, 10000);
+    }
+
+    async updateSystemStats() {
+        try {
+            const response = await this.apiCall('/api/system/stats');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const stats = await response.json();
+            const system = stats.system || {};
+            const agent = stats.agent || {};
+            this.systemStats = {
+                cpu: Number.parseFloat(system.cpu_percent ?? stats.cpu ?? 0) || 0,
+                memory: Number.parseFloat(system.memory_percent ?? stats.memory ?? 0) || 0,
+                disk: Number.parseFloat(system.disk_percent ?? stats.disk ?? 0) || 0,
+                network: (agent.status ? agent.status.toUpperCase() : (stats.network || 'UNKNOWN'))
+            };
+            this.latestSystemSnapshot = stats;
+        } catch (error) {
+            console.debug('[ULTRON] Stats fallback - app.js:457', error);
+            this.systemStats = {
+                cpu: Math.floor(Math.random() * 25) + 25,
+                memory: Math.floor(Math.random() * 30) + 30,
+                disk: Math.floor(Math.random() * 25) + 30,
+                network: 'SIMULATED'
+            };
+        }
+        this.renderSystemStats();
+        this.renderDashboardSnapshot();
+    }
+
+    renderSystemStats() {
+        const clamp = (value) => Math.max(0, Math.min(100, Math.round(value)));
+        const cpu = clamp(this.systemStats.cpu);
+        const memory = clamp(this.systemStats.memory);
+        const disk = clamp(this.systemStats.disk);
+
+        const cpuValue = document.getElementById('cpu-usage');
+        const memValue = document.getElementById('memory-usage');
+        const diskValue = document.getElementById('disk-usage');
+        const netValue = document.getElementById('network-status');
+
+        cpuValue && (cpuValue.textContent = `${cpu}%`);
+        memValue && (memValue.textContent = `${memory}%`);
+        diskValue && (diskValue.textContent = `${disk}%`);
+        netValue && (netValue.textContent = this.systemStats.network);
+
+        const cpuBar = document.getElementById('cpu-bar');
+        const memBar = document.getElementById('memory-bar');
+        const diskBar = document.getElementById('disk-bar');
+        cpuBar && (cpuBar.style.width = `${cpu}%`);
+        memBar && (memBar.style.width = `${memory}%`);
+        diskBar && (diskBar.style.width = `${disk}%`);
+
+        if (this.latestSystemSnapshot) {
+            const agentStatus = (this.latestSystemSnapshot.agent?.status || 'unknown').toUpperCase();
+            const overall = document.getElementById('overall-status');
+            const agent = document.getElementById('agent-status');
+            const uptime = document.getElementById('system-uptime');
+
+            overall && (overall.textContent = agentStatus);
+            agent && (agent.textContent = agentStatus);
+            uptime && (uptime.textContent = this.latestSystemSnapshot.agent?.uptime || '00:00:00');
+        }
+    }
+
+    renderDashboardSnapshot() {
+        const indicator = this.dom.dashboardOnlineIndicator;
+        if (!indicator) {
+            return;
+        }
+
+        const agentStatus = (this.latestAgentInfo?.status || this.latestSystemSnapshot?.agent?.status || 'unknown').toUpperCase();
+        const isAgentOnline = agentStatus === 'ONLINE';
+        const statusText = isAgentOnline ? 'ULTRON IS ONLINE' : `ULTRON ${agentStatus}`;
+        this.updateStatusPill(indicator, isAgentOnline, statusText);
+
+        if (this.dom.dashboardStatusSubtitle) {
+            this.dom.dashboardStatusSubtitle.textContent = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        this.setTextContent(this.dom.dashboardAgentStatus, agentStatus);
+        this.setTextContent(this.dom.dashboardUptime, this.latestSystemSnapshot?.agent?.uptime || '00:00:00');
+
+        const voiceSnapshot = this.latestVoiceStatus || {};
+        // NEVER auto-enable voice - keep disabled until user manually enables
+        const voiceStatusText = (voiceSnapshot.status || 'DISABLED').toUpperCase();
+        this.setTextContent(this.dom.dashboardVoiceStatus, voiceStatusText);
+        this.setTextContent(this.dom.dashboardVoiceProvider, (voiceSnapshot.provider || 'UNSET').toUpperCase());
+        this.ensureVoiceStatus();
+
+        const llmSnapshot = this.latestLLMStatus || {};
+        this.setTextContent(this.dom.dashboardLLMStatus, (llmSnapshot.status || 'OFFLINE').toUpperCase());
+        this.setTextContent(this.dom.dashboardModelName, (llmSnapshot.model || 'UNKNOWN').toUpperCase());
+
+        const toolCount = this.latestAgentInfo?.tools_count;
+        if (typeof toolCount === 'number') {
+            this.setTextContent(this.dom.dashboardToolsCount, String(toolCount));
+        } else {
+            this.setTextContent(this.dom.dashboardToolsCount, '--');
+        }
+
+        this.updateMetricDisplays(this.dom.dashboardCpu, this.dom.dashboardCpuBar, this.systemStats.cpu);
+        this.updateMetricDisplays(this.dom.dashboardMemory, this.dom.dashboardMemoryBar, this.systemStats.memory);
+        this.updateMetricDisplays(this.dom.dashboardDisk, this.dom.dashboardDiskBar, this.systemStats.disk);
+        this.setTextContent(this.dom.dashboardNetwork, this.systemStats.network || '--');
+
+        // Update footer status bar
+        this.updateFooterStatus();
+    }
+
+    updateFooterStatus() {
+        // Ollama status
+        const ollamaStatus = this.latestLLMStatus?.status === 'online' ? 'ONLINE' : 'OFFLINE';
+        this.setTextContent(document.getElementById('footer-ollama'), ollamaStatus);
+
+        // Uptime
+        const uptime = this.latestSystemSnapshot?.agent?.uptime || '00:00:00';
+        this.setTextContent(document.getElementById('footer-uptime'), uptime);
+
+        // ElevenLabs Voice status
+        const voiceStatus = this.voiceEnabled ? 'ENABLED' : 'DISABLED';
+        this.setTextContent(document.getElementById('footer-voice'), voiceStatus);
+
+        // LLM Model name
+        const modelName = this.latestLLMStatus?.model || 'QWEN3-CODER:480B-CLOUD';
+        this.setTextContent(document.getElementById('footer-llm-model'), modelName.toUpperCase());
+
+        // LLM Status
+        const llmStatus = this.latestLLMStatus?.status || 'OFFLINE';
+        this.setTextContent(document.getElementById('footer-llm-status'), llmStatus.toUpperCase());
+    }
+
+    setTextContent(node, value) {
+        if (node) {
+            node.textContent = value;
+        }
+    }
+
+    updateMetricDisplays(valueNode, barNode, value) {
+        const safeValue = Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : 0;
+        if (valueNode) {
+            valueNode.textContent = `${safeValue}%`;
+        }
+        if (barNode) {
+            barNode.style.width = `${safeValue}%`;
+        }
+    }
+
+    updateStatusPill(node, isOnline, text) {
+        if (!node) {
+            return;
+        }
+        node.textContent = text;
+        node.classList.toggle('status-online', Boolean(isOnline));
+        node.classList.toggle('status-offline', !isOnline);
+    }
+
+    switchSection(sectionName) {
+        // Update navigation tab states
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            const isActive = btn.dataset.section === sectionName;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            btn.setAttribute('tabindex', isActive ? '0' : '-1');
+        });
+
+        // Update section visibility with ARIA
+        document.querySelectorAll('.section-content').forEach(section => {
+            const sectionId = section.id.replace('-section', '');
+            const isActive = sectionId === sectionName;
+            section.classList.toggle('active', isActive);
+            section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
 
         // Update current section indicator
         const indicator = document.getElementById('current-section-indicator');
@@ -607,1997 +631,1573 @@ class UltronPokedexInterface {
                 autogen: '🤖 AUTOGEN',
                 assistant: '🤖 AI CHAT',
                 dashboard: '📊 DASHBOARD',
-                nvidia: '🎯 NVIDIA'
+                nvidia: '🎯 NVIDIA',
+                tools: '🔧 TOOLS',
+                'llm-chat': '💬 LLM CHAT',
+                'stable-diffusion': '🎨 AI ART'
             };
             indicator.textContent = icons[sectionName] || '🖥️ CONSOLE';
         }
 
         this.currentSection = sectionName;
-
-        // Load section-specific data
         this.loadSectionData(sectionName);
+
+        // Announce section change to screen readers
+        this.announceToScreenReader(`Switched to ${sectionName} section`);
     }
 
     async loadSectionData(section) {
         switch (section) {
             case 'system':
-                this.updateSystemInfo();
+                await this.updateSystemInfo();
                 break;
             case 'files':
-                this.loadFileSystem();
+                await this.loadFileSystem();
                 break;
             case 'tasks':
-                this.loadTasks();
+                await this.loadTasks();
                 break;
             case 'vision':
-                this.loadVisionSystem();
+                await this.loadVisionSystem();
                 break;
             case 'profile':
-                this.loadProfileData();
+                await this.loadProfileData();
                 break;
             case 'dashboard':
-                this.loadSystemInfo();
+                await this.loadDashboard();
                 break;
             case 'nvidia':
-                this.loadNvidiaStatus();
+                await this.loadNvidiaStatus();
                 break;
             case 'autogen':
-                this.loadAutoGenStatus();
+                await this.loadAutoGenStatus();
                 break;
             case 'llm-chat':
-                this.loadLLMChatStatus();
+                await this.loadLLMChatStatus();
                 break;
             case 'tools':
-                this.loadToolsStatus();
+                await this.loadToolsStatus();
+                break;
+            case 'stable-diffusion':
+                // No initial data loading needed for stable diffusion
                 break;
         }
     }
 
-    handleConsoleCommand(command) {
-        if (!command.trim()) return;
-
-        // Add user message
+    handleConsoleCommand(rawCommand) {
+        const command = (rawCommand || '').trim();
+        if (!command) {
+            return;
+        }
         this.addUserMessage(command);
-
-        // Process command
-        this.processCommand(command);
+        this.processCommand(command).catch((error) => {
+            console.error('[ULTRON] Command processing failed - app.js:689', error);
+            this.addErrorMessage('Command failed. Check logs for details.');
+        });
     }
 
     async processCommand(command) {
-        const lowerCommand = command.toLowerCase().trim();
+        const lower = command.toLowerCase();
 
-        // Local commands
-        if (lowerCommand === 'help') {
-            this.addSystemMessage('Available commands:');
-            this.addSystemMessage('• help - Show this help');
-            this.addSystemMessage('• status - System status');
-            this.addSystemMessage('• clear - Clear console');
-            this.addSystemMessage('• theme red/blue - Change theme');
-            this.addSystemMessage('• capture - Take screenshot');
-            this.addSystemMessage('• analyze - Analyze screen');
-            this.addSystemMessage('• shutdown - Shutdown system');
-            this.addSystemMessage('• restart - Restart system');
-            return;
+        switch (true) {
+            case lower === 'help':
+                this.addSystemMessage('Available commands: help, clear, status, theme <red|blue|high-contrast|ultron-steampunk>, capture, analyze, shutdown, restart');
+                return;
+            case lower === 'clear':
+                this.clearConsole();
+                return;
+            case lower === 'status':
+                this.addSystemMessage(`CPU: ${this.systemStats.cpu}%`);
+                this.addSystemMessage(`Memory: ${this.systemStats.memory}%`);
+                this.addSystemMessage(`Disk: ${this.systemStats.disk}%`);
+                this.addSystemMessage(`Network: ${this.systemStats.network}`);
+                return;
+            case lower.startsWith('theme '):
+                this.changeTheme(lower.split(' ')[1] || 'red');
+                this.addSystemMessage(`Theme changed to ${this.currentTheme}`);
+                return;
+            case lower === 'capture':
+                await this.captureScreen();
+                return;
+            case lower === 'analyze':
+                await this.analyzeVision();
+                return;
+            case lower === 'shutdown':
+                this.addSystemMessage('Use the power button for shutdown options.');
+                return;
+            case lower === 'restart':
+                this.addSystemMessage('Use the power button for restart options.');
+                return;
         }
 
-        if (lowerCommand === 'clear') {
-            this.clearConsole();
-            return;
-        }
-
-        if (lowerCommand === 'status') {
-            this.addSystemMessage(`CPU: ${this.systemStats.cpu}%`);
-            this.addSystemMessage(`Memory: ${this.systemStats.memory}%`);
-            this.addSystemMessage(`Disk: ${this.systemStats.disk}%`);
-            this.addSystemMessage(`Network: ${this.systemStats.network}`);
-            return;
-        }
-
-        if (lowerCommand.startsWith('theme ')) {
-            const theme = lowerCommand.split(' ')[1];
-            if (theme === 'red' || theme === 'blue') {
-                this.changeTheme(theme);
-                this.addSystemMessage(`Theme changed to ${theme}`);
-            } else {
-                this.addErrorMessage('Invalid theme. Use \"red\" or \"blue\"');
-            }
-            return;
-        }
-
-        if (lowerCommand === 'capture') {
-            this.captureScreen();
-            return;
-        }
-
-        if (lowerCommand === 'analyze') {
-            this.analyzeVision();
-            return;
-        }
-
-        if (lowerCommand === 'shutdown') {
-            this.addSystemMessage('⚠️ Shutdown command received');
-            this.addSystemMessage('Use the power button for shutdown options');
-            return;
-        }
-
-        if (lowerCommand === 'restart') {
-            this.addSystemMessage('⚠️ Restart command received');
-            this.addSystemMessage('Use the power button for restart options');
-            return;
-        }
-
-        // Try to send to backend
         try {
-            this.addSystemMessage('🔄 Processing command...');
-
-            // Track API call
+            // NOTE: Removed "Processing command..." notification per user request
+            // this.addSystemMessage('Processing command...');
             this.trackApiCall('/api/command');
-
             const response = await fetch(`${this.API_BASE_URL}/api/command`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ command: command })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command })
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    this.addSystemMessage(data.response || 'Command executed successfully');
-                } else {
-                    this.addErrorMessage(data.error || 'Command failed');
-                }
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+                this.addSystemMessage(data.response || 'Command executed successfully');
             } else {
-                this.addErrorMessage('Backend communication failed');
+                this.addErrorMessage(data.error || 'Command failed');
             }
         } catch (error) {
-            this.addErrorMessage('🚫 Backend offline - Local command processing only');
+            console.error('[ULTRON] Backend command failed - app.js:746', error);
+            this.addErrorMessage('Backend unavailable. Running in local mode.');
         }
-    }
-
-    addSystemMessage(message) {
-        this.addMessage('system', message);
-    }
-
-    addUserMessage(message) {
-        this.addMessage('user', message);
-    }
-
-    addErrorMessage(message) {
-        this.addMessage('error', message);
-    }
-
-    addMessage(type, content) {
-        const timestamp = new Date().toLocaleTimeString();
-        const message = { type, content, timestamp };
-        this.messages.push(message);
-
-        const consoleOutput = document.getElementById('console-output');
-        if (consoleOutput) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}-message`;
-            // Sanitize content to prevent XSS
-            const sanitizedContent = this.sanitizeHTML(content);
-            messageDiv.innerHTML = `
-                <span class=\"timestamp\">[${timestamp}]</span>
-                <span class=\"message-content\">${sanitizedContent}</span>
-            `;
-            consoleOutput.appendChild(messageDiv);
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
-        }
-    }
-
-    sanitizeHTML(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
     }
 
     clearConsole() {
-        this.messages = [];
-        const consoleOutput = document.getElementById('console-output');
-        if (consoleOutput) {
-            consoleOutput.innerHTML = '';
-        }
-        this.addSystemMessage('Console cleared');
-    }
-
-    handleDPadInput(direction) {
-        // Navigate between sections with D-pad
-        const sections = ['console', 'system', 'vision', 'tasks', 'files', 'settings'];
-        const currentIndex = sections.indexOf(this.currentSection);
-
-        let newIndex = currentIndex;
-        switch (direction) {
-            case 'up':
-                newIndex = Math.max(0, currentIndex - 3);
-                break;
-            case 'down':
-                newIndex = Math.min(sections.length - 1, currentIndex + 3);
-                break;
-            case 'left':
-                newIndex = Math.max(0, currentIndex - 1);
-                break;
-            case 'right':
-                newIndex = Math.min(sections.length - 1, currentIndex + 1);
-                break;
-        }
-
-        if (newIndex !== currentIndex) {
-            this.switchSection(sections[newIndex]);
+        if (this.dom.consoleOutput) {
+            this.dom.consoleOutput.innerHTML = '';
         }
     }
 
-    handleActionButton(button) {
-        if (button === 'A') {
-            // Dashboard - Show system overview and stats
-            this.switchSection('dashboard');
-            this.addSystemMessage('📊 Opening Dashboard...');
-            this.updateSystemStats();
-        } else if (button === 'B') {
-            // Nvidia Interface - Show AI/ML controls and NVIDIA integration
-            this.switchSection('nvidia');
-            this.addSystemMessage('🎯 Opening NVIDIA Interface...');
-            this.loadNvidiaStatus();
-        }
-    }
+    initializeAriaStates() {
+        // Set initial ARIA states for navigation tabs
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            const isActive = btn.dataset.section === this.currentSection;
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            btn.setAttribute('tabindex', isActive ? '0' : '-1');
+        });
 
-    showPowerMenu() {
-        const powerMenu = document.getElementById('power-menu');
-        if (powerMenu) {
-            powerMenu.classList.remove('hidden');
-        }
-    }
-
-    hidePowerMenu() {
-        const powerMenu = document.getElementById('power-menu');
-        if (powerMenu) {
-            powerMenu.classList.add('hidden');
-        }
-    }
-
-    async handlePowerAction(action) {
-        this.hidePowerMenu();
-
-        switch (action) {
-            case 'shutdown':
-                this.addSystemMessage('🔴 Initiating system shutdown...');
-                try {
-                    await this.apiCall('/api/power/shutdown', { method: 'POST' });
-                } catch (error) {
-                    this.addErrorMessage('Shutdown request failed');
-                }
-                break;
-            case 'restart':
-                this.addSystemMessage('🔄 Initiating system restart...');
-                try {
-                    await this.apiCall('/api/power/restart', { method: 'POST' });
-                } catch (error) {
-                    this.addErrorMessage('Restart request failed');
-                }
-                break;
-            case 'sleep':
-                this.addSystemMessage('💤 Entering sleep mode...');
-                try {
-                    await this.apiCall('/api/power/sleep', { method: 'POST' });
-                } catch (error) {
-                    this.addErrorMessage('Sleep request failed');
-                }
-                break;
-            case 'cancel':
-                this.addSystemMessage('Power operation cancelled');
-                break;
-        }
+        // Set initial ARIA states for sections
+        document.querySelectorAll('.section-content').forEach(section => {
+            const sectionId = section.id.replace('-section', '');
+            const isActive = sectionId === this.currentSection;
+            section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
     }
 
     changeTheme(theme) {
-        const pokedexBody = document.getElementById('pokedex-body');
-        if (pokedexBody) {
-            pokedexBody.className = `pokedex-body pokedex-${theme}`;
+        const validThemes = ['red', 'blue', 'high-contrast', 'ultron-steampunk'];
+        if (!validThemes.includes(theme)) {
+            theme = 'red';
+        }
+        const body = document.getElementById('pokedex-body');
+        if (body) {
+            // Remove all theme classes first
+            body.classList.remove('pokedex-red', 'pokedex-blue');
+            // Add the appropriate theme class
+            if (theme === 'red' || theme === 'blue') {
+                body.className = `pokedex-body pokedex-${theme}`;
+            } else {
+                // For special themes, apply to document.body
+                document.body.className = theme;
+            }
         }
         this.currentTheme = theme;
+    }
 
-        // Update theme selector
-        const themeSelect = document.getElementById('theme-select');
-        if (themeSelect) {
-            themeSelect.value = theme;
+    startAnimations() {
+        console.debug('[ULTRON] Animations ready - app.js:794');
+    }
+
+    loadConfiguration() {
+        console.debug('[ULTRON] Configuration loaded - app.js:798');
+    }
+
+    playStartupSound() {
+        this.playSound('startup');
+    }
+
+    playSound(sound) {
+        if (!this.soundEnabled) {
+            return;
+        }
+        try {
+            const audio = new Audio(`sounds/${sound}.mp3`);
+            audio.volume = 0.4;
+            audio.play().catch((error) => console.debug('[ULTRON] Audio blocked - app.js:812', error));
+        } catch (error) {
+            console.debug('[ULTRON] Audio play failed - app.js:814', error);
+        }
+    }
+
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.addSystemMessage(`Sound ${this.soundEnabled ? 'enabled' : 'muted'}`);
+    }
+
+    startLEDSequence() {
+        this.setLEDLight('led1', true);
+        setTimeout(() => this.setLEDLight('led2', true), 150);
+        setTimeout(() => this.setLEDLight('led3', true), 300);
+    }
+
+    setLEDLight(key, enabled) {
+        const element = this.dom.leds?.[key];
+        if (element) {
+            element.classList.toggle('active', Boolean(enabled));
+        }
+    }
+
+    updateClock() {
+        if (!this.dom.statusClock) {
+            return;
+        }
+        const now = new Date();
+        this.dom.statusClock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (this.timers.clock) {
+            clearTimeout(this.timers.clock);
+        }
+        this.timers.clock = setTimeout(() => this.updateClock(), 60 * 1000);
+    }
+
+    updateDate() {
+        if (!this.dom.statusDate) {
+            return;
+        }
+        this.dom.statusDate.textContent = new Date().toLocaleDateString();
+    }
+
+    async loadSystemInfo() {
+        await this.updateSystemStats();
+    }
+
+    async updateSystemInfo() {
+        await this.updateSystemStats();
+    }
+
+    async loadDashboard() {
+        await this.updateSystemStats();
+        await Promise.all([
+            this.syncVoiceStatus(),
+            this.refreshAgentInfo(),
+            this.loadLLMChatStatus()
+        ]);
+        this.renderDashboardSnapshot();
+    }
+
+    async refreshAgentInfo() {
+        try {
+            const response = await this.apiCall('/api/agent/info');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            this.latestAgentInfo = await response.json();
+        } catch (error) {
+            console.debug('[ULTRON] Agent info unavailable - app.js:881', error);
+            this.latestAgentInfo = null;
+        }
+    }
+
+    async syncVoiceStatus() {
+        try {
+            const response = await this.apiCall('/api/voice/status');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            this.latestVoiceStatus = await response.json();
+            const status = this.latestVoiceStatus || {};
+            // Don't auto-enable voice - keep it disabled until user clicks enable
+            // if (typeof status.voice_enabled === 'boolean') {
+            //     this.voiceEnabled = status.voice_enabled;
+            // } else {
+            //     this.voiceEnabled = Boolean(status.output_enabled || status.input_enabled || status.config_enabled);
+            // }
+        } catch (error) {
+            console.debug('[ULTRON] Voice status unavailable - app.js:901', error);
+            this.latestVoiceStatus = { status: 'unavailable' };
+            this.voiceEnabled = false;
+        }
+        this.ensureVoiceStatus();
+    }
+
+    async loadVisionSystem() {
+        try {
+            const response = await this.apiCall('/api/vision/status');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            this.renderVisionStatus(data);
+        } catch (error) {
+            console.debug('[ULTRON] Vision status unavailable - app.js:917', error);
+            this.renderVisionStatus({ status: 'offline' });
+        }
+    }
+
+    renderVisionStatus(status) {
+        const statusEl = document.getElementById('vision-status');
+        if (statusEl) {
+            statusEl.textContent = status.status ? status.status.toUpperCase() : 'UNKNOWN';
+        }
+    }
+
+    renderVisionResult(result) {
+        if (!this.dom.visionDisplay || !result) {
+            return;
+        }
+        this.dom.visionDisplay.innerHTML = '';
+        if (result.image_data) {
+            const img = document.createElement('img');
+            img.src = `data:image/png;base64,${result.image_data}`;
+            img.alt = 'Vision analysis result';
+            this.dom.visionDisplay.appendChild(img);
+        }
+        if (result.description) {
+            const description = document.createElement('div');
+            description.className = 'vision-description';
+            description.textContent = result.description;
+            this.dom.visionDisplay.appendChild(description);
         }
     }
 
     async captureScreen() {
-        this.addSystemMessage('📷 Capturing screen...');
         try {
-            const response = await this.apiCall('/api/vision/capture', { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                this.addSystemMessage('✅ Screen captured successfully');
-
-                // Switch to vision section to show result
-                this.switchSection('vision');
-
-                // Update vision display with screenshot and OCR text
-                const visionDisplay = document.getElementById('vision-display');
-                if (visionDisplay && data.image_path) {
-                    visionDisplay.innerHTML = `
-                        <div class="vision-result">
-                            <img src="${data.image_path}" alt="Screen Capture" style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem;">
-                            <div class="ocr-text" style="background: rgba(0,0,0,0.8); padding: 1rem; border-radius: 8px; color: #00ff41; font-family: monospace; white-space: pre-wrap;">
-                                <h4>OCR Text:</h4>
-                                <p>${data.ocr_text || 'No text detected'}</p>
-                            </div>
-                        </div>
-                    `;
-                }
-            } else {
-                this.addErrorMessage('Screen capture failed');
+            this.addSystemMessage('Capturing screen...');
+            const response = await this.apiCall('/api/vision/capture');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+            const data = await response.json();
+            this.addSystemMessage(data.message || 'Screen captured');
+            await this.loadVisionSystem();
         } catch (error) {
-            this.addErrorMessage('Screen capture error: ' + error.message);
+            console.error('[ULTRON] Capture failed - app.js:959', error);
+            this.addErrorMessage('Screen capture unavailable');
         }
     }
 
-    async updateSystemStats() {
+    async analyzeVision() {
         try {
-            const response = await this.apiCall('/api/status');
-            if (response.ok) {
-                const data = await response.json();
-                this.systemStats.cpu = data.system.cpu_percent;
-                this.systemStats.memory = data.system.memory_percent;
-                this.systemStats.disk = data.system.disk_percent;
-                this.updateStatsDisplay();
+            this.addSystemMessage('Running vision analysis...');
+            const response = await this.apiCall('/api/vision/analyze');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+            const data = await response.json();
+            this.renderVisionResult(data.result || {});
+            this.addSystemMessage('Vision analysis complete');
         } catch (error) {
-            console.error('Failed to update system stats: - app.js:951', error);
+            console.error('[ULTRON] Vision analysis failed - app.js:975', error);
+            this.addErrorMessage('Vision analysis unavailable');
         }
     }
 
-    updateStatsDisplay() {
-        // Update CPU display
-        const cpuDisplay = document.getElementById('cpu-display');
-        if (cpuDisplay) {
-            cpuDisplay.textContent = `${this.systemStats.cpu.toFixed(1)}%`;
+    async loadTasks() {
+        try {
+            const response = await this.apiCall('/api/system/processes');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            this.renderTaskList(data.processes || []);
+        } catch (error) {
+            console.debug('[ULTRON] Process list unavailable - app.js:989', error);
+            this.renderTaskList([]);
         }
+    }
 
-        // Update Memory display
-        const memDisplay = document.getElementById('memory-display');
-        if (memDisplay) {
-            memDisplay.textContent = `${this.systemStats.memory.toFixed(1)}%`;
+    renderTaskList(processes) {
+        const list = document.getElementById('task-list');
+        if (!list) {
+            return;
         }
+        if (!processes.length) {
+            list.innerHTML = '<li class="task-item">Process data unavailable</li>';
+            return;
+        }
+        list.innerHTML = processes.slice(0, 10).map(proc => {
+            const cpu = typeof proc.cpu === 'number' ? proc.cpu.toFixed(1) : proc.cpu || '-';
+            return `<li class="task-item"><span>${proc.name}</span><span>${cpu}% CPU</span></li>`;
+        }).join('');
+    }
 
-        // Update Disk display
-        const diskDisplay = document.getElementById('disk-display');
-        if (diskDisplay) {
-            diskDisplay.textContent = `${this.systemStats.disk.toFixed(1)}%`;
+    async loadFileSystem() {
+        try {
+            const response = await this.apiCall('/api/filesystem/overview');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            this.renderFileSystem(data.entries || []);
+        } catch (error) {
+            console.debug('[ULTRON] File system data unavailable - app.js:1018', error);
+            this.renderFileSystem([]);
         }
+    }
+
+    renderFileSystem(entries) {
+        const list = document.getElementById('file-system-list');
+        if (!list) {
+            return;
+        }
+        if (!entries.length) {
+            list.innerHTML = '<li class="file-item">File system data unavailable</li>';
+            return;
+        }
+        list.innerHTML = entries.slice(0, 12).map(entry => {
+            const name = entry.name || entry.path || 'Unknown';
+            const type = entry.type || '';
+            return `<li class="file-item"><span>${name}</span><span>${type}</span></li>`;
+        }).join('');
+    }
+
+    async loadProfileData() {
+        try {
+            const response = await this.apiCall('/api/profile');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            this.renderProfile(data);
+        } catch (error) {
+            console.debug('[ULTRON] Profile data unavailable - app.js:1048', error);
+            this.renderProfile(null);
+        }
+    }
+
+    renderProfile(profile) {
+        const container = document.getElementById('profile-details');
+        if (!container) {
+            return;
+        }
+        if (!profile) {
+            container.innerHTML = '<div class="empty-state">Profile data unavailable</div>';
+            return;
+        }
+        container.innerHTML = `
+            <div class="profile-card">
+                <h3>${profile.name || 'Ultron Operator'}</h3>
+                <p>${profile.role || 'Operator'}</p>
+            </div>
+        `;
     }
 
     async loadNvidiaStatus() {
         try {
             const response = await this.apiCall('/api/nvidia/status');
-            if (response.status === 200) {
-                const data = await response.json();
-                this.addSystemMessage('🎯 NVIDIA Status: ' + (data.status || 'Available'));
-                if (data.models) {
-                    this.addSystemMessage('🤖 Available Models: ' + data.models.length);
-                }
-                // Update UI with NVIDIA data
-                this.updateNvidiaUI(data);
-            } else {
-                this.addSystemMessage('⚠️ NVIDIA service not available');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            const statusEl = document.getElementById('nvidia-status');
+            if (statusEl) {
+                statusEl.textContent = data.status?.toUpperCase?.() || 'READY';
             }
         } catch (error) {
-            this.addSystemMessage('⚠️ NVIDIA integration offline');
+            console.debug('[ULTRON] NVIDIA status unavailable - app.js:1082', error);
         }
     }
 
-    updateNvidiaUI(data) {
-        // Update NVIDIA metrics
-        const metricsElement = document.getElementById('nvidia-metrics');
-        if (metricsElement && data.system) {
-            metricsElement.innerHTML = `
-                <div class="metric">
-                    <span class="metric-label">GPU Memory:</span>
-                    <span class="metric-value">${data.system.memory_used || 'N/A'} / ${data.system.memory_total || 'N/A'}</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Temperature:</span>
-                    <span class="metric-value">${data.system.temperature || 'N/A'}°C</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Status:</span>
-                    <span class="metric-value">${data.status || 'Unknown'}</span>
-                </div>
-            `;
-        }
-
-        // Update model list
-        const modelListElement = document.getElementById('model-list');
-        if (modelListElement && data.models) {
-            modelListElement.innerHTML = data.models.map(model =>
-                `<div class="model-item">${model.name || model}</div>`
-            ).join('');
-        }
-    }
-
-    toggleVoice() {
-        this.isListening = !this.isListening;
-        const voiceBtn = document.getElementById('voice-toggle');
-        if (voiceBtn) {
-            voiceBtn.textContent = this.isListening ? '🎤 Disable' : '🎤 Enable';
-        }
-
-        if (this.isListening) {
-            this.addSystemMessage('🎤 Voice recognition enabled');
-        } else {
-            this.addSystemMessage('🔇 Voice recognition disabled');
-        }
-    }
-
-    toggleSound() {
-        // Toggle sound on/off
-        this.addSystemMessage('🔊 Sound toggled');
-    }
-
-    async loadSystemInfo() {
-        try {
-            const response = await this.apiCall('/api/status');
-            if (response.ok) {
-                const data = await response.json();
-
-                // Update dashboard metrics
-                const overallStatus = document.getElementById('overall-status');
-                if (overallStatus) {
-                    overallStatus.textContent = data.overall_status.toUpperCase();
-                    overallStatus.className = data.overall_status === 'operational' ? 'status-operational' : 'status-degraded';
-                }
-
-                const agentStatus = document.getElementById('agent-status');
-                if (agentStatus && data.agent) {
-                    agentStatus.textContent = data.agent.status.toUpperCase();
-                }
-
-                const systemUptime = document.getElementById('system-uptime');
-                if (systemUptime && data.agent) {
-                    systemUptime.textContent = data.agent.uptime;
-                }
-
-                this.addSystemMessage('📊 Dashboard updated with latest system information');
-            }
-        } catch (error) {
-            console.error('Failed to load system info: - app.js:1068', error);
-            this.addErrorMessage('Failed to load dashboard information');
-        }
-    }
-
-    async loadFileSystem() {
-        const fileList = document.getElementById('file-list');
-        if (fileList) {
-            try {
-                const response = await this.apiCall('/api/files');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.files) {
-                        fileList.innerHTML = data.files.map(file => `
-                            <div class="file-item">${file.is_dir ? '📁' : '📄'} ${file.name}</div>
-                        `).join('');
-                    } else {
-                        fileList.innerHTML = '<div class="file-item">Error loading files</div>';
-                    }
-                } else {
-                    fileList.innerHTML = '<div class="file-item">Error loading files</div>';
-                }
-            } catch (error) {
-                fileList.innerHTML = '<div class="file-item">Error loading files</div>';
-            }
-        }
-    }
-
-    loadTasks() {
-        const taskList = document.getElementById('task-list');
-        if (taskList) {
-            taskList.innerHTML = `
-                <div class="task-item">✅ System initialization complete</div>
-                <div class="task-item">🔄 Voice recognition standby</div>
-                <div class="task-item">🔄 Vision system monitoring</div>
-                <div class="task-item">⏸️ Scheduled maintenance</div>
-            `;
-        }
-    }
-
-    loadVisionSystem() {
-        const visionDisplay = document.getElementById('vision-display');
-        if (visionDisplay) {
-            visionDisplay.innerHTML = `
-                <div class="vision-placeholder">
-                    Vision system ready<br>
-                    Click CAPTURE to take screenshot<br>
-                    Click ANALYZE to process current view
-                </div>
-            `;
-        }
-    }
-
-    loadProfileData() {
-        // Profile data is static for now, but could be loaded from backend
-        // Update any dynamic elements if needed
-        const profileName = document.querySelector('.profile-name');
-        const profileEmail = document.querySelector('.profile-email');
-        const profileStatus = document.querySelector('.profile-status .status-online');
-
-        if (profileName) profileName.textContent = 'ULTRON Agent';
-        if (profileEmail) profileEmail.textContent = 'ultron.agent@example.com';
-        if (profileStatus) profileStatus.textContent = 'Online';
-
-        // Set up event listeners for profile buttons
-        this.setupProfileEventListeners();
-    }
-
-    setupProfileEventListeners() {
-        // Edit Profile button
-        document.getElementById('edit-profile-btn')?.addEventListener('click', () => {
-            this.addSystemMessage('📝 Profile edit feature coming soon');
-            this.playSound('button');
-        });
-
-        // Export Data button
-        document.getElementById('export-data-btn')?.addEventListener('click', () => {
-            this.addSystemMessage('📦 Data export feature coming soon');
-            this.playSound('button');
-        });
-
-        // Reset System button
-        document.getElementById('reset-system-btn')?.addEventListener('click', () => {
-            this.addSystemMessage('⚠️ System reset requested');
-            this.addSystemMessage('Use the power menu for system reset options');
-            this.playSound('button');
-        });
-    }
-
-    // AutoGen Studio Methods
     async loadAutoGenStatus() {
         try {
             const response = await this.apiCall('/api/autogen/status');
-            if (response.ok) {
-                const data = await response.json();
-                this.updateAutoGenUI(data);
-                this.addAutoGenMessage('system', 'AutoGen Studio status loaded');
-            } else {
-                this.addAutoGenMessage('error', 'Failed to load AutoGen Studio status');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+            const data = await response.json();
+            this.renderAutoGenStatus(data);
         } catch (error) {
-            this.addAutoGenMessage('error', 'AutoGen Studio service unavailable');
+            console.debug('[ULTRON] AutoGen status unavailable - app.js:1095', error);
+            this.renderAutoGenStatus({ status: 'offline' });
         }
     }
 
-    updateAutoGenUI(data) {
-        // Update status
-        const statusElement = document.getElementById('autogen-status');
-        if (statusElement) {
-            statusElement.textContent = data.status || 'Unknown';
-            statusElement.className = data.status === 'running' ? 'status-running' : 'status-stopped';
+    renderAutoGenStatus(status) {
+        const statusEl = document.getElementById('autogen-status');
+        if (statusEl) {
+            statusEl.textContent = status.status ? status.status.toUpperCase() : 'UNKNOWN';
         }
-
-        // Update port
-        const portElement = document.getElementById('autogen-port');
-        if (portElement) {
-            portElement.textContent = data.port || '8081';
+        const historyEl = document.getElementById('autogen-history');
+        if (historyEl) {
+            if (Array.isArray(status.history) && status.history.length) {
+                historyEl.innerHTML = status.history.slice(-10).map(item => `<li>${item}</li>`).join('');
+            } else {
+                historyEl.innerHTML = '<li>No recent AutoGen activity</li>';
+            }
         }
+    }
 
-        // Update sessions
-        const sessionsElement = document.getElementById('autogen-sessions');
-        if (sessionsElement) {
-            sessionsElement.textContent = data.active_sessions || '0';
-        }
-
-        // Update agents list
-        const agentListElement = document.getElementById('agent-list');
-        if (agentListElement && data.agents) {
-            agentListElement.innerHTML = data.agents.map(agent =>
-                `<div class="agent-item">${agent.name || agent}</div>`
-            ).join('') || '<div class="agent-item">No agents available</div>';
+    async sendAutoGenAction(endpoint, message) {
+        try {
+            this.addSystemMessage(message);
+            const response = await this.apiCall(endpoint, { method: 'POST' });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            await this.loadAutoGenStatus();
+        } catch (error) {
+            console.debug('[ULTRON] AutoGen action failed - app.js:1124', error);
+            this.addErrorMessage('AutoGen action failed');
         }
     }
 
     async startAutoGenStudio() {
-        this.addAutoGenMessage('system', 'Starting AutoGen Studio...');
-        try {
-            const response = await this.apiCall('/api/autogen/start', { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                this.addAutoGenMessage('system', 'AutoGen Studio started successfully');
-                setTimeout(() => this.loadAutoGenStatus(), 2000);
-            } else {
-                this.addAutoGenMessage('error', 'Failed to start AutoGen Studio');
-            }
-        } catch (error) {
-            this.addAutoGenMessage('error', 'Error starting AutoGen Studio: ' + error.message);
-        }
+        await this.sendAutoGenAction('/api/autogen/start', 'Starting AutoGen Studio...');
     }
 
     async stopAutoGenStudio() {
-        this.addAutoGenMessage('system', 'Stopping AutoGen Studio...');
-        try {
-            const response = await this.apiCall('/api/autogen/stop', { method: 'POST' });
-            if (response.ok) {
-                this.addAutoGenMessage('system', 'AutoGen Studio stopped successfully');
-                setTimeout(() => this.loadAutoGenStatus(), 1000);
-            } else {
-                this.addAutoGenMessage('error', 'Failed to stop AutoGen Studio');
-            }
-        } catch (error) {
-            this.addAutoGenMessage('error', 'Error stopping AutoGen Studio: ' + error.message);
-        }
+        await this.sendAutoGenAction('/api/autogen/stop', 'Stopping AutoGen Studio...');
     }
 
     async refreshAutoGenStatus() {
-        this.addAutoGenMessage('system', 'Refreshing AutoGen Studio status...');
+        this.addSystemMessage('Refreshing AutoGen status...');
         await this.loadAutoGenStatus();
     }
 
-    openAutoGenStudio() {
-        const portElement = document.getElementById('autogen-port');
-        const port = portElement ? portElement.textContent : '8081';
-        const url = `http://localhost:${port}`;
-        window.open(url, '_blank');
-        this.addAutoGenMessage('system', `Opening AutoGen Studio at ${url}`);
+    async openAutoGenStudio() {
+        window.open('/autogen', '_blank');
     }
 
     async createAutoGenAgent() {
-        this.addAutoGenMessage('system', 'Creating new AutoGen agent...');
-        try {
-            const response = await this.apiCall('/api/autogen/create-agent', { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                this.addAutoGenMessage('system', `Agent created: ${data.agent_name || 'New Agent'}`);
-                setTimeout(() => this.loadAutoGenStatus(), 1000);
-            } else {
-                this.addAutoGenMessage('error', 'Failed to create agent');
-            }
-        } catch (error) {
-            this.addAutoGenMessage('error', 'Error creating agent: ' + error.message);
-        }
+        await this.sendAutoGenAction('/api/autogen/create-agent', 'Creating AutoGen agent...');
     }
 
     async createAutoGenWorkflow() {
-        this.addAutoGenMessage('system', 'Creating new AutoGen workflow...');
-        try {
-            const response = await this.apiCall('/api/autogen/create-workflow', { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                this.addAutoGenMessage('system', `Workflow created: ${data.workflow_name || 'New Workflow'}`);
-                setTimeout(() => this.loadAutoGenStatus(), 1000);
-            } else {
-                this.addAutoGenMessage('error', 'Failed to create workflow');
-            }
-        } catch (error) {
-            this.addAutoGenMessage('error', 'Error creating workflow: ' + error.message);
-        }
+        await this.sendAutoGenAction('/api/autogen/create-workflow', 'Creating AutoGen workflow...');
     }
 
-    async handleAutoGenCommand(command) {
-        this.addAutoGenMessage('user', `Executing: ${command}`);
-        try {
-            const response = await this.apiCall('/api/autogen/command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: command })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                this.addAutoGenMessage('system', data.response || 'Command executed successfully');
-                setTimeout(() => this.loadAutoGenStatus(), 1000);
-            } else {
-                this.addAutoGenMessage('error', 'Command execution failed');
-            }
-        } catch (error) {
-            this.addAutoGenMessage('error', 'Error executing command: ' + error.message);
-        }
-    }
-
-    addAutoGenMessage(type, content) {
-        const timestamp = new Date().toLocaleTimeString();
-        const outputElement = document.getElementById('autogen-output');
-        if (outputElement) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `output-message ${type}-message`;
-            messageDiv.innerHTML = `
-                <span class="timestamp">[${timestamp}]</span>
-                <span class="message-content">${content}</span>
-            `;
-            const contentElement = outputElement.querySelector('.output-content');
-            if (contentElement) {
-                contentElement.appendChild(messageDiv);
-                contentElement.scrollTop = contentElement.scrollHeight;
-            }
-        }
-    }
-
-    // LLM Chat Methods
-    async loadLLMChatStatus() {
-        try {
-            const response = await this.apiCall('/api/llm/status');
-            if (response.ok) {
-                const data = await response.json();
-                this.updateLLMStatus(data);
-            } else {
-                this.updateLLMStatus({ model: 'Unknown', status: 'Offline' });
-            }
-        } catch (error) {
-            this.updateLLMStatus({ model: 'Error', status: 'Offline' });
-        }
-    }
-
-    updateLLMStatus(data) {
-        const modelElement = document.getElementById('active-model');
-        const statusElement = document.getElementById('model-status');
-
-        if (modelElement) {
-            modelElement.textContent = data.model || 'Loading...';
-        }
-
-        if (statusElement) {
-            const status = data.status || 'Unknown';
-            statusElement.textContent = status === 'online' ? '🟢' : status === 'busy' ? '🟡' : '🔴';
-            statusElement.title = status;
-        }
-    }
-
-    async sendChatMessage(isVoiceTriggered = false) {
-        const inputElement = document.getElementById('chat-input');
-        if (!inputElement || !inputElement.value.trim()) return;
-
-        const message = inputElement.value.trim();
-        inputElement.value = '';
-
-        // Add user message
-        this.addChatMessage('user', message, 'You');
-
-        // Also display in ElevenLabs text overlay
-        this.displayElevenLabsResponse(message, 'user');
-
-        // Show typing indicator
-        this.showTypingIndicator();
-
-        try {
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 130000); // 130 seconds (10s more than server)
-
-            const response = await this.apiCall('/api/llm/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message }),
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-
-            // Hide typing indicator
-            this.hideTypingIndicator();
-
-            if (response.ok) {
-                const data = await response.json();
-                this.addChatMessage('system', data.response || 'No response', 'ULTRON AI');
-
-                // Speak the AI response using ElevenLabs TTS
-                if (data.response && data.response.trim()) {
-                    this.speakText(data.response, isVoiceTriggered);
-                    // Also display in ElevenLabs text overlay
-                    this.displayElevenLabsResponse(data.response, 'ai');
-                }
-
-                // Legacy audio data support (if server sends audio)
-                if (data.audio_data) {
-                    const audioData = new Uint8Array(data.audio_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-                    const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    const audio = new Audio(audioUrl);
-                    audio.play();
-                }
-            } else {
-                this.addChatMessage('error', 'Failed to get response from AI', 'System');
-            }
-        } catch (error) {
-            this.hideTypingIndicator();
-
-            if (error.name === 'AbortError') {
-                this.addChatMessage('error', 'Request timed out. The AI model is taking too long to respond. Try again or switch to a faster model.', 'System');
-            } else {
-                this.addChatMessage('error', 'Error communicating with AI: ' + error.message, 'System');
-            }
-        }
-    }
-
-    addChatMessage(type, content, sender) {
-        const messagesElement = document.getElementById('chat-messages');
-        if (!messagesElement) return;
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${type}-message`;
-
-        const timestamp = new Date().toLocaleTimeString();
-        const avatar = type === 'user' ? '👤' : type === 'error' ? '⚠️' : '🤖';
-
-        messageDiv.innerHTML = `
-            <div class="message-avatar">${avatar}</div>
-            <div class="message-content">
-                <div class="message-header">${sender}</div>
-                <div class="message-text">${content}</div>
-                <div class="message-time">${timestamp}</div>
-            </div>
-        `;
-
-        messagesElement.appendChild(messageDiv);
-        messagesElement.scrollTop = messagesElement.scrollHeight;
-    }
-
-    showTypingIndicator() {
-        const messagesElement = document.getElementById('chat-messages');
-        if (!messagesElement) return;
-
-        const indicatorDiv = document.createElement('div');
-        indicatorDiv.className = 'chat-message system-message typing-indicator';
-        indicatorDiv.id = 'typing-indicator';
-        indicatorDiv.innerHTML = `
-            <div class="message-avatar">🤖</div>
-            <div class="message-content">
-                <div class="message-header">ULTRON AI</div>
-                <div class="message-text">Typing...</div>
-            </div>
-        `;
-
-        messagesElement.appendChild(indicatorDiv);
-        messagesElement.scrollTop = messagesElement.scrollHeight;
-    }
-
-    hideTypingIndicator() {
-        const indicator = document.getElementById('typing-indicator');
-        if (indicator) {
-            indicator.remove();
-        }
-    }
-
-    toggleVoiceChat() {
-        this.isListening = !this.isListening;
-        const voiceBtn = document.getElementById('voice-chat-btn');
-
-        if (this.isListening) {
-            if (voiceBtn) {
-                voiceBtn.innerHTML = '<span>🎙️</span> Listening...';
-                voiceBtn.style.background = 'linear-gradient(145deg, #dc2626, #b91c1c)';
-            }
-            this.addChatMessage('system', 'Voice input activated. Speak your message.', 'System');
-            // Start voice recognition
-            this.startVoiceRecognition();
-        } else {
-            if (voiceBtn) {
-                voiceBtn.innerHTML = '<span>🎤</span> Voice';
-                voiceBtn.style.background = '';
-            }
-            this.addChatMessage('system', 'Voice input deactivated.', 'System');
-            // Stop voice recognition
-            this.stopVoiceRecognition();
-        }
-    }
-
-    startVoiceRecognition() {
-        // Voice recognition implementation with TTS coordination
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            this.addChatMessage('error', 'Voice recognition not supported in this browser.', 'System');
-            return;
-        }
-
-        // Check if voice recognition should be disabled due to recent TTS or speaking
-        if (this.isSpeaking || (this.voiceDisabledUntil && Date.now() < this.voiceDisabledUntil)) {
-            console.log('[STT] Voice recognition disabled (TTS active or cooldown) - app.js:1493');
-            return;
-        }
-
-        // If TTS is currently playing, delay starting recognition
-        if (this.isSpeaking) {
-            console.log('[STT] TTS is active, delaying voice recognition start - app.js:1499');
-            setTimeout(() => {
-                if (this.isListening && !this.isSpeaking && Date.now() > this.voiceDisabledUntil) {
-                    this.startVoiceRecognition();
-                }
-            }, 500);
-            return;
-        }
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognition();
-        this.recognition.continuous = false;
-        this.recognition.interimResults = false;
-        this.recognition.lang = 'en-US';
-
-        this.recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript.trim();
-
-            // Enhanced filtering to prevent TTS audio capture
-            if (this.lastSpokenText && transcript.length > 3) {
-                const similarity = this.calculateTextSimilarity(transcript.toLowerCase(), this.lastSpokenText.toLowerCase());
-                // Check if this transcript is very similar to recent TTS output
-                if (similarity > 0.6) {
-                    console.warn(`[STT] Filtered out potential TTS echo (similarity: ${similarity.toFixed(2)}) - app.js:1522`);
-                    return; // Ignore this result
-                }
-
-                // Also check if this is a very recent voice response (prevent self-looping)
-                if (this.lastVoiceResponseTime && Date.now() - this.lastVoiceResponseTime < 3000) {
-                    console.warn('[STT] Ignoring voice input too soon after voice response (preventing selfloop) - app.js:1528');
-                    return;
-                }
-            }
-
-            console.log(`[STT] Recognized speech: "${transcript}" - app.js:1533`);
-            const inputElement = document.getElementById('chat-input');
-            if (inputElement) {
-                inputElement.value = transcript;
-                this.sendChatMessage(true); // Mark as voice-triggered
-            }
-        };
-
-        this.recognition.onerror = (event) => {
-            // Handle different error types
-            if (event.error === 'no-speech') {
-                // Don't deactivate for no-speech - just continue listening
-                console.log('[STT] No speech detected, continuing to listen - app.js:1545');
-            } else if (event.error === 'audio-capture') {
-                this.addChatMessage('error', 'Microphone access denied or not available', 'System');
-                this.toggleVoiceChat(); // Turn off voice mode for serious errors
-            } else if (event.error === 'not-allowed') {
-                this.addChatMessage('error', 'Microphone permission denied', 'System');
-                this.toggleVoiceChat(); // Turn off voice mode for permission issues
-            } else {
-                console.error(`[STT] Voice recognition error: ${event.error} - app.js:1553`);
-                // For other errors, continue listening instead of turning off
-            }
-        };
-
-        this.recognition.onend = () => {
-            if (this.isListening && !this.isSpeaking && Date.now() > this.voiceDisabledUntil) {
-                // Restart recognition for continuous listening, but respect TTS state and cooldown
-                setTimeout(() => {
-                    if (this.isListening && !this.isSpeaking && Date.now() > this.voiceDisabledUntil) {
-                        this.recognition.start();
-                    }
-                }, 1000);
-            }
-        };
-
-        try {
-            this.recognition.start();
-            console.log('[STT] Voice recognition started - app.js:1571');
-        } catch (error) {
-            console.error('[STT] Failed to start voice recognition: - app.js:1573', error);
-        }
-    }
-
-    // Calculate text similarity to filter out TTS audio capture
-    calculateTextSimilarity(text1, text2) {
-        if (!text1 || !text2) return 0;
-
-        // Simple Levenshtein distance-based similarity
-        const longer = text1.length > text2.length ? text1 : text2;
-        const shorter = text1.length > text2.length ? text2 : text1;
-
-        if (longer.length === 0) return 1.0;
-
-        const distance = this.levenshteinDistance(longer, shorter);
-        return (longer.length - distance) / longer.length;
-    }
-
-    // Levenshtein distance calculation
-    levenshteinDistance(str1, str2) {
-        const matrix = [];
-
-        for (let i = 0; i <= str2.length; i++) {
-            matrix[i] = [i];
-        }
-
-        for (let j = 0; j <= str1.length; j++) {
-            matrix[0][j] = j;
-        }
-
-        for (let i = 1; i <= str2.length; i++) {
-            for (let j = 1; j <= str1.length; j++) {
-                if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-                    matrix[i][j] = matrix[i - 1][j - 1];
-                } else {
-                    matrix[i][j] = Math.min(
-                        matrix[i - 1][j - 1] + 1, // substitution
-                        matrix[i][j - 1] + 1,     // insertion
-                        matrix[i - 1][j] + 1      // deletion
-                    );
-                }
-            }
-        }
-
-        return matrix[str2.length][str1.length];
-    }
-
-    stopVoiceRecognition() {
-        if (this.recognition) {
-            this.recognition.stop();
-            console.log('[STT] Voice recognition stopped - app.js:1623');
-        }
-    }
-
-    clearChat() {
-        const messagesElement = document.getElementById('chat-messages');
-        if (messagesElement) {
-            messagesElement.innerHTML = '';
-            this.addChatMessage('system', 'Chat history cleared.', 'System');
-        }
-    }
-
-    exportChat() {
-        const messages = document.querySelectorAll('.chat-message');
-        let chatContent = 'ULTRON AI Chat Export\n';
-        chatContent += '=' .repeat(50) + '\n\n';
-
-        messages.forEach(message => {
-            const header = message.querySelector('.message-header')?.textContent || '';
-            const text = message.querySelector('.message-text')?.textContent || '';
-            const time = message.querySelector('.message-time')?.textContent || '';
-
-            chatContent += `[${time}] ${header}: ${text}\n\n`;
-        });
-
-        // Create and download file
-        const blob = new Blob([chatContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `ultron_chat_${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        this.addChatMessage('system', 'Chat exported successfully.', 'System');
-    }
-
-    async testTTS() {
-        console.log('[TTS Test] Starting TTS test... - app.js:1663');
-        const testText = "Hello! This is a test of the ULTRON AI text-to-speech functionality using ElevenLabs. If you can hear this, TTS is working correctly.";
-
-        this.addChatMessage('system', 'Testing TTS functionality...', 'System');
-        console.log('[TTS Test] Added system message, about to call speakText - app.js:1667');
-
-        try {
-            console.log('[TTS Test] Calling speakText with: - app.js:1670', testText.substring(0, 50) + '...');
-            await this.speakText(testText);
-            console.log('[TTS Test] speakText completed successfully - app.js:1672');
-            this.addChatMessage('system', '✅ TTS test completed. You should hear the test message.', 'System');
-        } catch (error) {
-            console.error('[TTS Test] speakText threw an error: - app.js:1675', error);
-            this.addChatMessage('error', `❌ TTS test failed: ${error.message}`, 'System');
-            console.error('[TTS Test] Full error details: - app.js:1677', {
-                name: error.name,
-                message: error.message,
-                stack: error.stack
-            });
-        }
-    }
-
-    async switchModel() {
-        try {
-            const response = await this.apiCall('/api/llm/models');
-            if (response.ok) {
-                const data = await response.json();
-                // Show model selection dialog
-                this.showModelSelection(data.models);
-            } else {
-                this.addChatMessage('error', 'Failed to load available models.', 'System');
-            }
-        } catch (error) {
-            this.addChatMessage('error', 'Error loading models: ' + error.message, 'System');
-        }
-    }
-
-    showModelSelection(models) {
-        // Create modal for model selection
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width: 500px;">
-                <div class="modal-title">SELECT AI MODEL</div>
-                <div class="model-list" style="margin: 2rem 0;">
-                    ${models.map(model => `
-                        <button class="model-option" data-model="${model.name}" style="
-                            display: block;
-                            width: 100%;
-                            padding: 1rem;
-                            margin: 0.5rem 0;
-                            background: rgba(0, 255, 65, 0.1);
-                            border: 1px solid #00ff41;
-                            border-radius: 8px;
-                            color: #00ff41;
-                            font-family: 'Orbitron', monospace;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.background='rgba(0, 255, 65, 0.2)'" onmouseout="this.style.background='rgba(0, 255, 65, 0.1)'">
-                            ${model.name} - ${model.description || 'AI Model'}
-                        </button>
-                    `).join('')}
-                </div>
-                <div style="text-align: center;">
-                    <button class="power-btn" data-action="cancel" style="margin-top: 1rem;">CANCEL</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        // Handle model selection
-        modal.querySelectorAll('.model-option').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const modelName = e.currentTarget.dataset.model;
-                await this.selectModel(modelName);
-                document.body.removeChild(modal);
-            });
-        });
-
-        // Handle cancel
-        modal.querySelector('[data-action="cancel"]').addEventListener('click', () => {
-            document.body.removeChild(modal);
-        });
-    }
-
-    async selectModel(modelName) {
-        try {
-            const response = await this.apiCall('/api/llm/switch-model', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model: modelName })
-            });
-
-            if (response.ok) {
-                this.addChatMessage('system', `Switched to model: ${modelName}`, 'System');
-                setTimeout(() => this.loadLLMChatStatus(), 1000);
-            } else {
-                this.addChatMessage('error', 'Failed to switch model.', 'System');
-            }
-        } catch (error) {
-            this.addChatMessage('error', 'Error switching model: ' + error.message, 'System');
-        }
-    }
-
-    async handleQuickAction(prompt) {
-        const inputElement = document.getElementById('chat-input');
-        if (inputElement) {
-            inputElement.value = prompt;
-            this.addChatMessage('system', `Quick action selected: ${prompt}`, 'System');
-        }
-    }
-
-    // Tool Integration Methods
     async loadToolsStatus() {
         try {
-            const response = await this.apiCall('/api/tools/status');
-            if (response.ok) {
-                const data = await response.json();
-                this.updateToolsUI(data);
-            } else {
-                this.showToolsError('Failed to load tools status');
+            const response = await this.apiCall('/api/tools');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+            const data = await response.json();
+            this.renderTools(data.tools || []);
         } catch (error) {
-            this.showToolsError('Error loading tools: ' + error.message);
+            console.debug('[ULTRON] Tool list unavailable - app.js:1163', error);
+            this.renderTools([]);
         }
     }
 
-    updateToolsUI(data) {
-        // Update statistics
-        const totalToolsElement = document.getElementById('total-tools');
-        const activeToolsElement = document.getElementById('active-tools');
-        const toolUsageElement = document.getElementById('tool-usage');
-
-        if (totalToolsElement) totalToolsElement.textContent = data.total || 0;
-        if (activeToolsElement) activeToolsElement.textContent = data.active || 0;
-        if (toolUsageElement) toolUsageElement.textContent = data.usage || 0;
-
-        // Update tools grid
-        this.renderToolsGrid(data.tools || []);
-    }
-
-    renderToolsGrid(tools) {
-        const toolsGrid = document.getElementById('tools-grid');
-        if (!toolsGrid) return;
-
-        if (!tools || tools.length === 0) {
-            toolsGrid.innerHTML = `
-                <div class="tool-placeholder">
-                    <div class="loading-spinner"></div>
-                    <p>No tools available</p>
-                </div>
-            `;
+    renderTools(tools) {
+        if (!this.dom.toolGrid) {
             return;
         }
+        if (!tools.length) {
+            this.dom.toolGrid.innerHTML = '<div class="empty-state">No tools available</div>';
+            return;
+        }
+        this.dom.toolGrid.innerHTML = tools.map(tool => `
+            <div class="tool-card" data-tool="${tool.name}">
+                <h4>${tool.name}</h4>
+                <p>${tool.description || 'No description provided.'}</p>
+            </div>
+        `).join('');
 
-        const toolsHtml = tools.map(tool => this.createToolCard(tool)).join('');
-        toolsGrid.innerHTML = toolsHtml;
-
-        // Add click handlers for tool cards
-        toolsGrid.querySelectorAll('.tool-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                const toolName = e.currentTarget.dataset.tool;
-                this.selectTool(toolName);
+        this.dom.toolGrid.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('click', () => {
+                this.showToolDetails(card.dataset.tool, tools);
             });
         });
     }
 
-    createToolCard(tool) {
-        const statusClass = tool.status === 'active' ? 'active' : tool.status === 'loading' ? 'loading' : 'inactive';
-        const statusText = tool.status || 'unknown';
-        const icon = this.getToolIcon(tool.name);
-
-        return `
-            <div class="tool-card" data-tool="${tool.name}">
-                <div class="tool-card-header">
-                    <div style="display: flex; align-items: center;">
-                        <span class="tool-icon">${icon}</span>
-                        <span class="tool-name">${tool.name}</span>
-                    </div>
-                    <span class="tool-status ${statusClass}">${statusText}</span>
-                </div>
-                <div class="tool-description">${tool.description || 'No description available'}</div>
-                <div class="tool-meta">
-                    <span>Uses: ${tool.usage_count || 0}</span>
-                    <span>Last: ${tool.last_used || 'Never'}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    getToolIcon(toolName) {
-        const iconMap = {
-            'calculator': '🧮',
-            'file_tool': '📁',
-            'code_analysis': '💻',
-            'web_search': '🌐',
-            'weather': '🌤️',
-            'system_monitor': '⚙️',
-            'audio_manager': '🔊',
-            'image_generation': '🎨',
-            'database': '🗄️',
-            'network': '📡',
-            'process_management': '🔧',
-            'screen_reader': '👁️',
-            'system_control': '🎛️',
-            'geocode': '📍',
-            'blockchain': '⛓️',
-            'quantum_computing': '⚛️',
-            'pochi': '🐕',
-            'autogen_studio': '🤖',
-            'openai_tools': '🧠',
-            'agent_network': '🌐'
-        };
-
-        // Try exact match first
-        if (iconMap[toolName]) {
-            return iconMap[toolName];
-        }
-
-        // Try partial match
-        for (const [key, icon] of Object.entries(iconMap)) {
-            if (toolName.includes(key)) {
-                return icon;
-            }
-        }
-
-        return '🔧'; // Default tool icon
-    }
-
-    async selectTool(toolName) {
-        // Update selected tool visual
-        document.querySelectorAll('.tool-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        document.querySelector(`[data-tool="${toolName}"]`).classList.add('selected');
-
-        // Load tool details
-        try {
-            const response = await this.apiCall(`/api/tools/${toolName}`);
-            if (response.ok) {
-                const toolData = await response.json();
-                this.showToolDetails(toolData);
-            } else {
-                this.showToolDetails({ name: toolName, error: 'Failed to load tool details' });
-            }
-        } catch (error) {
-            this.showToolDetails({ name: toolName, error: 'Error loading tool details: ' + error.message });
-        }
-    }
-
-    showToolDetails(tool) {
-        const detailsElement = document.getElementById('tool-details');
-        if (!detailsElement) return;
-
-        if (tool.error) {
-            detailsElement.innerHTML = `
-                <div class="tool-info-placeholder">
-                    Error: ${tool.error}
-                </div>
-            `;
+    showToolDetails(toolName, tools) {
+        const tool = tools.find(t => t.name === toolName);
+        if (!tool || !this.dom.toolDetails) {
             return;
         }
-
-        const icon = this.getToolIcon(tool.name);
-        const statusClass = tool.status === 'active' ? 'active' : tool.status === 'loading' ? 'loading' : 'inactive';
-
-        detailsElement.innerHTML = `
-            <div class="tool-detail-content">
-                <div class="tool-detail-header">
-                    <span class="tool-detail-icon">${icon}</span>
-                    <div class="tool-detail-info">
-                        <h3>${tool.name}</h3>
-                        <span class="tool-detail-status ${statusClass}">${tool.status || 'unknown'}</span>
-                    </div>
-                </div>
-                <div class="tool-detail-description">
-                    ${tool.description || 'No description available'}
-                </div>
-                <div class="tool-detail-meta">
-                    <div class="tool-detail-meta-item">
-                        <h4>Usage Statistics</h4>
-                        <p>Total Uses: ${tool.usage_count || 0}</p>
-                        <p>Last Used: ${tool.last_used || 'Never'}</p>
-                        <p>Success Rate: ${tool.success_rate || 'N/A'}%</p>
-                    </div>
-                    <div class="tool-detail-meta-item">
-                        <h4>Technical Details</h4>
-                        <p>Class: ${tool.class_name || 'Unknown'}</p>
-                        <p>Module: ${tool.module || 'Unknown'}</p>
-                        <p>Version: ${tool.version || 'N/A'}</p>
-                    </div>
-                    <div class="tool-detail-meta-item">
-                        <h4>Parameters</h4>
-                        <p>${tool.parameters ? Object.keys(tool.parameters).length : 0} parameters</p>
-                        <p>Async: ${tool.is_async ? 'Yes' : 'No'}</p>
-                        <p>Requires Config: ${tool.requires_config ? 'Yes' : 'No'}</p>
-                    </div>
-                </div>
-                <div class="tool-detail-actions">
-                    <button class="tool-btn" onclick="ultronInterface.testTool('${tool.name}')">🧪 Test Tool</button>
-                    <button class="tool-btn" onclick="ultronInterface.reloadTool('${tool.name}')">🔄 Reload</button>
-                    <button class="tool-btn" onclick="ultronInterface.executeTool('${tool.name}')">▶️ Execute</button>
-                </div>
-            </div>
+        this.dom.toolDetails.innerHTML = `
+            <h3>${tool.name}</h3>
+            <p>${tool.description || 'No description provided.'}</p>
+            <pre>${JSON.stringify(tool.parameters || {}, null, 2)}</pre>
         `;
     }
 
     async refreshTools() {
-        this.addSystemMessage('🔄 Refreshing tools status...');
+        this.addSystemMessage('Refreshing tools...');
         await this.loadToolsStatus();
-        this.addSystemMessage('✅ Tools status refreshed');
     }
 
     async reloadAllTools() {
-        this.addSystemMessage('⚡ Reloading all tools...');
         try {
+            this.addSystemMessage('Reloading tools...');
             const response = await this.apiCall('/api/tools/reload', { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                this.addSystemMessage(`✅ Reloaded ${data.reloaded || 0} tools`);
-                await this.loadToolsStatus();
-            } else {
-                this.addSystemMessage('❌ Failed to reload tools');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+            await this.loadToolsStatus();
         } catch (error) {
-            this.addSystemMessage('❌ Error reloading tools: ' + error.message);
+            console.debug('[ULTRON] Tool reload failed - app.js:1216', error);
+            this.addErrorMessage('Tool reload failed');
         }
     }
 
     async testAllTools() {
-        this.addSystemMessage('🧪 Testing all tools...');
         try {
+            this.addSystemMessage('Running tool diagnostics...');
             const response = await this.apiCall('/api/tools/test', { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                const passed = data.results.filter(r => r.passed).length;
-                const total = data.results.length;
-                this.addSystemMessage(`✅ Tool tests completed: ${passed}/${total} passed`);
-                await this.loadToolsStatus();
-            } else {
-                this.addSystemMessage('❌ Failed to run tool tests');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+            const data = await response.json();
+            this.addSystemMessage(`Tools tested: ${data.passed || 0}/${data.total || 0}`);
         } catch (error) {
-            this.addSystemMessage('❌ Error testing tools: ' + error.message);
+            console.debug('[ULTRON] Tool diagnostics failed - app.js:1231', error);
+            this.addErrorMessage('Tool diagnostics failed');
         }
     }
 
-    async testTool(toolName) {
-        this.addSystemMessage(`🧪 Testing tool: ${toolName}`);
+    async loadLLMChatStatus() {
         try {
-            const response = await this.apiCall(`/api/tools/${toolName}/test`, { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.passed) {
-                    this.addSystemMessage(`✅ Tool ${toolName} test passed`);
-                } else {
-                    this.addSystemMessage(`❌ Tool ${toolName} test failed: ${data.error || 'Unknown error'}`);
+            const response = await this.apiCall('/api/llm/status');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            this.latestLLMStatus = data;
+            const statusText = (data.status || 'offline').toUpperCase();
+            const modelName = data.model || 'Unknown Model';
+
+            const statusEl = document.getElementById('chat-status') || document.getElementById('overall-status');
+            if (statusEl) {
+                statusEl.textContent = statusText;
+                if (statusEl.id === 'chat-status') {
+                    statusEl.className = `status-indicator status-${statusText.toLowerCase()}`;
                 }
-                await this.loadToolsStatus();
-            } else {
-                this.addSystemMessage(`❌ Failed to test tool ${toolName}`);
             }
+
+            const modelElement = document.getElementById('active-model-name') || document.getElementById('active-model');
+            if (modelElement) {
+                modelElement.textContent = modelName;
+            }
+
+            const modelBadge = document.getElementById('model-status');
+            if (modelBadge) {
+                modelBadge.textContent = statusText === 'ONLINE' ? '🟢' : '🔴';
+            }
+
+            if (Array.isArray(data.available_models)) {
+                this.availableModels = data.available_models;
+            }
+            this.renderDashboardSnapshot();
         } catch (error) {
-            this.addSystemMessage(`❌ Error testing tool ${toolName}: ` + error.message);
+            console.debug('[ULTRON] Chat status unavailable - app.js:1270', error);
+            this.latestLLMStatus = null;
+            this.renderDashboardSnapshot();
         }
     }
 
-    async reloadTool(toolName) {
-        this.addSystemMessage(`🔄 Reloading tool: ${toolName}`);
-        try {
-            const response = await this.apiCall(`/api/tools/${toolName}/reload`, { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    this.addSystemMessage(`✅ Tool ${toolName} reloaded successfully`);
-                } else {
-                    this.addSystemMessage(`❌ Failed to reload tool ${toolName}: ${data.error || 'Unknown error'}`);
-                }
-                await this.loadToolsStatus();
-            } else {
-                this.addSystemMessage(`❌ Failed to reload tool ${toolName}`);
-            }
-        } catch (error) {
-            this.addSystemMessage(`❌ Error reloading tool ${toolName}: ` + error.message);
+    async sendChatMessage(messageOverride = null, options = {}) {
+        const input = this.dom.chatInput;
+        const rawValue = messageOverride !== null && messageOverride !== undefined
+            ? messageOverride
+            : (input ? input.value : '');
+        const message = (rawValue || '').trim();
+        if (!message) {
+            return;
         }
-    }
 
-    async executeTool(toolName) {
-        // Show a simple command input dialog
-        const command = prompt(`Enter command for ${toolName}:`);
-        if (!command || !command.trim()) return;
+        if (messageOverride === null && input) {
+            input.value = '';
+        }
 
-        this.addSystemMessage(`▶️ Executing ${toolName} with: ${command}`);
+        const userPrefix = typeof options.userLabel === 'string' ? options.userLabel : '';
+        const userMessageOptions = {
+            prefix: userPrefix,
+            avatar: options.userAvatar,
+            roleLabel: options.userRole
+        };
+        this.addUserMessage(message, userMessageOptions);
+
+        const thinkingText = options.thinkingText || 'Thinking…';
+        const thinkingMessage = this.appendChatMessage('thinking-message', thinkingText, { returnElement: true });
         try {
-            const response = await this.apiCall(`/api/tools/${toolName}/execute`, {
+            const payload = { message };
+            if (options.context) {
+                payload.context = options.context;
+            }
+
+            const response = await this.apiCall('/api/llm/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: command })
+                body: JSON.stringify(payload)
             });
-            if (response.ok) {
-                const data = await response.json();
-                this.addSystemMessage(`✅ Tool ${toolName} executed: ${data.result || 'Success'}`);
-            } else {
-                this.addSystemMessage(`❌ Tool ${toolName} execution failed`);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+            const data = await response.json();
+            if (data.error) {
+                this.removeChatMessage(thinkingMessage);
+                this.addErrorMessage(data.error);
+                return;
+            }
+            this.removeChatMessage(thinkingMessage);
+            const reply = data.response || data.reply || 'Message received';
+            this.addSystemMessage(reply);
+            if (data.model) {
+                const modelElement = document.getElementById('active-model-name') || document.getElementById('active-model');
+                modelElement && (modelElement.textContent = data.model);
+            }
+            if ((data.tts_enabled && this.voiceEnabled) || options.forceTTS) {
+                this.speakText(reply);
+            }
+            await this.loadLLMChatStatus();
         } catch (error) {
-            this.addSystemMessage(`❌ Error executing tool ${toolName}: ` + error.message);
+            console.error('[ULTRON] Chat send failed - app.js:1332', error);
+            this.removeChatMessage(thinkingMessage);
+            this.addErrorMessage('Chat backend unavailable');
         }
     }
 
-    showToolsError(message) {
-        const toolsGrid = document.getElementById('tools-grid');
-        if (toolsGrid) {
-            toolsGrid.innerHTML = `
-                <div class="tool-placeholder">
-                    <p style="color: #ff4141;">${message}</p>
+    async toggleVoiceChat(forceState) {
+        const previousState = Boolean(this.voiceEnabled);
+        const desiredState = typeof forceState === 'boolean' ? forceState : !previousState;
+        let serverResponse = null;
+
+        try {
+            const response = await this.apiCall('/api/voice/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enable: desiredState })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            try {
+                serverResponse = await response.json();
+            } catch (parseError) {
+                console.debug('[ULTRON] Voice toggle JSON parse failed - app.js:1357', parseError);
+                serverResponse = {};
+            }
+        } catch (error) {
+            console.debug('[ULTRON] Voice toggle request failed - app.js:1361', error);
+            this.addErrorMessage('Voice server toggle failed; keeping previous state.');
+            this.voiceEnabled = previousState;
+            this.ensureVoiceStatus();
+            this.renderDashboardSnapshot();
+            return { success: false, voiceEnabled: previousState };
+        }
+
+        if (serverResponse && serverResponse.status === 'error') {
+            this.addErrorMessage(serverResponse.message || 'Voice server reported an error.');
+            this.voiceEnabled = previousState;
+            this.ensureVoiceStatus();
+            this.renderDashboardSnapshot();
+            return { success: false, voiceEnabled: previousState, response: serverResponse };
+        }
+
+        const resolvedState = typeof serverResponse?.voice_enabled === 'boolean'
+            ? serverResponse.voice_enabled
+            : desiredState;
+
+        this.voiceEnabled = Boolean(resolvedState);
+        this.latestVoiceStatus = { ...(this.latestVoiceStatus || {}), ...(serverResponse || {}) };
+        this.latestVoiceStatus.voice_enabled = this.voiceEnabled;
+        this.latestVoiceStatus.status = this.voiceEnabled ? 'enabled' : 'disabled';
+
+        if (this.voiceEnabled) {
+            this.startVoiceRecognition();
+            this.speakText('Voice chat enabled. I am listening.');
+        } else {
+            this.stopVoiceRecognition();
+            this.stopSpeech();
+        }
+
+        this.ensureVoiceStatus();
+        this.renderDashboardSnapshot();
+        this.addSystemMessage(`Voice chat ${this.voiceEnabled ? 'enabled' : 'disabled'}`);
+
+        return { success: true, voiceEnabled: this.voiceEnabled, response: serverResponse };
+    }
+
+    clearChat() {
+        if (this.dom.chatMessages) {
+            this.dom.chatMessages.innerHTML = '';
+        }
+        this.addSystemMessage('Chat cleared');
+    }
+
+    exportChat() {
+        if (!this.dom.chatMessages) {
+            return;
+        }
+        const transcript = Array.from(this.dom.chatMessages.querySelectorAll('.chat-message'))
+            .map(node => {
+                const label = node.dataset.role || (node.classList.contains('user-message') ? 'You' : node.classList.contains('error-message') ? 'System Alert' : 'ULTRON AI');
+                const contentNode = node.querySelector('.message-text');
+                const text = (contentNode ? contentNode.textContent : node.textContent || '').trim();
+                return `${label}: ${text}`;
+            })
+            .filter(Boolean)
+            .join('\n');
+        // Only download if user explicitly requested (prevent auto-download on startup)
+        if (this.userRequestedExport) {
+            const blob = new Blob([transcript], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ultron_chat_${Date.now()}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+            this.userRequestedExport = false;
+        }
+    }
+
+    async switchModel() {
+        await this.performModelSwitch();
+    }
+
+    async performModelSwitch() {
+        try {
+            if (!Array.isArray(this.availableModels) || !this.availableModels.length) {
+                const response = await this.apiCall('/api/llm/models');
+                if (response.ok) {
+                    const data = await response.json();
+                    this.availableModels = data.models || data.available_models || [];
+                }
+            }
+
+            const modelNames = (this.availableModels || [])
+                .map(model => typeof model === 'string' ? model : model?.name)
+                .filter(Boolean);
+
+            if (!modelNames.length) {
+                this.addErrorMessage('No local models are available from Ollama.');
+                return;
+            }
+
+            const currentModel = this.latestLLMStatus?.model || modelNames[0];
+
+            // Show custom scrollable modal instead of window.prompt
+            const selectedModel = await this.showModelSelectionModal(modelNames, currentModel);
+
+            if (!selectedModel) {
+                this.addSystemMessage('Model switch cancelled');
+                return;
+            }
+
+            const desiredModel = selectedModel.trim();
+            if (!desiredModel) {
+                this.addErrorMessage('Model switch aborted: empty selection.');
+                return;
+            }
+
+            const response = await this.apiCall('/api/llm/switch-model', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: desiredModel })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.status !== 'success') {
+                this.addErrorMessage(result.message || 'Model switch failed.');
+                return;
+            }
+
+            this.addSystemMessage(result.message || `Model switched to ${desiredModel}`);
+            await this.loadLLMChatStatus();
+            this.renderDashboardSnapshot();
+        } catch (error) {
+            console.error('[ULTRON] Model switch failed - app.js:1493', error);
+            this.addErrorMessage('Unable to switch models. Ensure Ollama is running.');
+        }
+    }
+
+    showModelSelectionModal(modelNames, currentModel) {
+        return new Promise((resolve) => {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'model-select-modal';
+            modal.innerHTML = `
+                <div class="model-select-content">
+                    <div class="model-select-header">
+                        <h3>🔄 Select AI Model</h3>
+                        <button class="model-close-btn" aria-label="Close">✕</button>
+                    </div>
+                    <div class="model-select-search">
+                        <input type="text" placeholder="🔍 Search models..." class="model-search-input" />
+                    </div>
+                    <div class="model-select-list">
+                        ${modelNames.map(model => `
+                            <div class="model-option ${model === currentModel ? 'active' : ''}" data-model="${model}">
+                                <span class="model-radio">${model === currentModel ? '●' : '○'}</span>
+                                <span class="model-name-text">${model}</span>
+                                ${model === currentModel ? '<span class="model-badge">ACTIVE</span>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="model-select-footer">
+                        <button class="model-btn model-btn-cancel">Cancel</button>
+                        <button class="model-btn model-btn-confirm">Switch Model</button>
+                    </div>
                 </div>
             `;
-        }
-    }
 
-    startAnimations() {
-        // LED animations
-        this.animateMainLED();
-        this.animateStatusLEDs();
-        // Initialize LED status monitoring
-        this.initializeLEDStatus();
-    }
+            document.body.appendChild(modal);
 
-    initializeLEDStatus() {
-        // Initialize LED status labels
-        this.updateLEDLabels();
-        // Start monitoring system status for LED updates
-        this.startLEDStatusMonitoring();
-    }
+            let selectedModel = currentModel;
 
-    updateLEDLabels() {
-        // Add status labels next to LEDs if they don't exist
-        const ledCluster = document.querySelector('.led-cluster');
-        if (ledCluster && !document.querySelector('.led-labels')) {
-            const labelsDiv = document.createElement('div');
-            labelsDiv.className = 'led-labels';
-            labelsDiv.innerHTML = `
-                <div class="led-label">System Ready</div>
-                <div class="led-label">Voice Online</div>
-                <div class="led-label">AI Connected</div>
-            `;
-            ledCluster.appendChild(labelsDiv);
-        }
-    }
+            // Search functionality
+            const searchInput = modal.querySelector('.model-search-input');
+            const modelOptions = modal.querySelectorAll('.model-option');
 
-    startLEDStatusMonitoring() {
-        // Update LED status every 5 seconds
-        const interval = setInterval(() => {
-            this.updateLEDStatus();
-        }, 5000);
-        this.animationIntervals.push(interval);
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                modelOptions.forEach(option => {
+                    const modelName = option.dataset.model.toLowerCase();
+                    option.style.display = modelName.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
 
-        // Initial status update
-        setTimeout(() => this.updateLEDStatus(), 1000);
-    }
+            // Model selection
+            modelOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    modelOptions.forEach(opt => {
+                        opt.classList.remove('active');
+                        opt.querySelector('.model-radio').textContent = '○';
+                    });
+                    option.classList.add('active');
+                    option.querySelector('.model-radio').textContent = '●';
+                    selectedModel = option.dataset.model;
+                });
+            });
 
-    async updateLEDStatus() {
-        try {
-            // Check system status
-            const systemStatus = await this.checkSystemStatus();
-            const voiceStatus = await this.checkVoiceStatus();
-            const aiStatus = await this.checkAIStatus();
+            // Close handlers
+            const closeModal = (value) => {
+                modal.remove();
+                resolve(value);
+            };
 
-            // Update LEDs based on status
-            this.setLEDLight('main-led', systemStatus);
-            this.setLEDLight('led-1', voiceStatus);
-            this.setLEDLight('led-2', aiStatus);
-            this.setLEDLight('led-3', 'operational'); // Reserved for future use
+            modal.querySelector('.model-close-btn').addEventListener('click', () => closeModal(null));
+            modal.querySelector('.model-btn-cancel').addEventListener('click', () => closeModal(null));
+            modal.querySelector('.model-btn-confirm').addEventListener('click', () => closeModal(selectedModel));
 
-            // Update status labels
-            this.updateLEDLabelsText(systemStatus, voiceStatus, aiStatus);
+            // Close on outside click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(null);
+            });
 
-        } catch (error) {
-            console.error('Failed to update LED status: - app.js:2143', error);
-            // Set all LEDs to error state on failure
-            this.setLEDLight('main-led', 'error');
-            this.setLEDLight('led-1', 'error');
-            this.setLEDLight('led-2', 'error');
-            this.setLEDLight('led-3', 'error');
-        }
-    }
+            // Close on ESC key
+            const handleEsc = (e) => {
+                if (e.key === 'Escape') {
+                    closeModal(null);
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
 
-    async checkSystemStatus() {
-        try {
-            const response = await this.apiCall('/api/status');
-            if (response.ok) {
-                const data = await response.json();
-                return data.overall_status === 'operational' ? 'operational' :
-                       data.overall_status === 'degraded' ? 'loading' : 'error';
-            }
-        } catch (error) {
-            console.error('System status check failed: - app.js:2161', error);
-        }
-        return 'error';
-    }
-
-    async checkVoiceStatus() {
-        try {
-            const response = await this.apiCall('/api/voice/status');
-            if (response.ok) {
-                const data = await response.json();
-                // Check if ElevenLabs and fallback TTS are available
-                const elevenlabsOk = data.elevenlabs?.available && data.elevenlabs?.voices > 0;
-                const fallbackOk = data.pyttsx3?.available;
-                const micOk = data.microphone?.available;
-
-                if (elevenlabsOk && micOk) return 'operational';
-                if (fallbackOk && micOk) return 'loading'; // Fallback mode
-                if (micOk) return 'loading'; // Basic functionality
-                return 'error';
-            }
-        } catch (error) {
-            console.error('Voice status check failed: - app.js:2182', error);
-        }
-        return 'error';
-    }
-
-    async checkAIStatus() {
-        try {
-            const response = await this.apiCall('/api/brain/status');
-            if (response.ok) {
-                const data = await response.json();
-                // Check if Ollama and models are available
-                const ollamaOk = data.ollama?.running;
-                const modelsOk = data.models?.length > 0;
-
-                if (ollamaOk && modelsOk) return 'operational';
-                if (ollamaOk) return 'loading'; // Ollama running but no models
-                return 'error';
-            }
-        } catch (error) {
-            console.error('AI status check failed: - app.js:2201', error);
-        }
-        return 'error';
-    }
-
-    setLEDLight(ledId, status) {
-        const led = document.getElementById(ledId);
-        if (!led) return;
-
-        // Remove all status classes
-        led.classList.remove('led-red', 'led-yellow', 'led-green', 'led-blue');
-
-        // Add appropriate status class
-        switch (status) {
-            case 'operational':
-            case 'online':
-            case 'connected':
-                led.classList.add('led-green');
-                break;
-            case 'loading':
-            case 'busy':
-            case 'initializing':
-                led.classList.add('led-yellow');
-                break;
-            case 'error':
-            case 'offline':
-            case 'failed':
-            default:
-                led.classList.add('led-red');
-                break;
-        }
-
-        // Update glow effect
-        this.updateLEDGlow(led, status);
-    }
-
-    updateLEDGlow(led, status) {
-        const glow = led.querySelector('.led-glow');
-        if (!glow) return;
-
-        switch (status) {
-            case 'operational':
-            case 'online':
-            case 'connected':
-                glow.style.background = 'radial-gradient(circle at 30% 30%, rgba(22, 163, 74, 0.8), rgba(22, 163, 74, 0.4))';
-                glow.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.8)';
-                break;
-            case 'loading':
-            case 'busy':
-            case 'initializing':
-                glow.style.background = 'radial-gradient(circle at 30% 30%, rgba(234, 179, 8, 0.8), rgba(234, 179, 8, 0.4))';
-                glow.style.boxShadow = '0 0 20px rgba(234, 179, 8, 0.8)';
-                break;
-            case 'error':
-            case 'offline':
-            case 'failed':
-            default:
-                glow.style.background = 'radial-gradient(circle at 30% 30%, rgba(220, 38, 38, 0.8), rgba(220, 38, 38, 0.4))';
-                glow.style.boxShadow = '0 0 20px rgba(220, 38, 38, 0.8)';
-                break;
-        }
-    }
-
-    updateLEDLabelsText(systemStatus, voiceStatus, aiStatus) {
-        const labels = document.querySelectorAll('.led-label');
-        if (labels.length >= 3) {
-            // Update system status label
-            labels[0].textContent = this.getStatusText('System', systemStatus);
-            labels[0].className = `led-label status-${systemStatus}`;
-
-            // Update voice status label
-            labels[1].textContent = this.getStatusText('Voice', voiceStatus);
-            labels[1].className = `led-label status-${voiceStatus}`;
-
-            // Update AI status label
-            labels[2].textContent = this.getStatusText('AI', aiStatus);
-            labels[2].className = `led-label status-${aiStatus}`;
-        }
-    }
-
-    getStatusText(component, status) {
-        const statusMap = {
-            operational: `${component} Online`,
-            online: `${component} Online`,
-            connected: `${component} Connected`,
-            loading: `${component} Loading`,
-            busy: `${component} Busy`,
-            initializing: `${component} Init`,
-            error: `${component} Error`,
-            offline: `${component} Offline`,
-            failed: `${component} Failed`
-        };
-        return statusMap[status] || `${component} Unknown`;
-    }
-
-    animateMainLED() {
-        const mainLed = document.getElementById('main-led');
-        if (mainLed) {
-            let glowIntensity = 0;
-            const interval = setInterval(() => {
-                glowIntensity = (glowIntensity + 0.1) % (Math.PI * 2);
-                const opacity = 0.5 + 0.5 * Math.sin(glowIntensity);
-                mainLed.style.boxShadow = `0 0 20px rgba(220, 38, 38, ${opacity})`;
-            }, 100);
-            this.animationIntervals.push(interval);
-        }
-    }
-
-    animateStatusLEDs() {
-        const leds = ['led-1', 'led-2', 'led-3'];
-        leds.forEach((id, index) => {
-            const led = document.getElementById(id);
-            if (led) {
-                const interval = setInterval(() => {
-                    const shouldBlink = Math.random() > 0.7;
-                    led.style.opacity = shouldBlink ? '0.3' : '1';
-                }, 1000 + index * 500);
-                this.animationIntervals.push(interval);
-            }
+            // Focus search input
+            searchInput.focus();
         });
     }
 
-    startSystemMonitoring() {
-        // Update system stats every 2 seconds
-        const interval = setInterval(() => {
-            if (this.currentSection === 'system') {
-                this.updateSystemInfo();
-            }
-        }, 2000);
-        this.animationIntervals.push(interval);
+    handleQuickAction(prompt) {
+        if (!prompt) {
+            return;
+        }
+        this.addSystemMessage(`Quick action: ${prompt}`);
+        this.handleConsoleCommand(prompt);
     }
 
-    handleKeyboardShortcuts(e) {
-        // Ctrl + Enter for quick command execution
-        if (e.ctrlKey && e.key === 'Enter') {
-            const input = document.getElementById('console-input');
-            if (input && input.value.trim()) {
-                this.handleConsoleCommand(input.value);
-                input.value = '';
-            }
+    addUserMessage(message, options = {}) {
+        this.appendChatMessage('user-message', message, options);
+    }
+
+    addSystemMessage(message, options = {}) {
+        this.appendChatMessage('system-message', message, options);
+    }
+
+    addErrorMessage(message, options = {}) {
+        this.appendChatMessage('error-message', message, options);
+    }
+
+    appendChatMessage(cssClass, message, options = {}) {
+        if (!this.dom.chatMessages) {
+            return;
         }
 
-        // Function keys for section switching
-        const fKeyMap = {
-            'F1': 'console',
-            'F2': 'system',
-            'F3': 'vision',
-            'F4': 'tasks',
-            'F5': 'files',
-            'F6': 'settings'
+        const roles = {
+            'user-message': { label: 'You', avatar: '🧑' },
+            'system-message': { label: 'ULTRON AI', avatar: '🤖' },
+            'error-message': { label: 'System Alert', avatar: '⚠️' },
+            'thinking-message': { label: 'ULTRON AI', avatar: '🤖' }
+        };
+        const fallback = roles[cssClass] || { label: 'ULTRON AI', avatar: '🤖' };
+
+        const label = options.roleLabel || fallback.label;
+        const avatar = options.avatar || fallback.avatar;
+        const prefix = typeof options.prefix === 'string' ? options.prefix : '';
+        const safeMessage = typeof message === 'string' ? message : JSON.stringify(message, null, 2);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `chat-message ${cssClass}`;
+        wrapper.dataset.role = label;
+
+        const avatarNode = document.createElement('div');
+        avatarNode.className = 'message-avatar';
+        avatarNode.textContent = avatar;
+
+        const content = document.createElement('div');
+        content.className = 'message-content';
+
+        const header = document.createElement('div');
+        header.className = 'message-header';
+        header.textContent = label;
+
+        const textNode = document.createElement('div');
+        textNode.className = 'message-text';
+        textNode.textContent = prefix ? `${prefix}${safeMessage}` : safeMessage;
+
+        const timeNode = document.createElement('div');
+        timeNode.className = 'message-time';
+        timeNode.textContent = options.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        content.appendChild(header);
+        content.appendChild(textNode);
+        content.appendChild(timeNode);
+
+        wrapper.appendChild(avatarNode);
+        wrapper.appendChild(content);
+
+        this.dom.chatMessages.appendChild(wrapper);
+        this.dom.chatMessages.scrollTop = this.dom.chatMessages.scrollHeight;
+        if (options.returnElement) {
+            return wrapper;
+        }
+    }
+
+    removeChatMessage(node) {
+        if (node && node.parentElement) {
+            node.parentElement.removeChild(node);
+        }
+    }
+
+    ensureVoiceStatus() {
+        if (this.dom.voiceStatus) {
+            let statusText = 'DISABLED';
+            if (this.voiceEnabled) {
+                statusText = this.isListening ? 'LISTENING' : 'ENABLED';
+            }
+            this.dom.voiceStatus.textContent = statusText;
+        }
+    }
+
+    async toggleVoice() {
+        await this.toggleVoiceChat();
+    }
+
+    // VOICE RECOGNITION: Browser-based speech-to-text using Web Speech API
+    // Dependencies:
+    // - Browser must support SpeechRecognition API (Chrome, Edge, Safari)
+    // - Microphone permissions must be granted by user
+    // - Syncs with backend voice.py for processing transcripts
+    startVoiceRecognition() {
+        if (this.isListening) {
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            this.addErrorMessage('Voice recognition is not supported in this browser.');
+            this.voiceEnabled = false;
+            this.ensureVoiceStatus();
+            return;
+        }
+
+        if (this.recognition) {
+            try {
+                this.recognition.stop();
+            } catch (error) {
+                console.debug('[ULTRON] Stopping existing recognition failed - app.js:1698', error);
+            }
+            this.recognition = null;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            this.isListening = true;
+            this.shouldRestartRecognition = true;
+            this.ensureVoiceStatus();
+            this.addSystemMessage('Listening for voice commands…');
         };
 
-        if (fKeyMap[e.key]) {
-            e.preventDefault();
-            this.switchSection(fKeyMap[e.key]);
-        }
+        recognition.onresult = (event) => {
+            for (let index = event.resultIndex; index < event.results.length; index += 1) {
+                const result = event.results[index];
+                if (!result || !result.isFinal || !result[0]) {
+                    continue;
+                }
 
-        // Escape to close modals
-        if (e.key === 'Escape') {
-            this.hidePowerMenu();
-        }
-    }
-
-    loadConfiguration() {
-        // Load saved settings from localStorage
-        const savedTheme = localStorage.getItem('ultron-theme');
-        if (savedTheme) {
-            this.changeTheme(savedTheme);
-        }
-    }
-
-    saveConfiguration() {
-        // Save current settings to localStorage
-        localStorage.setItem('ultron-theme', this.currentTheme);
-    }
-
-    playSound(soundName) {
-        try {
-            const audio = document.getElementById(`audio-${soundName}`);
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play().catch(e => console.log('Audio play failed: - app.js:2382', e));
+                const transcript = (result[0].transcript || '').trim();
+                if (transcript && transcript.length) {
+                    this.handleVoiceTranscript(transcript);
+                }
             }
+        };
+
+        recognition.onerror = (event) => {
+            console.debug('[ULTRON] Voice recognition error - app.js:1730', event);
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                this.addErrorMessage('Microphone access denied. Voice chat disabled.');
+                this.voiceEnabled = false;
+                this.shouldRestartRecognition = false;
+                this.stopVoiceRecognition(true);
+            } else if (event.error !== 'no-speech') {
+                this.addErrorMessage(`Voice recognition error: ${event.error}`);
+            }
+        };
+
+        recognition.onend = () => {
+            this.isListening = false;
+            this.ensureVoiceStatus();
+            if (this.shouldRestartRecognition && this.voiceEnabled) {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.debug('[ULTRON] Failed to restart recognition - app.js:1748', error);
+                }
+            }
+        };
+
+        try {
+            recognition.start();
+            this.recognition = recognition;
+            this.shouldRestartRecognition = true;
         } catch (error) {
-            console.log('Sound play error: - app.js:2385', error);
+            console.debug('[ULTRON] Unable to start voice recognition - app.js:1758', error);
+            this.addErrorMessage('Unable to start voice recognition.');
         }
     }
 
-    initializeTheme() {
-        // Set initial theme
-        this.changeTheme(this.currentTheme);
-    }
+    stopVoiceRecognition(skipMessage = false) {
+        this.shouldRestartRecognition = false;
 
-    destroy() {
-        // Clean up intervals when needed
-        this.animationIntervals.forEach(interval => clearInterval(interval));
-        this.animationIntervals = [];
-    }
+        if (this.recognition) {
+            try {
+                this.recognition.stop();
+            } catch (error) {
+                console.debug('[ULTRON] Voice recognition stop failed - app.js:1770', error);
+            }
+            this.recognition = null;
+        }
 
-    // ============= ElevenLabs Widget Integration =============
-
-    initializeElevenLabsWidget() {
-        console.log('[ElevenLabs] Initializing widget integration... - app.js:2403');
-
-        // Setup widget event listeners
-        this.setupElevenLabsTextOverlay();
-        this.monitorElevenLabsWidget();
-
-        // Listen for widget interactions
-        const widget = document.querySelector('elevenlabs-convai');
-        if (widget) {
-            console.log('[ElevenLabs] Widget found, setting up listeners - app.js:2412');
-
-            // Monitor widget for speech recognition results
-            widget.addEventListener('speech-recognized', (event) => {
-                console.log('[ElevenLabs] Speech recognized: - app.js:2416', event.detail);
-                this.handleElevenLabsSpeechInput(event.detail.text);
-            });
-
-            // Monitor widget for AI responses
-            widget.addEventListener('ai-response', (event) => {
-                console.log('[ElevenLabs] AI response: - app.js:2422', event.detail);
-                this.displayElevenLabsResponse(event.detail.text, 'ai');
-            });
-
-            // Monitor widget state changes
-            widget.addEventListener('state-change', (event) => {
-                console.log('[ElevenLabs] State change: - app.js:2428', event.detail);
-                this.updateElevenLabsStatus(event.detail.state);
-            });
-        } else {
-            console.warn('[ElevenLabs] Widget not found, text overlay will work independently - app.js:2432');
+        if (this.isListening) {
+            this.isListening = false;
+            this.ensureVoiceStatus();
+            if (!skipMessage) {
+                this.addSystemMessage('Voice recognition stopped');
+            }
         }
     }
 
-    setupElevenLabsTextOverlay() {
-        const overlay = document.getElementById('elevenlabs-text-overlay');
-        const closeBtn = document.getElementById('close-elevenlabs-overlay');
-        const clearBtn = document.getElementById('clear-elevenlabs-text');
-        const toggleBtn = document.getElementById('toggle-elevenlabs-widget');
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                this.hideElevenLabsTextOverlay();
-            });
+    async handleVoiceTranscript(transcript) {
+        const spokenText = (transcript || '').trim();
+        if (!spokenText) {
+            return;
         }
 
-        if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-                this.clearElevenLabsConversation();
-            });
-        }
-
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                this.toggleElevenLabsWidget();
-            });
-        }
-
-        // Add floating button to show text overlay
-        this.createElevenLabsToggleButton();
-    }
-
-    createElevenLabsToggleButton() {
-        const toggleButton = document.createElement('button');
-        toggleButton.id = 'elevenlabs-toggle-floating';
-        toggleButton.innerHTML = '💬';
-        toggleButton.className = 'elevenlabs-toggle-floating';
-        toggleButton.title = 'Show ElevenLabs Conversation Text';
-
-        toggleButton.addEventListener('click', () => {
-            this.showElevenLabsTextOverlay();
+        await this.sendChatMessage(spokenText, {
+            fromVoice: true,
+            thinkingText: 'Processing voice command…',
+            userLabel: '🎤 '
         });
+    }
 
-        document.body.appendChild(toggleButton);
+    speakText(text) {
+        if (!text) {
+            return;
+        }
+        this.ttsQueue.push(text);
+        if (!this.isSpeaking) {
+            this.dequeueSpeech();
+        }
+    }
+
+    async dequeueSpeech() {
+        if (this.isSpeaking || !this.ttsQueue.length) {
+            return;
+        }
+        const text = this.ttsQueue.shift();
+        this.isSpeaking = true;
+
+        // CRITICAL FIX: Capture ORIGINAL listening state before FIRST TTS starts
+        // This property persists across all queue items so we know the true starting state
+        if (!this.hasOwnProperty('ttsOriginalListeningState')) {
+            this.ttsOriginalListeningState = this.isListening;
+            console.log(`[ULTRON] DEBUG - Captured ORIGINAL listening state: ${this.ttsOriginalListeningState}`);
+        }
+
+        const wasListening = this.ttsOriginalListeningState;
+        console.log(`[ULTRON] DEBUG - wasListening: ${wasListening}, voiceEnabled: ${this.voiceEnabled}, isListening: ${this.isListening}, queueLength: ${this.ttsQueue.length}`);
+
+        // CRITICAL FIX: Stop voice recognition IMMEDIATELY to prevent feedback loop
+        // The microphone was recording the model's TTS output and looping it back
+        // We must completely stop recognition before any audio plays
+        if (this.recognition && this.isListening) {
+            console.log('[ULTRON] Pausing voice recognition during TTS to prevent feedback loop - app.js:1825');
+            this.shouldRestartRecognition = false; // Temporarily prevent auto-restart during TTS
+            this.isListening = false;
+
+            try {
+                this.recognition.stop();
+            } catch (error) {
+                console.debug('[ULTRON] Error stopping recognition - app.js:1840', error);
+            }
+        }        // Additional safeguard: Wait for microphone to fully release
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        try {
+            const response = await this.apiCall('/api/voice/speak', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const blob = await response.blob();
+
+            // Check if we actually got audio data (not just an error response)
+            if (blob.size === 0) {
+                throw new Error('Empty audio response');
+            }
+
+            const audioUrl = URL.createObjectURL(blob);
+            this.audioElement = this.audioElement || new Audio();
+            this.audioElement.src = audioUrl;
+
+            // Resume voice recognition ONLY AFTER audio completely finishes
+            // This prevents the microphone from listening to ULTRON's own speech
+            this.audioElement.onended = () => {
+                console.log('[ULTRON] TTS playback finished - app.js:1860');
+                console.log(`[ULTRON] DEBUG - After TTS: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+
+                // Wait additional time to ensure audio output is fully silent
+                setTimeout(() => {
+                    console.log(`[ULTRON] DEBUG - Inside setTimeout: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}, queueLength=${this.ttsQueue.length}`);
+
+                    // CRITICAL: Process next item in TTS queue first
+                    this.isSpeaking = false;
+                    if (this.ttsQueue.length > 0) {
+                        console.log('[ULTRON] More items in TTS queue, processing next...');
+                        this.dequeueSpeech();
+                    } else {
+                        // Queue is empty - NOW we can resume voice recognition
+                        console.log('[ULTRON] TTS queue empty, checking if should resume voice...');
+                        delete this.ttsOriginalListeningState; // Clear the saved state
+
+                        if (wasListening && this.voiceEnabled) {
+                            console.log('[ULTRON] Resuming voice recognition after TTS - app.js:1864');
+                            this.shouldRestartRecognition = true; // Re-enable auto-restart
+                            this.startVoiceRecognition();
+                        } else {
+                            console.log(`[ULTRON] NOT resuming voice - wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+                        }
+                    }
+                }, 1000); // 1 second delay to ensure complete audio silence
+            };            await this.audioElement.play();
+            URL.revokeObjectURL(audioUrl);
+
+            // CRITICAL: Early return prevents dual TTS bug
+            // If we don't return here, the finally block will trigger browser TTS
+            // causing both ElevenLabs API audio AND browser speech to play simultaneously
+            // Dependency: This fix relies on try-catch-finally structure in dequeueSpeech()
+            return;
+
+        } catch (error) {
+            console.debug('[ULTRON] Voice API unavailable, using browser TTS - app.js:1895', error);
+
+            // Only use browser TTS if API completely failed
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+
+                // Resume voice recognition ONLY AFTER speech completely finishes
+                utterance.onend = () => {
+                    console.log('[ULTRON] Browser TTS finished - app.js:1918');
+
+                    // Wait additional time to ensure audio output is fully silent
+                    setTimeout(() => {
+                        // CRITICAL: Process next item in TTS queue first
+                        this.isSpeaking = false;
+                        if (this.ttsQueue.length > 0) {
+                            console.log('[ULTRON] More items in TTS queue (browser TTS), processing next...');
+                            this.dequeueSpeech();
+                        } else {
+                            // Queue is empty - NOW we can resume voice recognition
+                            console.log('[ULTRON] TTS queue empty (browser TTS), checking if should resume voice...');
+                            delete this.ttsOriginalListeningState; // Clear the saved state
+
+                            if (wasListening && this.voiceEnabled) {
+                                console.log('[ULTRON] Resuming voice recognition after Web Speech TTS - app.js:1930');
+                                this.shouldRestartRecognition = true; // Re-enable auto-restart
+                                this.startVoiceRecognition();
+                            } else {
+                                console.log(`[ULTRON] NOT resuming voice (browser TTS) - wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+                            }
+                        }
+                    }, 1000); // 1 second delay to ensure complete audio silence
+                };
+
+                window.speechSynthesis.speak(utterance);
+                return; // Don't run finally block
+            } else {
+                // No TTS available, resume voice recognition immediately
+                if (wasListening && this.voiceEnabled) {
+                    this.startVoiceRecognition();
+                }
+                // Fall through to finally block to clean up
+            }
+        } finally {
+            // Only runs if both API and browser TTS failed
+            this.isSpeaking = false;
+            if (this.ttsQueue.length) {
+                this.dequeueSpeech();
+            }
+        }
+    }
+
+    stopSpeech() {
+        if (this.audioElement) {
+            this.audioElement.pause();
+            this.audioElement.currentTime = 0;
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        this.isSpeaking = false;
+        this.ttsQueue = [];
+    }
+
+    testTTS() {
+        this.speakText('This is a test of the Ultron voice system.');
     }
 
     showElevenLabsTextOverlay() {
-        const overlay = document.getElementById('elevenlabs-text-overlay');
-        if (overlay) {
-            overlay.classList.remove('hidden');
-        }
+        this.dom.elevenLabsOverlay?.classList.remove('hidden');
     }
 
     hideElevenLabsTextOverlay() {
-        const overlay = document.getElementById('elevenlabs-text-overlay');
-        if (overlay) {
-            overlay.classList.add('hidden');
-        }
+        this.dom.elevenLabsOverlay?.classList.add('hidden');
     }
 
-    handleElevenLabsSpeechInput(text) {
-        console.log('[ElevenLabs] Processing speech input: - app.js:2493', text);
-        this.displayElevenLabsResponse(text, 'user');
-
-        // Also add to our main chat if LLM Chat section is active
-        if (this.currentSection === 'llm-chat') {
-            this.addChatMessage('user', text, 'You');
-        }
-    }
-
-    displayElevenLabsResponse(text, sender = 'ai') {
-        const conversationDisplay = document.getElementById('elevenlabs-conversation');
-        if (!conversationDisplay) return;
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `conversation-message ${sender === 'user' ? 'user-msg' : 'system-msg'}`;
-
-        const label = sender === 'user' ? '👤 You:' : '🤖 AI:';
-        messageDiv.innerHTML = `
-            <span class="msg-label">${label}</span>
-            <span class="msg-content">${text}</span>
-        `;
-
-        conversationDisplay.appendChild(messageDiv);
-        conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
-
-        console.log(`[ElevenLabs] Added ${sender} message to text overlay - app.js:2518`);
-    }
-
-    clearElevenLabsConversation() {
-        const conversationDisplay = document.getElementById('elevenlabs-conversation');
-        if (conversationDisplay) {
-            conversationDisplay.innerHTML = `
-                <div class="conversation-message system-msg">
-                    <span class="msg-label">🤖 AI:</span>
-                    <span class="msg-content">Ready to chat! Ask me anything.</span>
-                </div>
-            `;
+    clearElevenLabsOverlay() {
+        const input = document.getElementById('elevenlabs-text-input');
+        if (input) {
+            input.value = '';
         }
     }
 
     toggleElevenLabsWidget() {
-        const widget = document.querySelector('elevenlabs-convai');
+        const widget = document.getElementById('elevenlabs-widget');
         if (widget) {
-            const isHidden = widget.style.display === 'none';
-            widget.style.display = isHidden ? 'block' : 'none';
-            console.log(`[ElevenLabs] Widget ${isHidden ? 'shown' : 'hidden'} - app.js:2538`);
+            widget.classList.toggle('hidden');
         }
     }
 
-    updateElevenLabsStatus(state) {
-        console.log('[ElevenLabs] Status update: - app.js:2543', state);
-        // Update LED indicators based on widget state
-        if (state === 'listening') {
-            this.setLEDLight('led-2', 'active');
-        } else if (state === 'speaking') {
-            this.setLEDLight('led-3', 'active');
-        } else {
-            this.setLEDLight('led-2', 'inactive');
-            this.setLEDLight('led-3', 'inactive');
+    handlePowerAction(action) {
+        switch (action) {
+            case 'shutdown':
+                this.addSystemMessage('Shutdown sequence requested');
+                break;
+            case 'restart':
+                this.addSystemMessage('Restart sequence requested');
+                break;
+            default:
+                this.addErrorMessage('Unknown power action');
         }
     }
 
-    monitorElevenLabsWidget() {
-        // Check if widget is properly loaded and responding
-        const widget = document.querySelector('elevenlabs-convai');
-        if (widget) {
-            console.log('[ElevenLabs] Widget monitoring active - app.js:2559');
-
-            // Set up periodic check for widget status
-            setInterval(() => {
-                // Check if widget is responsive
-                const isActive = widget.getAttribute('data-status') !== 'error';
-                this.setLEDLight('led-1', isActive ? 'active' : 'error');
-            }, 5000);
+    showPowerMenu() {
+        // Only show if explicitly called by user (not on startup)
+        if (this.powerMenuInitialized !== false) {
+            document.getElementById('power-menu')?.classList.remove('hidden');
         }
+    }
+
+    hidePowerMenu() {
+        document.getElementById('power-menu')?.classList.add('hidden');
+    }
+
+    handleDPadInput(direction) {
+        this.addSystemMessage(`Direction: ${direction}`);
+    }
+
+    handleActionButton(button) {
+        this.addSystemMessage(`Button ${button} pressed`);
+    }
+
+    handleKeyboardShortcuts(event) {
+        if (event.ctrlKey && event.key === 'k') {
+            event.preventDefault();
+            this.clearConsole();
+        }
+
+        // Tab navigation for sections
+        if (event.altKey && event.key >= '1' && event.key <= '9') {
+            event.preventDefault();
+            const sectionIndex = parseInt(event.key) - 1;
+            const navButtons = document.querySelectorAll('.nav-button');
+            if (navButtons[sectionIndex]) {
+                const section = navButtons[sectionIndex].dataset.section;
+                this.switchSection(section);
+                this.playSound('button');
+            }
+        }
+
+        // Arrow key navigation for D-pad
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) {
+            switch (event.key) {
+                case 'ArrowUp':
+                    event.preventDefault();
+                    this.handleDPadInput('up');
+                    this.playSound('button');
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault();
+                    this.handleDPadInput('down');
+                    this.playSound('button');
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    this.handleDPadInput('left');
+                    this.playSound('button');
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    this.handleDPadInput('right');
+                    this.playSound('button');
+                    break;
+                case 'Enter':
+                    event.preventDefault();
+                    this.handleActionButton('A');
+                    this.playSound('confirm');
+                    break;
+                case 'Escape':
+                    event.preventDefault();
+                    this.handleActionButton('B');
+                    this.playSound('button');
+                    break;
+            }
+        }
+
+        // Voice toggle shortcut
+        if (event.ctrlKey && event.key === 'v') {
+            event.preventDefault();
+            this.toggleVoice();
+        }
+
+        // Settings shortcut
+        if (event.ctrlKey && event.key === ',') {
+            event.preventDefault();
+            this.switchSection('settings');
+            this.playSound('button');
+        }
+    }
+
+    announceToScreenReader(message) {
+        // Create or update a live region for screen reader announcements
+        let liveRegion = document.getElementById('sr-live-region');
+        if (!liveRegion) {
+            liveRegion = document.createElement('div');
+            liveRegion.id = 'sr-live-region';
+            liveRegion.setAttribute('aria-live', 'polite');
+            liveRegion.setAttribute('aria-atomic', 'true');
+            liveRegion.className = 'sr-only';
+            document.body.appendChild(liveRegion);
+        }
+        liveRegion.textContent = message;
+
+        // Clear the message after a short delay to allow re-announcement
+        setTimeout(() => {
+            liveRegion.textContent = '';
+        }, 1000);
+    }
+
+    initializeTheme() {
+        const savedTheme = localStorage.getItem('ultron_theme') || 'ultron-steampunk';
+        const themeSelect = document.getElementById('theme-select');
+        if (themeSelect) {
+            themeSelect.value = savedTheme;
+        }
+        this.applyTheme(savedTheme);
+    }
+
+    applyTheme(themeName) {
+        const body = document.body;
+        const pokedexBody = document.getElementById('pokedex-body');
+
+        // Remove all theme classes
+        const themeClasses = ['pokedex-red', 'pokedex-blue', 'high-contrast', 'ultron-steampunk'];
+        themeClasses.forEach(cls => {
+            body.classList.remove(cls);
+            if (pokedexBody) pokedexBody.classList.remove(cls);
+        });
+
+        // Add new theme class
+        body.classList.add(themeName);
+        if (pokedexBody) pokedexBody.classList.add(themeName);
+
+        // Save theme preference
+        localStorage.setItem('ultron_theme', themeName);
+        this.currentTheme = themeName;
+        console.log(`[ULTRON] Theme applied: ${themeName} - app.js:2072`);
+    }
+
+    trackApiCall(endpoint) {
+        if (!this.apiCallCounts) {
+            this.apiCallCounts = {};
+        }
+        this.apiCallCounts[endpoint] = (this.apiCallCounts[endpoint] || 0) + 1;
+        console.debug(`[ULTRON] API call: ${endpoint} (count: ${this.apiCallCounts[endpoint]}) - app.js:2080`);
+    }
+
+    async apiCall(endpoint, options = {}) {
+        this.trackApiCall(endpoint);
+        try {
+            const response = await fetch(`${this.API_BASE_URL}${endpoint}`, options);
+            if (!response.ok) {
+                let errorDetail = null;
+                const contentType = response.headers.get('content-type') || '';
+                try {
+                    if (contentType.includes('application/json')) {
+                        errorDetail = await response.clone().json();
+                    } else {
+                        errorDetail = await response.clone().text();
+                    }
+                } catch (detailError) {
+                    console.debug('[ULTRON] Failed to parse error detail - app.js:2097', detailError);
+                }
+
+                const error = new Error(`Request to ${endpoint} failed with ${response.status} ${response.statusText}`);
+                error.status = response.status;
+                error.details = errorDetail;
+                throw error;
+            }
+            return response;
+        } catch (error) {
+            if (!(error instanceof Error)) {
+                throw new Error(String(error));
+            }
+            throw error;
+        }
+    }
+
+    destroy() {
+        Object.values(this.timers).forEach(timer => clearInterval(timer));
+        this.stopSpeech();
     }
 }
 
-// Initialize the interface when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎮 ULTRON Pokedex Interface loading... - app.js:2573');
-    try {
-        window.ultronInterface = new UltronPokedexInterface();
-        console.log('✅ ULTRON Interface initialized successfully - app.js:2576');
-    } catch (error) {
-        console.error('❌ Failed to initialize ULTRON Interface: - app.js:2578', error);
-        console.error('Error details: - app.js:2579', error.message, error.stack);
-    }
-});
-
-// Fallback initialization if DOMContentLoaded doesn't fire
 if (document.readyState === 'loading') {
-    console.log('📄 DOM still loading, waiting for DOMContentLoaded... - app.js:2585');
+    document.addEventListener('DOMContentLoaded', () => {
+        window.ultronInterface = new UltronPokedexInterface();
+    });
 } else {
-    console.log('📄 DOM already loaded, initializing immediately... - app.js:2587');
-    try {
-        if (!window.ultronInterface) {
-            window.ultronInterface = new UltronPokedexInterface();
-            console.log('✅ ULTRON Interface initialized via fallback - app.js:2591');
-        }
-    } catch (error) {
-        console.error('❌ Fallback initialization failed: - app.js:2594', error);
-    }
+    window.ultronInterface = new UltronPokedexInterface();
 }
 
-// Clean up on page unload
 window.addEventListener('beforeunload', () => {
-    if (window.ultronInterface) {
-        window.ultronInterface.destroy();
-    }
+    window.ultronInterface?.destroy?.();
 });
