@@ -84,4 +84,8 @@ async def test_vector_memory():
     print("\n✅ VectorMemoryManager test completed successfully!")
 
 if __name__ == "__main__":
+    try:
     asyncio.run(test_vector_memory())
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

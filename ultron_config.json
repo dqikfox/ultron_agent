@@ -113,5 +113,13 @@
     "max_memory": null,
     "enable_quantization": true,
     "quantization_type": "int8"
+  },
+  "ultron_personality": {
+    "enabled": true,
+    "learning_enabled": true,
+    "evolution_enabled": true,
+    "response_enhancement": true,
+    "identity_reinforcement": true,
+    "save_learning_data": true
   }
 }

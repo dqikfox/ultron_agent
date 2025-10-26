@@ -133,6 +133,10 @@ async def get_copilot_status():
     }
 
 if __name__ == "__main__":
+    try:
     print("Starting Ultron Monitoring Dashboard...")
     print("Dashboard: http://localhost:9000")
     uvicorn.run(app, host="0.0.0.0", port=9001)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

@@ -459,6 +459,7 @@ async def get_home():
     """
 
 if __name__ == "__main__":
+    try:
     print("🤖 ULTRON NVIDIA Enhanced Auto-Improvement System")
     print("=" * 60)
     print("🔄 Llama 4 Maverick: Advanced reasoning and auto-improvements")
@@ -472,3 +473,7 @@ if __name__ == "__main__":
     print("✨ This is the system you loved - with live improvements!")
     
     uvicorn.run(app, host="0.0.0.0", port=8001, log_level="warning")
+
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

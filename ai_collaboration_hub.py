@@ -64,5 +64,9 @@ class AICollaborationHub:
 hub = AICollaborationHub()
 
 if __name__ == "__main__":
+    try:
     status = hub.get_collaboration_status()
     print(json.dumps(status, indent=2))
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

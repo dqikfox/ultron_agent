@@ -52,9 +52,112 @@
     </div>
 
     <div id="app">
+        <!-- ULTRON HUD Overlay System -->
+        <div class="ultron-hud-overlay" id="ultron-hud" style="display: none;">
+            <!-- Central Holographic Ring System -->
+            <div class="hud-central-ring">
+                <div class="holo-ring holo-ring-outer"></div>
+                <div class="holo-ring holo-ring-middle"></div>
+                <div class="holo-ring holo-ring-inner"></div>
+                <div class="holo-ring holo-ring-core"></div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="hud-status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>CORE: ONLINE</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>NEURAL NET: ACTIVE</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>QUANTUM LINK: STABLE</span>
+                </div>
+            </div>
+
+            <!-- Left Gauge Panel -->
+            <div class="hud-gauge-panel hud-gauge-panel-left">
+                <div class="hud-circular-gauge">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-fill" style="transform: rotate(135deg);"></div>
+                    <div class="gauge-center">
+                        <div class="gauge-value" id="cpu-gauge">0%</div>
+                        <div class="gauge-label">CPU</div>
+                    </div>
+                </div>
+                <div class="hud-circular-gauge">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-fill" style="transform: rotate(180deg);"></div>
+                    <div class="gauge-center">
+                        <div class="gauge-value" id="mem-gauge">0%</div>
+                        <div class="gauge-label">MEMORY</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Gauge Panel -->
+            <div class="hud-gauge-panel hud-gauge-panel-right">
+                <div class="hud-circular-gauge">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-fill" style="transform: rotate(90deg);"></div>
+                    <div class="gauge-center">
+                        <div class="gauge-value" id="net-gauge">0MB/s</div>
+                        <div class="gauge-label">NETWORK</div>
+                    </div>
+                </div>
+                <div class="hud-circular-gauge">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-fill" style="transform: rotate(270deg);"></div>
+                    <div class="gauge-center">
+                        <div class="gauge-value" id="resp-gauge">0ms</div>
+                        <div class="gauge-label">RESPONSE</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Control Panel -->
+            <div class="hud-control-panel">
+                <button class="hud-control-btn" id="hud-power" title="System Power">
+                    <span class="hud-control-icon">⚡</span>
+                </button>
+                <button class="hud-control-btn" id="hud-settings" title="HUD Settings">
+                    <span class="hud-control-icon">⚙️</span>
+                </button>
+                <button class="hud-control-btn" id="hud-radar" title="Radar View">
+                    <span class="hud-control-icon">📡</span>
+                </button>
+                <button class="hud-control-btn" id="hud-data" title="Data Analytics">
+                    <span class="hud-control-icon">📊</span>
+                </button>
+                <button class="hud-control-btn" id="hud-comms" title="Communications">
+                    <span class="hud-control-icon">📞</span>
+                </button>
+            </div>
+
+            <!-- Scan Line -->
+            <div class="hud-scan-line"></div>
+
+            <!-- Holographic Grid -->
+            <div class="hud-holo-grid"></div>
+        </div>
+
         <div id="start-screen" class="start-screen">
             <div class="start-screen-inner">
-                <div class="start-logo">ULTRON</div>
+                <div class="start-logo">
+                    <div class="ultron-mascot-logo">
+                        <div class="mascot-head-logo">
+                            <div class="mascot-visor-logo"></div>
+                            <div class="mascot-eyes-logo">
+                                <div class="eye-logo left-eye-logo"></div>
+                                <div class="eye-logo right-eye-logo"></div>
+                            </div>
+                        </div>
+                    </div>
+                    ULTRON
+                </div>
                 <div class="start-subtitle">AETHER NEXUS INTERFACE</div>
                 <button id="start-button" class="start-button">INITIATE LINK</button>
             </div>
@@ -390,7 +493,20 @@
                                     <div class="profile-content">
                                         <div class="profile-header">
                                             <div class="profile-avatar">
-                                                <div class="avatar-placeholder">👤</div>
+                                                <div class="avatar-placeholder ultron-mascot">
+                                                    <div class="mascot-head">
+                                                        <div class="mascot-visor"></div>
+                                                        <div class="mascot-eyes">
+                                                            <div class="eye left-eye"></div>
+                                                            <div class="eye right-eye"></div>
+                                                        </div>
+                                                        <div class="mascot-mouth"></div>
+                                                    </div>
+                                                    <div class="mascot-body">
+                                                        <div class="chest-arc"></div>
+                                                        <div class="power-core"></div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="profile-info">
                                                 <h2 class="profile-name">ULTRON Agent</h2>
