@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Feedback Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #00ff41;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #00ff41;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #00ff41;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        .chart-container {
+            background: rgba(0, 255, 65, 0.05);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .feedback-list {
+            background: rgba(0, 255, 65, 0.05);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .feedback-item {
+            background: rgba(0, 255, 65, 0.1);
+            border-left: 4px solid #00ff41;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .feedback-type {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .type-bug { background: #ef4444; }
+        .type-feature { background: #3b82f6; }
+        .type-performance { background: #f59e0b; }
+        .type-usability { background: #10b981; }
+
+        .rating {
+            color: #fbbf24;
+            font-size: 1.2rem;
+        }
+
+        .timestamp {
+            opacity: 0.7;
+            font-size: 0.85rem;
+        }
+
+        .refresh-btn {
+            background: #00ff41;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .refresh-btn:hover {
+            background: #00cc33;
+            transform: scale(1.05);
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(180deg, #00ff41 0%, #00cc33 100%);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .trend-indicator {
+            font-size: 1.5rem;
+            margin-left: 10px;
+        }
+
+        .trend-up { color: #10b981; }
+        .trend-down { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔴 ULTRON FEEDBACK DASHBOARD 🔴</h1>
+            <p>Real-time User Feedback Analytics & Insights</p>
+        </div>
+
+        <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+
+        <div id="content">
+            <div class="loading">⏳ Loading feedback data...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadData() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading">⏳ Loading feedback data...</div>';
+
+            try {
+                // Fetch feedback stats from API
+                const response = await fetch('http://localhost:5000/api/feedback/stats');
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch feedback data');
+                }
+
+                const data = await response.json();
+                renderDashboard(data);
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="error">
+                        <h2>❌ Error Loading Data</h2>
+                        <p>${error.message}</p>
+                        <p>Make sure the API server is running on port 5000</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderDashboard(data) {
+            const content = document.getElementById('content');
+
+            // Calculate trends
+            const recent = data.recent.slice(-5);
+            const avgRecentRating = recent.filter(f => f.rating).reduce((sum, f) => sum + f.rating, 0) / recent.filter(f => f.rating).length || 0;
+            const trend = data.avg_rating && avgRecentRating > data.avg_rating ? 'up' : 'down';
+
+            content.innerHTML = `
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Feedback</div>
+                        <div class="stat-value">${data.total}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Average Rating</div>
+                        <div class="stat-value">
+                            ${data.avg_rating ? data.avg_rating.toFixed(1) : 'N/A'}
+                            ${data.avg_rating ? `<span class="trend-indicator trend-${trend}">${trend === 'up' ? '↗' : '↘'}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Bug Reports</div>
+                        <div class="stat-value">${data.by_type.bug || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Feature Requests</div>
+                        <div class="stat-value">${data.by_type.feature || 0}</div>
+                    </div>
+                </div>
+
+                <!-- Feedback by Type Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">📊 Feedback Distribution by Type</div>
+                    <div class="bar-chart" id="typeChart"></div>
+                </div>
+
+                <!-- Recent Feedback -->
+                <div class="feedback-list">
+                    <h2 style="margin-bottom: 20px;">💬 Recent Feedback (Last 10)</h2>
+                    <div id="recentFeedback"></div>
+                </div>
+            `;
+
+            // Render bar chart
+            renderBarChart(data.by_type);
+
+            // Render recent feedback
+            renderRecentFeedback(data.recent);
+        }
+
+        function renderBarChart(byType) {
+            const chart = document.getElementById('typeChart');
+            const maxValue = Math.max(...Object.values(byType), 1);
+
+            chart.innerHTML = Object.entries(byType).map(([type, count]) => {
+                const height = (count / maxValue) * 100;
+                return `
+                    <div class="bar" style="height: ${height}%">
+                        <div class="bar-value">${count}</div>
+                        <div class="bar-label">${type}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRecentFeedback(recent) {
+            const container = document.getElementById('recentFeedback');
+
+            if (recent.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">No feedback yet. Be the first to submit!</p>';
+                return;
+            }
+
+            container.innerHTML = recent.reverse().map(feedback => {
+                const rating = feedback.rating ? '⭐'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating) : '';
+                const date = new Date(feedback.timestamp).toLocaleString();
+
+                return `
+                    <div class="feedback-item">
+                        <div class="feedback-header">
+                            <span class="feedback-type type-${feedback.type}">${feedback.type.toUpperCase()}</span>
+                            <span class="rating">${rating}</span>
+                        </div>
+                        <div style="margin: 10px 0;">${feedback.message}</div>
+                        <div class="timestamp">📅 ${date}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Submit feedback function (can be called from external scripts)
+        async function submitFeedback(type, message, rating) {
+            try {
+                const response = await fetch('http://localhost:5000/api/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ type, message, rating })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit feedback');
+                }
+
+                const result = await response.json();
+                console.log('Feedback submitted:', result);
+                loadData(); // Refresh dashboard
+                return result;
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                throw error;
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadData, 30000);
+
+        // Initial load
+        loadData();
+    </script>
+</body>
+</html>
