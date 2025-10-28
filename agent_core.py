@@ -107,7 +107,7 @@ class UltronAgent:
                 # Fallback to simple config
                 return UltronConfig()
         except Exception as e:
-            print(f"Failed to load config: {e}, using defaults - agent_core.py:105")
+            print(f"Failed to load config: {e}, using defaults - agent_core.py:110")
             return UltronConfig()
 
     def _setup_logging(self) -> logging.Logger:
