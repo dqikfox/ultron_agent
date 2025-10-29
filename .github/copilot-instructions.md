@@ -12,12 +12,20 @@ This is a **multi-modal AI agent platform** with voice-first architecture, combi
 - **agent_core.py**: Primary integration hub. Initializes subsystems (config, voice, vision, tools), handles dynamic tool discovery from `tools/`, manages component lifecycle
 - **brain.py**: AI reasoning engine with Ollama integration at `http://localhost:11434`, async planning, response caching, multi-model support
 - **config.py**: Stub module - **ACTUAL CONFIG** is `ultron_config.json` (JSON format with `USE_ENV_*` pattern for secrets)
-- **mcp.json**: **NEW** Model Context Protocol server configuration - defines external tools (browser automation, GitHub, filesystem, databases)
+- **mcp.json**: **Model Context Protocol** server configuration - defines external tools via MCP standard:
+  - `browsermcp` - Browser automation via @browsermcp/mcp
+  - `github` - Repository access via @modelcontextprotocol/server-github
+  - `filesystem` - Local workspace file operations
+  - `postgres` - PostgreSQL database integration
+  - `puppeteer` - Headless browser automation
+  - **Credential Management**: Uses `${input:github-token}` and `${input:postgres-url}` for secure secret prompting
+  - See `MCP_INTEGRATION_GUIDE.md` for detailed MCP usage
 - **utils/ultron_logger.py**: **MANDATORY** centralized logging - use `log_info()`, `log_error()`, `log_ai_decision()`, `log_file_operation()`
 - **utils/model_awareness.py**: **CRITICAL** AI coordination - MUST call `should_modify_file()` before file edits
 - **utils/event_system.py**: Event bus for async pub/sub messaging between components
 - **tools/**: Auto-discovered plugins inheriting `ToolInterface` with `match()`, `execute()`, `schema()` methods
-- **tools/mcp_integration_tool.py**: **NEW** MCP server manager - provides unified access to external MCP-compatible tools
+- **tools/mcp_integration_tool.py**: MCP server manager - unified access to MCP-compatible tools
+- **tools/mcp_enhanced_tool.py**: Enhanced MCP operations with browser automation and memory context
 
 ### GUI & Service Architecture
 - **PRIMARY GUI**: `gui/ultron_enhanced/web/index.html` - Pokédex-style retro interface on port 8080
@@ -97,6 +105,21 @@ All test results are logged to `ultron_master_startup.log`. If any test fails, u
 - **Default Model**: `llava:7b` (multimodal, vision-enabled, recommended for most tasks)
   - Set in both `ultron_config.json` and `run.bat`
   - Alternative models: `llama3.1`, `qwen3-coder:480b-cloud`, `deepseek-r1:14b`
+- **Auto-Run Feature**: The `auto_run` section in `ultron_config.json` enables automatic command execution on startup:
+  ```json
+  "auto_run": {
+    "enabled": true,
+    "startup_commands": [
+      "start web interface",
+      "tor search latest AI news",
+      "system status"
+    ],
+    "startup_delay_seconds": 5,
+    "run_in_background": true,
+    "log_auto_commands": true
+  }
+  ```
+  Commands execute after `startup_delay_seconds` with full logging support.
 
 ## Project-Specific Patterns & Conventions
 
@@ -220,8 +243,16 @@ Voice system follows a priority fallback chain:
 - **Ollama**: Primary LLM backend at `http://localhost:11434` (local inference)
   - Configure in `ultron_config.json`: `"ollama_base_url": "http://localhost:11434"`
   - Model switching via `/api/model/switch` endpoint
-- **OpenAI**: Optional fallback via `tools/openai_tools.py`
+- **OpenAI**: Optional fallback via `tools/openai_tools.py` and `ai_toolkit.py`
+- **AI Toolkit Extension**: GPT-4o/GPT-5 integration via VS Code AI Toolkit (`ms-vscode.vscode-ai-toolkit`)
+  - Configuration: `.vscode/ai-toolkit.json` with model priority
+  - Status: `python gpt5_integration.py` - checks extension and API key
+  - See: `AI_TOOLKIT_SETUP.md` for setup instructions
 - **ElevenLabs**: Voice synthesis/recognition (requires API key)
+- **AWS Bedrock**: Cloud-based AI models (configurable in `ultron_config.json`)
+  - Default model: `amazon.nova-pro-v1:0`
+  - Region: `us-east-1`, endpoint configurable
+  - Voice integration via `tools/voice_aws_tool.py`
 - **NVIDIA NIM**: Enhanced suggestions via `nvidia_nim_router.py` (experimental, optional)
 - **Azure Cognitive**: Text analytics, LUIS, Speech (experimental, optional)
 - **Mesh Transformer**: GPT-J/GPT-NeoX integration (experimental, optional)
@@ -264,6 +295,17 @@ Key tools in `tools/`:
 - `pyautogui_tool.py` - System automation
 - `web_scraping_tool.py` - Web data extraction
 - `mobile_web_interface_tool.py` - Mobile web UI
+- `mcp_integration_tool.py` - Model Context Protocol server manager
+- `mcp_enhanced_tool.py` - Enhanced MCP operations with browser/memory
+- `browser_mcp_tool.py` / `browser_mcp_enhanced_tool.py` - Browser automation
+- `aws_bedrock_tool.py` - AWS Bedrock AI integration
+- `voice_aws_tool.py` - AWS voice/speech integration
+- `github_models_tool.py` - GitHub AI models integration
+- `amazon_q_integration_tool.py` - Amazon Q CodeWhisperer integration
+- `tor_search_tool.py` / `uncensored_search_tool.py` - Privacy-focused web search
+- `repomix_tool.py` - Repository packaging and analysis
+- `langflow_tool.py` / `langflow_mcp_tool.py` - LangFlow integration
+- `database_tool.py` / `database_integration_tool.py` - Database operations
 
 ### Documentation Directories
 - **Visual Studio Code**: `.vscode/` - Launch configurations, tasks, settings
@@ -308,6 +350,42 @@ pytest -m "not slow"
 pytest --cov=. --cov-report=html
 ```
 
+**Writing Tests**:
+```python
+# Unit test example (fast, isolated)
+@pytest.mark.unit
+def test_tool_interface_match():
+    """Test tool matching logic"""
+    tool = MyTool()
+    assert tool.match("example command")
+    assert not tool.match("unrelated")
+
+# Integration test example (requires services)
+@pytest.mark.integration
+@pytest.mark.network
+def test_ollama_integration():
+    """Test Ollama API integration"""
+    # Requires Ollama service running
+    response = call_ollama_api()
+    assert response.status_code == 200
+
+# Slow test example (long-running)
+@pytest.mark.slow
+def test_full_workflow():
+    """Test complete agent workflow"""
+    # This may take >30 seconds
+    agent = UltronAgent()
+    result = agent.process_complex_task()
+    assert result.success
+```
+
+**Best Practices**:
+- Use `@pytest.mark.unit` for fast, isolated tests (no external dependencies)
+- Use `@pytest.mark.integration` for tests requiring services (Ollama, API servers)
+- Use `@pytest.mark.network` for tests requiring internet access
+- Use `@pytest.mark.slow` for tests taking >5 seconds
+- Mock external services in unit tests using `unittest.mock` or `pytest-mock`
+
 ## Development Best Practices
 
 ### Code Organization
@@ -340,6 +418,79 @@ if validate_file_path(requested_path):
 - **API Key Management**: Use `USE_ENV_*` pattern in config, never commit secrets
 - **Error Logging**: Sanitized error messages without sensitive data
 - **Network Security**: 30s timeout, retry logic for external APIs
+
+## AI Model Selection Guide
+
+### When to Use Each Model
+
+**llava:7b (Default - Recommended for most tasks)**:
+- ✅ Multimodal capabilities (text + vision)
+- ✅ Fast local inference
+- ✅ Stable performance
+- ✅ Best for: General tasks, vision analysis, quick responses
+- ⚠️ Limited context window
+
+**deepseek-r1:14b**:
+- ✅ Advanced reasoning capabilities
+- ✅ Larger model, better for complex tasks
+- ⚠️ Known timeout issues (>30s)
+- ⚠️ Higher memory requirements
+- 🔧 Use for: Complex code analysis, architectural decisions
+
+**AWS Bedrock (amazon.nova-pro-v1:0)**:
+- ✅ Cloud-based, no local resources
+- ✅ Scalable and reliable
+- ✅ Best for: Production workloads, high availability
+- ⚠️ Requires AWS credentials and internet
+- 💰 Usage-based pricing
+
+**qwen3-coder:480b-cloud**:
+- ✅ Specialized for code generation
+- ✅ Large context window
+- ✅ Best for: Code refactoring, large file operations
+- ⚠️ Cloud-based, may have latency
+
+### Model Switching
+```python
+# Via config (restart required)
+# Edit ultron_config.json: "llm_model": "deepseek-r1:14b"
+
+# Via API (hot-swap)
+curl -X POST http://localhost:5000/api/model/switch \
+  -H "Content-Type: application/json" \
+  -d '{"model": "llama3.1"}'
+
+# Validate model awareness
+python model_awareness_validator.py <model_name>
+```
+
+## Recommended Tools by Use Case
+
+### System Automation
+- `pyautogui_tool.py` - GUI automation, mouse/keyboard control
+- `windows_system_tool.py` - Windows-specific system operations
+- `dynamic_code_executor.py` - Sandboxed Python execution
+
+### Web & Data
+- `web_scraping_tool.py` - Web data extraction
+- `tor_search_tool.py` / `uncensored_search_tool.py` - Privacy-focused search (use with caution)
+- `browser_mcp_tool.py` - Browser automation via MCP
+
+### AI & Development
+- `github_models_tool.py` - GitHub AI models integration
+- `amazon_q_integration_tool.py` - Amazon Q CodeWhisperer
+- `ai_development_coordinator.py` - Multi-AI coordination
+- `repomix_tool.py` - Repository packaging and analysis
+
+### Cloud Services
+- `aws_bedrock_tool.py` - AWS Bedrock AI models
+- `voice_aws_tool.py` - AWS voice/speech services
+- `database_integration_tool.py` - Database operations (PostgreSQL, etc.)
+
+### Advanced Integration
+- `mcp_enhanced_tool.py` - Enhanced MCP with browser/memory
+- `langflow_mcp_tool.py` - LangFlow workflow integration
+- `orchestration_tool.py` - Multi-tool coordination
 
 ## Common Development Tasks
 
@@ -687,4 +838,4 @@ See `SYSTEM_ARCHITECTURE.md` for:
 
 ---
 
-*This document reflects the current state of ULTRON Agent 3.0 as of October 2025. Update as architecture evolves.*
+*This document reflects the current state of ULTRON Agent 3.0 as of October 29, 2025. Update as architecture evolves.*
