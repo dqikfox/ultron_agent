@@ -13,3 +13,10 @@ url = https://github.com/docker/bindmount-apps
 [submodule "scout-demo-service"]
 path = scout-demo-service
 url = https://github.com/docker/scout-demo-service.git
+
+# PLACEHOLDER: This submodule entry is required to prevent git submodule errors.
+# The actual remote URL for UltronSysAgent is unknown and should be updated by maintainers.
+# If this submodule is not needed, it should be removed along with the resources/UltronSysAgent directory.
+[submodule "resources/UltronSysAgent"]
+	path = resources/UltronSysAgent
+	url = https://github.com/dqikfox/UltronSysAgent.git
