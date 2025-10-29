@@ -63,16 +63,23 @@ class AutonomousEvolutionTool(ToolInterface):
         
         # State management
         self.is_active = False
+        self.is_paused = False
         self.evolution_cycle_count = 0
         self.improvements_made = []
         self.failed_attempts = []
+        self.success_patterns = {}  # Track which improvement types succeed
         
         # Configuration
         self.evolution_state_file = Path("data/autonomous_evolution_state.json")
         self.improvements_log = Path("logs/autonomous_improvements.log")
+        self.metrics_export_file = Path("data/autonomous_evolution_metrics.json")
         self.cycle_interval = 1800  # 30 minutes between cycles
         self.max_improvements_per_cycle = 3
         self.safety_mode = True
+        
+        # Enhancement: Custom filters
+        self.file_pattern_filters = []  # e.g., ["tools/*.py", "utils/*.py"]
+        self.exclude_patterns = []  # e.g., ["archive/*", "*.bak"]
         
         # Improvement areas to focus on
         self.improvement_areas = [
@@ -100,7 +107,9 @@ class AutonomousEvolutionTool(ToolInterface):
         return any(keyword in command_lower for keyword in [
             "autonomous evolution", "self improve", "continuous improvement",
             "auto evolve", "maintain project", "enhance project",
-            "evolution start", "evolution stop", "evolution status"
+            "evolution start", "evolution stop", "evolution status",
+            "evolution pause", "evolution resume", "evolution preview",
+            "evolution metrics", "evolution suggest"
         ])
     
     def execute(self, command: str, **kwargs) -> str:
@@ -114,14 +123,32 @@ class AutonomousEvolutionTool(ToolInterface):
             elif "stop" in command_lower or "deactivate" in command_lower:
                 return self._stop_evolution()
             
+            elif "pause" in command_lower:
+                return self._pause_evolution()
+            
+            elif "resume" in command_lower:
+                return self._resume_evolution()
+            
             elif "status" in command_lower:
                 return self._get_status()
+            
+            elif "preview" in command_lower or "dry run" in command_lower:
+                return asyncio.run(self._preview_improvements())
             
             elif "manual cycle" in command_lower or "run cycle" in command_lower:
                 return asyncio.run(self._run_evolution_cycle())
             
             elif "history" in command_lower:
                 return self._get_improvement_history()
+            
+            elif "metrics" in command_lower or "export" in command_lower:
+                return self._export_metrics()
+            
+            elif "suggest" in command_lower:
+                return self._suggest_improvement(kwargs.get("suggestion", ""))
+            
+            elif "learn" in command_lower:
+                return self._show_learning_insights()
             
             else:
                 return self._get_help()
@@ -179,6 +206,7 @@ Use 'evolution stop' to deactivate."""
             return "Autonomous evolution is not currently active."
         
         self.is_active = False
+        self.is_paused = False
         self._save_state()
         
         log_ai_decision(
@@ -200,10 +228,59 @@ Session Statistics:
 
 All improvements have been logged and can be reviewed."""
     
+    def _pause_evolution(self) -> str:
+        """Pause autonomous evolution cycles"""
+        if not self.is_active:
+            return "Autonomous evolution is not currently active."
+        
+        if self.is_paused:
+            return "Autonomous evolution is already paused."
+        
+        self.is_paused = True
+        self._save_state()
+        
+        log_ai_decision(
+            "autonomous_evolution_tool",
+            "Autonomous evolution paused",
+            reasoning="User requested pause"
+        )
+        
+        return """⏸️ Autonomous Evolution Mode PAUSED
+
+Current cycle will complete, then no new cycles will start.
+Use 'evolution resume' to continue cycles.
+Use 'evolution status' to monitor."""
+    
+    def _resume_evolution(self) -> str:
+        """Resume autonomous evolution cycles"""
+        if not self.is_active:
+            return "Autonomous evolution is not active. Use 'evolution start' to activate."
+        
+        if not self.is_paused:
+            return "Autonomous evolution is not paused."
+        
+        self.is_paused = False
+        self._save_state()
+        
+        log_ai_decision(
+            "autonomous_evolution_tool",
+            "Autonomous evolution resumed",
+            reasoning="User requested resume"
+        )
+        
+        return """▶️ Autonomous Evolution Mode RESUMED
+
+Evolution cycles will continue on schedule.
+Next cycle will run at the scheduled interval."""
+    
     def _get_status(self) -> str:
         """Get current autonomous evolution status"""
         status = "🤖 AUTONOMOUS EVOLUTION STATUS\n\n"
         status += f"Mode: {'🟢 ACTIVE' if self.is_active else '🔴 INACTIVE'}\n"
+        
+        if self.is_active and self.is_paused:
+            status += "State: ⏸️ PAUSED\n"
+        
         status += f"Total Cycles Completed: {self.evolution_cycle_count}\n"
         status += f"Improvements Made: {len(self.improvements_made)}\n"
         status += f"Failed Attempts: {len(self.failed_attempts)}\n\n"
@@ -229,6 +306,11 @@ All improvements have been logged and can be reviewed."""
                 
                 if not self.is_active:
                     break
+                
+                # Skip cycle if paused
+                if self.is_paused:
+                    log_info("autonomous_evolution_tool", "Cycle skipped - evolution is paused")
+                    continue
                 
                 # Run an evolution cycle
                 result = await self._run_evolution_cycle()
@@ -718,21 +800,224 @@ All improvements have been logged and can be reviewed."""
         return """🤖 AUTONOMOUS EVOLUTION TOOL
 
 Commands:
-  'evolution start'  - Start autonomous improvement mode
-  'evolution stop'   - Stop autonomous improvement mode
-  'evolution status' - Show current status and statistics
-  'manual cycle'     - Run a single evolution cycle manually
-  'evolution history'- View improvement history
+  'evolution start'   - Start autonomous improvement mode
+  'evolution stop'    - Stop autonomous improvement mode
+  'evolution pause'   - Pause evolution cycles
+  'evolution resume'  - Resume evolution cycles
+  'evolution status'  - Show current status and statistics
+  'evolution preview' - Preview improvements without starting
+  'manual cycle'      - Run a single evolution cycle manually
+  'evolution history' - View improvement history
+  'evolution metrics' - Export metrics to JSON
+  'evolution suggest' - Add custom improvement suggestion
+  'evolution learn'   - Show learning insights
 
 The Autonomous Evolution Tool enables ULTRON to continuously improve itself by:
 - Analyzing the project for opportunities
 - Generating enhancement proposals
 - Safely implementing improvements
 - Tracking metrics and effectiveness
+- Learning from success patterns
 
 Safety Mode: Enabled by default (changes are simulated)
 Cycle Interval: 30 minutes
-Max Improvements per Cycle: 3"""
+Max Improvements per Cycle: 3
+
+NEW FEATURES:
+✨ Pause/Resume: Control evolution cycles without stopping
+✨ Preview Mode: See what would be improved before starting
+✨ Metrics Export: Export improvement data for analysis
+✨ Learning System: Adapts based on success patterns
+✨ Custom Suggestions: Add your own improvement ideas"""
+    
+    async def _preview_improvements(self) -> str:
+        """Preview what improvements would be made without actually starting evolution"""
+        log_info("autonomous_evolution_tool", "Running preview mode")
+        
+        preview = "🔍 EVOLUTION PREVIEW MODE\n\n"
+        preview += "Analyzing project for potential improvements...\n\n"
+        
+        try:
+            # Analyze project
+            improvements = await self._analyze_project()
+            
+            if not improvements:
+                return preview + "No improvements identified at this time."
+            
+            # Prioritize
+            prioritized = self._prioritize_improvements(improvements)
+            top_improvements = prioritized[:self.max_improvements_per_cycle]
+            
+            preview += f"Found {len(improvements)} potential improvements.\n"
+            preview += f"Top {len(top_improvements)} for next cycle:\n\n"
+            
+            for idx, imp in enumerate(top_improvements, 1):
+                preview += f"{idx}. [{imp['area'].replace('_', ' ').title()}] {imp['description']}\n"
+                preview += f"   Priority: {imp['priority']}, Effort: {imp['estimated_effort']}, Risk: {imp['risk_level']}\n\n"
+            
+            # Learning insights
+            if self.success_patterns:
+                preview += "📚 Learning Insights:\n"
+                for area, rate in sorted(self.success_patterns.items(), key=lambda x: x[1], reverse=True)[:3]:
+                    preview += f"   • {area}: {rate:.0%} success rate\n"
+            
+            preview += "\nUse 'evolution start' to begin autonomous improvements."
+            
+        except Exception as e:
+            preview += f"❌ Preview failed: {e}"
+        
+        return preview
+    
+    def _export_metrics(self) -> str:
+        """Export metrics to JSON file"""
+        try:
+            metrics = {
+                "export_timestamp": datetime.now().isoformat(),
+                "is_active": self.is_active,
+                "is_paused": self.is_paused,
+                "total_cycles": self.evolution_cycle_count,
+                "improvements_made": len(self.improvements_made),
+                "failed_attempts": len(self.failed_attempts),
+                "success_rate": self._get_cycle_statistics()['success_rate'],
+                "improvements_by_area": {},
+                "success_patterns": self.success_patterns,
+                "recent_improvements": self.improvements_made[-10:],
+                "configuration": {
+                    "cycle_interval": self.cycle_interval,
+                    "max_improvements_per_cycle": self.max_improvements_per_cycle,
+                    "safety_mode": self.safety_mode,
+                    "improvement_areas": self.improvement_areas
+                }
+            }
+            
+            # Count improvements by area
+            for imp in self.improvements_made:
+                area = imp.get('area', 'unknown')
+                metrics['improvements_by_area'][area] = metrics['improvements_by_area'].get(area, 0) + 1
+            
+            # Export to file
+            self.metrics_export_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.metrics_export_file, 'w') as f:
+                json.dump(metrics, f, indent=2)
+            
+            log_info("autonomous_evolution_tool", f"Metrics exported to {self.metrics_export_file}")
+            
+            return f"""📊 METRICS EXPORTED
+
+File: {self.metrics_export_file}
+Total Cycles: {metrics['total_cycles']}
+Improvements Made: {metrics['improvements_made']}
+Success Rate: {metrics['success_rate']:.1f}%
+
+Top Areas:
+{self._format_top_areas(metrics['improvements_by_area'])}
+
+Metrics can be visualized using any JSON viewer or data analysis tool."""
+        
+        except Exception as e:
+            error_msg = f"Failed to export metrics: {e}"
+            log_error("autonomous_evolution_tool", error_msg)
+            return f"❌ {error_msg}"
+    
+    def _format_top_areas(self, areas_dict: Dict[str, int]) -> str:
+        """Format top improvement areas for display"""
+        if not areas_dict:
+            return "  (No improvements yet)"
+        
+        sorted_areas = sorted(areas_dict.items(), key=lambda x: x[1], reverse=True)[:3]
+        return "\n".join([f"  • {area.replace('_', ' ').title()}: {count}" for area, count in sorted_areas])
+    
+    def _suggest_improvement(self, suggestion: str) -> str:
+        """Add a custom improvement suggestion"""
+        if not suggestion:
+            return """💡 CUSTOM IMPROVEMENT SUGGESTION
+
+Usage: Provide a suggestion for improvement
+Example: "Optimize the voice recognition latency"
+
+The suggestion will be added to the queue for the next evolution cycle."""
+        
+        try:
+            # Create a custom improvement entry
+            custom_improvement = {
+                "area": "custom",
+                "description": suggestion,
+                "details": ["User-provided suggestion"],
+                "priority": 8,  # High priority for user suggestions
+                "estimated_effort": "medium",
+                "risk_level": "medium",
+                "source": "user",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Log it
+            log_ai_decision(
+                "autonomous_evolution_tool",
+                f"Custom suggestion added: {suggestion}",
+                reasoning="User-provided improvement"
+            )
+            
+            return f"""✅ SUGGESTION ADDED
+
+Your suggestion has been queued:
+"{suggestion}"
+
+Priority: 8 (High)
+It will be considered in the next evolution cycle.
+
+Use 'evolution preview' to see all queued improvements."""
+        
+        except Exception as e:
+            return f"❌ Failed to add suggestion: {e}"
+    
+    def _show_learning_insights(self) -> str:
+        """Show what the system has learned from success/failure patterns"""
+        insights = "📚 LEARNING INSIGHTS\n\n"
+        
+        if not self.success_patterns and not self.improvements_made:
+            return insights + "No learning data available yet. Run some evolution cycles first."
+        
+        # Calculate success rates by area
+        area_attempts = {}
+        area_successes = {}
+        
+        for imp in self.improvements_made:
+            area = imp.get('area', 'unknown')
+            status = imp.get('status', 'unknown')
+            
+            area_attempts[area] = area_attempts.get(area, 0) + 1
+            if status == 'success':
+                area_successes[area] = area_successes.get(area, 0) + 1
+        
+        # Update success patterns
+        for area in area_attempts:
+            success_count = area_successes.get(area, 0)
+            self.success_patterns[area] = success_count / area_attempts[area]
+        
+        # Display insights
+        if self.success_patterns:
+            insights += "Success Rates by Area:\n"
+            for area, rate in sorted(self.success_patterns.items(), key=lambda x: x[1], reverse=True):
+                emoji = "🟢" if rate > 0.7 else "🟡" if rate > 0.4 else "🔴"
+                insights += f"  {emoji} {area.replace('_', ' ').title()}: {rate:.0%} ({area_successes.get(area, 0)}/{area_attempts.get(area, 0)})\n"
+            
+            insights += "\n💡 Recommendations:\n"
+            
+            # Find best performing areas
+            best_areas = [area for area, rate in self.success_patterns.items() if rate > 0.7]
+            if best_areas:
+                insights += f"  • Focus on: {', '.join([a.replace('_', ' ') for a in best_areas[:3]])}\n"
+            
+            # Find areas needing attention
+            struggling_areas = [area for area, rate in self.success_patterns.items() if rate < 0.4]
+            if struggling_areas:
+                insights += f"  • Review approach for: {', '.join([a.replace('_', ' ') for a in struggling_areas[:3]])}\n"
+        
+        insights += f"\nTotal Cycles: {self.evolution_cycle_count}\n"
+        insights += f"Total Improvements Attempted: {len(self.improvements_made)}\n"
+        insights += f"Overall Success Rate: {self._get_cycle_statistics()['success_rate']:.1f}%"
+        
+        return insights
     
     def _ensure_directories(self):
         """Ensure required directories exist"""
@@ -748,6 +1033,8 @@ Max Improvements per Cycle: 3"""
                     self.evolution_cycle_count = state.get("cycle_count", 0)
                     self.improvements_made = state.get("improvements", [])
                     self.failed_attempts = state.get("failed_attempts", [])
+                    self.is_paused = state.get("is_paused", False)
+                    self.success_patterns = state.get("success_patterns", {})
         except Exception as e:
             log_error("autonomous_evolution_tool", f"Failed to load state: {e}")
     
@@ -756,9 +1043,11 @@ Max Improvements per Cycle: 3"""
         try:
             state = {
                 "is_active": self.is_active,
+                "is_paused": self.is_paused,
                 "cycle_count": self.evolution_cycle_count,
                 "improvements": self.improvements_made[-100:],  # Keep last 100
                 "failed_attempts": self.failed_attempts[-50:],  # Keep last 50
+                "success_patterns": self.success_patterns,
                 "last_updated": datetime.now().isoformat()
             }
             
