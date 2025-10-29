@@ -26,7 +26,6 @@ import hashlib
 
 # ULTRON Agent imports
 from utils.ultron_logger import log_info, log_error, log_ai_decision
-from diagnostics import diagnostic_wrapper, track_metric
 
 # Import tool interface
 from tools.tool_interface import ToolInterface
@@ -104,7 +103,6 @@ class AutonomousEvolutionTool(ToolInterface):
             "evolution start", "evolution stop", "evolution status"
         ])
     
-    @diagnostic_wrapper("autonomous_evolution_tool", track_performance=True)
     def execute(self, command: str, **kwargs) -> str:
         """Execute autonomous evolution operations"""
         try:
