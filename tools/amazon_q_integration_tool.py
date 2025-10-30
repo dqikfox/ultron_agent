@@ -1,274 +1,153 @@
 """
-ULTRON Agent - Amazon Q Integration Tool
-Provides Amazon Q with deep ULTRON Agent context and capabilities.
+Amazon Q Integration Tool for ULTRON Agent
+Handles auto-run commands and Amazon Q specific functionality
 """
 
 import json
-from pathlib import Path
-from typing import Dict, List, Optional
+import os
+import time
+import threading
 from utils.ultron_logger import log_info, log_error
+from .tool_interface import ToolInterface
 
-
-class AmazonQIntegrationTool:
-    """Amazon Q integration for enhanced ULTRON Agent development"""
+class AmazonQIntegrationTool(ToolInterface):
+    """Amazon Q integration with auto-run capabilities"""
     
-    name = "amazon_q_integration"
-    description = "Amazon Q integration with ULTRON Agent context awareness"
+    @property
+    def name(self) -> str:
+        return "Amazon Q Integration"
     
-    def __init__(self):
-        self.project_root = Path(__file__).parent.parent
-        self.context_cache = {}
+    @property
+    def description(self) -> str:
+        return "Amazon Q auto-run commands and integration features"
     
+    def __init__(self, config=None):
+        self.config = config or {}
+        self.auto_run_enabled = True
+        self.startup_commands = [
+            "search tor for latest news in ai",
+            "start web interface", 
+            "system status",
+            "check ollama status"
+        ]
+        self.auto_run_executed = False
+        
     def match(self, command: str) -> bool:
-        """Match Amazon Q related commands"""
-        keywords = ["amazon q", "q help", "code review", "suggest", "analyze", "optimize"]
-        return any(keyword in command.lower() for keyword in keywords)
+        """Check if command matches Amazon Q operations"""
+        return any(keyword in command.lower() for keyword in [
+            "amazon q", "auto run", "startup commands", "q integration"
+        ])
     
-    def execute(self, command: str, **kwargs) -> str:
-        """Execute Amazon Q integration commands"""
+    def execute(self, command: str) -> str:
+        """Execute Amazon Q operations"""
         try:
-            cmd_lower = command.lower()
-            
-            if "context" in cmd_lower:
-                return self._provide_ultron_context()
-            elif "review" in cmd_lower:
-                return self._code_review_guidance()
-            elif "suggest" in cmd_lower or "help" in cmd_lower:
-                return self._development_suggestions(command)
-            elif "analyze" in cmd_lower:
-                return self._analyze_codebase()
+            if "auto run" in command.lower():
+                return self._execute_auto_run()
+            elif "startup" in command.lower():
+                return self._get_startup_info()
+            elif "enable" in command.lower():
+                self.auto_run_enabled = True
+                return "Amazon Q auto-run enabled"
+            elif "disable" in command.lower():
+                self.auto_run_enabled = False
+                return "Amazon Q auto-run disabled"
             else:
-                return self._general_q_integration_info()
-                
+                return self._show_help()
         except Exception as e:
-            log_error("amazon_q_integration", f"Integration failed: {str(e)}")
-            return f"Amazon Q integration error: {str(e)}"
+            log_error("amazon_q_integration", f"Operation failed: {e}")
+            return f"Amazon Q error: {str(e)}"
     
-    def _provide_ultron_context(self) -> str:
-        """Provide comprehensive ULTRON Agent context for Amazon Q"""
-        context = {
-            "project_name": "ULTRON Agent 3.0",
-            "architecture": "Modular AI agent platform with multi-modal interfaces",
-            "core_components": {
-                "agent_core.py": "Main integration hub and orchestrator",
-                "brain.py": "AI reasoning engine with Ollama integration",
-                "voice_manager.py": "Multi-engine voice system with ElevenLabs",
-                "gui/ultron_enhanced/web/": "Primary Pokédex-style GUI interface"
-            },
-            "tool_system": {
-                "location": "tools/ directory",
-                "pattern": "Dynamic discovery with match() and execute() methods",
-                "integration": "Centralized logging and error handling"
-            },
-            "services": {
-                "ports": {
-                    "8000": "AI chat server (nvidia_enhanced_ultron.py)",
-                    "8080": "Web GUI server (web_gui_server.py)",
-                    "5000": "REST API server (api_server.py)",
-                    "5001": "Enhanced API server (gui_ocr_integration.py)",
-                    "11434": "Ollama LLM backend"
-                }
-            },
-            "ai_integrations": {
-                "ollama": "Local LLM models (llava:7b, qwen3-coder, deepseek-r1)",
-                "elevenlabs": "Voice synthesis and recognition",
-                "continue": "Multi-model code assistance with MCP",
-                "amazon_q": "AWS AI coding assistant (you!)",
-                "github_copilot": "Pair programming support"
-            },
-            "development_patterns": {
-                "async_operations": "Use async/await for I/O and long-running tasks",
-                "error_handling": "Centralized logging with utils.ultron_logger",
-                "configuration": "JSON config with environment variable overrides",
-                "event_system": "Pub/sub communication via utils.event_system"
-            }
-        }
+    def _execute_auto_run(self) -> str:
+        """Execute auto-run commands"""
+        if not self.auto_run_enabled:
+            return "Auto-run is disabled"
+            
+        if self.auto_run_executed:
+            return "Auto-run commands already executed"
         
-        return f"ULTRON Agent Context for Amazon Q:\n{json.dumps(context, indent=2)}"
-    
-    def _code_review_guidance(self) -> str:
-        """Provide code review guidance for Amazon Q"""
-        guidance = {
-            "review_focus_areas": [
-                "Tool interface compliance (match/execute methods)",
-                "Proper error handling with centralized logging",
-                "Async/await pattern usage for I/O operations",
-                "Integration with event system for communication",
-                "Configuration management and validation",
-                "Voice system integration for accessibility",
-                "Security best practices for API keys and inputs"
-            ],
-            "ultron_specific_patterns": {
-                "tool_template": """
-class NewTool:
-    name = "tool_name"
-    description = "Clear description"
-    
-    def match(self, command: str) -> bool:
-        return "keyword" in command.lower()
-    
-    def execute(self, command: str, **kwargs) -> str:
-        from utils.ultron_logger import log_info, log_error
         try:
-            log_info("tool_name", f"Executing: {command}")
-            # Implementation
-            return "Success"
+            log_info("amazon_q_integration", "Executing auto-run commands")
+            
+            results = []
+            for cmd in self.startup_commands:
+                try:
+                    # Import agent core to execute commands
+                    from agent_core import UltronAgent
+                    import asyncio
+                    
+                    async def run_command():
+                        agent = UltronAgent()
+                        await agent.initialize()
+                        return await agent.process_command(cmd)
+                    
+                    result = asyncio.run(run_command())
+                    results.append(f"✓ {cmd}: Success")
+                    log_info("amazon_q_integration", f"Auto-run command executed: {cmd}")
+                    
+                except Exception as e:
+                    results.append(f"✗ {cmd}: {str(e)}")
+                    log_error("amazon_q_integration", f"Auto-run command failed: {cmd} - {e}")
+            
+            self.auto_run_executed = True
+            return "Amazon Q Auto-run completed:\n" + "\n".join(results)
+            
         except Exception as e:
-            log_error("tool_name", f"Error: {str(e)}")
-            return f"Error: {str(e)}"
-""",
-                "async_service": """
-async def ultron_service_pattern():
-    try:
-        result = await async_operation()
-        await event_system.emit("operation_complete", result)
-        return result
-    except Exception as e:
-        log_error("service", f"Operation failed: {str(e)}")
-        raise
-""",
-                "voice_integration": """
-from voice_manager import get_voice_manager
-voice_manager = get_voice_manager()
-await voice_manager.speak("Response text", async_mode=True)
-"""
-            },
-            "common_issues_to_check": [
-                "Missing error handling in tool execute methods",
-                "Synchronous operations that should be async",
-                "Hardcoded values that should use configuration",
-                "Missing logging for important operations",
-                "Improper exception handling without context",
-                "Memory leaks in long-running operations",
-                "Security vulnerabilities in input handling"
-            ]
-        }
-        
-        return f"Amazon Q Code Review Guidance:\n{json.dumps(guidance, indent=2)}"
+            log_error("amazon_q_integration", f"Auto-run execution failed: {e}")
+            return f"Auto-run failed: {str(e)}"
     
-    def _development_suggestions(self, command: str) -> str:
-        """Provide development suggestions based on command context"""
-        suggestions = {
-            "tool_development": [
-                "Use the standardized tool interface pattern",
-                "Implement proper error handling with logging",
-                "Add comprehensive docstrings and type hints",
-                "Test integration with existing event system",
-                "Consider voice system integration for accessibility"
-            ],
-            "service_development": [
-                "Use async/await for I/O operations",
-                "Implement proper shutdown handling",
-                "Add health check endpoints",
-                "Use centralized configuration management",
-                "Integrate with monitoring and logging systems"
-            ],
-            "integration_improvements": [
-                "Enhance MCP server configurations",
-                "Improve Continue extension integration",
-                "Add more natural language processing capabilities",
-                "Expand voice command recognition patterns",
-                "Optimize performance for real-time operations"
-            ],
-            "security_enhancements": [
-                "Validate all user inputs",
-                "Use environment variables for API keys",
-                "Implement proper authentication where needed",
-                "Add input sanitization for system commands",
-                "Regular security audits of external integrations"
-            ]
-        }
+    def _get_startup_info(self) -> str:
+        """Get startup command information"""
+        return f"""Amazon Q Auto-Run Configuration:
         
-        # Extract context from command to provide specific suggestions
-        if "tool" in command.lower():
-            focus = "tool_development"
-        elif "service" in command.lower():
-            focus = "service_development"
-        elif "security" in command.lower():
-            focus = "security_enhancements"
-        else:
-            focus = "integration_improvements"
-        
-        return f"Amazon Q Development Suggestions ({focus}):\n" + "\n".join([f"• {item}" for item in suggestions[focus]])
+Status: {'Enabled' if self.auto_run_enabled else 'Disabled'}
+Executed: {'Yes' if self.auto_run_executed else 'No'}
+
+Startup Commands:
+{chr(10).join(f'• {cmd}' for cmd in self.startup_commands)}
+
+Use 'amazon q auto run' to execute manually"""
     
-    def _analyze_codebase(self) -> str:
-        """Provide codebase analysis for Amazon Q"""
-        analysis = {
-            "architecture_strengths": [
-                "Modular tool system with dynamic discovery",
-                "Event-driven communication between components",
-                "Multi-modal interfaces (voice, GUI, API, CLI)",
-                "Comprehensive logging and monitoring",
-                "Flexible configuration management"
-            ],
-            "areas_for_improvement": [
-                "Add more comprehensive unit tests",
-                "Implement circuit breaker patterns for external services",
-                "Enhance error recovery mechanisms",
-                "Add performance monitoring and optimization",
-                "Improve documentation coverage"
-            ],
-            "integration_opportunities": [
-                "Enhanced Amazon Q code suggestions",
-                "Better Continue extension coordination",
-                "Improved MCP server utilization",
-                "Advanced natural language processing",
-                "Real-time collaboration features"
-            ],
-            "technical_debt": [
-                "Legacy GUI components that could be modernized",
-                "Some synchronous operations that should be async",
-                "Configuration validation could be more robust",
-                "Error messages could be more user-friendly"
-            ]
-        }
+    def _show_help(self) -> str:
+        """Show help information"""
+        return """Amazon Q Integration Commands:
         
-        return f"ULTRON Agent Codebase Analysis:\n{json.dumps(analysis, indent=2)}"
+• amazon q auto run - Execute startup commands
+• amazon q startup - Show startup configuration  
+• amazon q enable - Enable auto-run
+• amazon q disable - Disable auto-run
+
+Auto-run commands will execute:
+• Tor search for AI news
+• Start web interface
+• System status check
+• Ollama status check"""
     
-    def _general_q_integration_info(self) -> str:
-        """Provide general Amazon Q integration information"""
-        info = """
-Amazon Q Integration with ULTRON Agent:
-
-🤖 **What Amazon Q Knows About ULTRON:**
-- Complete project architecture and component relationships
-- Tool development patterns and best practices
-- Service integration points and communication patterns
-- Configuration management and deployment procedures
-
-🔧 **How Amazon Q Helps ULTRON Development:**
-- Code suggestions that follow ULTRON patterns
-- Error detection specific to ULTRON architecture
-- Security scanning for ULTRON-specific vulnerabilities
-- Documentation generation for new tools and features
-
-🚀 **Enhanced Capabilities:**
-- Context-aware code completion for ULTRON tools
-- Integration suggestions for new services
-- Performance optimization recommendations
-- Best practice enforcement during development
-
-💡 **Usage Tips:**
-- Ask Amazon Q about specific ULTRON components
-- Request code reviews for new tool implementations
-- Get suggestions for improving existing functionality
-- Seek help with integration challenges
-
-Use commands like:
-- "amazon q analyze this tool implementation"
-- "q help with voice system integration"
-- "suggest improvements for this service"
-- "review this code for ULTRON best practices"
-"""
+    def start_auto_run_on_startup(self):
+        """Start auto-run commands with delay"""
+        if not self.auto_run_enabled:
+            return
+            
+        def delayed_auto_run():
+            time.sleep(3)  # 3 second delay
+            self._execute_auto_run()
         
-        return info
+        thread = threading.Thread(target=delayed_auto_run, daemon=True)
+        thread.start()
+        log_info("amazon_q_integration", "Auto-run scheduled for startup")
     
-    @staticmethod
-    def schema():
+    @classmethod
+    def schema(cls):
         return {
             "name": "amazon_q_integration",
-            "description": "Amazon Q integration with ULTRON Agent context awareness",
+            "description": "Amazon Q auto-run commands and integration",
             "parameters": {
-                "command": {"type": "string", "description": "Amazon Q integration command"}
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "Amazon Q integration command"
+                    }
+                },
+                "required": ["command"]
             }
         }

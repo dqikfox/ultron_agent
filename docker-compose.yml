@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  ultron-agent:
+    build: .
+    ports:
+      - "8080:8080"
+      - "5000:5000"
+    environment:
+      - AWS_REGION=us-east-1
+      - ULTRON_VERSION=3.0
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+
+volumes:
+  ollama_data:
