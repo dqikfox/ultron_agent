@@ -141,6 +141,7 @@ class UltronAgent:
             await self._initialize_voice()
             await self._initialize_vision()
             await self._initialize_brain()
+            await self._initialize_computer_use()
             await self._initialize_event_system()
             await self._initialize_platform_manager()
             await self._initialize_idle_monitor()
@@ -246,6 +247,17 @@ class UltronAgent:
         except ImportError as e:
             self.logger.error(f"Brain system initialization failed: {e}")
             self.brain = None
+    
+    async def _initialize_computer_use(self):
+        """Initialize OpenAI Computer Use integration"""
+        self.logger.info("Initializing OpenAI Computer Use...")
+        try:
+            from openai_computer_use_integration import ultron_computer_use
+            self.computer_use = ultron_computer_use
+            self.logger.info("OpenAI Computer Use initialized successfully")
+        except ImportError as e:
+            self.logger.error(f"Computer Use initialization failed: {e}")
+            self.computer_use = None
 
     async def _initialize_event_system(self):
         """Initialize event system for inter-component communication"""

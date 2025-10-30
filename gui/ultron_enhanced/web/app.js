@@ -17,7 +17,6 @@ class UltronPokedexInterface {
 
         this.currentSection = 'dashboard';
         this.currentTheme = 'red';
-
         // CRITICAL: Voice must NEVER auto-enable on startup - requires explicit user action
         // Dependency: handleStartupAnnouncement() also enforces this.voiceEnabled = false
         // Related: toggleVoiceChat() manages state transitions with server sync
@@ -28,7 +27,6 @@ class UltronPokedexInterface {
         this.shouldRestartRecognition = false;
         this.recognition = null;
         this.lastVoiceResultTimestamp = 0;
-        this.powerMenuInitialized = false; // Prevent auto-opening on startup
         this.systemStats = {
             cpu: 0,
             memory: 0,
@@ -70,6 +68,9 @@ class UltronPokedexInterface {
     }
 
     init() {
+        console.debug('[ULTRON] Initialization started  powerMenuInitialized=false, userRequestedExport=false - app.js:71');
+        // CRITICAL: Force power menu to be hidden on startup
+        this.hidePowerMenu();
         this.cacheDomReferences();
         this.setupEventListeners();
         this.setupStartButton();
@@ -190,10 +191,16 @@ class UltronPokedexInterface {
         });
 
         document.getElementById('btn-power')?.addEventListener('click', () => {
-            if (!this.powerMenuInitialized) {
-                this.powerMenuInitialized = true;
+            console.debug('[ULTRON] Power button clicked  opening power menu - app.js:194');
+            // Directly show menu on power button click - no flag needed
+            const powerMenuEl = document.getElementById('power-menu');
+            if (powerMenuEl) {
+                powerMenuEl.classList.remove('hidden');
+                // Clear inline styles when showing
+                powerMenuEl.style.display = '';
+                powerMenuEl.style.visibility = '';
+                powerMenuEl.style.pointerEvents = '';
             }
-            this.showPowerMenu();
             this.playSound('button');
         });
 
@@ -215,6 +222,27 @@ class UltronPokedexInterface {
             this.analyzeVision();
         });
 
+        // Vision section buttons
+        document.getElementById('screenshotBtn')?.addEventListener('click', () => {
+            this.captureEnhancedScreenshot();
+        });
+
+        document.getElementById('systemInfoBtn')?.addEventListener('click', () => {
+            this.getSystemInfo();
+        });
+
+        document.getElementById('voiceBtn')?.addEventListener('click', () => {
+            this.toggleVoiceControl();
+        });
+
+        document.getElementById('commandInput')?.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                this.executeVisionCommand(event.target.value);
+                event.target.value = '';
+            }
+        });
+
         document.getElementById('theme-select')?.addEventListener('change', (event) => {
             this.changeTheme(event.target.value);
         });
@@ -223,7 +251,7 @@ class UltronPokedexInterface {
             try {
                 await this.toggleVoice();
             } catch (error) {
-                console.debug('[ULTRON] Voice toggle click failed - app.js:221', error);
+                console.debug('[ULTRON] Voice toggle click failed - app.js:254', error);
             }
         });
 
@@ -248,7 +276,7 @@ class UltronPokedexInterface {
             try {
                 await this.toggleVoiceChat();
             } catch (error) {
-                console.debug('[ULTRON] Voice chat toggle failed - app.js:246', error);
+                console.debug('[ULTRON] Voice chat toggle failed - app.js:279', error);
             }
         });
 
@@ -257,6 +285,7 @@ class UltronPokedexInterface {
         });
 
         document.getElementById('export-chat-btn')?.addEventListener('click', () => {
+            console.debug('[ULTRON] Export button clicked  setting userRequestedExport=true - app.js:288');
             this.userRequestedExport = true; // Mark as user-requested export
             this.exportChat();
         });
@@ -265,7 +294,7 @@ class UltronPokedexInterface {
             try {
                 await this.switchModel();
             } catch (error) {
-                console.debug('[ULTRON] Model switch interaction failed - app.js:263', error);
+                console.debug('[ULTRON] Model switch interaction failed - app.js:297', error);
             }
         });
 
@@ -346,13 +375,13 @@ class UltronPokedexInterface {
             try {
                 await this.syncVoiceStatus();
             } catch (error) {
-                console.debug('[ULTRON] Voice status sync failed during startup - app.js:344', error);
+                console.debug('[ULTRON] Voice status sync failed during startup - app.js:378', error);
             }
 
             try {
                 await this.handleStartupAnnouncement();
             } catch (error) {
-                console.debug('[ULTRON] Startup announcement failed - app.js:350', error);
+                console.debug('[ULTRON] Startup announcement failed - app.js:384', error);
             }
         });
     }
@@ -375,7 +404,7 @@ class UltronPokedexInterface {
             try {
                 await this.syncVoiceStatus();
             } catch (error) {
-                console.debug('[ULTRON] Voice sync before announcement failed - app.js:373', error);
+                console.debug('[ULTRON] Voice sync before announcement failed - app.js:407', error);
             }
         }
 
@@ -440,7 +469,7 @@ class UltronPokedexInterface {
                     };
                 }
             } catch (error) {
-                console.debug('[ULTRON] Vision polling failed - app.js:435', error);
+                console.debug('[ULTRON] Vision polling failed - app.js:472', error);
             }
         }, 10000);
     }
@@ -462,7 +491,7 @@ class UltronPokedexInterface {
             };
             this.latestSystemSnapshot = stats;
         } catch (error) {
-            console.debug('[ULTRON] Stats fallback - app.js:457', error);
+            console.debug('[ULTRON] Stats fallback - app.js:494', error);
             this.systemStats = {
                 cpu: Math.floor(Math.random() * 25) + 25,
                 memory: Math.floor(Math.random() * 30) + 30,
@@ -635,7 +664,8 @@ class UltronPokedexInterface {
                 nvidia: '🎯 NVIDIA',
                 tools: '🔧 TOOLS',
                 'llm-chat': '💬 LLM CHAT',
-                'stable-diffusion': '🎨 AI ART'
+                'stable-diffusion': '🎨 AI ART',
+                'autonomous': '🧠 AUTONOMOUS'
             };
             indicator.textContent = icons[sectionName] || '🖥️ CONSOLE';
         }
@@ -682,6 +712,9 @@ class UltronPokedexInterface {
             case 'stable-diffusion':
                 // No initial data loading needed for stable diffusion
                 break;
+            case 'autonomous':
+                await this.loadAutonomousStatus();
+                break;
         }
     }
 
@@ -692,7 +725,7 @@ class UltronPokedexInterface {
         }
         this.addUserMessage(command);
         this.processCommand(command).catch((error) => {
-            console.error('[ULTRON] Command processing failed - app.js:689', error);
+            console.error('[ULTRON] Command processing failed - app.js:728', error);
             this.addErrorMessage('Command failed. Check logs for details.');
         });
     }
@@ -750,7 +783,7 @@ class UltronPokedexInterface {
                 this.addErrorMessage(data.error || 'Command failed');
             }
         } catch (error) {
-            console.error('[ULTRON] Backend command failed - app.js:746', error);
+            console.error('[ULTRON] Backend command failed - app.js:786', error);
             this.addErrorMessage('Backend unavailable. Running in local mode.');
         }
     }
@@ -798,11 +831,11 @@ class UltronPokedexInterface {
     }
 
     startAnimations() {
-        console.debug('[ULTRON] Animations ready - app.js:794');
+        console.debug('[ULTRON] Animations ready - app.js:834');
     }
 
     loadConfiguration() {
-        console.debug('[ULTRON] Configuration loaded - app.js:798');
+        console.debug('[ULTRON] Configuration loaded - app.js:838');
     }
 
     playStartupSound() {
@@ -816,9 +849,9 @@ class UltronPokedexInterface {
         try {
             const audio = new Audio(`sounds/${sound}.mp3`);
             audio.volume = 0.4;
-            audio.play().catch((error) => console.debug('[ULTRON] Audio blocked - app.js:812', error));
+            audio.play().catch((error) => console.debug('[ULTRON] Audio blocked - app.js:852', error));
         } catch (error) {
-            console.debug('[ULTRON] Audio play failed - app.js:814', error);
+            console.debug('[ULTRON] Audio play failed - app.js:854', error);
         }
     }
 
@@ -885,7 +918,7 @@ class UltronPokedexInterface {
             }
             this.latestAgentInfo = await response.json();
         } catch (error) {
-            console.debug('[ULTRON] Agent info unavailable - app.js:881', error);
+            console.debug('[ULTRON] Agent info unavailable - app.js:921', error);
             this.latestAgentInfo = null;
         }
     }
@@ -905,7 +938,7 @@ class UltronPokedexInterface {
             //     this.voiceEnabled = Boolean(status.output_enabled || status.input_enabled || status.config_enabled);
             // }
         } catch (error) {
-            console.debug('[ULTRON] Voice status unavailable - app.js:901', error);
+            console.debug('[ULTRON] Voice status unavailable - app.js:941', error);
             this.latestVoiceStatus = { status: 'unavailable' };
             this.voiceEnabled = false;
         }
@@ -921,7 +954,7 @@ class UltronPokedexInterface {
             const data = await response.json();
             this.renderVisionStatus(data);
         } catch (error) {
-            console.debug('[ULTRON] Vision status unavailable - app.js:917', error);
+            console.debug('[ULTRON] Vision status unavailable - app.js:957', error);
             this.renderVisionStatus({ status: 'offline' });
         }
     }
@@ -963,7 +996,7 @@ class UltronPokedexInterface {
             this.addSystemMessage(data.message || 'Screen captured');
             await this.loadVisionSystem();
         } catch (error) {
-            console.error('[ULTRON] Capture failed - app.js:959', error);
+            console.error('[ULTRON] Capture failed - app.js:999', error);
             this.addErrorMessage('Screen capture unavailable');
         }
     }
@@ -979,8 +1012,186 @@ class UltronPokedexInterface {
             this.renderVisionResult(data.result || {});
             this.addSystemMessage('Vision analysis complete');
         } catch (error) {
-            console.error('[ULTRON] Vision analysis failed - app.js:975', error);
+            console.error('[ULTRON] Vision analysis failed - app.js:1015', error);
             this.addErrorMessage('Vision analysis unavailable');
+        }
+    }
+
+    async captureEnhancedScreenshot() {
+        try {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+
+            if (statusDiv) statusDiv.textContent = '📸 Capturing screenshot...';
+
+            const response = await this.apiCall('/api/vision/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (statusDiv) statusDiv.textContent = '✅ Screenshot captured successfully!';
+
+            if (resultsDiv && data.image_url) {
+                resultsDiv.innerHTML = `
+                    <div class="vision-result">
+                        <h3>📸 Screenshot Captured</h3>
+                        <img src="${data.image_url}" alt="Screenshot" style="max-width: 100%; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Path:</strong> ${data.image_path || 'N/A'}</p>
+                        <p><strong>Time:</strong> ${new Date(data.timestamp * 1000).toLocaleTimeString()}</p>
+                    </div>
+                `;
+            }
+
+            this.addSystemMessage('Screenshot captured successfully');
+        } catch (error) {
+            console.error('[ULTRON] Enhanced screenshot failed: - app.js:1053', error);
+            const statusDiv = document.getElementById('status');
+            if (statusDiv) statusDiv.textContent = '❌ Screenshot failed: ' + error.message;
+        }
+    }
+
+    async getSystemInfo() {
+        try {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+
+            if (statusDiv) statusDiv.textContent = '💻 Fetching system information...';
+
+            const response = await this.apiCall('/api/system/info');
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (statusDiv) statusDiv.textContent = '✅ System information retrieved';
+
+            if (resultsDiv) {
+                resultsDiv.innerHTML = `
+                    <div class="system-info-result">
+                        <h3>💻 System Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong>Platform:</strong> ${data.platform || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Python Version:</strong> ${data.python_version || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>CPU Usage:</strong> ${data.cpu_percent || 'N/A'}%
+                            </div>
+                            <div class="info-item">
+                                <strong>Memory Usage:</strong> ${data.memory_percent || 'N/A'}%
+                            </div>
+                            <div class="info-item">
+                                <strong>Disk Usage:</strong> ${data.disk_percent || 'N/A'}%
+                            </div>
+                            <div class="info-item">
+                                <strong>Uptime:</strong> ${data.uptime || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            this.addSystemMessage('System info retrieved');
+        } catch (error) {
+            console.error('[ULTRON] System info failed: - app.js:1106', error);
+            const statusDiv = document.getElementById('status');
+            if (statusDiv) statusDiv.textContent = '❌ System info failed: ' + error.message;
+        }
+    }
+
+    initializeVoiceRecognition() {
+        // Initialize voice recognition if not already done
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.warn('[ULTRON] Speech Recognition API not available - app.js:1116');
+            return;
+        }
+        // Recognition will be created on first use in startVoiceRecognition()
+    }
+
+    toggleVoiceControl() {
+        // Toggle voice recognition for vision commands
+        if (!this.recognition) {
+            this.initializeVoiceRecognition();
+        }
+
+        if (this.isListening) {
+            this.stopVoiceRecognition();
+        } else {
+            this.startVoiceRecognition();
+        }
+    }
+
+    async executeVisionCommand(command) {
+        try {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+
+            if (!command || !command.trim()) {
+                if (statusDiv) statusDiv.textContent = '⚠️ Please enter a command';
+                return;
+            }
+
+            if (statusDiv) statusDiv.textContent = `🔄 Executing: ${command}`;
+
+            // Add to command history
+            this.addToCommandHistory(command);
+
+            const response = await this.apiCall('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: command })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (statusDiv) statusDiv.textContent = '✅ Command executed';
+
+            if (resultsDiv) {
+                resultsDiv.innerHTML = `
+                    <div class="command-result">
+                        <h3>🎯 Command Result</h3>
+                        <p><strong>Command:</strong> ${command}</p>
+                        <pre>${data.response || data.result || 'Command completed'}</pre>
+                    </div>
+                `;
+            }
+
+            this.addSystemMessage(`Executed: ${command}`);
+        } catch (error) {
+            console.error('[ULTRON] Command execution failed: - app.js:1176', error);
+            const statusDiv = document.getElementById('status');
+            if (statusDiv) statusDiv.textContent = '❌ Command failed: ' + error.message;
+        }
+    }
+
+    addToCommandHistory(command) {
+        const historyDiv = document.getElementById('commandHistory');
+        if (!historyDiv) return;
+
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.textContent = `${new Date().toLocaleTimeString()} - ${command}`;
+
+        historyDiv.insertBefore(historyItem, historyDiv.firstChild);
+
+        // Keep only last 10 commands
+        while (historyDiv.children.length > 10) {
+            historyDiv.removeChild(historyDiv.lastChild);
         }
     }
 
@@ -993,7 +1204,7 @@ class UltronPokedexInterface {
             const data = await response.json();
             this.renderTaskList(data.processes || []);
         } catch (error) {
-            console.debug('[ULTRON] Process list unavailable - app.js:989', error);
+            console.debug('[ULTRON] Process list unavailable - app.js:1207', error);
             this.renderTaskList([]);
         }
     }
@@ -1022,7 +1233,7 @@ class UltronPokedexInterface {
             const data = await response.json();
             this.renderFileSystem(data.entries || []);
         } catch (error) {
-            console.debug('[ULTRON] File system data unavailable - app.js:1018', error);
+            console.debug('[ULTRON] File system data unavailable - app.js:1236', error);
             this.renderFileSystem([]);
         }
     }
@@ -1052,7 +1263,7 @@ class UltronPokedexInterface {
             const data = await response.json();
             this.renderProfile(data);
         } catch (error) {
-            console.debug('[ULTRON] Profile data unavailable - app.js:1048', error);
+            console.debug('[ULTRON] Profile data unavailable - app.js:1266', error);
             this.renderProfile(null);
         }
     }
@@ -1086,7 +1297,7 @@ class UltronPokedexInterface {
                 statusEl.textContent = data.status?.toUpperCase?.() || 'READY';
             }
         } catch (error) {
-            console.debug('[ULTRON] NVIDIA status unavailable - app.js:1082', error);
+            console.debug('[ULTRON] NVIDIA status unavailable - app.js:1300', error);
         }
     }
 
@@ -1099,7 +1310,7 @@ class UltronPokedexInterface {
             const data = await response.json();
             this.renderAutoGenStatus(data);
         } catch (error) {
-            console.debug('[ULTRON] AutoGen status unavailable - app.js:1095', error);
+            console.debug('[ULTRON] AutoGen status unavailable - app.js:1313', error);
             this.renderAutoGenStatus({ status: 'offline' });
         }
     }
@@ -1128,7 +1339,7 @@ class UltronPokedexInterface {
             }
             await this.loadAutoGenStatus();
         } catch (error) {
-            console.debug('[ULTRON] AutoGen action failed - app.js:1124', error);
+            console.debug('[ULTRON] AutoGen action failed - app.js:1342', error);
             this.addErrorMessage('AutoGen action failed');
         }
     }
@@ -1167,8 +1378,44 @@ class UltronPokedexInterface {
             const data = await response.json();
             this.renderTools(data.tools || []);
         } catch (error) {
-            console.debug('[ULTRON] Tool list unavailable - app.js:1163', error);
+            console.debug('[ULTRON] Tool list unavailable - app.js:1381', error);
             this.renderTools([]);
+        }
+    }
+
+    async loadAutonomousStatus() {
+        try {
+            const response = await this.apiCall('/api/autonomous/status');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            this.renderAutonomousStatus(data);
+        } catch (error) {
+            console.debug('[ULTRON] Autonomous status unavailable - app.js:1395', error);
+            this.renderAutonomousStatus({ brain_status: 'offline' });
+        }
+    }
+
+    renderAutonomousStatus(status) {
+        const statusEl = document.getElementById('autonomous-status');
+        if (statusEl) {
+            statusEl.textContent = status.brain_status ? status.brain_status.toUpperCase() : 'OFFLINE';
+        }
+
+        const recordsEl = document.getElementById('learning-records');
+        if (recordsEl) {
+            recordsEl.textContent = status.learning_records || 0;
+        }
+
+        const tasksEl = document.getElementById('active-tasks');
+        if (tasksEl) {
+            tasksEl.textContent = status.active_tasks || 0;
+        }
+
+        const successEl = document.getElementById('success-rate');
+        if (successEl) {
+            successEl.textContent = status.success_rate ? `${(status.success_rate * 100).toFixed(1)}%` : '--';
         }
     }
 
@@ -1220,7 +1467,7 @@ class UltronPokedexInterface {
             }
             await this.loadToolsStatus();
         } catch (error) {
-            console.debug('[ULTRON] Tool reload failed - app.js:1216', error);
+            console.debug('[ULTRON] Tool reload failed - app.js:1470', error);
             this.addErrorMessage('Tool reload failed');
         }
     }
@@ -1235,7 +1482,7 @@ class UltronPokedexInterface {
             const data = await response.json();
             this.addSystemMessage(`Tools tested: ${data.passed || 0}/${data.total || 0}`);
         } catch (error) {
-            console.debug('[ULTRON] Tool diagnostics failed - app.js:1231', error);
+            console.debug('[ULTRON] Tool diagnostics failed - app.js:1485', error);
             this.addErrorMessage('Tool diagnostics failed');
         }
     }
@@ -1274,7 +1521,7 @@ class UltronPokedexInterface {
             }
             this.renderDashboardSnapshot();
         } catch (error) {
-            console.debug('[ULTRON] Chat status unavailable - app.js:1270', error);
+            console.debug('[ULTRON] Chat status unavailable - app.js:1524', error);
             this.latestLLMStatus = null;
             this.renderDashboardSnapshot();
         }
@@ -1336,7 +1583,7 @@ class UltronPokedexInterface {
             }
             await this.loadLLMChatStatus();
         } catch (error) {
-            console.error('[ULTRON] Chat send failed - app.js:1332', error);
+            console.error('[ULTRON] Chat send failed - app.js:1586', error);
             this.removeChatMessage(thinkingMessage);
             this.addErrorMessage('Chat backend unavailable');
         }
@@ -1361,11 +1608,11 @@ class UltronPokedexInterface {
             try {
                 serverResponse = await response.json();
             } catch (parseError) {
-                console.debug('[ULTRON] Voice toggle JSON parse failed - app.js:1357', parseError);
+                console.debug('[ULTRON] Voice toggle JSON parse failed - app.js:1611', parseError);
                 serverResponse = {};
             }
         } catch (error) {
-            console.debug('[ULTRON] Voice toggle request failed - app.js:1361', error);
+            console.debug('[ULTRON] Voice toggle request failed - app.js:1615', error);
             this.addErrorMessage('Voice server toggle failed; keeping previous state.');
             this.voiceEnabled = previousState;
             this.ensureVoiceStatus();
@@ -1425,8 +1672,10 @@ class UltronPokedexInterface {
             })
             .filter(Boolean)
             .join('\n');
-        // Only download if user explicitly requested (prevent auto-download on startup)
+        // **CRITICAL PROTECTION**: Only download if user explicitly requested (prevent auto-download on startup)
+        // userRequestedExport is set to false on startup and only becomes true when user clicks export button
         if (this.userRequestedExport) {
+            console.debug('[ULTRON] Chat export triggered (userRequestedExport=true) - app.js:1678');
             const blob = new Blob([transcript], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -1435,14 +1684,21 @@ class UltronPokedexInterface {
             link.click();
             URL.revokeObjectURL(url);
             this.userRequestedExport = false;
+        } else {
+            console.debug('[ULTRON] Chat export blocked (userRequestedExport=false) - app.js:1688');
         }
     }
 
     async switchModel() {
+        // Just call the model switch - no restrictions needed
         await this.performModelSwitch();
     }
 
     async performModelSwitch() {
+        // Log with stack trace to debug unexpected calls
+        console.log('[ULTRON] performModelSwitch() called - app.js:1699');
+        console.trace('[ULTRON] Model switch call stack:');
+
         try {
             if (!Array.isArray(this.availableModels) || !this.availableModels.length) {
                 const response = await this.apiCall('/api/llm/models');
@@ -1464,6 +1720,7 @@ class UltronPokedexInterface {
             const currentModel = this.latestLLMStatus?.model || modelNames[0];
 
             // Show custom scrollable modal instead of window.prompt
+            console.log('[ULTRON] Showing model selection modal - app.js:1723');
             const selectedModel = await this.showModelSelectionModal(modelNames, currentModel);
 
             if (!selectedModel) {
@@ -1497,7 +1754,7 @@ class UltronPokedexInterface {
             await this.loadLLMChatStatus();
             this.renderDashboardSnapshot();
         } catch (error) {
-            console.error('[ULTRON] Model switch failed - app.js:1493', error);
+            console.error('[ULTRON] Model switch failed - app.js:1757', error);
             this.addErrorMessage('Unable to switch models. Ensure Ollama is running.');
         }
     }
@@ -1707,7 +1964,7 @@ class UltronPokedexInterface {
             try {
                 this.recognition.stop();
             } catch (error) {
-                console.debug('[ULTRON] Stopping existing recognition failed - app.js:1698', error);
+                console.debug('[ULTRON] Stopping existing recognition failed - app.js:1967', error);
             }
             this.recognition = null;
         }
@@ -1739,7 +1996,7 @@ class UltronPokedexInterface {
         };
 
         recognition.onerror = (event) => {
-            console.debug('[ULTRON] Voice recognition error - app.js:1730', event);
+            console.debug('[ULTRON] Voice recognition error - app.js:1999', event);
             if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
                 this.addErrorMessage('Microphone access denied. Voice chat disabled.');
                 this.voiceEnabled = false;
@@ -1757,7 +2014,7 @@ class UltronPokedexInterface {
                 try {
                     recognition.start();
                 } catch (error) {
-                    console.debug('[ULTRON] Failed to restart recognition - app.js:1748', error);
+                    console.debug('[ULTRON] Failed to restart recognition - app.js:2017', error);
                 }
             }
         };
@@ -1767,7 +2024,7 @@ class UltronPokedexInterface {
             this.recognition = recognition;
             this.shouldRestartRecognition = true;
         } catch (error) {
-            console.debug('[ULTRON] Unable to start voice recognition - app.js:1758', error);
+            console.debug('[ULTRON] Unable to start voice recognition - app.js:2027', error);
             this.addErrorMessage('Unable to start voice recognition.');
         }
     }
@@ -1779,7 +2036,7 @@ class UltronPokedexInterface {
             try {
                 this.recognition.stop();
             } catch (error) {
-                console.debug('[ULTRON] Voice recognition stop failed - app.js:1770', error);
+                console.debug('[ULTRON] Voice recognition stop failed - app.js:2039', error);
             }
             this.recognition = null;
         }
@@ -1827,24 +2084,24 @@ class UltronPokedexInterface {
         // This property persists across all queue items so we know the true starting state
         if (!this.hasOwnProperty('ttsOriginalListeningState')) {
             this.ttsOriginalListeningState = this.isListening;
-            console.log(`[ULTRON] DEBUG - Captured ORIGINAL listening state: ${this.ttsOriginalListeningState}`);
+            console.log(`[ULTRON] DEBUG  Captured ORIGINAL listening state: ${this.ttsOriginalListeningState} - app.js:2087`);
         }
 
         const wasListening = this.ttsOriginalListeningState;
-        console.log(`[ULTRON] DEBUG - wasListening: ${wasListening}, voiceEnabled: ${this.voiceEnabled}, isListening: ${this.isListening}, queueLength: ${this.ttsQueue.length}`);
+        console.log(`[ULTRON] DEBUG  wasListening: ${wasListening}, voiceEnabled: ${this.voiceEnabled}, isListening: ${this.isListening}, queueLength: ${this.ttsQueue.length} - app.js:2091`);
 
         // CRITICAL FIX: Stop voice recognition IMMEDIATELY to prevent feedback loop
         // The microphone was recording the model's TTS output and looping it back
         // We must completely stop recognition before any audio plays
         if (this.recognition && this.isListening) {
-            console.log('[ULTRON] Pausing voice recognition during TTS to prevent feedback loop - app.js:1825');
+            console.log('[ULTRON] Pausing voice recognition during TTS to prevent feedback loop - app.js:2097');
             this.shouldRestartRecognition = false; // Temporarily prevent auto-restart during TTS
             this.isListening = false;
 
             try {
                 this.recognition.stop();
             } catch (error) {
-                console.debug('[ULTRON] Error stopping recognition - app.js:1840', error);
+                console.debug('[ULTRON] Error stopping recognition - app.js:2104', error);
             }
         }        // Additional safeguard: Wait for microphone to fully release
         await new Promise(resolve => setTimeout(resolve, 200));
@@ -1872,29 +2129,29 @@ class UltronPokedexInterface {
             // Resume voice recognition ONLY AFTER audio completely finishes
             // This prevents the microphone from listening to ULTRON's own speech
             this.audioElement.onended = () => {
-                console.log('[ULTRON] TTS playback finished - app.js:1860');
-                console.log(`[ULTRON] DEBUG - After TTS: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+                console.log('[ULTRON] TTS playback finished - app.js:2132');
+                console.log(`[ULTRON] DEBUG  After TTS: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled} - app.js:2133`);
 
                 // Wait additional time to ensure audio output is fully silent
                 setTimeout(() => {
-                    console.log(`[ULTRON] DEBUG - Inside setTimeout: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}, queueLength=${this.ttsQueue.length}`);
+                    console.log(`[ULTRON] DEBUG  Inside setTimeout: wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}, queueLength=${this.ttsQueue.length} - app.js:2137`);
 
                     // CRITICAL: Process next item in TTS queue first
                     this.isSpeaking = false;
                     if (this.ttsQueue.length > 0) {
-                        console.log('[ULTRON] More items in TTS queue, processing next...');
+                        console.log('[ULTRON] More items in TTS queue, processing next... - app.js:2142');
                         this.dequeueSpeech();
                     } else {
                         // Queue is empty - NOW we can resume voice recognition
-                        console.log('[ULTRON] TTS queue empty, checking if should resume voice...');
+                        console.log('[ULTRON] TTS queue empty, checking if should resume voice... - app.js:2146');
                         delete this.ttsOriginalListeningState; // Clear the saved state
 
                         if (wasListening && this.voiceEnabled) {
-                            console.log('[ULTRON] Resuming voice recognition after TTS - app.js:1864');
+                            console.log('[ULTRON] Resuming voice recognition after TTS - app.js:2150');
                             this.shouldRestartRecognition = true; // Re-enable auto-restart
                             this.startVoiceRecognition();
                         } else {
-                            console.log(`[ULTRON] NOT resuming voice - wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+                            console.log(`[ULTRON] NOT resuming voice  wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled} - app.js:2154`);
                         }
                     }
                 }, 1000); // 1 second delay to ensure complete audio silence
@@ -1908,7 +2165,7 @@ class UltronPokedexInterface {
             return;
 
         } catch (error) {
-            console.debug('[ULTRON] Voice API unavailable, using browser TTS - app.js:1895', error);
+            console.debug('[ULTRON] Voice API unavailable, using browser TTS - app.js:2168', error);
 
             // Only use browser TTS if API completely failed
             if ('speechSynthesis' in window) {
@@ -1916,26 +2173,26 @@ class UltronPokedexInterface {
 
                 // Resume voice recognition ONLY AFTER speech completely finishes
                 utterance.onend = () => {
-                    console.log('[ULTRON] Browser TTS finished - app.js:1918');
+                    console.log('[ULTRON] Browser TTS finished - app.js:2176');
 
                     // Wait additional time to ensure audio output is fully silent
                     setTimeout(() => {
                         // CRITICAL: Process next item in TTS queue first
                         this.isSpeaking = false;
                         if (this.ttsQueue.length > 0) {
-                            console.log('[ULTRON] More items in TTS queue (browser TTS), processing next...');
+                            console.log('[ULTRON] More items in TTS queue (browser TTS), processing next... - app.js:2183');
                             this.dequeueSpeech();
                         } else {
                             // Queue is empty - NOW we can resume voice recognition
-                            console.log('[ULTRON] TTS queue empty (browser TTS), checking if should resume voice...');
+                            console.log('[ULTRON] TTS queue empty (browser TTS), checking if should resume voice... - app.js:2187');
                             delete this.ttsOriginalListeningState; // Clear the saved state
 
                             if (wasListening && this.voiceEnabled) {
-                                console.log('[ULTRON] Resuming voice recognition after Web Speech TTS - app.js:1930');
+                                console.log('[ULTRON] Resuming voice recognition after Web Speech TTS - app.js:2191');
                                 this.shouldRestartRecognition = true; // Re-enable auto-restart
                                 this.startVoiceRecognition();
                             } else {
-                                console.log(`[ULTRON] NOT resuming voice (browser TTS) - wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled}`);
+                                console.log(`[ULTRON] NOT resuming voice (browser TTS)  wasListening=${wasListening}, voiceEnabled=${this.voiceEnabled} - app.js:2195`);
                             }
                         }
                     }, 1000); // 1 second delay to ensure complete audio silence
@@ -2001,9 +2258,15 @@ class UltronPokedexInterface {
         switch (action) {
             case 'shutdown':
                 this.addSystemMessage('Shutdown sequence requested');
+                // Keep menu open for confirmation
                 break;
             case 'restart':
                 this.addSystemMessage('Restart sequence requested');
+                // Keep menu open for confirmation
+                break;
+            case 'cancel':
+                this.addSystemMessage('Action cancelled');
+                this.hidePowerMenu();
                 break;
             default:
                 this.addErrorMessage('Unknown power action');
@@ -2011,14 +2274,20 @@ class UltronPokedexInterface {
     }
 
     showPowerMenu() {
-        // Only show if explicitly called by user (not on startup)
-        if (this.powerMenuInitialized !== false) {
-            document.getElementById('power-menu')?.classList.remove('hidden');
-        }
+        // Legacy function - no longer needed, but kept for backward compatibility
+        // Direct show/hide is now handled by button click listeners
+        console.debug('[ULTRON] showPowerMenu() called  legacy function, direct handling now in button listener - app.js:2279');
     }
 
     hidePowerMenu() {
-        document.getElementById('power-menu')?.classList.add('hidden');
+        const powerMenuEl = document.getElementById('power-menu');
+        if (powerMenuEl) {
+            powerMenuEl.classList.add('hidden');
+            // Aggressive hide: also set inline display style
+            powerMenuEl.style.display = 'none !important';
+            powerMenuEl.style.visibility = 'hidden';
+            powerMenuEl.style.pointerEvents = 'none';
+        }
     }
 
     handleDPadInput(direction) {
@@ -2030,6 +2299,13 @@ class UltronPokedexInterface {
     }
 
     handleKeyboardShortcuts(event) {
+        // Check if user is typing in an input field
+        const isTyping = event.target === this.dom.chatInput ||
+                        event.target === this.dom.commandInput ||
+                        event.target === this.dom.consoleInput ||
+                        event.target.tagName === 'INPUT' ||
+                        event.target.tagName === 'TEXTAREA';
+
         if (event.ctrlKey && event.key === 'k') {
             event.preventDefault();
             this.clearConsole();
@@ -2051,29 +2327,45 @@ class UltronPokedexInterface {
         if (!event.ctrlKey && !event.altKey && !event.shiftKey) {
             switch (event.key) {
                 case 'ArrowUp':
-                    event.preventDefault();
-                    this.handleDPadInput('up');
-                    this.playSound('button');
+                    // Don't prevent default if typing in input
+                    if (!isTyping) {
+                        event.preventDefault();
+                        this.handleDPadInput('up');
+                        this.playSound('button');
+                    }
                     break;
                 case 'ArrowDown':
-                    event.preventDefault();
-                    this.handleDPadInput('down');
-                    this.playSound('button');
+                    // Don't prevent default if typing in input
+                    if (!isTyping) {
+                        event.preventDefault();
+                        this.handleDPadInput('down');
+                        this.playSound('button');
+                    }
                     break;
                 case 'ArrowLeft':
-                    event.preventDefault();
-                    this.handleDPadInput('left');
-                    this.playSound('button');
+                    // Don't prevent default if typing in input
+                    if (!isTyping) {
+                        event.preventDefault();
+                        this.handleDPadInput('left');
+                        this.playSound('button');
+                    }
                     break;
                 case 'ArrowRight':
-                    event.preventDefault();
-                    this.handleDPadInput('right');
-                    this.playSound('button');
+                    // Don't prevent default if typing in input
+                    if (!isTyping) {
+                        event.preventDefault();
+                        this.handleDPadInput('right');
+                        this.playSound('button');
+                    }
                     break;
                 case 'Enter':
-                    event.preventDefault();
-                    this.handleActionButton('A');
-                    this.playSound('confirm');
+                    // Only trigger A button if NOT typing in an input field
+                    if (!isTyping) {
+                        event.preventDefault();
+                        this.handleActionButton('A');
+                        this.playSound('confirm');
+                    }
+                    // If typing, let the input field's own handler deal with it
                     break;
                 case 'Escape':
                     event.preventDefault();
@@ -2143,7 +2435,7 @@ class UltronPokedexInterface {
         // Save theme preference
         localStorage.setItem('ultron_theme', themeName);
         this.currentTheme = themeName;
-        console.log(`[ULTRON] Theme applied: ${themeName} - app.js:2072`);
+        console.log(`[ULTRON] Theme applied: ${themeName} - app.js:2438`);
     }
 
     trackApiCall(endpoint) {
@@ -2151,7 +2443,7 @@ class UltronPokedexInterface {
             this.apiCallCounts = {};
         }
         this.apiCallCounts[endpoint] = (this.apiCallCounts[endpoint] || 0) + 1;
-        console.debug(`[ULTRON] API call: ${endpoint} (count: ${this.apiCallCounts[endpoint]}) - app.js:2080`);
+        console.debug(`[ULTRON] API call: ${endpoint} (count: ${this.apiCallCounts[endpoint]}) - app.js:2446`);
     }
 
     async apiCall(endpoint, options = {}) {
@@ -2168,7 +2460,7 @@ class UltronPokedexInterface {
                         errorDetail = await response.clone().text();
                     }
                 } catch (detailError) {
-                    console.debug('[ULTRON] Failed to parse error detail - app.js:2097', detailError);
+                    console.debug('[ULTRON] Failed to parse error detail - app.js:2463', detailError);
                 }
 
                 const error = new Error(`Request to ${endpoint} failed with ${response.status} ${response.statusText}`);

@@ -1,0 +1,45 @@
+{
+  "projectName": "ULTRON Unity Project",
+  "unityVersion": "2022.3.0f1",
+  "template": "3D",
+  "ultronIntegration": {
+    "enabled": true,
+    "serverUrl": "http://localhost:9000",
+    "features": [
+      "AI Chat",
+      "Smart NPCs", 
+      "Dynamic Content",
+      "Scene Analysis"
+    ]
+  },
+  "requiredPackages": [
+    "com.unity.textmeshpro",
+    "com.unity.ugui",
+    "com.unity.inputsystem"
+  ],
+  "projectStructure": {
+    "Assets/Scripts/ULTRON/": [
+      "UnityUltronClient.cs",
+      "UnityExampleUsage.cs"
+    ],
+    "Assets/Scenes/": [
+      "UltronExample.unity"
+    ],
+    "Assets/Prefabs/ULTRON/": [
+      "UltronManager.prefab",
+      "SmartNPC.prefab"
+    ]
+  },
+  "exampleScenes": [
+    {
+      "name": "AI Chat Demo",
+      "description": "Basic chat interface with ULTRON AI",
+      "objects": ["Canvas", "ChatUI", "UltronClient"]
+    },
+    {
+      "name": "Smart NPC Demo", 
+      "description": "NPCs powered by ULTRON AI responses",
+      "objects": ["Player", "SmartNPC", "Environment"]
+    }
+  ]
+}

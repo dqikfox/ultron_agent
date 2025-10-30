@@ -299,17 +299,74 @@ if !errorlevel! equ 0 (
 echo.
 
 :: ──────────────────────────────────────────────────────────────────────
-:: STEP 10: DIAGNOSTICS DASHBOARD STARTUP
+:: STEP 10: COMPUTER USE & INTEGRATION SERVER
 :: ──────────────────────────────────────────────────────────────────────
-:: Purpose: Real-time crash reporting and performance monitoring
-:: Port: 5001 (configurable via diagnostics_dashboard_port in config)
+:: Purpose: OpenAI Computer Use and tool integration
+:: Port: 5002
+:: Endpoint: http://localhost:5002
+
+echo [10/14] Starting Computer Use & Integration Server (port 5002)...
+start "ULTRON Integration" /MIN python api_integration_server.py
+timeout /t 3 /nobreak >nul
+
+curl -s "http://localhost:5002/api/computer-use/status" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Integration Server running
+) else (
+    echo       ⚠ Integration Server may not have started
+)
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 11: UNITY INTEGRATION SERVER
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Unity Hub integration and project management
+:: Port: 5001
 :: Endpoint: http://localhost:5001
 
-echo [11/11] Starting Diagnostics Dashboard (port 5001)...
+echo [11/14] Starting Unity Integration Server (port 5001)...
+start "ULTRON Unity" /MIN python unity_integration.py
+timeout /t 3 /nobreak >nul
+
+curl -s "http://localhost:5001/api/unity/status" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Unity Server running
+) else (
+    echo       ⚠ Unity Server may not have started
+)
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 12: AVATAR GAME SERVER
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Avatar control API for game interface
+:: Port: 8081
+:: Endpoint: http://localhost:8081
+
+echo [12/14] Starting Avatar Game Server (port 8081)...
+start "ULTRON Avatars" /MIN python avatar_control_api.py
+timeout /t 3 /nobreak >nul
+
+curl -s "http://localhost:8081/api/pyautogui/screen" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Avatar Game Server running
+) else (
+    echo       ⚠ Avatar Game Server may not have started
+)
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 13: DIAGNOSTICS DASHBOARD STARTUP
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Real-time crash reporting and performance monitoring
+:: Port: 5004
+:: Endpoint: http://localhost:5004
+
+echo [13/14] Starting Diagnostics Dashboard (port 5004)...
 start "ULTRON Diagnostics" /MIN python -m diagnostics.diagnostics_dashboard
 timeout /t 3 /nobreak >nul
 
-curl -s "http://localhost:5001/" >nul 2>&1
+curl -s "http://localhost:5004/" >nul 2>&1
 if !errorlevel! equ 0 (
     echo       ✓ Diagnostics Dashboard running
 ) else (
@@ -318,7 +375,7 @@ if !errorlevel! equ 0 (
 echo.
 
 :: ──────────────────────────────────────────────────────────────────────
-:: STEP 11: STARTUP COMPLETE
+:: STEP 14: STARTUP COMPLETE
 :: ──────────────────────────────────────────────────────────────────────
 
 :: Optional: Start Ngrok tunnel for remote access
@@ -366,9 +423,18 @@ echo    • Web GUI          : http://localhost:%WEB_GUI_PORT%
 echo    • Frontend UI      : http://localhost:%FRONTEND_PORT%
 echo    • NVIDIA Chat      : http://localhost:8002
 echo    • API Server       : http://localhost:5000
-echo    • Diagnostics      : http://localhost:5001
+echo    • Integration API  : http://localhost:5002
+echo    • Unity Server     : http://localhost:5001
+echo    • Avatar Game      : http://localhost:8081
+echo    • Diagnostics      : http://localhost:5004
+echo.
+echo    🎮 Avatar Game     : http://localhost:%WEB_GUI_PORT%/ultron_avatar_game.html
+echo    🖱️ Computer Use    : Integrated in Web GUI
+echo    🎯 Unity Hub       : Integrated in Web GUI
+echo    🎮 Unity Game      : http://localhost:%WEB_GUI_PORT%/ultron_avatar_game.html
 echo.
 echo    Opening Web GUI in browser...
+echo    🎮 Avatar Game available at: /ultron_avatar_game.html
 echo.
 
 :: Auto-open PRIMARY GUI only (Web GUI on port 8080)

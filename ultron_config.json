@@ -144,5 +144,42 @@
     "enabled": true,
     "browser_automation": true,
     "memory_operations": true
+  },
+  "auto_run": {
+    "enabled": true,
+    "startup_commands": [
+      "start web interface",
+      "tor search latest AI news artificial intelligence 2025",
+      "uncensored search AI breakthrough news 2025",
+      "system status"
+    ],
+    "startup_delay_seconds": 5,
+    "run_in_background": true,
+    "log_auto_commands": true
+  },
+  "openai_computer_use": {
+    "enabled": true,
+    "api_key": "USE_ENV_OPENAI_API_KEY",
+    "model": "gpt-4o",
+    "max_actions_per_request": 10,
+    "action_delay_seconds": 0.5,
+    "screenshot_quality": "high",
+    "safety_mode": true,
+    "allowed_actions": [
+      "click",
+      "type",
+      "key",
+      "scroll",
+      "screenshot"
+    ],
+    "voice_commands": {
+      "enabled": true,
+      "wake_phrases": [
+        "computer",
+        "screen",
+        "click",
+        "type"
+      ]
+    }
   }
 }
