@@ -181,6 +181,14 @@
                                     <span class="nav-icon">🎨</span>
                                     <span class="nav-label">AI ART</span>
                                 </button>
+                                <button class="nav-button" data-section="autonomous" role="tab" aria-selected="false" aria-controls="autonomous-section" tabindex="-1">
+                                    <span class="nav-icon">🧠</span>
+                                    <span class="nav-label">AUTONOMOUS</span>
+                                </button>
+                                <button class="nav-button" data-section="game" role="tab" aria-selected="false" aria-controls="game-section" tabindex="-1" onclick="window.open('ultron_avatar_game.html', '_blank')">
+                                    <span class="nav-icon">🎮</span>
+                                    <span class="nav-label">GAME</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -299,37 +307,36 @@
                                 <!-- Vision Section -->
                                 <section id="vision-section" class="section-content" role="tabpanel" aria-labelledby="vision-tab" aria-hidden="true">
                                     <h2 class="section-title">ENHANCED ULTRON CONTROL</h2>
-                                    <div class="section-content">
-                                        <div class="voice-control">
-                                            <button id="voiceBtn" class="voice-btn">🎤 Start Listening</button>
-                                            <div class="command-input">
-                                                <input type="text" id="commandInput" placeholder="Type command or use voice: 'hey ultron open chrome and search for cars'">
-                                            </div>
+
+                                    <div class="voice-control">
+                                        <button id="voiceBtn" class="voice-btn">🎤 Start Listening</button>
+                                        <div class="command-input">
+                                            <input type="text" id="commandInput" placeholder="Type command or use voice: 'hey ultron open chrome and search for cars'">
                                         </div>
-                                        
-                                        <div class="quick-actions">
-                                            <button id="screenshotBtn" class="action-btn">📸 Enhanced Screenshot</button>
-                                            <button id="systemInfoBtn" class="action-btn">💻 System Info</button>
-                                        </div>
-                                        
-                                        <div id="status" class="status">Ready</div>
-                                        
-                                        <div id="results" class="results-container"></div>
-                                        
-                                        <div class="command-history">
-                                            <h4>📜 Command History</h4>
-                                            <div id="commandHistory"></div>
-                                        </div>
-                                        
-                                        <div class="capabilities">
-                                            <h4>🚀 System Capabilities</h4>
-                                            <div id="capabilities"></div>
-                                        </div>
-                                        
-                                        <div class="help-section">
-                                            <h4>💡 Example Commands</h4>
-                                            <div id="exampleCommands"></div>
-                                        </div>
+                                    </div>
+
+                                    <div class="quick-actions">
+                                        <button id="screenshotBtn" class="action-btn">📸 Enhanced Screenshot</button>
+                                        <button id="systemInfoBtn" class="action-btn">💻 System Info</button>
+                                    </div>
+
+                                    <div id="status" class="status">Ready</div>
+
+                                    <div id="results" class="results-container"></div>
+
+                                    <div class="command-history">
+                                        <h4>📜 Command History</h4>
+                                        <div id="commandHistory"></div>
+                                    </div>
+
+                                    <div class="capabilities">
+                                        <h4>🚀 System Capabilities</h4>
+                                        <div id="capabilities"></div>
+                                    </div>
+
+                                    <div class="help-section">
+                                        <h4>💡 Example Commands</h4>
+                                        <div id="exampleCommands"></div>
                                     </div>
                                 </section>
 
@@ -822,6 +829,75 @@
                                     </div>
                                 </div>
 
+                                <!-- Autonomous Section -->
+                                <section id="autonomous-section" class="section-content" role="tabpanel" aria-labelledby="autonomous-tab" aria-hidden="true">
+                                    <h2 class="section-title">AUTONOMOUS OPERATIONS</h2>
+                                    <div class="autonomous-content">
+                                        <div class="autonomous-status">
+                                            <div class="status-card">
+                                                <h3>Autonomous Brain Status</h3>
+                                                <div class="autonomous-metrics" id="autonomous-metrics">
+                                                    <div class="metric">
+                                                        <span class="metric-label">Status:</span>
+                                                        <span class="metric-value" id="autonomous-status">Initializing...</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Learning Records:</span>
+                                                        <span class="metric-value" id="learning-records">0</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Active Tasks:</span>
+                                                        <span class="metric-value" id="active-tasks">0</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Success Rate:</span>
+                                                        <span class="metric-value" id="success-rate">--</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="autonomous-controls">
+                                            <div class="control-group">
+                                                <button class="autonomous-btn primary" id="start-autonomous-btn">
+                                                    <span class="btn-icon">🧠</span>
+                                                    Start Autonomous Mode
+                                                </button>
+                                                <button class="autonomous-btn" id="stop-autonomous-btn">
+                                                    <span class="btn-icon">⏹️</span>
+                                                    Stop Autonomous Mode
+                                                </button>
+                                                <button class="autonomous-btn" id="test-integration-btn">
+                                                    <span class="btn-icon">🔍</span>
+                                                    Run Integration Test
+                                                </button>
+                                            </div>
+                                            <div class="control-group">
+                                                <button class="autonomous-btn secondary" id="proactive-monitoring-btn">
+                                                    <span class="btn-icon">🔍</span>
+                                                    Start Proactive Monitoring
+                                                </button>
+                                                <button class="autonomous-btn secondary" id="evolve-capabilities-btn">
+                                                    <span class="btn-icon">🌱</span>
+                                                    Evolve Capabilities
+                                                </button>
+                                                <button class="autonomous-btn secondary" id="view-learning-data-btn">
+                                                    <span class="btn-icon">📊</span>
+                                                    View Learning Data
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="autonomous-output" id="autonomous-output">
+                                            <div class="output-header">Autonomous Operations Log</div>
+                                            <div class="output-content">
+                                                <div class="output-message system-message">
+                                                    <span class="timestamp">[00:00:00]</span>
+                                                    <span class="message-content">Autonomous system ready for activation</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
                                 <!-- Stable Diffusion Section -->
                                 <div id="stable-diffusion-section" class="section-content">
                                     <div class="section-title">STABLE DIFFUSION ART GENERATOR</div>
@@ -1300,6 +1376,159 @@
     font-family: 'Share Tech Mono', monospace;
 }
 
+/* Autonomous Operations Styles */
+.autonomous-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+}
+
+.autonomous-status {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.autonomous-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.autonomous-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.control-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.autonomous-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.autonomous-btn.primary {
+    background: linear-gradient(45deg, #00ff00, #00cc00);
+    color: #000;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.autonomous-btn.primary:hover {
+    background: linear-gradient(45deg, #00cc00, #00aa00);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+.autonomous-btn.secondary {
+    background: linear-gradient(45deg, #ff4444, #ff6666);
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+}
+
+.autonomous-btn.secondary:hover {
+    background: linear-gradient(45deg, #ff6666, #ff8888);
+    box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+    transform: translateY(-2px);
+}
+
+.autonomous-btn:not(.primary):not(.secondary) {
+    background: linear-gradient(45deg, #666666, #888888);
+    color: white;
+}
+
+.autonomous-btn:not(.primary):not(.secondary):hover {
+    background: linear-gradient(45deg, #888888, #aaaaaa);
+    transform: translateY(-2px);
+}
+
+.autonomous-output {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.output-header {
+    background: rgba(255, 0, 0, 0.2);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+    font-weight: bold;
+    color: #ff4444;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.output-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.output-message {
+    margin-bottom: 0.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.output-message .timestamp {
+    color: #888;
+    margin-right: 0.5rem;
+}
+
+.output-message .message-content {
+    color: #fff;
+}
+
+.output-message.system-message .message-content {
+    color: #00ff00;
+}
+
+.metric-value.active {
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.metric-value.stopped {
+    color: #ff4444;
+}
+
+.metric-value.error {
+    color: #ff6666;
+    text-shadow: 0 0 5px rgba(255, 102, 102, 0.5);
+}
+
+.metric-value.starting {
+    color: #ffaa00;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 /* ElevenLabs Text Input Styles */
 .text-input-section {
     margin-top: 1rem;
@@ -1507,9 +1736,256 @@
         }
     }
 
-    // Initialize Stable Diffusion interface when DOM is ready
+    // Autonomous Operations Interface
+    class AutonomousInterface {
+        constructor() {
+            this.isAutonomousActive = false;
+            this.isMonitoringActive = false;
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            this.updateStatus();
+        }
+
+        bindEvents() {
+            const startBtn = document.getElementById('start-autonomous-btn');
+            const stopBtn = document.getElementById('stop-autonomous-btn');
+            const testBtn = document.getElementById('test-integration-btn');
+            const monitoringBtn = document.getElementById('proactive-monitoring-btn');
+            const evolveBtn = document.getElementById('evolve-capabilities-btn');
+            const learningBtn = document.getElementById('view-learning-data-btn');
+
+            if (startBtn) startBtn.addEventListener('click', () => this.startAutonomousMode());
+            if (stopBtn) stopBtn.addEventListener('click', () => this.stopAutonomousMode());
+            if (testBtn) testBtn.addEventListener('click', () => this.runIntegrationTest());
+            if (monitoringBtn) monitoringBtn.addEventListener('click', () => this.toggleProactiveMonitoring());
+            if (evolveBtn) evolveBtn.addEventListener('click', () => this.evolveCapabilities());
+            if (learningBtn) learningBtn.addEventListener('click', () => this.viewLearningData());
+        }
+
+        async startAutonomousMode() {
+            if (this.isAutonomousActive) return;
+
+            this.logMessage('Starting autonomous mode...');
+            this.updateStatus('Starting...');
+
+            try {
+                const response = await fetch('/api/autonomous/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.isAutonomousActive = true;
+                    this.updateStatus('Active');
+                    this.logMessage('Autonomous mode activated successfully');
+                } else {
+                    throw new Error(result.error || 'Failed to start autonomous mode');
+                }
+            } catch (error) {
+                console.error('Autonomous start error:', error);
+                this.logMessage(`Failed to start: ${error.message}`);
+                this.updateStatus('Error');
+            }
+        }
+
+        async stopAutonomousMode() {
+            if (!this.isAutonomousActive) return;
+
+            this.logMessage('Stopping autonomous mode...');
+
+            try {
+                const response = await fetch('/api/autonomous/stop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.isAutonomousActive = false;
+                    this.updateStatus('Stopped');
+                    this.logMessage('Autonomous mode deactivated');
+                } else {
+                    throw new Error(result.error || 'Failed to stop autonomous mode');
+                }
+            } catch (error) {
+                console.error('Autonomous stop error:', error);
+                this.logMessage(`Failed to stop: ${error.message}`);
+            }
+        }
+
+        async runIntegrationTest() {
+            this.logMessage('Running integration test...');
+
+            try {
+                const response = await fetch('/api/test/integration', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    this.logMessage(`Integration test completed: ${result.passed}/${result.total} tests passed`);
+                    this.updateMetrics(result);
+                } else {
+                    throw new Error(result.error || 'Test failed');
+                }
+            } catch (error) {
+                console.error('Integration test error:', error);
+                this.logMessage(`Test failed: ${error.message}`);
+            }
+        }
+
+        async toggleProactiveMonitoring() {
+            const action = this.isMonitoringActive ? 'stop' : 'start';
+            this.logMessage(`${action === 'start' ? 'Starting' : 'Stopping'} proactive monitoring...`);
+
+            try {
+                const response = await fetch(`/api/proactive/${action}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.isMonitoringActive = !this.isMonitoringActive;
+                    const btn = document.getElementById('proactive-monitoring-btn');
+                    if (btn) {
+                        btn.innerHTML = `<span class="btn-icon">🔍</span>${this.isMonitoringActive ? 'Stop' : 'Start'} Proactive Monitoring`;
+                    }
+                    this.logMessage(`Proactive monitoring ${this.isMonitoringActive ? 'started' : 'stopped'}`);
+                } else {
+                    throw new Error(result.error || 'Failed to toggle monitoring');
+                }
+            } catch (error) {
+                console.error('Monitoring toggle error:', error);
+                this.logMessage(`Failed to ${action} monitoring: ${error.message}`);
+            }
+        }
+
+        async evolveCapabilities() {
+            this.logMessage('Evolving capabilities...');
+
+            try {
+                const response = await fetch('/api/autonomous/evolve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.logMessage(`Evolution completed: ${result.new_rules} new rules, ${(result.success_rate * 100).toFixed(1)}% success rate`);
+                    this.updateLearningMetrics(result);
+                } else {
+                    throw new Error(result.error || 'Evolution failed');
+                }
+            } catch (error) {
+                console.error('Evolution error:', error);
+                this.logMessage(`Evolution failed: ${error.message}`);
+            }
+        }
+
+        async viewLearningData() {
+            this.logMessage('Retrieving learning data...');
+
+            try {
+                const response = await fetch('/api/autonomous/learning-data');
+                const result = await response.json();
+
+                if (response.ok) {
+                    this.displayLearningData(result);
+                } else {
+                    throw new Error(result.error || 'Failed to retrieve learning data');
+                }
+            } catch (error) {
+                console.error('Learning data error:', error);
+                this.logMessage(`Failed to retrieve learning data: ${error.message}`);
+            }
+        }
+
+        updateStatus(status = 'Initializing...') {
+            const statusElement = document.getElementById('autonomous-status');
+            if (statusElement) {
+                statusElement.textContent = status;
+                statusElement.className = `metric-value ${status.toLowerCase().replace(' ', '-')}`;
+            }
+        }
+
+        updateMetrics(testResult) {
+            if (testResult.passed !== undefined && testResult.total !== undefined) {
+                const successRate = ((testResult.passed / testResult.total) * 100).toFixed(1);
+                const successElement = document.getElementById('success-rate');
+                if (successElement) {
+                    successElement.textContent = `${successRate}%`;
+                }
+            }
+        }
+
+        updateLearningMetrics(evolutionResult) {
+            const recordsElement = document.getElementById('learning-records');
+            const successElement = document.getElementById('success-rate');
+
+            if (recordsElement && evolutionResult.total_learning_records) {
+                recordsElement.textContent = evolutionResult.total_learning_records;
+            }
+
+            if (successElement && evolutionResult.success_rate) {
+                successElement.textContent = `${(evolutionResult.success_rate * 100).toFixed(1)}%`;
+            }
+        }
+
+        displayLearningData(data) {
+            const outputContent = document.querySelector('#autonomous-output .output-content');
+            if (!outputContent) return;
+
+            const timestamp = new Date().toLocaleTimeString();
+            const message = document.createElement('div');
+            message.className = 'output-message';
+            message.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span>
+                <span class="message-content">Learning Data: ${data.total_records} records, ${data.recent_decisions} recent decisions</span>
+            `;
+
+            outputContent.appendChild(message);
+            outputContent.scrollTop = outputContent.scrollHeight;
+        }
+
+        logMessage(message) {
+            console.log(`[Autonomous] ${message}`);
+
+            const outputContent = document.querySelector('#autonomous-output .output-content');
+            if (!outputContent) return;
+
+            const timestamp = new Date().toLocaleTimeString();
+            const messageElement = document.createElement('div');
+            messageElement.className = 'output-message';
+            messageElement.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span>
+                <span class="message-content">${message}</span>
+            `;
+
+            outputContent.appendChild(messageElement);
+            outputContent.scrollTop = outputContent.scrollHeight;
+
+            // Also log to main interface if available
+            if (window.ultronInterface && window.ultronInterface.logMessage) {
+                window.ultronInterface.logMessage(`[Autonomous] ${message}`);
+            }
+        }
+    }
+
+    // Initialize interfaces when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
         window.stableDiffusionInterface = new StableDiffusionInterface();
+        window.autonomousInterface = new AutonomousInterface();
     });
 </script>
 

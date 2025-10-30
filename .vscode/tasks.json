@@ -1,61 +1,39 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "Start Ollama Service",
-			"type": "shell",
-			"command": "ollama",
-			"args": [
-				"serve"
-			],
-			"group": "build",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Pull Models",
-			"type": "shell",
-			"command": "ollama",
-			"args": [
-				"pull",
-				"llama3.1"
-			],
-			"group": "build"
-		},
-		{
-			"label": "Run Ultron Assistant",
-			"type": "shell",
-			"command": "python",
-			"args": [
-				"ultron_assistant.py"
-			],
-			"group": "test",
-			"presentation": {
-				"echo": true,
-				"reveal": "always"
-			}
-		},
-		{
-			"label": "Check SD Models",
-			"type": "shell",
-			"command": "python",
-			"args": [
-				"check_sd_models.py"
-			],
-			"group": "test"
-		},
-		{
-			"label": "Simple Model Check",
-			"type": "shell",
-			"command": "python",
-			"args": [
-				"simple_check.py"
-			],
-			"group": "test"
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Amazon Q Auto-Run",
+            "type": "shell",
+            "command": "python",
+            "args": ["amazon_q_startup.py"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "ULTRON Quick Start",
+            "type": "shell", 
+            "command": "python",
+            "args": ["main.py"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "Amazon Q Auto-Run"
+        }
+    ]
 }
