@@ -230,6 +230,26 @@
 
 ---
 
+#### Avatar Game Documentation
+**Files**: 
+- `AVATAR_GAME_GUIDE.md` (Complete guide)
+- `AVATAR_GAME_QUICK_REFERENCE.md` (Quick reference)
+- `AVATAR_GAME_CHANGELOG.md` (Version history)
+
+**Contents**:
+- Character system (8 classes, 8 races, 3 alignments)
+- Combat mechanics and formulas
+- Loot system and item management
+- Progression and leveling
+- Visual features and animations
+- AI integration guide
+- Troubleshooting and tips
+- Launch commands and server setup
+
+**When to Use**: Playing or developing the Avatar Game system
+
+---
+
 ## 🚀 Quick Start Guides
 
 ### For New Developers
@@ -298,6 +318,14 @@
 - **ULTRON**: `API.md` (ULTRON endpoints)
 - **Server Code**: `api_server.py`
 
+#### "...play or develop the Avatar Game?"
+- **Complete Guide**: `AVATAR_GAME_GUIDE.md`
+- **Quick Reference**: `AVATAR_GAME_QUICK_REFERENCE.md`
+- **Changelog**: `AVATAR_GAME_CHANGELOG.md`
+- **Server Code**: `avatar_game_server.py`
+- **Game Rules**: `dnd_system.js`
+- **Launch**: `start_avatar_game.bat`
+
 ---
 
 ## 📊 Documentation by Role
@@ -331,6 +359,13 @@
 - `tools/tool_interface.py`
 - `tools/tool_loader.py`
 - `MCP_INTEGRATION_GUIDE.md` for MCP tools
+
+### Game Developer
+- `AVATAR_GAME_GUIDE.md` → Complete game system
+- `AVATAR_GAME_QUICK_REFERENCE.md` → Quick reference
+- `dnd_system.js` → RPG rules engine
+- `avatar_game_server.py` → Server implementation
+- `gui/ultron_enhanced/web/ultron_avatar_game_ultimate.html` → Game UI
 
 ---
 
@@ -427,8 +462,8 @@ When making significant changes:
 
 ## 📅 Last Updated
 
-**Date**: October 25, 2025
-**Version**: ULTRON Agent 3.0
+**Date**: January 16, 2025
+**Version**: ULTRON Agent 3.0.5 (Avatar Game Release)
 **Maintainer**: Development Team
 
 ---

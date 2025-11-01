@@ -38,7 +38,7 @@
   "enable_audit_logging": true,
   "offline_mode": false,
   "max_concurrent_requests": 10,
-  "voice_enabled": true,
+  "voice_enabled": false,
   "vision_enabled": true,
   "memory_enabled": true,
   "tools_enabled": true,

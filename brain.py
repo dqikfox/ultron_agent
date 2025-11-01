@@ -386,6 +386,25 @@ class UltronBrain:
             error(f"Error in think method: {sanitize_log_input(str(e))}")
             return f"Error processing request: {sanitize_html_output(str(e))}"
 
+    async def _execute_matching_tools(self, message: str) -> str:
+        """Execute tools that match the user's intent - CRITICAL FIX"""
+        if not self.tools:
+            return None
+        
+        results = []
+        for tool in self.tools:
+            try:
+                if hasattr(tool, 'match') and tool.match(message):
+                    info(f"Executing tool: {tool.__class__.__name__}")
+                    result = tool.execute(message)
+                    if asyncio.iscoroutine(result):
+                        result = await result
+                    results.append(f"[{tool.__class__.__name__}]: {result}")
+            except Exception as e:
+                error(f"Tool {tool.__class__.__name__} failed: {e}")
+        
+        return "\n".join(results) if results else None
+
     @diagnostic_wrapper("brain", track_performance=True)
     async def plan_and_act(self, message, progress_callback=None):
         """Enhanced planning and action execution with Ollama integration"""
@@ -394,6 +413,14 @@ class UltronBrain:
             progress_callback(10, "Analyzing request...")
 
         try:
+            # CRITICAL FIX: Try tools FIRST before asking LLM
+            tool_results = await self._execute_matching_tools(message)
+            if tool_results:
+                info("Tools executed successfully")
+                if progress_callback:
+                    progress_callback(100, "Tools completed")
+                return tool_results
+            
             # Check if this is a simple greeting or status request
             message_lower = message.lower().strip()
 

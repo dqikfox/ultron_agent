@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>ULTRON ADB Manager - Android Device Control</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        .adb-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(20,20,40,0.9), rgba(40,20,60,0.9));
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .adb-panel {
+            flex: 1;
+            background: rgba(10,10,30,0.8);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(0,255,0,0.3), inset 0 0 10px rgba(0,255,0,0.1);
+        }
+
+        .adb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .adb-header h2 {
+            font-size: 18px;
+            margin: 0;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .adb-status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+            animation: pulse 1s infinite;
+        }
+
+        .adb-status-indicator.connected {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .device-card {
+            background: rgba(20,30,50,0.6);
+            border: 1px solid #00aa00;
+            border-radius: 5px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-card:hover {
+            background: rgba(30,50,70,0.8);
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0,255,0,0.2);
+        }
+
+        .device-card.selected {
+            background: rgba(0,100,0,0.4);
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0,255,0,0.4);
+        }
+
+        .device-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #00ff00;
+            text-transform: uppercase;
+        }
+
+        .device-info {
+            font-size: 12px;
+            color: #00cc00;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid rgba(0,255,0,0.2);
+        }
+
+        .command-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .command-input {
+            flex: 1;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #00aa00;
+            color: #00ff00;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+        }
+
+        .command-input::placeholder {
+            color: #004400;
+        }
+
+        .command-input:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0,255,0,0.3);
+        }
+
+        .btn-adb {
+            background: rgba(0,100,0,0.6);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-adb:hover {
+            background: rgba(0,200,0,0.8);
+            box-shadow: 0 0 15px rgba(0,255,0,0.5);
+        }
+
+        .btn-adb:active {
+            transform: scale(0.95);
+        }
+
+        .btn-adb.danger {
+            background: rgba(200,0,0,0.6);
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .btn-adb.danger:hover {
+            background: rgba(255,0,0,0.8);
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+
+        .output-log {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #00aa00;
+            border-radius: 4px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 11px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #00ff00;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(0,255,0,0.1);
+        }
+
+        .log-entry.error {
+            color: #ff0000;
+        }
+
+        .log-entry.warning {
+            color: #ffaa00;
+        }
+
+        .log-entry.success {
+            color: #00ff00;
+        }
+
+        .log-entry.info {
+            color: #00aaff;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .quick-action-btn {
+            padding: 10px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            background: rgba(0,50,0,0.4);
+            border: 1px solid #00aa00;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        .info-label {
+            color: #00aaff;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            color: #00ff00;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+
+        .app-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .app-item {
+            background: rgba(20,30,50,0.4);
+            border: 1px solid rgba(0,255,0,0.2);
+            border-radius: 3px;
+            padding: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+
+        .app-item:hover {
+            background: rgba(30,50,70,0.6);
+            border-color: #00ff00;
+        }
+
+        .app-package {
+            color: #00aaff;
+            font-weight: bold;
+        }
+
+        .app-version {
+            color: #00aa00;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .screenshot-preview {
+            width: 100%;
+            max-height: 300px;
+            border: 1px solid #00aa00;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.6);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #00aa00;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #00aa00;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .tab-btn.active {
+            color: #00ff00;
+            border-bottom-color: #00ff00;
+            box-shadow: 0 5px 0 -2px rgba(0,255,0,0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            background: rgba(20,30,50,0.6);
+            border: 1px solid #00aa00;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .status-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00ff00;
+            margin-top: 5px;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            border: 1px solid #00ff00;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(0,255,0,0.1);
+            box-shadow: 0 0 10px rgba(0,255,0,0.3);
+        }
+
+        .refresh-btn {
+            background: rgba(0,100,100,0.6);
+            border: 1px solid #00aaaa;
+            color: #00aaaa;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(0,200,200,0.8);
+            box-shadow: 0 0 15px rgba(0,200,200,0.5);
+        }
+
+        @media (max-width: 1200px) {
+            .adb-container {
+                flex-direction: column;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .adb-container {
+                flex-direction: column;
+                gap: 15px;
+                padding: 10px;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scrollbar-style::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-track {
+            background: rgba(0,50,0,0.2);
+        }
+
+        .scrollbar-style::-webkit-scrollbar-thumb {
+            background: rgba(0,255,0,0.4);
+            border-radius: 4px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,255,0,0.6);
+        }
+
+        .output-log {
+            scrollbar-color: rgba(0,255,0,0.4) rgba(0,50,0,0.2);
+        }
+
+        .app-list {
+            scrollbar-color: rgba(0,255,0,0.4) rgba(0,50,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to ULTRON</a>
+
+    <div class="adb-container">
+        <!-- Left Panel: Device Management -->
+        <div class="adb-panel" style="flex: 0 0 300px;">
+            <div class="adb-header">
+                <h2>🔌 Device Management</h2>
+                <span class="adb-status-indicator" id="connection-status"></span>
+            </div>
+
+            <button class="btn-adb refresh-btn" onclick="refreshDevices()" style="width: 100%; margin-bottom: 10px;">
+                🔄 Refresh Devices
+            </button>
+
+            <div id="devices-list"></div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #00aa00;">
+                <h3 style="font-size: 14px; margin-bottom: 10px;">⚙️ Quick Actions</h3>
+                <div class="quick-actions">
+                    <button class="btn-adb quick-action-btn" onclick="adbAction('screenshot')">
+                        � Screenshot
+                    </button>
+                    <button class="btn-adb quick-action-btn" onclick="adbAction('get_battery')">
+                        🔋 Battery
+                    </button>
+                    <button class="btn-adb quick-action-btn" onclick="adbAction('reboot')">
+                        � Reboot
+                    </button>
+                    <button class="btn-adb quick-action-btn" onclick="pressKey('26')">
+                        💡 Power
+                    </button>
+                    <button class="btn-adb quick-action-btn" onclick="getProcessList()">
+                        ⚙️ Processes
+                    </button>
+                    <button class="btn-adb quick-action-btn" onclick="loadApps()">
+                        � Apps
+                    </button>
+                    <button class="btn-adb quick-action-btn danger" onclick="adbAction('reboot_bootloader')">
+                        ⚠️ Bootloader
+                    </button>
+                    <button class="btn-adb quick-action-btn danger" onclick="adbAction('disconnect')">
+                        ❌ Disconnect
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Control & Info -->
+        <div class="adb-panel" style="flex: 1;">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('status')">📊 Status</button>
+                <button class="tab-btn" onclick="switchTab('apps')">📦 Apps</button>
+                <button class="tab-btn" onclick="switchTab('shell')">⌨️ Shell</button>
+                <button class="tab-btn" onclick="switchTab('screen')">📱 Screen</button>
+                <button class="tab-btn" onclick="switchTab('files')">📁 Files</button>
+                <button class="tab-btn" onclick="switchTab('debug')">🐛 Debug</button>
+                <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
+            </div>
+
+            <!-- Status Tab -->
+            <div id="status" class="tab-content active">
+                <div class="adb-header">
+                    <h2>Device Information</h2>
+                    <button class="btn-adb" onclick="loadDeviceInfo()">🔄 Refresh</button>
+                </div>
+                <div class="status-bar">
+                    <div class="status-item">
+                        <div class="info-label">Battery</div>
+                        <div class="status-value" id="battery-level">--%</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="info-label">Storage</div>
+                        <div class="status-value" id="storage-info">--</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="info-label">RAM</div>
+                        <div class="status-value" id="ram-info">--</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="info-label">CPU</div>
+                        <div class="status-value" id="cpu-info">--</div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Device Name</div>
+                        <div class="info-value" id="device-name">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Model</div>
+                        <div class="info-value" id="device-model">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Android Version</div>
+                        <div class="info-value" id="android-version">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">API Level</div>
+                        <div class="info-value" id="api-level">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Serial</div>
+                        <div class="info-value" id="device-serial">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">IMEI</div>
+                        <div class="info-value" id="device-imei">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apps Tab -->
+            <div id="apps" class="tab-content">
+                <div class="adb-header">
+                    <h2>Installed Applications</h2>
+                    <button class="btn-adb" onclick="loadApps()">🔄 Refresh</button>
+                </div>
+                <div class="app-list scrollbar-style" id="apps-list"></div>
+            </div>
+
+            <!-- Shell Tab -->
+            <div id="shell" class="tab-content">
+                <div class="adb-header">
+                    <h2>Shell Commands</h2>
+                    <button class="btn-adb" onclick="clearLog()">🗑️ Clear</button>
+                </div>
+                <div class="command-input-group">
+                    <input type="text" class="command-input" id="shell-command" placeholder="Enter shell command..." onkeydown="shellCommandKeydown(event)">
+                    <button class="btn-adb" onclick="executeShellCommand()">Execute</button>
+                </div>
+                <div class="output-log scrollbar-style" id="shell-output"></div>
+            </div>
+
+            <!-- Screen Interaction Tab -->
+            <div id="screen" class="tab-content">
+                <div class="adb-header">
+                    <h2>Screen Control & Input</h2>
+                </div>
+                <div style="padding: 15px;">
+                    <h3 style="color: #00aaff; font-size: 13px; margin-bottom: 10px;">🖱️ SCREEN INTERACTION</h3>
+                    <div class="quick-actions">
+                        <button class="btn-adb quick-action-btn" onclick="tapScreen()">
+                            👆 Tap Screen
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="swipeScreen()">
+                            👐 Swipe
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="inputText()">
+                            ⌨️ Type Text
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey()">
+                            🔑 Press Key
+                        </button>
+                    </div>
+
+                    <h3 style="color: #00aaff; font-size: 13px; margin-bottom: 10px; margin-top: 20px;">🎮 COMMON KEYS</h3>
+                    <div class="quick-actions">
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('26')">
+                            💡 Power
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('4')">
+                            ◀ Back
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('3')">
+                            🏠 Home
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('187')">
+                            ◀ ▶ Switch App
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('66')">
+                            ✓ Enter
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('111')">
+                            🔍 Search
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('27')">
+                            📷 Camera
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="pressKey('24')">
+                            🔊 Vol Up
+                        </button>
+                    </div>
+
+                    <h3 style="color: #00aaff; font-size: 13px; margin-bottom: 10px; margin-top: 20px;">📸 CAPTURE MEDIA</h3>
+                    <div class="quick-actions">
+                        <button class="btn-adb quick-action-btn" onclick="adbAction('screenshot')">
+                            📸 Screenshot
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="adbAction('record')">
+                            🎥 Record Video
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files Tab -->
+            <div id="files" class="tab-content">
+                <div class="adb-header">
+                    <h2>File Manager</h2>
+                </div>
+                <div class="command-input-group">
+                    <input type="text" class="command-input" id="file-path" placeholder="/sdcard/" value="/sdcard/">
+                    <button class="btn-adb" onclick="listFiles()">📂 Browse</button>
+                </div>
+                <div class="output-log scrollbar-style" id="files-list"></div>
+            </div>
+
+            <!-- Debug Tab -->
+            <div id="debug" class="tab-content">
+                <div class="adb-header">
+                    <h2>Debugging Tools</h2>
+                </div>
+                <div style="padding: 15px;">
+                    <h3 style="color: #00aaff; font-size: 13px; margin-bottom: 10px;">📋 SYSTEM INFORMATION</h3>
+                    <div class="quick-actions">
+                        <button class="btn-adb quick-action-btn" onclick="getProcessList()">
+                            ⚙️ Processes
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="adbAction('get_battery')">
+                            🔋 Battery
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="adbAction('get_props')">
+                            📝 Properties
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="getLogcat(50)">
+                            📜 Logcat
+                        </button>
+                    </div>
+
+                    <h3 style="color: #00aaff; font-size: 13px; margin-bottom: 10px; margin-top: 20px;">🧹 MAINTENANCE</h3>
+                    <div class="quick-actions">
+                        <button class="btn-adb quick-action-btn" onclick="clearLogcat()">
+                            🗑️ Clear Logcat
+                        </button>
+                        <button class="btn-adb quick-action-btn" onclick="adbAction('clear_cache')">
+                            🧹 Clear Cache
+                        </button>
+                    </div>
+
+                    <h3 style="color: #00aaff; font-size: 13px; margin-bottom: 10px; margin-top: 20px;">🔧 ADVANCED</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #00aaff; font-size: 12px;">
+                            Custom Shell Command
+                        </label>
+                        <div class="command-input-group">
+                            <input type="text" class="command-input" id="debug-command" placeholder="adb shell ...">
+                            <button class="btn-adb" onclick="executeDebugCommand()">Run</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content">
+                <div class="adb-header">
+                    <h2>Advanced Settings</h2>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #00aaff; font-size: 12px;">
+                            📱 Forward Port
+                        </label>
+                        <div class="command-input-group">
+                            <input type="text" class="command-input" id="local-port" placeholder="8888" style="flex: 0.5;">
+                            <input type="text" class="command-input" id="remote-port" placeholder="8080" style="flex: 0.5;">
+                            <button class="btn-adb" onclick="forwardPort()">Forward</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #00aaff; font-size: 12px;">
+                            📥 Pull File
+                        </label>
+                        <div class="command-input-group">
+                            <input type="text" class="command-input" id="remote-file" placeholder="/sdcard/file.txt">
+                            <button class="btn-adb" onclick="pullFile()">Pull</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #00aaff; font-size: 12px;">
+                            📤 Push File
+                        </label>
+                        <div class="command-input-group">
+                            <input type="file" class="command-input" id="local-file" style="color: #00aa00;">
+                            <button class="btn-adb" onclick="pushFile()">Push</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #00aaff; font-size: 12px;">
+                            🔐 ADB Debugging Options
+                        </label>
+                        <button class="btn-adb" onclick="adbAction('enable_debugging')" style="width: 100%; margin-bottom: 8px;">
+                            ✓ Enable Debugging
+                        </button>
+                        <button class="btn-adb" onclick="adbAction('grant_permissions')" style="width: 100%; margin-bottom: 8px;">
+                            ✓ Grant All Permissions
+                        </button>
+                        <button class="btn-adb" onclick="adbAction('install_app')" style="width: 100%;">
+                            ✓ Install App (.apk)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // ULTRON ADB Manager - Complete Function Library
+        // ============================================================
+
+        let selectedDevice = null;
+        let deviceCache = {};
+        let commandHistory = [];
+        let historyIndex = -1;
+        // Connect to ADB backend on port 5003
+        const socketio = io('http://localhost:5003');
+
+        // ============================================================
+        // SOCKET.IO EVENT HANDLERS
+        // ============================================================
+
+        socketio.on('connect', () => {
+            updateConnectionStatus(true);
+            addLog('success', '✓ Connected to server');
+            refreshDevices();
+            loadDeviceCache();
+        });
+
+        socketio.on('disconnect', () => {
+            updateConnectionStatus(false);
+            addLog('error', '✗ Disconnected from server');
+        });
+
+        socketio.on('adb_response', (data) => {
+            if (data.output) {
+                addLog('success', data.output);
+                if (data.device) {
+                    deviceCache[data.device] = data;
+                }
+            }
+            if (data.error) {
+                addLog('error', '✗ ' + data.error);
+            }
+            if (data.devices) {
+                renderDeviceList(data.devices);
+            }
+            if (data.device_info) {
+                updateDeviceInfo(data.device_info);
+            }
+            if (data.apps) {
+                renderAppList(data.apps);
+            }
+            if (data.files) {
+                renderFileList(data.files);
+            }
+        });
+
+        socketio.on('adb_error', (error) => {
+            addLog('error', '✗ ' + error.message);
+        });
+
+        // ============================================================
+        // CONNECTION & DEVICE MANAGEMENT
+        // ============================================================
+
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('connection-status');
+            if (connected) {
+                indicator.classList.add('connected');
+                indicator.title = 'Connected to Server';
+            } else {
+                indicator.classList.remove('connected');
+                indicator.title = 'Disconnected';
+            }
+        }
+
+        function refreshDevices() {
+            addLog('info', 'Refreshing device list...');
+            socketio.emit('adb_command', { command: 'devices' });
+            setTimeout(() => {
+                if (!selectedDevice) {
+                    addLog('warning', 'No device selected');
+                }
+            }, 2000);
+        }
+
+        function renderDeviceList(devices) {
+            const devicesList = document.getElementById('devices-list');
+            if (!devices || devices.length === 0) {
+                devicesList.innerHTML = '<div style="color: #ffaa00; padding: 10px; text-align: center;">No devices found</div>';
+                return;
+            }
+
+            devicesList.innerHTML = devices.map((device, index) => `
+                <div class="device-card" onclick="selectDeviceCard(this, '${device.serial}', '${device.status}')">
+                    <div class="device-name">📱 ${device.model || 'Unknown Device'}</div>
+                    <div class="device-info">
+                        Serial: ${device.serial}<br>
+                        Status: ${device.status}<br>
+                        Connection: ${device.usb ? 'USB' : 'Wireless'} | API: ${device.api_level || '--'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectDeviceCard(element, serial, status) {
+            selectedDevice = serial;
+            document.querySelectorAll('.device-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            addLog('info', `Selected device: ${serial}`);
+            loadDeviceInfo();
+            loadApps();
+        }
+
+        // ============================================================
+        // TAB SWITCHING
+        // ============================================================
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Load tab-specific content
+            if (tabName === 'apps') loadApps();
+            if (tabName === 'status') loadDeviceInfo();
+            if (tabName === 'shell') focusShellCommand();
+        }
+
+        // ============================================================
+        // LOGGING SYSTEM
+        // ============================================================
+
+        function addLog(type, message) {
+            const output = document.getElementById('shell-output');
+            if (!output) return;
+
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            output.appendChild(entry);
+            output.scrollTop = output.scrollHeight;
+
+            // Limit log entries to prevent memory issues
+            if (output.children.length > 1000) {
+                output.removeChild(output.firstChild);
+            }
+        }
+
+        function clearLog() {
+            const output = document.getElementById('shell-output');
+            if (output) {
+                output.innerHTML = '';
+                addLog('info', 'Log cleared');
+            }
+        }
+
+        // ============================================================
+        // SHELL COMMANDS
+        // ============================================================
+
+        function executeShellCommand() {
+            const input = document.getElementById('shell-command');
+            const command = input.value.trim();
+
+            if (!selectedDevice) {
+                addLog('warning', 'Please select a device first');
+                return;
+            }
+
+            if (!command) {
+                addLog('warning', 'Please enter a command');
+                return;
+            }
+
+            // Add to history
+            commandHistory.push(command);
+            historyIndex = commandHistory.length;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: command
+            });
+
+            addLog('info', `$ ${command}`);
+            input.value = '';
+        }
+
+        function focusShellCommand() {
+            const input = document.getElementById('shell-command');
+            if (input) input.focus();
+        }
+
+        function shellCommandKeydown(event) {
+            const input = document.getElementById('shell-command');
+
+            if (event.key === 'Enter') {
+                executeShellCommand();
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    input.value = commandHistory[historyIndex];
+                }
+            } else if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    input.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    input.value = '';
+                }
+            }
+        }
+
+        // ============================================================
+        // DEVICE INFORMATION
+        // ============================================================
+
+        function loadDeviceInfo() {
+            if (!selectedDevice) {
+                addLog('warning', 'No device selected');
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'device_info',
+                device: selectedDevice
+            });
+
+            addLog('info', 'Loading device information...');
+        }
+
+        function updateDeviceInfo(info) {
+            if (!info) return;
+
+            // Update status bar
+            document.getElementById('battery-level').textContent = info.battery || '--';
+            document.getElementById('storage-info').textContent = info.storage || '--';
+            document.getElementById('ram-info').textContent = info.memory || '--';
+            document.getElementById('cpu-info').textContent = info.cpu || '--';
+
+            // Update info grid
+            document.getElementById('device-name').textContent = info.device_name || info.model || 'Unknown';
+            document.getElementById('device-model').textContent = info.model || '--';
+            document.getElementById('android-version').textContent = info.version || '--';
+            document.getElementById('api-level').textContent = info.api_level || '--';
+            document.getElementById('device-serial').textContent = info.serial || selectedDevice;
+            document.getElementById('device-imei').textContent = info.imei || '--';
+
+            addLog('success', '✓ Device info loaded');
+        }
+
+        // ============================================================
+        // APPLICATIONS MANAGEMENT
+        // ============================================================
+
+        function loadApps() {
+            if (!selectedDevice) {
+                addLog('warning', 'No device selected');
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'list_apps',
+                device: selectedDevice
+            });
+
+            addLog('info', 'Loading applications...');
+        }
+
+        function renderAppList(apps) {
+            const appsList = document.getElementById('apps-list');
+            if (!appsList) return;
+
+            if (!apps || apps.length === 0) {
+                appsList.innerHTML = '<div style="color: #ffaa00; padding: 10px;">No apps found</div>';
+                return;
+            }
+
+            appsList.innerHTML = apps.slice(0, 100).map((app, index) => `
+                <div class="app-item" onclick="launchApp('${app.package}')">
+                    <div class="app-package">${app.name || app.package}</div>
+                    <div class="app-version">Package: ${app.package}<br>Version: ${app.version || '--'}</div>
+                </div>
+            `).join('');
+
+            addLog('success', `✓ Loaded ${apps.length} applications`);
+        }
+
+        function launchApp(packageName) {
+            if (!selectedDevice) {
+                addLog('warning', 'No device selected');
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: `am start -n ${packageName}/.MainActivity`
+            });
+
+            addLog('info', `Launching: ${packageName}`);
+        }
+
+        function uninstallApp(packageName) {
+            if (!selectedDevice || !confirm(`Uninstall ${packageName}?`)) return;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: `pm uninstall ${packageName}`
+            });
+
+            addLog('warning', `Uninstalling: ${packageName}`);
+        }
+
+        // ============================================================
+        // FILE MANAGEMENT
+        // ============================================================
+
+        function listFiles() {
+            const path = document.getElementById('file-path').value || '/sdcard/';
+            if (!selectedDevice) {
+                addLog('warning', 'No device selected');
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'list_files',
+                device: selectedDevice,
+                path: path
+            });
+
+            addLog('info', `Browsing: ${path}`);
+        }
+
+        function renderFileList(files) {
+            const filesList = document.getElementById('files-list');
+            if (!filesList) return;
+
+            if (!files || files.length === 0) {
+                filesList.innerHTML = '<div style="color: #ffaa00; padding: 10px;">No files found or path invalid</div>';
+                return;
+            }
+
+            filesList.innerHTML = files.map(file => `
+                <div class="app-item">
+                    <div class="app-package">${file.type === 'dir' ? '📁' : '📄'} ${file.name}</div>
+                    <div class="app-version">${file.size || '--'} | Modified: ${file.modified || '--'}</div>
+                </div>
+            `).join('');
+
+            addLog('success', `✓ Listed ${files.length} items`);
+        }
+
+        function pullFile() {
+            const remotePath = document.getElementById('remote-file').value;
+            if (!selectedDevice || !remotePath) {
+                addLog('warning', 'Please enter a file path');
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'pull',
+                device: selectedDevice,
+                remote: remotePath
+            });
+
+            addLog('info', `Pulling file: ${remotePath}`);
+        }
+
+        function pushFile() {
+            const fileInput = document.getElementById('local-file');
+            if (!selectedDevice || !fileInput.files.length) {
+                addLog('warning', 'Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('device', selectedDevice);
+
+            fetch('/api/adb/push', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    addLog('success', `✓ Pushed: ${fileInput.files[0].name}`);
+                } else {
+                    addLog('error', `✗ Failed: ${data.error}`);
+                }
+            })
+            .catch(e => addLog('error', `✗ Upload failed: ${e.message}`));
+        }
+
+        // ============================================================
+        // PORT FORWARDING & NETWORKING
+        // ============================================================
+
+        function forwardPort() {
+            const localPort = document.getElementById('local-port').value;
+            const remotePort = document.getElementById('remote-port').value;
+
+            if (!selectedDevice || !localPort || !remotePort) {
+                addLog('warning', 'Please enter both ports');
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'forward',
+                device: selectedDevice,
+                local: localPort,
+                remote: remotePort
+            });
+
+            addLog('info', `Forwarding ${localPort} → ${remotePort}`);
+        }
+
+        function reverseForward() {
+            const remotePort = document.getElementById('remote-port').value;
+            const localPort = document.getElementById('local-port').value;
+
+            if (!selectedDevice || !localPort || !remotePort) {
+                addLog('warning', 'Please enter both ports');
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'reverse',
+                device: selectedDevice,
+                local: localPort,
+                remote: remotePort
+            });
+
+            addLog('info', `Reverse forwarding ${remotePort} ← ${localPort}`);
+        }
+
+        // ============================================================
+        // ADB ACTIONS & SYSTEM OPERATIONS
+        // ============================================================
+
+        function adbAction(action) {
+            if (!selectedDevice && action !== 'disconnect') {
+                addLog('warning', 'Please select a device');
+                return;
+            }
+
+            const actionMap = {
+                'reboot': { cmd: 'reboot', msg: 'Rebooting device...' },
+                'reboot_recovery': { cmd: 'reboot recovery', msg: 'Rebooting to recovery...' },
+                'reboot_bootloader': { cmd: 'reboot bootloader', msg: 'Rebooting to bootloader...' },
+                'screenshot': { cmd: 'shell screencap -p /sdcard/screenshot.png && pull /sdcard/screenshot.png', msg: 'Taking screenshot...' },
+                'record': { cmd: 'shell screenrecord /sdcard/video.mp4', msg: 'Recording screen (30s)...' },
+                'get_battery': { cmd: 'shell dumpsys battery', msg: 'Getting battery info...' },
+                'get_props': { cmd: 'shell getprop', msg: 'Getting system properties...' },
+                'get_logcat': { cmd: 'logcat', msg: 'Getting logcat output...' },
+                'clear_cache': { cmd: 'shell pm clear --cache', msg: 'Clearing app cache...' },
+                'factory_reset': { cmd: 'shell am broadcast -a android.intent.action.FACTORY_RESET', msg: '⚠️  Factory reset initiated...' },
+                'disconnect': { cmd: 'disconnect', msg: 'Disconnecting device...' }
+            };
+
+            const info = actionMap[action];
+            if (!info) {
+                addLog('error', `✗ Unknown action: ${action}`);
+                return;
+            }
+
+            if ((action === 'factory_reset' || action === 'reboot_bootloader') && !confirm(`Confirm ${action}?`)) {
+                return;
+            }
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: info.cmd
+            });
+
+            addLog('info', info.msg);
+        }
+
+        // ============================================================
+        // SCREEN INTERACTION
+        // ============================================================
+
+        function tapScreen(x, y) {
+            x = x || prompt('Enter X coordinate:');
+            y = y || prompt('Enter Y coordinate:');
+
+            if (!selectedDevice || !x || !y) return;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: `input tap ${x} ${y}`
+            });
+
+            addLog('info', `Tap: (${x}, ${y})`);
+        }
+
+        function inputText(text) {
+            text = text || prompt('Enter text to type:');
+            if (!selectedDevice || !text) return;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: `input text "${text}"`
+            });
+
+            addLog('info', `Typed: ${text}`);
+        }
+
+        function swipeScreen(x1, y1, x2, y2, duration) {
+            if (!selectedDevice) return;
+
+            x1 = x1 || 500;
+            y1 = y1 || 500;
+            x2 = x2 || 500;
+            y2 = y2 || 1000;
+            duration = duration || 500;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: `input swipe ${x1} ${y1} ${x2} ${y2} ${duration}`
+            });
+
+            addLog('info', `Swipe: (${x1},${y1}) → (${x2},${y2})`);
+        }
+
+        function pressKey(keyCode) {
+            keyCode = keyCode || prompt('Enter key code (e.g., 26 for power, 4 for back):');
+            if (!selectedDevice || !keyCode) return;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: `input keyevent ${keyCode}`
+            });
+
+            addLog('info', `Key pressed: ${keyCode}`);
+        }
+
+        // ============================================================
+        // ADVANCED DEBUGGING
+        // ============================================================
+
+        function getLogcat(lines) {
+            lines = lines || 100;
+            if (!selectedDevice) return;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: `logcat -d | tail -${lines}`
+            });
+
+            addLog('info', `Getting last ${lines} logcat lines...`);
+        }
+
+        function clearLogcat() {
+            if (!selectedDevice) return;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: 'logcat -c'
+            });
+
+            addLog('info', 'Logcat cleared');
+        }
+
+        function getProcessList() {
+            if (!selectedDevice) return;
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: 'ps'
+            });
+
+            addLog('info', 'Getting process list...');
+        }
+
+        function executeDebugCommand() {
+            const cmd = document.getElementById('debug-command').value.trim();
+            if (!cmd) {
+                addLog('warning', 'Please enter a command');
+                return;
+            }
+
+            const command = cmd.replace(/^adb\s+shell\s+/, '');
+            executeShellCommand.call({ value: command }, {
+                target: { value: command }
+            });
+
+            socketio.emit('adb_command', {
+                command: 'shell',
+                device: selectedDevice,
+                args: command
+            });
+
+            addLog('info', `Debug: ${command}`);
+            document.getElementById('debug-command').value = '';
+        }
+
+        // ============================================================
+        // CACHING & PERSISTENCE
+        // ============================================================
+
+        function saveDeviceCache() {
+            localStorage.setItem('adb_device_cache', JSON.stringify(deviceCache));
+        }
+
+        function loadDeviceCache() {
+            const cache = localStorage.getItem('adb_device_cache');
+            if (cache) {
+                deviceCache = JSON.parse(cache);
+            }
+        }
+
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+
+        window.addEventListener('load', () => {
+            loadDeviceCache();
+            refreshDevices();
+
+            // Add keyboard support
+            document.getElementById('shell-command').addEventListener('keydown', shellCommandKeydown);
+
+            addLog('info', '🚀 ADB Manager initialized');
+        });
+
+        // Auto-refresh devices every 10 seconds
+        setInterval(refreshDevices, 10000);
+
+        // Save cache periodically
+        setInterval(saveDeviceCache, 30000);
+    </script>
+</body>
+</html>

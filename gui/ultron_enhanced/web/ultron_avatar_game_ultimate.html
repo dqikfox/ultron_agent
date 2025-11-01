@@ -1,0 +1,2558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Avatar Game - Ultimate Edition</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@300;400;600;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Orbitron', 'Exo 2', sans-serif;
+            background: #000000;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+                linear-gradient(180deg, #000000 0%, #0a0520 50%, #000000 100%);
+            color: #00ffff;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 255, 0.05) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 255, 255, 0.05) 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+            animation: scanlines 8s linear infinite;
+        }
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+        .digital-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+            animation: noiseAnim 0.2s infinite;
+        }
+        @keyframes noiseAnim {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.35; }
+        }
+        
+        @keyframes bgShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
+            animation: bgPulse 8s ease-in-out infinite;
+            z-index: -1;
+        }
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(0, 255, 255, 0.03) 50px, rgba(0, 255, 255, 0.03) 51px),
+                repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0, 255, 255, 0.03) 50px, rgba(0, 255, 255, 0.03) 51px),
+                repeating-linear-gradient(60deg, transparent, transparent 50px, rgba(138, 43, 226, 0.02) 50px, rgba(138, 43, 226, 0.02) 51px),
+                repeating-linear-gradient(120deg, transparent, transparent 50px, rgba(138, 43, 226, 0.02) 50px, rgba(138, 43, 226, 0.02) 51px);
+            animation: gridShift 20s linear infinite;
+        }
+        @keyframes gridShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .floating-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.3;
+        }
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #00ffff, transparent);
+            top: 10%;
+            left: 10%;
+            animation: float1 20s ease-in-out infinite;
+        }
+        .orb-2 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #8a2be2, transparent);
+            top: 60%;
+            right: 15%;
+            animation: float2 25s ease-in-out infinite;
+        }
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #00ffff, transparent);
+            bottom: 20%;
+            left: 20%;
+            animation: float3 30s ease-in-out infinite;
+        }
+        .orb-4 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #8a2be2, transparent);
+            top: 30%;
+            right: 25%;
+            animation: float4 22s ease-in-out infinite;
+        }
+        .orb-5 {
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, #00ffff, transparent);
+            bottom: 10%;
+            right: 10%;
+            animation: float5 28s ease-in-out infinite;
+        }
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(100px, 50px) scale(1.2); }
+        }
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-80px, -60px) scale(1.3); }
+        }
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, -80px) scale(1.1); }
+        }
+        @keyframes float4 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-100px, 70px) scale(1.25); }
+        }
+        @keyframes float5 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(90px, 40px) scale(1.15); }
+        }
+        .data-streams {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+        }
+        .stream {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(180deg, transparent, #00ffff, transparent);
+            animation: streamFall 3s linear infinite;
+        }
+        .stream-1 { left: 10%; animation-delay: 0s; }
+        .stream-2 { left: 25%; animation-delay: 0.5s; height: 150px; }
+        .stream-3 { left: 45%; animation-delay: 1s; height: 80px; }
+        .stream-4 { left: 60%; animation-delay: 1.5s; height: 120px; }
+        .stream-5 { left: 75%; animation-delay: 2s; }
+        .stream-6 { left: 90%; animation-delay: 2.5s; height: 90px; }
+        @keyframes streamFall {
+            0% { top: -100px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .tech-panel::before,
+        .tech-panel::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid currentColor;
+            opacity: 0.5;
+        }
+        .tech-panel::before {
+            top: 5px;
+            left: 5px;
+            border-right: none;
+            border-bottom: none;
+        }
+        .tech-panel::after {
+            bottom: 5px;
+            right: 5px;
+            border-left: none;
+            border-top: none;
+        }
+        
+        #game {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 255, 255, 0.6);
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.4),
+                inset 0 0 60px rgba(138, 43, 226, 0.1);
+            min-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+        #ui::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(0, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            animation: uiShine 4s infinite;
+        }
+        #ui::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+        @keyframes uiShine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .ui-header {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00ffff, #8a2be2, #00ffff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: headerGlow 3s linear infinite, glitch 5s infinite;
+            margin-bottom: 20px;
+            letter-spacing: 4px;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.8));
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes headerGlow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(-2px, 2px); }
+            92% { transform: translate(2px, -2px); }
+            93% { transform: translate(-2px, -2px); }
+            94% { transform: translate(2px, 2px); }
+            95% { transform: translate(0); }
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        #chat {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 220px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.4),
+                inset 0 0 60px rgba(138, 43, 226, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        #chat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 255, 255, 0.2),
+                transparent
+            );
+            animation: chatShine 3s infinite;
+        }
+        #chat::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            border-top: 2px solid rgba(0, 255, 255, 0.4);
+            border-left: 2px solid rgba(0, 255, 255, 0.4);
+            pointer-events: none;
+        }
+        @keyframes chatShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        #messages {
+            height: 140px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: #00ff41 transparent;
+        }
+        
+        #input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            color: #00ffff;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Orbitron', monospace;
+            outline: none;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        #input:focus {
+            border-color: #00ffff;
+            box-shadow: 
+                0 0 40px rgba(0, 255, 255, 0.8),
+                inset 0 0 20px rgba(138, 43, 226, 0.2);
+            background: rgba(0, 0, 0, 0.9);
+            color: #ffffff;
+        }
+        
+        #input::placeholder {
+            color: rgba(0, 255, 255, 0.5);
+        }
+        
+        .avatar {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 4px solid rgba(0, 255, 255, 0.7);
+            box-shadow: 
+                0 0 60px currentColor,
+                0 0 120px rgba(0, 255, 255, 0.4),
+                inset 0 0 60px rgba(138, 43, 226, 0.2),
+                0 20px 50px rgba(0, 0, 0, 0.9);
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 40%),
+                radial-gradient(circle at 70% 70%, rgba(138, 43, 226, 0.3), transparent 50%),
+                radial-gradient(circle, currentColor 0%, transparent 100%);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 70px;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.9));
+            position: relative;
+            overflow: visible;
+        }
+        
+        .avatar::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            right: -12px;
+            bottom: -12px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                currentColor 90deg,
+                transparent 180deg,
+                currentColor 270deg,
+                transparent 360deg
+            );
+            opacity: 0.4;
+            animation: avatarSpin 4s linear infinite;
+            z-index: -1;
+            filter: blur(8px);
+        }
+        @keyframes avatarSpin {
+            0% { 
+                transform: rotate(0deg); 
+                opacity: 0.4;
+                filter: blur(8px);
+            }
+            50% { 
+                opacity: 0.7;
+                filter: blur(12px);
+            }
+            100% { 
+                transform: rotate(360deg); 
+                opacity: 0.4;
+                filter: blur(8px);
+            }
+        }
+        .avatar:hover::before {
+            opacity: 1;
+            animation-duration: 1.5s;
+            filter: blur(15px);
+        }
+        
+        .avatar::before {
+            content: attr(data-name);
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: 900;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 50, 0, 0.95));
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 2px solid currentColor;
+            box-shadow: 0 0 20px currentColor;
+            letter-spacing: 2px;
+        }
+        
+        .avatar .avatar-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 700;
+            opacity: 1;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 30, 30, 0.95));
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 2px solid currentColor;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 10px currentColor;
+            white-space: nowrap;
+            letter-spacing: 1.5px;
+            z-index: 10;
+            overflow: hidden;
+        }
+        .avatar .avatar-label::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), transparent);
+            animation: labelScan 2s infinite;
+        }
+        @keyframes labelScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .avatar .avatar-name {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 50, 0, 0.95));
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid currentColor;
+            box-shadow: 0 0 25px currentColor;
+            letter-spacing: 2px;
+            z-index: 10;
+        }
+        
+        .avatar:hover .avatar-name {
+            opacity: 1;
+            top: -50px;
+        }
+        
+        .avatar:hover::before,
+        .avatar:hover::after {
+            opacity: 1;
+        }
+        
+        .avatar:hover {
+            transform: scale(2.0) rotate(20deg);
+            filter: brightness(2.5) saturate(2.0) contrast(1.3) hue-rotate(15deg);
+            z-index: 50;
+            box-shadow: 
+                0 0 100px currentColor,
+                0 0 180px rgba(0, 255, 255, 0.6),
+                inset 0 0 80px rgba(255, 255, 255, 0.4),
+                0 30px 70px rgba(0, 0, 0, 0.95),
+                -5px 0 15px rgba(255, 0, 0, 0.3),
+                5px 0 15px rgba(0, 255, 255, 0.3);
+            border-width: 6px;
+            border-color: #ffffff;
+            animation: chromaticShift 0.3s infinite;
+        }
+        @keyframes chromaticShift {
+            0%, 100% { 
+                text-shadow: 
+                    -2px 0 rgba(255, 0, 0, 0.5),
+                    2px 0 rgba(0, 255, 255, 0.5);
+            }
+            50% { 
+                text-shadow: 
+                    2px 0 rgba(255, 0, 0, 0.5),
+                    -2px 0 rgba(0, 255, 255, 0.5);
+            }
+        }
+        
+        .avatar.speaking {
+            animation: speakPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes speakPulse {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                box-shadow: 
+                    0 0 40px currentColor,
+                    0 0 80px rgba(255, 255, 255, 0.2);
+            }
+            25% { 
+                transform: scale(1.15) rotate(5deg);
+                box-shadow: 
+                    0 0 70px currentColor,
+                    0 0 120px rgba(255, 255, 255, 0.4);
+            }
+            50% { 
+                transform: scale(1.25) rotate(-5deg);
+                box-shadow: 
+                    0 0 90px currentColor,
+                    0 0 150px rgba(255, 255, 255, 0.5);
+            }
+            75% { 
+                transform: scale(1.15) rotate(5deg);
+                box-shadow: 
+                    0 0 70px currentColor,
+                    0 0 120px rgba(255, 255, 255, 0.4);
+            }
+        }
+        
+        .coder { 
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 40%),
+                radial-gradient(circle, #0088ff 0%, #0055ff 50%, #0033cc 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="50" fill="%23ffffff" opacity="0.1">💻</text></svg>') center/80% no-repeat;
+            color: #00aaff;
+            animation: glowCoder 3s ease-in-out infinite;
+        }
+        .writer { 
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 40%),
+                radial-gradient(circle, #ff00ff 0%, #ff33ff 50%, #cc00cc 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="50" fill="%23ffffff" opacity="0.1">📝</text></svg>') center/80% no-repeat;
+            color: #ff66ff;
+            animation: glowWriter 3s ease-in-out infinite;
+        }
+        .tool_user { 
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 40%),
+                radial-gradient(circle, #ffaa00 0%, #ff8800 50%, #cc6600 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="50" fill="%23ffffff" opacity="0.1">🔧</text></svg>') center/80% no-repeat;
+            color: #ffbb33;
+            animation: glowTool 3s ease-in-out infinite;
+        }
+        .assistant { 
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 40%),
+                radial-gradient(circle, #00ff00 0%, #00ff66 50%, #00cc00 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="50" fill="%23ffffff" opacity="0.1">🤖</text></svg>') center/80% no-repeat;
+            color: #66ff66;
+            animation: glowAssist 3s ease-in-out infinite;
+        }
+        .admin { 
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 40%),
+                radial-gradient(circle, #ff0000 0%, #ff3333 50%, #cc0000 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="50" fill="%23ffffff" opacity="0.1">🛡️</text></svg>') center/80% no-repeat;
+            color: #ff6666;
+            animation: glowAdmin 3s ease-in-out infinite;
+        }
+        .pyautogui_agent { 
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 40%),
+                radial-gradient(circle, #ffff00 0%, #ffff66 50%, #cccc00 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="50" fill="%23ffffff" opacity="0.1">🖱️</text></svg>') center/80% no-repeat;
+            color: #ffff99;
+            animation: glowPyauto 3s ease-in-out infinite;
+        }
+        
+        @keyframes glowCoder {
+            0%, 100% { filter: brightness(1) hue-rotate(0deg); }
+            50% { filter: brightness(1.3) hue-rotate(10deg); }
+        }
+        @keyframes glowWriter {
+            0%, 100% { filter: brightness(1) hue-rotate(0deg); }
+            50% { filter: brightness(1.3) hue-rotate(-10deg); }
+        }
+        @keyframes glowTool {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.4) saturate(1.5); }
+        }
+        @keyframes glowAssist {
+            0%, 100% { filter: brightness(1) hue-rotate(0deg); }
+            50% { filter: brightness(1.3) hue-rotate(15deg); }
+        }
+        @keyframes glowAdmin {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.5) saturate(1.3); }
+        }
+        @keyframes glowPyauto {
+            0%, 100% { filter: brightness(1) hue-rotate(0deg); }
+            50% { filter: brightness(1.4) hue-rotate(20deg); }
+        }
+        
+        button {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            color: #00ffff;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 14px 24px;
+            margin: 4px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(138, 43, 226, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.4), rgba(138, 43, 226, 0.2));
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            padding: 2px;
+            background: linear-gradient(45deg, #00ffff, #8a2be2, #00ffff);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        button:hover::after {
+            opacity: 1;
+            animation: borderRotate 2s linear infinite;
+        }
+        @keyframes borderRotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(138, 43, 226, 0.3));
+            color: #ffffff;
+            border-color: #00ffff;
+            box-shadow: 
+                0 0 40px rgba(0, 255, 255, 0.8),
+                0 0 80px rgba(138, 43, 226, 0.5),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px) scale(1.05);
+        }
+        
+        select {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            color: #00ffff;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 12px 18px;
+            margin: 4px;
+            border-radius: 10px;
+            min-width: 240px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(138, 43, 226, 0.1);
+        }
+        select:hover {
+            border-color: #00ffff;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.6),
+                inset 0 0 30px rgba(138, 43, 226, 0.2);
+            transform: translateY(-2px);
+        }
+        select:focus {
+            outline: none;
+            border-color: #ffffff;
+            box-shadow: 
+                0 0 40px rgba(0, 255, 255, 0.8),
+                inset 0 0 40px rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            font-weight: 700;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            font-size: 12px;
+            transition: all 0.3s ease;
+            cursor: default;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+        .stat-item:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.5),
+                0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-left: 4px solid rgba(0, 255, 255, 0.6);
+            background: rgba(0, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            border-radius: 0 10px 10px 0;
+            animation: messageSlide 0.3s ease-out;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+        .message:hover {
+            background: rgba(0, 255, 255, 0.15);
+            border-left-width: 6px;
+            border-left-color: #00ffff;
+            padding-left: 18px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .voice-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.4), rgba(138, 43, 226, 0.2), transparent);
+            display: none;
+            animation: voicePulse 1s ease-in-out infinite;
+            z-index: 1000;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.6),
+                0 0 120px rgba(138, 43, 226, 0.4);
+        }
+        @keyframes voicePulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 0.6;
+                box-shadow: 
+                    0 0 60px rgba(0, 255, 255, 0.6),
+                    0 0 120px rgba(138, 43, 226, 0.4);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.8); 
+                opacity: 1;
+                box-shadow: 
+                    0 0 100px rgba(0, 255, 255, 1),
+                    0 0 200px rgba(138, 43, 226, 0.8);
+            }
+        }
+        
+        .level-up-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.98), rgba(138, 43, 226, 0.98));
+            color: #ffffff;
+            padding: 50px 90px;
+            border-radius: 25px;
+            font-size: 38px;
+            font-weight: 900;
+            text-align: center;
+            box-shadow: 
+                0 0 100px rgba(0, 255, 255, 1),
+                0 0 150px rgba(138, 43, 226, 0.8),
+                inset 0 0 60px rgba(255, 255, 255, 0.4);
+            border: 5px solid rgba(255, 255, 255, 0.9);
+            display: none;
+            z-index: 2000;
+            animation: levelUpAnim 2s ease-out;
+            letter-spacing: 5px;
+            text-shadow: 
+                0 0 20px rgba(0, 255, 255, 1),
+                0 0 40px rgba(138, 43, 226, 1);
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 2s ease-out forwards;
+            box-shadow: 0 0 10px currentColor;
+        }
+        @keyframes particleFloat {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+                box-shadow: 0 0 20px currentColor;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .energy-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border: 3px solid currentColor;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: ringPulse 2s ease-out infinite;
+            opacity: 0.7;
+            box-shadow: 0 0 20px currentColor;
+        }
+        @keyframes ringPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.7;
+                box-shadow: 0 0 20px currentColor;
+            }
+            50% {
+                opacity: 0.5;
+                box-shadow: 0 0 40px currentColor;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 0;
+                box-shadow: 0 0 60px currentColor;
+            }
+        }
+        
+        @keyframes levelUpAnim {
+            0% { 
+                transform: translate(-50%, -50%) scale(0) rotate(-360deg); 
+                opacity: 0;
+                filter: blur(20px);
+            }
+            30% { 
+                transform: translate(-50%, -50%) scale(1.3) rotate(20deg); 
+                opacity: 1;
+                filter: blur(0px);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(0.9) rotate(-10deg); 
+                opacity: 1;
+            }
+            70% { 
+                transform: translate(-50%, -50%) scale(1.1) rotate(5deg); 
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1) rotate(0deg); 
+                opacity: 1;
+            }
+        }
+        
+        /* Tooltip styles */
+        [data-tooltip] {
+            position: relative;
+        }
+        
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 50, 0, 0.95));
+            color: #00ff41;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 2px solid #00ff41;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            animation: tooltipFade 0.3s ease-out;
+        }
+        
+        @keyframes tooltipFade {
+            from { opacity: 0; transform: translateX(-50%) translateY(5px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
+        /* Checkbox custom styling */
+        input[type="checkbox"] {
+            appearance: none;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+        input[type="checkbox"]:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+        input[type="checkbox"]:checked {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.8), rgba(138, 43, 226, 0.8));
+            border-color: #00ffff;
+            animation: checkboxPulse 2s infinite;
+        }
+        @keyframes checkboxPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 255, 1); }
+        }
+        input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="digital-noise"></div>
+    <div class="bg-animation"></div>
+    <div class="data-streams">
+        <div class="stream stream-1"></div>
+        <div class="stream stream-2"></div>
+        <div class="stream stream-3"></div>
+        <div class="stream stream-4"></div>
+        <div class="stream stream-5"></div>
+        <div class="stream stream-6"></div>
+    </div>
+    <div class="floating-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+        <div class="orb orb-5"></div>
+    </div>
+    <div class="voice-indicator" id="voiceIndicator"></div>
+    <div class="level-up-notification" id="levelUpNotif"></div>
+    
+    <div id="game">
+        <div id="ui">
+            <div class="ui-header">⚡ ULTRON AVATAR NEXUS ⚡</div>
+            
+            <div class="control-row">
+                <select id="roleSelect">
+                    <option value="random">🎲 Random Role</option>
+                    <option value="coder">💻 CODER</option>
+                    <option value="writer">📝 WRITER</option>
+                    <option value="tool_user">🔧 TOOL USER</option>
+                    <option value="assistant">🤖 ASSISTANT</option>
+                    <option value="admin">🛡️ ADMIN</option>
+                    <option value="pyautogui_agent">🖱️ CONTROLLER</option>
+                </select>
+                
+                <select id="modelSelect">
+                    <option value="auto">🧠 Auto-Select</option>
+                    <option value="qwen3-coder:480b-cloud">🧙 Qwen the Architect</option>
+                    <option value="gerard/ultron:latest">🤖 Ultron Prime</option>
+                    <option value="deepseek-r1:14b">🧛 Seeker the Oracle</option>
+                    <option value="llama3.1:latest">🧔 Llama the Wanderer</option>
+                    <option value="mistral-small3.2:latest">😈 Mistral the Swift</option>
+                </select>
+            </div>
+            
+            <div class="control-row">
+                <button onclick="spawnAvatar()" data-tooltip="Spawn new avatar (SPACE)">🚀 Spawn</button>
+                <button onclick="clearAvatars()" data-tooltip="Remove all avatars (X)">🗑️ Clear</button>
+                <button onclick="saveGame()" data-tooltip="Save game state (S)">💾 Save</button>
+                <button onclick="loadGame()" data-tooltip="Load saved game (L)">📂 Load</button>
+                <button onclick="showAllAvatarsInfo()" data-tooltip="View all avatars (A)">📊 All Info</button>
+                <button onclick="showAnalytics()" data-tooltip="View analytics dashboard (D)">📈 Analytics</button>
+                <button onclick="toggleShortcuts()" data-tooltip="Show keyboard shortcuts (H)">⌨️ Help</button>
+            </div>
+            
+            <div class="control-row">
+                <button onclick="startVoiceControl()" data-tooltip="Toggle voice control (V)">🎤 Voice</button>
+                <button onclick="startBattle()" data-tooltip="Start avatar battle (B)">⚔️ Battle</button>
+                <button onclick="startCollaboration()" data-tooltip="Multi-avatar collaboration (C)">🤝 Collab</button>
+                <button onclick="integrateUltron()" data-tooltip="Connect to ULTRON (I)">🔗 Integrate</button>
+                <button onclick="testAllTools()" data-tooltip="Test all tools">⚡ Test</button>
+            </div>
+            
+            <div class="control-row tech-panel" style="flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 10px; padding: 10px; background: rgba(0, 255, 255, 0.05); border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.3); position: relative;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="enablePersonality" checked onchange="togglePersonality()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🎭 Enable AI Personalities</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="enableCatchphrases" checked onchange="toggleCatchphrases()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>💬 Show Catchphrases</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="enableAnimations" checked onchange="toggleAnimations()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>✨ Enhanced Animations</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="enableSounds" onchange="toggleSounds()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🔊 Sound Effects</span>
+                </label>
+            </div>
+            
+            <div class="control-row tech-panel" style="flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 10px; padding: 10px; background: rgba(255, 153, 0, 0.05); border-radius: 8px; border: 1px solid rgba(255, 153, 0, 0.3); position: relative;">
+                <div style="font-size: 11px; font-weight: 700; color: #ff9900; margin-bottom: 5px;">☁️ AWS CLOUD FEATURES</div>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="useBedrockAI" onchange="toggleBedrock()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🧠 Use Bedrock AI</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="useCloudSave" onchange="toggleCloudSave()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>💾 Cloud Save (S3)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="usePollyVoice" onchange="togglePolly()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🎤 AWS Polly Voice</span>
+                </label>
+                <button onclick="checkAWSStatus()" style="margin-top: 5px; padding: 8px 15px; font-size: 11px;" data-tooltip="Check AWS connection">☁️ Check AWS</button>
+            </div>
+            
+            <div class="control-row tech-panel" style="flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 10px; padding: 10px; background: rgba(0, 191, 255, 0.05); border-radius: 8px; border: 1px solid rgba(0, 191, 255, 0.3); position: relative;">
+                <div style="font-size: 11px; font-weight: 700; color: #00bfff; margin-bottom: 5px;">🎨 3D & VOICE</div>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="use3D" onchange="toggle3D()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🎮 Use 3D Models</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="voiceSynthesis" onchange="toggleVoice()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🔊 Voice Synthesis</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px;">
+                    <input type="checkbox" id="useEnsemble" onchange="toggleEnsemble()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🧠 Multi-Model Ensemble</span>
+                </label>
+                <button onclick="window.open('avatar_3d.html', '_blank')" style="margin-top: 5px; padding: 8px 15px; font-size: 11px;" data-tooltip="Open 3D viewer">🎨 3D Viewer</button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item" data-tooltip="Active avatars / Maximum capacity">Avatars: <span id="count">0</span>/6</div>
+                <div class="stat-item" data-tooltip="Cumulative experience points">Total XP: <span id="totalXP">0</span></div>
+                <div class="stat-item" data-tooltip="Average response time">⚡ <span id="avgLatency">0ms</span></div>
+                <div class="stat-item" data-tooltip="Messages per minute">📊 <span id="msgRate">0/min</span></div>
+                <div class="stat-item" data-tooltip="System status">Status: <span id="status">Ready</span></div>
+                <div class="stat-item" data-tooltip="ULTRON integration status">🔗 <span id="ultronStatus">Disconnected</span></div>
+                <div class="stat-item" data-tooltip="GPU acceleration status">🎮 <span id="gpuStatus">CPU</span></div>
+            </div>
+        </div>
+        
+        <div id="chat">
+            <div id="messages"></div>
+            <input id="input" placeholder="🎤 Command your ULTRON avatars..." onkeypress="handleInput(event)">
+        </div>
+    </div>
+
+    <script>
+        const socket = io('http://localhost:8082');
+        const avatars = [];
+        let avatarCount = 0;
+        let totalXP = 0;
+        let voiceRecognition = null;
+        let ultronIntegrated = false;
+        let modelAvatars = {};
+        let conversationMemory = {};  // Track conversation history per avatar
+        let performanceMetrics = {latencies: [], messageCount: 0, startTime: Date.now()};
+        let collaborationMode = false;
+        let contextWindow = 20;  // Smart context window size
+        
+        // Load from localStorage on startup
+        function loadMemoryFromStorage() {
+            const stored = localStorage.getItem('ultron_avatar_memory');
+            if (stored) {
+                conversationMemory = JSON.parse(stored);
+                console.log('Loaded memory from localStorage');
+            }
+        }
+        
+        // Save to localStorage
+        function saveMemoryToStorage() {
+            localStorage.setItem('ultron_avatar_memory', JSON.stringify(conversationMemory));
+        }
+        
+        loadMemoryFromStorage();
+        
+        // Performance tracking
+        setInterval(() => {
+            const elapsed = Math.max((Date.now() - performanceMetrics.startTime) / 60000, 0.01);
+            const rate = Math.round(performanceMetrics.messageCount / elapsed);
+            document.getElementById('msgRate').textContent = `${rate}/min`;
+            
+            if (performanceMetrics.latencies.length > 0) {
+                const avg = Math.round(performanceMetrics.latencies.reduce((a,b) => a+b, 0) / performanceMetrics.latencies.length);
+                document.getElementById('avgLatency').textContent = `${avg}ms`;
+            }
+        }, 2000);
+        
+        // Settings
+        let settings = {
+            personality: true,
+            catchphrases: true,
+            animations: true,
+            sounds: false,
+            aws_bedrock: false,
+            aws_cloud_save: false,
+            aws_polly: false,
+            use_3d: false,
+            voice_synthesis: false,
+            use_ensemble: false
+        };
+        
+        let awsEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+        let availableVoices = [];
+        
+        // Load voices
+        if (speechSynthesis) {
+            speechSynthesis.onvoiceschanged = () => {
+                availableVoices = speechSynthesis.getVoices();
+            };
+            availableVoices = speechSynthesis.getVoices();
+        }
+        
+        // Load model avatars on startup
+        fetch('http://localhost:8082/api/models/avatars')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    modelAvatars = data.avatars;
+                    console.log('Loaded model avatars:', modelAvatars);
+                    addMessage(`✅ Loaded ${Object.keys(modelAvatars).length} AI model personalities`, 'system');
+                }
+            })
+            .catch(e => console.error('Failed to load model avatars:', e));
+        
+        // Settings functions
+        function togglePersonality() {
+            settings.personality = document.getElementById('enablePersonality').checked;
+            addMessage(`🎭 Personalities ${settings.personality ? 'enabled' : 'disabled'}`, 'system');
+            playSound('toggle');
+        }
+        
+        function toggleCatchphrases() {
+            settings.catchphrases = document.getElementById('enableCatchphrases').checked;
+            addMessage(`💬 Catchphrases ${settings.catchphrases ? 'enabled' : 'disabled'}`, 'system');
+            playSound('toggle');
+        }
+        
+        function toggleAnimations() {
+            settings.animations = document.getElementById('enableAnimations').checked;
+            document.body.style.animation = settings.animations ? 'bgShift 20s ease-in-out infinite' : 'none';
+            addMessage(`✨ Animations ${settings.animations ? 'enabled' : 'disabled'}`, 'system');
+            playSound('toggle');
+        }
+        
+        function toggleSounds() {
+            settings.sounds = document.getElementById('enableSounds').checked;
+            addMessage(`🔊 Sounds ${settings.sounds ? 'enabled' : 'disabled'}`, 'system');
+            if (settings.sounds) playSound('enable');
+        }
+        
+        function toggleBedrock() {
+            settings.aws_bedrock = document.getElementById('useBedrockAI').checked;
+            if (!awsEnabled && settings.aws_bedrock) {
+                showActionFeedback('⚠️ AWS NOT CONFIGURED', 'warning');
+                document.getElementById('useBedrockAI').checked = false;
+                settings.aws_bedrock = false;
+                return;
+            }
+            addMessage(`🧠 Bedrock AI ${settings.aws_bedrock ? 'enabled' : 'disabled'}`, 'system');
+            playSound('toggle');
+        }
+        
+        function toggleCloudSave() {
+            settings.aws_cloud_save = document.getElementById('useCloudSave').checked;
+            if (!awsEnabled && settings.aws_cloud_save) {
+                showActionFeedback('⚠️ AWS NOT CONFIGURED', 'warning');
+                document.getElementById('useCloudSave').checked = false;
+                settings.aws_cloud_save = false;
+                return;
+            }
+            addMessage(`💾 Cloud Save ${settings.aws_cloud_save ? 'enabled' : 'disabled'}`, 'system');
+            playSound('toggle');
+        }
+        
+        function togglePolly() {
+            settings.aws_polly = document.getElementById('usePollyVoice').checked;
+            if (!awsEnabled && settings.aws_polly) {
+                showActionFeedback('⚠️ AWS NOT CONFIGURED', 'warning');
+                document.getElementById('usePollyVoice').checked = false;
+                settings.aws_polly = false;
+                return;
+            }
+            addMessage(`🎤 Polly Voice ${settings.aws_polly ? 'enabled' : 'disabled'}`, 'system');
+            playSound('toggle');
+        }
+        
+        function toggle3D() {
+            settings.use_3d = document.getElementById('use3D').checked;
+            addMessage(`🎮 3D Models ${settings.use_3d ? 'enabled' : 'disabled'}`, 'system');
+            showActionFeedback(settings.use_3d ? '🎮 3D MODE ON' : '🎮 2D MODE ON', 'info');
+            playSound('toggle');
+            
+            // Reload avatars with new mode
+            if (avatars.length > 0) {
+                addMessage('💡 Spawn new avatars to see 3D models', 'system');
+            }
+        }
+        
+        function toggleVoice() {
+            settings.voice_synthesis = document.getElementById('voiceSynthesis').checked;
+            
+            if (settings.voice_synthesis && !speechSynthesis) {
+                showActionFeedback('⚠️ VOICE NOT SUPPORTED', 'warning');
+                document.getElementById('voiceSynthesis').checked = false;
+                settings.voice_synthesis = false;
+                return;
+            }
+            
+            addMessage(`🔊 Voice Synthesis ${settings.voice_synthesis ? 'enabled' : 'disabled'}`, 'system');
+            playSound('toggle');
+            
+            if (settings.voice_synthesis) {
+                speakText('Voice synthesis enabled', 'Matthew');
+            }
+        }
+        
+        function toggleEnsemble() {
+            settings.use_ensemble = document.getElementById('useEnsemble').checked;
+            addMessage(`🧠 Multi-Model Ensemble ${settings.use_ensemble ? 'enabled' : 'disabled'}`, 'system');
+            showActionFeedback(settings.use_ensemble ? '🧠 ENSEMBLE ON' : '🧠 SINGLE MODEL', 'info');
+            playSound('toggle');
+        }
+        
+        function getVoiceForCharacter(characterName) {
+            const voiceMap = {
+                'Qwen the Architect': 'Google UK English Male',
+                'Ultron Prime': 'Google US English',
+                'Seeker the Oracle': 'Google UK English Male',
+                'Llama the Wanderer': 'Google US English',
+                'Mistral the Swift': 'Google US English'
+            };
+            
+            const preferredVoice = voiceMap[characterName] || 'Google US English';
+            const voice = availableVoices.find(v => v.name.includes(preferredVoice)) || 
+                         availableVoices.find(v => v.lang === 'en-US') ||
+                         availableVoices[0];
+            
+            return voice;
+        }
+        
+        function speakText(text, characterName) {
+            if (!settings.voice_synthesis || !speechSynthesis) return;
+            
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voice = getVoiceForCharacter(characterName);
+            
+            if (voice) {
+                utterance.voice = voice;
+            }
+            
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            speechSynthesis.speak(utterance);
+        }
+        
+        async function checkAWSStatus() {
+            document.getElementById('status').textContent = 'Checking AWS...';
+            try {
+                const response = await fetch('http://localhost:8082/api/aws/status');
+                const data = await response.json();
+                
+                if (data.success && data.enabled) {
+                    awsEnabled = true;
+                    const services = Object.keys(data.services).join(', ');
+                    addMessage(`✅ AWS Connected - Region: ${data.region}`, 'system');
+                    addMessage(`☁️ Services: ${services}`, 'system');
+                    showActionFeedback('☁️ AWS CONNECTED', 'success');
+                } else {
+                    awsEnabled = false;
+                    addMessage('⚠️ AWS not configured - Set AWS credentials', 'system');
+                    showActionFeedback('⚠️ AWS NOT CONFIGURED', 'warning');
+                }
+            } catch (error) {
+                awsEnabled = false;
+                addMessage('❌ AWS check failed', 'error');
+                showActionFeedback('❌ AWS CHECK FAILED', 'error');
+            }
+            document.getElementById('status').textContent = 'Ready';
+        }
+        
+        function playSound(type) {
+            if (!settings.sounds) return;
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            const sounds = {
+                toggle: [400, 0.1],
+                enable: [600, 0.15],
+                spawn: [800, 0.2],
+                levelup: [1000, 0.3],
+                click: [300, 0.05]
+            };
+            
+            const [freq, duration] = sounds[type] || [400, 0.1];
+            oscillator.frequency.value = freq;
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // Load D&D system with fallback
+        const script = document.createElement('script');
+        script.src = '../../../dnd_system.js';
+        script.onerror = () => {
+            console.warn('DND system not loaded - using fallback');
+            window.DND = {
+                createCharacter: (c, r) => ({
+                    class: c, race: r, level: 1, hp: 100, maxHp: 100,
+                    attack: Math.floor(Math.random() * 5) + 3,
+                    defense: Math.floor(Math.random() * 5) + 3,
+                    magic: Math.floor(Math.random() * 5) + 3,
+                    speed: Math.floor(Math.random() * 5) + 3,
+                    power: 'Basic Attack', inventory: ['Sword', 'Shield'], gold: 100,
+                    kills: 0, victories: 0, classEmoji: '⚔️',
+                    alignment: 'Neutral', ac: 10, initiative: 0,
+                    stats: {STR:10,DEX:10,CON:10,INT:10,WIS:10,CHA:10},
+                    abilities: ['attack', 'defend'], skills: ['combat', 'survival']
+                }),
+                getModifier: (val) => Math.floor((val - 10) / 2)
+            };
+        };
+        document.head.appendChild(script);
+        
+        const dndClasses = ['warrior', 'mage', 'rogue', 'healer', 'ranger', 'necromancer', 'berserker', 'assassin'];
+        const dndRaces = ['elf', 'dwarf', 'orc', 'demon', 'vampire', 'dragon', 'zombie', 'robot'];
+        
+        const avatarRoles = {
+            coder: { name: 'ULTRON-CODER', emoji: '💻', color: '#0066ff', tools: ['code', 'debug', 'git'] },
+            writer: { name: 'ULTRON-WRITER', emoji: '📝', color: '#ff00ff', tools: ['write', 'edit', 'research'] },
+            tool_user: { name: 'ULTRON-TOOLMASTER', emoji: '🔧', color: '#ff8800', tools: ['automate', 'script', 'control'] },
+            assistant: { name: 'ULTRON-ASSISTANT', emoji: '🤖', color: '#00ff00', tools: ['help', 'search', 'manage'] },
+            admin: { name: 'ULTRON-ADMIN', emoji: '🛡️', color: '#ff0000', tools: ['secure', 'monitor', 'deploy'] },
+            pyautogui_agent: { name: 'ULTRON-CONTROLLER', emoji: '🖱️', color: '#ffff00', tools: ['click', 'type', 'ocr'] }
+        };
+        
+        const availableModels = {
+            'qwen3-coder:480b-cloud': 'Qwen the Architect',
+            'gerard/ultron:latest': 'Ultron Prime',
+            'deepseek-r1:14b': 'Seeker the Oracle',
+            'llama3.1:latest': 'Llama the Wanderer',
+            'mistral-small3.2:latest': 'Mistral the Swift',
+            'llava:7b': 'Llava Vision Model'
+        };
+        
+        socket.on('connect', () => {
+            addMessage('✅ Connected to ULTRON Avatar Server', 'system');
+        });
+        
+        socket.on('avatar_created', (data) => {
+            addMessage(`✨ ${data.role} avatar materialized!`, 'system');
+        });
+        
+        socket.on('voice_response', (data) => {
+            addMessage(`🎤 Voice command processed: ${data.command}`, 'system');
+        });
+        
+        function spawnAvatar() {
+            if (avatarCount >= 6) {
+                addMessage('⚠️ Maximum avatars reached', 'system');
+                playSound('click');
+                return;
+            }
+            
+            playSound('spawn');
+            
+            const role = document.getElementById('roleSelect').value === 'random' ?
+                Object.keys(avatarRoles)[Math.floor(Math.random() * 6)] :
+                document.getElementById('roleSelect').value;
+            
+            const model = document.getElementById('modelSelect').value === 'auto' ?
+                'llava:7b' : document.getElementById('modelSelect').value;
+            
+            const roleProfile = avatarRoles[role];
+            const avatarId = `avatar_${Date.now()}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${role}`;
+            avatar.id = avatarId;
+            avatar.style.left = Math.random() * (window.innerWidth - 120) + 'px';
+            avatar.style.top = Math.random() * (window.innerHeight - 320) + 100 + 'px';
+            // Create avatar content based on 3D mode
+            if (settings.use_3d) {
+                avatar.innerHTML = `
+                    <canvas id="canvas_${avatarId}" width="150" height="150" style="border-radius: 50%;"></canvas>
+                    <div class="avatar-name">${roleProfile.name}</div>
+                    <div class="avatar-label">${model.split(':')[0].toUpperCase()} | LVL 1</div>
+                `;
+                // Initialize 3D model (simplified)
+                setTimeout(() => init3DAvatar(avatarId, roleProfile), 100);
+            } else {
+                avatar.innerHTML = `
+                    <div style="font-size: 70px; text-shadow: 0 0 20px currentColor, 0 0 40px rgba(255,255,255,0.5);">${roleProfile.emoji}</div>
+                    <div class="avatar-name">${roleProfile.name}</div>
+                    <div class="avatar-label">${model.split(':')[0].toUpperCase()} | LVL 1</div>
+                `;
+            }
+            avatar.setAttribute('data-level', '1');
+            avatar.setAttribute('data-xp', '0');
+            avatar.setAttribute('data-model', model.split(':')[0].toUpperCase());
+            
+            avatar.onclick = () => avatarClick(avatarId, roleProfile);
+            
+            document.getElementById('game').appendChild(avatar);
+            
+            // Generate D&D character
+            const dndClass = dndClasses[Math.floor(Math.random() * dndClasses.length)];
+            const dndRace = dndRaces[Math.floor(Math.random() * dndRaces.length)];
+            const character = DND.createCharacter(dndClass, dndRace);
+            
+            avatars.push({
+                id: avatarId,
+                element: avatar,
+                role: role,
+                profile: roleProfile,
+                model: model,
+                level: 1,
+                xp: 0,
+                character: character
+            });
+            
+            // Initialize conversation memory
+            conversationMemory[avatarId] = {
+                messages: [],
+                sentiment_history: [],
+                topics: [],
+                relationship_score: 0
+            };
+            
+            avatarCount++;
+            updateStats();
+            
+            // Notify server
+            fetch('http://localhost:8082/api/avatar/create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: avatarId, role: role, model: model})
+            });
+            
+            addMessage(`🚀 ${roleProfile.name} spawned with ${roleProfile.tools.join(', ')}`, 'system');
+            moveAvatar(avatar);
+        }
+        
+        function moveAvatar(avatar) {
+            // Add energy rings
+            if (settings.animations) {
+                const ring1 = document.createElement('div');
+                ring1.className = 'energy-ring';
+                ring1.style.animationDelay = '0s';
+                avatar.appendChild(ring1);
+                
+                const ring2 = document.createElement('div');
+                ring2.className = 'energy-ring';
+                ring2.style.animationDelay = '1s';
+                avatar.appendChild(ring2);
+            }
+            
+            setInterval(() => {
+                if (!avatar.parentNode) return;
+                avatar.style.left = Math.random() * (window.innerWidth - 150) + 'px';
+                avatar.style.top = Math.random() * (window.innerHeight - 320) + 100 + 'px';
+                
+                // Create particle trail
+                if (settings.animations) {
+                    createParticles(avatar);
+                }
+            }, 5000 + Math.random() * 5000);
+        }
+        
+        function applySentimentReaction(avatarEl, sentiment) {
+            const reactions = {
+                POSITIVE: {scale: 1.2, filter: 'brightness(1.5) saturate(1.3)', duration: 1000},
+                NEGATIVE: {scale: 0.9, filter: 'brightness(0.7) saturate(0.8)', duration: 1000},
+                NEUTRAL: {scale: 1.0, filter: 'brightness(1.0)', duration: 500},
+                MIXED: {scale: 1.1, filter: 'hue-rotate(45deg)', duration: 800}
+            };
+            const r = reactions[sentiment] || reactions.NEUTRAL;
+            avatarEl.style.transform = `scale(${r.scale})`;
+            avatarEl.style.filter = r.filter;
+            setTimeout(() => {
+                avatarEl.style.transform = 'scale(1)';
+                avatarEl.style.filter = '';
+            }, r.duration);
+        }
+        
+        function createParticles(avatar, sentiment = null) {
+            const rect = avatar.getBoundingClientRect();
+            let color = window.getComputedStyle(avatar).color;
+            let count = 8;
+            
+            // Emotion-driven particle effects
+            if (sentiment) {
+                const emotionColors = {
+                    'POSITIVE': '#00ff00',
+                    'NEGATIVE': '#ff0000',
+                    'NEUTRAL': '#0088ff',
+                    'MIXED': '#ff00ff'
+                };
+                const emotionIntensity = {
+                    'POSITIVE': 15,
+                    'NEGATIVE': 8,
+                    'NEUTRAL': 5,
+                    'MIXED': 12
+                };
+                color = emotionColors[sentiment] || color;
+                count = emotionIntensity[sentiment] || 8;
+            }
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = rect.left + rect.width / 2 + 'px';
+                particle.style.top = rect.top + rect.height / 2 + 'px';
+                particle.style.background = color;
+                particle.style.setProperty('--tx', (Math.random() - 0.5) * 100 + 'px');
+                particle.style.setProperty('--ty', (Math.random() - 0.5) * 100 + 'px');
+                particle.style.animationDelay = (i * 0.1) + 's';
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 2000);
+            }
+        }
+        
+        function clearAvatars() {
+            if (avatars.length === 0) {
+                showActionFeedback('⚠️ NO AVATARS', 'warning');
+                return;
+            }
+            
+            avatars.forEach((a, i) => {
+                setTimeout(() => {
+                    if (settings.animations) {
+                        a.element.style.transform = 'scale(0) rotate(360deg)';
+                        a.element.style.opacity = '0';
+                    }
+                    setTimeout(() => a.element.remove(), 300);
+                }, i * 100);
+            });
+            
+            avatars.length = 0;
+            avatarCount = 0;
+            totalXP = 0;
+            updateStats();
+            addMessage('🗑️ All avatars cleared', 'system');
+            showActionFeedback('🗑️ CLEARED', 'info');
+            playSound('toggle');
+        }
+        
+        function avatarClick(avatarId, profile) {
+            const avatar = avatars.find(a => a.id === avatarId);
+            if (!avatar) return;
+            
+            playSound('click');
+            
+            if (settings.animations) {
+                avatar.element.classList.add('speaking');
+                setTimeout(() => avatar.element.classList.remove('speaking'), 2000);
+            }
+            
+            showCharacterCard(avatar);
+            
+            const modelAvatar = modelAvatars[avatar.model];
+            const displayName = (settings.personality && modelAvatar) ? modelAvatar.name : profile.name;
+            addMessage(`${displayName}: Ready to assist!`, 'avatar');
+            addXP(avatarId, 5);
+        }
+        
+        function showCharacterCard(avatar) {
+            const char = avatar.character;
+            const modelAvatar = settings.personality ? modelAvatars[avatar.model] : null;
+            const displayName = modelAvatar ? modelAvatar.name : avatar.profile.name;
+            const bio = modelAvatar ? modelAvatar.bio : 'An ULTRON avatar ready to assist.';
+            const personality = modelAvatar ? modelAvatar.personality : 'Helpful and efficient.';
+            const showPersonalityInfo = settings.personality && modelAvatar;
+            const card = `
+                <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 20px; border-radius: 15px; border: 3px solid ${avatar.profile.color}; box-shadow: 0 0 30px ${avatar.profile.color}; max-width: 600px; color: #fff; font-family: 'Cinzel', serif;">
+                    <h1 style="text-align: center; color: ${avatar.profile.color}; text-shadow: 0 0 10px ${avatar.profile.color}; margin-bottom: 20px;">${char.classEmoji} ${displayName}</h1>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #ffd700;">
+                            <div style="color: #ffd700; font-weight: bold; margin-bottom: 5px;">CLASS</div>
+                            <div style="font-size: 18px;">${char.class}</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #ffd700;">
+                            <div style="color: #ffd700; font-weight: bold; margin-bottom: 5px;">RACE</div>
+                            <div style="font-size: 18px;">${char.race}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #ffd700; margin-bottom: 15px; text-align: center;">
+                        <div style="color: #ffd700; font-weight: bold; margin-bottom: 5px;">ALIGNMENT</div>
+                        <div style="font-size: 16px;">${char.alignment}</div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #ff6b6b; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div><span style="color: #ff6b6b; font-weight: bold;">HP:</span> ${char.hp}/${char.maxHp}</div>
+                            <div><span style="color: #4ecdc4; font-weight: bold;">LEVEL:</span> ${char.level}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #95e1d3; text-align: center;">
+                            <div style="color: #95e1d3; font-weight: bold; font-size: 12px;">⚔️ ATTACK</div>
+                            <div style="font-size: 20px; font-weight: bold;">${char.attack}</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #95e1d3; text-align: center;">
+                            <div style="color: #95e1d3; font-weight: bold; font-size: 12px;">🛡️ DEFENSE</div>
+                            <div style="font-size: 20px; font-weight: bold;">${char.defense}</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #95e1d3; text-align: center;">
+                            <div style="color: #95e1d3; font-weight: bold; font-size: 12px;">✨ MAGIC</div>
+                            <div style="font-size: 20px; font-weight: bold;">${char.magic}</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #95e1d3; text-align: center;">
+                            <div style="color: #95e1d3; font-weight: bold; font-size: 12px;">⚡ SPEED</div>
+                            <div style="font-size: 20px; font-weight: bold;">${char.speed}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #a8dadc; margin-bottom: 15px;">
+                        <div style="color: #a8dadc; font-weight: bold; margin-bottom: 8px;">⚡ POWER</div>
+                        <div style="font-size: 14px;">${char.power}</div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #f4a261; margin-bottom: 15px;">
+                        <div style="color: #f4a261; font-weight: bold; margin-bottom: 8px;">🎒 INVENTORY (${char.gold} 💰)</div>
+                        ${char.inventory.map(i => `<div style="padding: 4px 0; border-bottom: 1px solid rgba(244,162,97,0.2); font-size: 13px;">• ${i}</div>`).join('')}
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #e76f51; margin-bottom: 15px;">
+                        <div style="color: #e76f51; font-weight: bold; margin-bottom: 8px;">🏆 COMBAT STATS</div>
+                        <div style="font-size: 13px;">Kills: ${char.kills} | Victories: ${char.victories}</div>
+                    </div>
+                    
+                    <h1 style="text-align: center; color: ${avatar.profile.color}; text-shadow: 0 0 10px ${avatar.profile.color}; margin: 20px 0;">${avatar.profile.emoji} ${avatar.profile.name}</h1>
+                    
+                    ${showPersonalityInfo ? `
+                    <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #9b59b6; margin-bottom: 15px;">
+                        <div style="color: #9b59b6; font-weight: bold; margin-bottom: 8px;">BIO</div>
+                        <div style="font-size: 13px; line-height: 1.6;">${bio}</div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #3498db; margin-bottom: 15px;">
+                        <div style="color: #3498db; font-weight: bold; margin-bottom: 8px;">PERSONALITY</div>
+                        <div style="font-size: 13px; line-height: 1.6;">${personality}</div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #e74c3c; margin-bottom: 15px; text-align: center;">
+                        <div style="color: #e74c3c; font-weight: bold; margin-bottom: 8px;">CATCHPHRASE</div>
+                        <div style="font-size: 14px; font-style: italic;">"${modelAvatar.catchphrase}"</div>
+                    </div>
+                    ` : ''}
+                    
+                    <h1 style="text-align: center; color: ${avatar.profile.color}; text-shadow: 0 0 10px ${avatar.profile.color}; margin: 20px 0;">${avatar.profile.emoji} ${avatar.profile.name}</h1>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #ffd700;">
+                            <div style="color: #ffd700; font-weight: bold; margin-bottom: 5px;">CLASS</div>
+                            <div style="font-size: 18px;">${char.class}</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #ffd700;">
+                            <div style="color: #ffd700; font-weight: bold; margin-bottom: 5px;">RACE</div>
+                            <div style="font-size: 18px;">${char.race}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #ffd700; margin-bottom: 15px; text-align: center;">
+                        <div style="color: #ffd700; font-weight: bold; margin-bottom: 5px;">ALIGNMENT</div>
+                        <div style="font-size: 16px;">${char.alignment}</div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #ff6b6b; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div><span style="color: #ff6b6b; font-weight: bold;">HP:</span> ${char.hp}/${char.maxHp}</div>
+                            <div><span style="color: #4ecdc4; font-weight: bold;">AC:</span> ${char.ac}</div>
+                            <div><span style="color: #ffe66d; font-weight: bold;">INIT:</span> +${char.initiative}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                        ${Object.entries(char.stats).map(([stat, val]) => `
+                            <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #95e1d3; text-align: center;">
+                                <div style="color: #95e1d3; font-weight: bold; font-size: 12px;">${stat.toUpperCase()}</div>
+                                <div style="font-size: 20px; font-weight: bold;">${val}</div>
+                                <div style="font-size: 12px; color: #aaa;">(${DND.getModifier(val) >= 0 ? '+' : ''}${DND.getModifier(val)})</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #a8dadc; margin-bottom: 15px;">
+                        <div style="color: #a8dadc; font-weight: bold; margin-bottom: 8px;">ABILITIES</div>
+                        ${char.abilities.map(a => `<span style="background: rgba(168,218,220,0.2); padding: 4px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 12px;">${a.replace(/_/g, ' ')}</span>`).join('')}
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #f4a261; margin-bottom: 15px;">
+                        <div style="color: #f4a261; font-weight: bold; margin-bottom: 8px;">SKILLS</div>
+                        ${char.skills.map(s => `<span style="background: rgba(244,162,97,0.2); padding: 4px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 12px;">${s.replace(/_/g, ' ')}</span>`).join('')}
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid #e76f51;">
+                        <div style="color: #e76f51; font-weight: bold; margin-bottom: 8px;">INVENTORY (${char.gold} GP)</div>
+                        ${char.inventory.map(i => `<div style="padding: 4px 0; border-bottom: 1px solid rgba(231,111,81,0.2); font-size: 13px;">• ${i}</div>`).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(0,255,0,0.1); border-radius: 8px; border: 1px solid #00ff00;">
+                        <div style="color: #00ff00; font-weight: bold; margin-bottom: 5px;">AI MODEL</div>
+                        <div style="font-size: 14px;">${availableModels[avatar.model] || avatar.model}</div>
+                    </div>
+                    
+                    ${conversationMemory[avatar.id] ? `
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(255,0,255,0.1); border-radius: 8px; border: 1px solid #ff00ff;">
+                        <div style="color: #ff00ff; font-weight: bold; margin-bottom: 5px;">RELATIONSHIP</div>
+                        <div style="font-size: 14px;">Score: ${conversationMemory[avatar.id].relationship_score}</div>
+                        <div style="font-size: 12px; color: #aaa;">Messages: ${conversationMemory[avatar.id].messages.length}</div>
+                        <div style="font-size: 12px; color: #aaa;">Recent Mood: ${conversationMemory[avatar.id].sentiment_history.slice(-1)[0] || 'Unknown'}</div>
+                    </div>
+                    ` : ''
+                </div>
+            `;
+            
+            const cardWindow = window.open('', 'CharacterCard', 'width=600,height=800');
+            cardWindow.document.write(`<html><head><title>${avatar.profile.name} - Character Card</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet"><style>body{background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}</style></head><body>${card}</body></html>`);
+            cardWindow.document.close();
+        }
+        
+        function showAllAvatarsInfo() {
+            if (avatars.length === 0) {
+                addMessage('⚠️ No avatars to display', 'system');
+                return;
+            }
+            
+            let info = '⚡ ULTRON AVATAR NEXUS ⚡\n\n';
+            avatars.forEach(a => {
+                info += `${a.profile.emoji} ${a.profile.name}\n`;
+                info += `Model: ${availableModels[a.model] || a.model}\n`;
+                info += `Level: ${a.level} | XP: ${a.xp}/${a.level * 100}\n`;
+                info += `Tools: ${a.profile.tools.join(', ')}\n\n`;
+            });
+            info += `Total Avatars: ${avatars.length} | Total XP: ${totalXP}`;
+            alert(info);
+        }
+        
+        function showAnalytics() {
+            let totalMsgs = 0, avgScore = 0, sentiments = {POSITIVE:0, NEGATIVE:0, NEUTRAL:0, MIXED:0};
+            Object.values(conversationMemory).forEach(m => {
+                totalMsgs += m.messages.length;
+                avgScore += m.relationship_score;
+                m.sentiment_history.forEach(s => sentiments[s] = (sentiments[s]||0) + 1);
+            });
+            avgScore = Object.keys(conversationMemory).length ? (avgScore / Object.keys(conversationMemory).length).toFixed(1) : 0;
+            
+            const analytics = `📈 ANALYTICS DASHBOARD\n\n` +
+                `Total Conversations: ${totalMsgs}\n` +
+                `Active Avatars: ${avatars.length}\n` +
+                `Avg Relationship: ${avgScore}\n` +
+                `Total XP: ${totalXP}\n\n` +
+                `SENTIMENT BREAKDOWN:\n` +
+                `😊 Positive: ${sentiments.POSITIVE||0}\n` +
+                `😟 Negative: ${sentiments.NEGATIVE||0}\n` +
+                `😐 Neutral: ${sentiments.NEUTRAL||0}\n` +
+                `🤔 Mixed: ${sentiments.MIXED||0}`;
+            
+            alert(analytics);
+            addMessage('📈 Analytics displayed', 'system');
+        }
+        
+        function handleInput(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const message = input.value.trim();
+                if (!message) return;
+                
+                addMessage(`You: ${message}`, 'user');
+                
+                if (collaborationMode && avatars.length >= 2) {
+                    addMessage('🤝 Collaborative response in progress...', 'system');
+                    const responses = [];
+                    let completed = 0;
+                    
+                    avatars.forEach((a, i) => {
+                        setTimeout(() => {
+                            a.element.classList.add('speaking');
+                            queryAvatar(a.id, message, a.profile).then(() => {
+                                completed++;
+                                if (completed === avatars.length) {
+                                    addMessage(`✅ ${avatars.length} models contributed to response`, 'system');
+                                }
+                            });
+                            setTimeout(() => a.element.classList.remove('speaking'), 2000);
+                        }, i * 300);
+                    });
+                } else {
+                    avatars.forEach(a => {
+                        setTimeout(() => {
+                            a.element.classList.add('speaking');
+                            queryAvatar(a.id, message, a.profile);
+                            setTimeout(() => a.element.classList.remove('speaking'), 2000);
+                        }, Math.random() * 500);
+                    });
+                }
+                
+                input.value = '';
+            }
+        }
+        
+        async function queryAvatar(avatarId, message, profile) {
+            const avatar = avatars.find(a => a.id === avatarId);
+            if (!avatar) return;
+            
+            const startTime = Date.now();
+            
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 30000);
+                
+                const response = await fetch(`http://localhost:8082/api/avatar/${avatarId}/chat`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        message: message,
+                        model: avatar.model,
+                        use_aws: settings.aws_bedrock,
+                        use_ensemble: settings.use_ensemble
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeout);
+                
+                const data = await response.json();
+                
+                const latency = Date.now() - startTime;
+                performanceMetrics.latencies.push(latency);
+                if (performanceMetrics.latencies.length > 50) performanceMetrics.latencies.shift();
+                performanceMetrics.messageCount++;
+                
+                if (data.success) {
+                    const modelAvatar = data.model_avatar;
+                    const displayName = (settings.personality && modelAvatar) ? modelAvatar.name : profile.name;
+                    
+                    let response = data.response;
+                    if (!settings.catchphrases && response.includes('*')) {
+                        response = response.split('\n\n*')[0];
+                    }
+                    
+                    // Update conversation memory
+                    if (conversationMemory[avatarId]) {
+                        conversationMemory[avatarId].messages.push({
+                            user: message,
+                            avatar: response,
+                            timestamp: Date.now()
+                        });
+                        if (data.sentiment) {
+                            conversationMemory[avatarId].sentiment_history.push(data.sentiment.sentiment);
+                            // Update relationship score based on sentiment
+                            const sentimentScores = {POSITIVE: 5, NEUTRAL: 0, NEGATIVE: -3, MIXED: 1};
+                            conversationMemory[avatarId].relationship_score += sentimentScores[data.sentiment.sentiment] || 0;
+                            // Cap relationship score
+                            conversationMemory[avatarId].relationship_score = Math.max(-100, Math.min(100, conversationMemory[avatarId].relationship_score));
+                        }
+                        // Keep only last 20 messages
+                        if (conversationMemory[avatarId].messages.length > 20) {
+                            conversationMemory[avatarId].messages.shift();
+                        }
+                        // Save to localStorage
+                        saveMemoryToStorage();
+                    }
+                    
+                    // Show AWS badge if used
+                    const awsBadge = data.aws_used ? ' ☁️' : '';
+                    addMessage(`${displayName}${awsBadge}: ${response}`, 'avatar');
+                    
+                    // Speak response if voice enabled
+                    if (settings.voice_synthesis) {
+                        speakText(response, displayName);
+                    }
+                    
+                    // Show sentiment if available
+                    if (data.sentiment) {
+                        const sent = data.sentiment.sentiment;
+                        const emoji = {POSITIVE: '😊', NEGATIVE: '😟', NEUTRAL: '😐', MIXED: '🤔'}[sent];
+                        addMessage(`${emoji} Sentiment: ${sent}`, 'system');
+                        
+                        // Create emotion-driven particles
+                        if (settings.animations) {
+                            createParticles(avatar.element, sent);
+                            applySentimentReaction(avatar.element, sent);
+                        }
+                    }
+                    
+                    if (data.leveled_up) {
+                        showLevelUp(avatarId, data.avatar.level);
+                    }
+                    updateAvatarDisplay(avatarId, data.avatar);
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    addMessage(`${profile.name}: Request timeout (30s)`, 'error');
+                } else if (!navigator.onLine) {
+                    addMessage(`${profile.name}: No internet connection`, 'error');
+                } else {
+                    addMessage(`${profile.name}: Server error - ${error.message}`, 'error');
+                }
+                // Fallback response
+                const fallback = `I'm having trouble connecting. Please check the server.`;
+                addMessage(`${profile.name}: ${fallback}`, 'avatar');
+            }
+        }
+        
+        function addXP(avatarId, amount) {
+            const avatar = avatars.find(a => a.id === avatarId);
+            if (!avatar) return;
+            
+            avatar.xp += amount;
+            totalXP += amount;
+            
+            const newLevel = 1 + Math.floor(avatar.xp / 100);
+            if (newLevel > avatar.level) {
+                avatar.level = newLevel;
+                showLevelUp(avatarId, newLevel);
+            }
+            
+            avatar.element.setAttribute('data-level', avatar.level);
+            avatar.element.setAttribute('data-xp', avatar.xp);
+            updateStats();
+        }
+        
+        function showLevelUp(avatarId, level) {
+            const notif = document.getElementById('levelUpNotif');
+            const avatar = avatars.find(a => a.id === avatarId);
+            const modelAvatar = modelAvatars[avatar.model];
+            const displayName = (settings.personality && modelAvatar) ? modelAvatar.name : avatar.profile.name;
+            
+            notif.textContent = `${displayName} LEVEL UP! 🎉 LVL ${level}`;
+            
+            if (settings.animations) {
+                notif.style.display = 'block';
+                setTimeout(() => notif.style.display = 'none', 2000);
+                
+                // Create explosion of particles
+                const rect = avatar.element.getBoundingClientRect();
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = rect.left + rect.width / 2 + 'px';
+                    particle.style.top = rect.top + rect.height / 2 + 'px';
+                    particle.style.background = window.getComputedStyle(avatar.element).color;
+                    particle.style.width = '6px';
+                    particle.style.height = '6px';
+                    particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
+                    particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
+                    particle.style.animationDelay = (i * 0.02) + 's';
+                    
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 2000);
+                }
+            }
+            
+            playSound('levelup');
+        }
+        
+        function updateAvatarDisplay(avatarId, data) {
+            const avatar = avatars.find(a => a.id === avatarId);
+            if (avatar) {
+                avatar.level = data.level;
+                avatar.xp = data.xp;
+                avatar.element.setAttribute('data-level', data.level);
+                
+                // Update label
+                const label = avatar.element.querySelector('.avatar-label');
+                if (label) {
+                    label.textContent = `${avatar.element.getAttribute('data-model')} | LVL ${data.level}`;
+                }
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('count').textContent = avatarCount;
+            document.getElementById('totalXP').textContent = totalXP;
+        }
+        
+        function addMessage(msg, type = 'info') {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `<span style="color:#666">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        async function processVoiceCommand(command) {
+            try {
+                const r = await fetch('http://localhost:8082/api/voice/command', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({command})
+                });
+                const data = await r.json();
+                if (data.success && data.action) {
+                    const a = data.action;
+                    if (a.action === 'spawn') spawnAvatar();
+                    else if (a.action === 'show_analytics') showAnalytics();
+                    else if (a.action === 'clear') clearAvatars();
+                    else if (a.action === 'battle') startBattle();
+                    else if (a.action === 'save') saveGame();
+                    else if (a.action === 'load') loadGame();
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        }
+        
+        function startVoiceControl() {
+            if (!('webkitSpeechRecognition' in window)) {
+                addMessage('❌ Voice recognition not supported', 'error');
+                return;
+            }
+            
+            if (!voiceRecognition) {
+                voiceRecognition = new webkitSpeechRecognition();
+                voiceRecognition.continuous = true;
+                voiceRecognition.interimResults = false;
+                
+                voiceRecognition.onresult = async (event) => {
+                    const command = event.results[event.results.length - 1][0].transcript;
+                    addMessage(`🎤 Voice: ${command}`, 'voice');
+                    
+                    // Try voice command first
+                    const handled = await processVoiceCommand(command);
+                    if (!handled) {
+                        // Fallback to chat
+                        document.getElementById('input').value = command;
+                        handleInput({key: 'Enter', target: document.getElementById('input')});
+                    }
+                };
+                
+                voiceRecognition.start();
+                document.getElementById('voiceIndicator').style.display = 'block';
+                addMessage('🎤 Voice control activated - Try: "spawn avatar", "show analytics"', 'system');
+            } else {
+                voiceRecognition.stop();
+                voiceRecognition = null;
+                document.getElementById('voiceIndicator').style.display = 'none';
+                addMessage('🎤 Voice control deactivated', 'system');
+            }
+        }
+        
+        function startBattle() {
+            if (avatars.length < 2) {
+                addMessage('⚠️ Need at least 2 avatars for battle', 'system');
+                return;
+            }
+            
+            addMessage('⚔️ AVATAR BATTLE INITIATED!', 'system');
+            const task = "Solve: What is 2+2?";
+            
+            avatars.forEach((a, i) => {
+                setTimeout(() => {
+                    a.element.classList.add('speaking');
+                    addMessage(`${a.profile.name} competing...`, 'battle');
+                    setTimeout(() => {
+                        a.element.classList.remove('speaking');
+                        const answer = Math.random() > 0.5 ? "4" : "5";
+                        addMessage(`${a.profile.name}: ${answer}`, 'battle');
+                        if (answer === "4") addXP(a.id, 50);
+                    }, 2000);
+                }, i * 500);
+            });
+        }
+        
+        async function startCollaboration() {
+            if (avatars.length < 2) {
+                addMessage('⚠️ Need at least 2 avatars for collaboration', 'system');
+                return;
+            }
+            
+            collaborationMode = !collaborationMode;
+            const status = collaborationMode ? 'ENABLED' : 'DISABLED';
+            addMessage(`🤝 Collaboration mode ${status}`, 'system');
+            showActionFeedback(`🤝 COLLAB ${status}`, collaborationMode ? 'success' : 'info');
+            playSound('toggle');
+            
+            if (collaborationMode) {
+                addMessage('💡 Avatars will now collaborate on responses', 'system');
+                addMessage('🔄 Each message triggers multi-model consensus', 'system');
+            }
+        }
+        
+        async function integrateUltron() {
+            document.getElementById('status').textContent = 'Integrating...';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/ultron/integrate', {
+                    method: 'POST',
+                    signal: AbortSignal.timeout(5000)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    ultronIntegrated = data.integrated;
+                    document.getElementById('ultronStatus').textContent = data.integrated ? 'Connected' : 'Standalone';
+                    document.getElementById('ultronStatus').style.color = data.integrated ? '#00ff41' : '#ffaa00';
+                    
+                    const msg = data.integrated ? 
+                        `✅ ULTRON Agent integrated! ${data.tools_count} tools, ${data.model_avatars} personalities` :
+                        `⚠️ Running standalone mode with ${data.model_avatars} personalities`;
+                    
+                    addMessage(msg, 'system');
+                    showActionFeedback(data.integrated ? '🔗 CONNECTED' : '⚠️ STANDALONE', data.integrated ? 'success' : 'warning');
+                    playSound('enable');
+                }
+            } catch (error) {
+                const msg = error.name === 'TimeoutError' ? 'Integration timeout' : 
+                           !navigator.onLine ? 'No internet' : 'Connection failed';
+                addMessage(`❌ ${msg}`, 'error');
+                showActionFeedback(`❌ ${msg.toUpperCase()}`, 'error');
+                document.getElementById('ultronStatus').textContent = 'Error';
+                document.getElementById('ultronStatus').style.color = '#ff0000';
+            }
+            
+            document.getElementById('status').textContent = 'Ready';
+        }
+        
+        async function testAllTools() {
+            document.getElementById('status').textContent = 'Testing...';
+            addMessage('🔧 Testing all tools...', 'system');
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/tools/test', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({tool: 'all'})
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    let available = 0;
+                    Object.keys(data.results).forEach(tool => {
+                        const status = data.results[tool].status;
+                        const icon = status === 'available' ? '✅' : '❌';
+                        addMessage(`${icon} ${tool}: ${status}`, 'system');
+                        if (status === 'available') available++;
+                    });
+                    showActionFeedback(`⚡ ${available}/${Object.keys(data.results).length} TOOLS READY`, 'success');
+                    playSound('enable');
+                }
+            } catch (error) {
+                addMessage('❌ Tool test failed', 'error');
+                showActionFeedback('❌ TEST FAILED', 'error');
+            }
+            
+            document.getElementById('status').textContent = 'Ready';
+        }
+        
+        async function saveGame() {
+            document.getElementById('status').textContent = 'Saving...';
+            try {
+                const response = await fetch('http://localhost:8082/api/game/save', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        use_cloud: settings.aws_cloud_save,
+                        user_id: 'default'
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const location = data.cloud_saved ? 'cloud (S3)' : 'local';
+                    addMessage(`💾 Game saved to ${location}`, 'system');
+                    showActionFeedback(data.cloud_saved ? '☁️ SAVED TO CLOUD' : '💾 SAVED LOCALLY', 'success');
+                    playSound('enable');
+                }
+            } catch (error) {
+                addMessage('❌ Save failed', 'error');
+                showActionFeedback('❌ SAVE FAILED', 'error');
+            }
+            document.getElementById('status').textContent = 'Ready';
+        }
+        
+        async function loadGame() {
+            document.getElementById('status').textContent = 'Loading...';
+            try {
+                const response = await fetch('http://localhost:8082/api/game/load', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        use_cloud: settings.aws_cloud_save,
+                        user_id: 'default'
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const location = data.cloud_loaded ? 'cloud (S3)' : 'local';
+                    addMessage(`📂 Game loaded from ${location}: ${Object.keys(data.avatars).length} avatars`, 'system');
+                    showActionFeedback(data.cloud_loaded ? '☁️ LOADED FROM CLOUD' : '📂 LOADED LOCALLY', 'success');
+                    playSound('enable');
+                }
+            } catch (error) {
+                addMessage('❌ Load failed', 'error');
+                showActionFeedback('❌ LOAD FAILED', 'error');
+            }
+            document.getElementById('status').textContent = 'Ready';
+        }
+        
+        function toggleShortcuts() {
+            const shortcuts = `⌨️ KEYBOARD SHORTCUTS\n\n` +
+                `SPACE - Spawn Avatar\n` +
+                `X - Clear All Avatars\n` +
+                `S - Save Game\n` +
+                `L - Load Game\n` +
+                `A - Show All Info\n` +
+                `D - Analytics Dashboard\n` +
+                `V - Voice Control\n` +
+                `B - Battle Mode\n` +
+                `C - Collaboration Mode\n` +
+                `I - ULTRON Integration\n` +
+                `H - This Help Menu\n` +
+                `ESC - Cancel/Close\n\n` +
+                `TIP: Hold SHIFT for advanced actions`;
+            alert(shortcuts);
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                if (e.code === 'Space') { e.preventDefault(); spawnAvatar(); }
+                else if (e.code === 'KeyX') clearAvatars();
+                else if (e.code === 'KeyS') saveGame();
+                else if (e.code === 'KeyL') loadGame();
+                else if (e.code === 'KeyV') startVoiceControl();
+                else if (e.code === 'KeyB') startBattle();
+                else if (e.code === 'KeyC') startCollaboration();
+                else if (e.code === 'KeyI') integrateUltron();
+                else if (e.code === 'KeyA') showAllAvatarsInfo();
+                else if (e.code === 'KeyD') showAnalytics();
+                else if (e.code === 'KeyH') toggleShortcuts();
+            }
+        });
+        
+        // Visual feedback for actions
+        function showActionFeedback(message, type = 'info') {
+            const feedback = document.createElement('div');
+            feedback.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, rgba(0, 255, 65, 0.95), rgba(0, 255, 200, 0.95));
+                color: #000;
+                padding: 20px 40px;
+                border-radius: 12px;
+                font-size: 18px;
+                font-weight: 700;
+                z-index: 9999;
+                box-shadow: 0 0 40px rgba(0, 255, 65, 1);
+                animation: feedbackPop 0.5s ease-out;
+            `;
+            
+            const colors = {
+                info: 'linear-gradient(135deg, rgba(0, 255, 65, 0.95), rgba(0, 255, 200, 0.95))',
+                success: 'linear-gradient(135deg, rgba(0, 255, 0, 0.95), rgba(0, 200, 0, 0.95))',
+                warning: 'linear-gradient(135deg, rgba(255, 200, 0, 0.95), rgba(255, 150, 0, 0.95))',
+                error: 'linear-gradient(135deg, rgba(255, 0, 0, 0.95), rgba(200, 0, 0, 0.95))'
+            };
+            
+            feedback.style.background = colors[type] || colors.info;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.style.animation = 'feedbackFade 0.3s ease-out';
+                setTimeout(() => feedback.remove(), 300);
+            }, 1500);
+        }
+        
+        // Add CSS animations for feedback
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes feedbackPop {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+                50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            }
+            @keyframes feedbackFade {
+                to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Enhanced button click feedback
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.6);
+                    width: 100px;
+                    height: 100px;
+                    margin-left: -50px;
+                    margin-top: -50px;
+                    animation: rippleEffect 0.6s;
+                    pointer-events: none;
+                `;
+                ripple.style.left = e.offsetX + 'px';
+                ripple.style.top = e.offsetY + 'px';
+                e.target.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            }
+        });
+        
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+            @keyframes rippleEffect {
+                to { transform: scale(4); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(rippleStyle);
+        
+        // Simplified 3D avatar initialization
+        function init3DAvatar(avatarId, roleProfile) {
+            const canvas = document.getElementById(`canvas_${avatarId}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const centerX = 75;
+            const centerY = 75;
+            const radius = 60;
+            
+            // Create gradient sphere effect
+            const gradient = ctx.createRadialGradient(centerX - 20, centerY - 20, 10, centerX, centerY, radius);
+            const color = window.getComputedStyle(document.getElementById(avatarId)).color;
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+            gradient.addColorStop(0.5, color);
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0.8)');
+            
+            // Draw sphere
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw emoji on top
+            ctx.font = '50px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillText(roleProfile.emoji, centerX, centerY);
+            
+            // Animate rotation
+            let rotation = 0;
+            setInterval(() => {
+                if (!settings.animations) return;
+                rotation += 0.02;
+                
+                ctx.clearRect(0, 0, 150, 150);
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(rotation);
+                ctx.translate(-centerX, -centerY);
+                
+                // Redraw
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+                ctx.fillText(roleProfile.emoji, centerX, centerY);
+            }, 50);
+        }
+        
+        // Error recovery
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+            addMessage('⚠️ System error detected - attempting recovery', 'error');
+        });
+        
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Unhandled promise:', e.reason);
+            addMessage('⚠️ Async error detected', 'error');
+        });
+        
+        // Auto-spawn on load with error handling
+        setTimeout(() => {
+            try {
+                spawnAvatar();
+                addMessage('⚡ ULTRON Avatar Nexus Ultimate Edition Initialized!', 'system');
+                addMessage('🎮 SPACE=Spawn | V=Voice | B=Battle | I=Integrate | A=All Info', 'system');
+                addMessage('🎭 Personality system enabled - Select AI models from dropdown', 'system');
+                addMessage('🎨 Enable 3D Models for enhanced visuals', 'system');
+                addMessage('🔊 Enable Voice Synthesis for spoken responses', 'system');
+                showActionFeedback('⚡ ULTRON ONLINE', 'success');
+            } catch(e) {
+                addMessage('⚠️ Startup error - manual spawn required', 'error');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
