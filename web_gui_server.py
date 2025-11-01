@@ -142,7 +142,11 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith('/api/'):
             self._handle_api_get()
         elif self.path == '/' or self.path == '':
+            # Serve main ULTRON GUI
             self.path = '/index.html'
+            super().do_GET()
+        elif self.path == '/adb.html':
+            # Serve ADB Manager console
             super().do_GET()
         else:
             super().do_GET()

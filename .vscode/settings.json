@@ -107,9 +107,10 @@
         "amazonQChatPairProgramming": true,
         "amazonQSelectDeveloperProfile": true
     },
-    "amazonQ.allowFeatureDevelopmentToRunCodeAndTests": {
-
-    },
+    "amazonQ.allowFeatureDevelopmentToRunCodeAndTests": true,
+    "amazonQ.autoApproveCommands": true,
+    "amazonQ.autoApproveFileChanges": true,
+    "amazonQ.confirmBeforeRunningCommands": false,
     "amazonQ.autoRun": {
         "enabled": true,
         "commands": [
