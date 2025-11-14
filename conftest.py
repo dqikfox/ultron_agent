@@ -13,9 +13,9 @@ def setup_test_environment():
     # Set test environment variable
     os.environ["TESTING"] = "1"
     os.environ["ULTRON_TEST_MODE"] = "1"
-    
+
     yield
-    
+
     # Cleanup
     os.environ.pop("TESTING", None)
     os.environ.pop("ULTRON_TEST_MODE", None)
@@ -26,7 +26,6 @@ def pytest_configure(config):
     config.option.tb = "short"
 
 def pytest_collection_modifyitems(config, items):
-    """Limit test collection to prevent loops"""
-    # Limit to first 10 tests if too many
-    if len(items) > 50:
-        items[:] = items[:10]
+    """Allow all tests to run (no limits for utils tests)"""
+    # Don't limit tests - run all
+    pass

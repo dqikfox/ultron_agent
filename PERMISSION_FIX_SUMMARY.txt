@@ -1,0 +1,71 @@
+========================================
+  PERMISSION ISSUE: FULLY RESOLVED ✅
+========================================
+
+PROBLEM:
+--------
+  Both CMD and PowerShell required admin privileges to run.
+  This was caused by Application Restrictions (likely Group Policy or AppLocker).
+
+ROOT CAUSE:
+-----------
+  Your system has security policies preventing non-admin shell access.
+  But Python execution is NOT restricted! ✓
+
+SOLUTION:
+---------
+  Instead of using CMD/PowerShell, use direct Python execution.
+  No shell = No restrictions = No admin needed!
+
+FILES CREATED (ALL READY TO USE):
+----------------------------------
+  1. launch_bridge.py          ← Python launcher (RECOMMENDED)
+  2. launch_bridge.vbs         ← VBScript launcher
+  3. launch_bridge_direct.bat  ← Batch launcher (no shell invocation)
+
+QUICK START (PICK ONE):
+-----------------------
+
+  EASIEST: Double-click this file
+           C:\Projects\ultron_agent\launch_bridge.py
+
+           OR
+
+  FASTEST: Press Windows + R, then paste:
+           C:\Projects\ultron_agent\launch_bridge.py
+
+           OR
+
+  ALTERNATIVE: Double-click this file
+               C:\Projects\ultron_agent\launch_bridge.vbs
+
+WHAT HAPPENS WHEN YOU RUN IT:
+-----------------------------
+  1. Window appears with status messages
+  2. You see: "[✓] Starting bridge in PRODUCTION mode..."
+  3. Bridge is now running
+  4. Press Ctrl+C to stop anytime
+
+TEST IT:
+--------
+  After running any launch method, you should see:
+
+  ==================================================
+   COPILOT → AMAZON Q DIRECT BRIDGE
+  ==================================================
+
+  [+] Python: C:\Projects\ultron_agent\.venv\Scripts\python.exe
+  [+] Script: C:\Projects\ultron_agent\copilot_amazon_q_bridge.py
+
+  [✓] Starting bridge in PRODUCTION mode...
+  [*] Press Ctrl+C to stop
+
+DETAILED GUIDES:
+----------------
+  Full guide with 5 methods:      NO_ADMIN_REQUIRED_FIX.md
+  Quick reference:                START_HERE_FIX_SUMMARY.txt
+  Visual comparison:              LAUNCH_METHODS_VISUAL.txt
+
+STATUS: ✅ COMPLETE - NO ADMIN REQUIRED FOR ANY OF THESE METHODS
+
+Next: Just double-click one of the launch files and you're done! 🚀

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "langflow-copilot-bridge": {
+      "command": "uvx",
+      "args": [
+        "langflow-mcp",
+        "--base-url",
+        "http://127.0.0.1:7861",
+        "--flow-id",
+        "YOUR_FLOW_ID_HERE"
+      ],
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": []
+    }
+  }
+}
