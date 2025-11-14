@@ -268,7 +268,9 @@ def submit_feedback():
         }), 201
 
     except Exception as e:
-        return jsonify({"error": f"Failed to submit feedback: {str(e)}"}), 500
+        import traceback
+        print("Exception occurred in submit_feedback:", traceback.format_exc())
+        return jsonify({"error": "Failed to submit feedback due to a server error."}), 500
 
 
 @app.route("/api/feedback/stats", methods=["GET"])
