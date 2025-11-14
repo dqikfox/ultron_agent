@@ -215,7 +215,16 @@ class TestActionLogger:
             call_args = logger.logger.info.call_args[0][0]
             assert "NETWORK_ACTIVITY" in call_args
             assert "GET" in call_args
-            assert "https://api.example.com" in call_args
+            # Instead of substring matching, parse the URL and check hostname
+            from urllib.parse import urlparse
+            # Extract URL from the log message (assumes log includes the URL after the method)
+            # Example expected message format: "NETWORK_ACTIVITY: GET https://api.example.com Status=200"
+            parts = call_args.split()
+            # Find the part that starts with 'http'
+            url = next((p for p in parts if p.startswith("http")), None)
+            assert url is not None
+            parsed_url = urlparse(url)
+            assert parsed_url.hostname == "api.example.com"
             assert "200" in call_args
 
     def test_log_gui_event(self):
