@@ -484,8 +484,31 @@ def integrate_ultron():
         'tools': tools[:10],
         'model_avatars': len(game_manager.model_avatars['model_avatars']),
         'aws_enabled': game_manager.aws_enabled,
-        'bridge_enabled': BRIDGE_ENABLED
+        'bridge_enabled': BRIDGE_ENABLED,
+        'unity_cloud_enabled': True
     })
+
+@app.route('/api/unity/command', methods=['POST'])
+def unity_cloud_command():
+    """Execute command via Unity Cloud Code"""
+    try:
+        from unity_cloud_code.avatar_game_integration import unity_cloud
+        data = request.json
+        command = data.get('command')
+        result = unity_cloud.execute_command(command)
+        return jsonify({'success': True, 'result': result})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/unity/status', methods=['GET'])
+def unity_cloud_status():
+    """Get Unity Cloud Code status"""
+    try:
+        from unity_cloud_code.avatar_game_integration import unity_cloud
+        status = unity_cloud.get_status()
+        return jsonify({'success': True, 'status': status})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/voice/command', methods=['POST'])
 def handle_voice_command():

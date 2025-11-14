@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "jEi2B6SbmTk=",
+  "success": false,
+  "projectFilePath": "C:\\Projects\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Failed to retrieve information about 'Unity.Services.CloudCode.Core' from remote source 'https://packages.unity.com/nuget/registry/FindPackagesById()?id='Unity.Services.CloudCode.Core'&semVerLevel=2.0.0'.",
+      "libraryId": "Unity.Services.CloudCode.Core"
+    }
+  ]
+}

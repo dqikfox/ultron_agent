@@ -6,11 +6,32 @@ Provides AI model coordination and file modification safety checks
 import os
 import json
 import hashlib
+import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Tuple, Optional, Set
 from pathlib import Path
 from dataclasses import dataclass, asdict
+from enum import Enum
 from utils.ultron_logger import ultron_logger
+
+class ModelCapability(Enum):
+    """Supported model capabilities"""
+    CODE_GENERATION = "code_generation"
+    CODE_ANALYSIS = "code_analysis"
+    VISION = "vision"
+    MULTIMODAL = "multimodal"
+    REASONING = "reasoning"
+    FAST_INFERENCE = "fast_inference"
+
+@dataclass
+class ModelProfile:
+    """Profile of an AI model's capabilities and performance"""
+    name: str
+    capabilities: List[ModelCapability]
+    context_window: int  # Max tokens
+    avg_latency_ms: float
+    cost_per_1k_tokens: float = 0.0
+    reliability_score: float = 1.0  # 0.0 to 1.0
 
 @dataclass
 class FileContext:
@@ -33,6 +54,14 @@ class ModificationDecision:
     context: FileContext
     recommendations: List[str]
 
+@dataclass
+class PerformanceMetrics:
+    """Performance metrics for a model"""
+    model_name: str
+    avg_latency_ms: float
+    success_rate: float
+    token_efficiency: float  # Tokens per millisecond
+
 class ModelAwareness:
     """
     AI Model Awareness System for ULTRON Agent
@@ -47,6 +76,10 @@ class ModelAwareness:
         self.active_models: Set[str] = set()
         self.modification_history: List[Dict[str, Any]] = []
         self.max_history = 100
+
+        # Model profiles for capability matching
+        self.model_profiles: Dict[str, ModelProfile] = self._init_model_profiles()
+        self.performance_metrics: Dict[str, PerformanceMetrics] = {}
 
         # Critical files that require extra caution
         self.critical_files = {
@@ -365,6 +398,139 @@ class ModelAwareness:
         for path, context in self.file_contexts.items():
             if context.last_modified < cutoff:
                 to_remove.append(path)
+
+        for path in to_remove:
+            del self.file_contexts[path]
+
+        self.logger.log_info("model_awareness", f"Cleaned up {len(to_remove)} old contexts")
+        self._save_cache()
+
+    def _init_model_profiles(self) -> Dict[str, ModelProfile]:
+        """Initialize model capability profiles"""
+        return {
+            "llava:7b": ModelProfile(
+                name="llava:7b",
+                capabilities=[ModelCapability.CODE_GENERATION, ModelCapability.VISION, ModelCapability.MULTIMODAL],
+                context_window=2048,
+                avg_latency_ms=1200
+            ),
+            "deepseek-r1:14b": ModelProfile(
+                name="deepseek-r1:14b",
+                capabilities=[ModelCapability.CODE_ANALYSIS, ModelCapability.REASONING],
+                context_window=4096,
+                avg_latency_ms=2500
+            ),
+            "gpt-4o": ModelProfile(
+                name="gpt-4o",
+                capabilities=[ModelCapability.CODE_GENERATION, ModelCapability.VISION, ModelCapability.MULTIMODAL, ModelCapability.REASONING],
+                context_window=128000,
+                avg_latency_ms=800,
+                cost_per_1k_tokens=0.015
+            ),
+            "amazon.nova-pro-v1:0": ModelProfile(
+                name="amazon.nova-pro-v1:0",
+                capabilities=[ModelCapability.CODE_GENERATION, ModelCapability.CODE_ANALYSIS],
+                context_window=8000,
+                avg_latency_ms=600
+            )
+        }
+
+    def estimate_tokens(self, text: str, model: str = "llava:7b") -> int:
+        """
+        Estimate token count for text (approximate)
+        Uses ~4 characters per token average
+        """
+        try:
+            # Import tiktoken if available for accurate counting
+            import tiktoken
+            encoding = tiktoken.encoding_for_model(model)
+            return len(encoding.encode(text))
+        except Exception:
+            # Fallback: rough estimate
+            return len(text) // 4
+
+    def estimate_cost(self, model: str, tokens: int) -> float:
+        """Estimate cost for model usage"""
+        profile = self.model_profiles.get(model)
+        if not profile or profile.cost_per_1k_tokens == 0:
+            return 0.0
+        return (tokens / 1000) * profile.cost_per_1k_tokens
+
+    async def get_model_capabilities(self, model: str) -> Dict[str, Any]:
+        """Get detailed capabilities of a model"""
+        profile = self.model_profiles.get(model)
+        if not profile:
+            return {"error": f"Unknown model: {model}"}
+
+        return {
+            "name": profile.name,
+            "capabilities": [c.value for c in profile.capabilities],
+            "context_window": profile.context_window,
+            "avg_latency_ms": profile.avg_latency_ms,
+            "cost_per_1k_tokens": profile.cost_per_1k_tokens,
+            "reliability_score": profile.reliability_score
+        }
+
+    async def route_to_best_model(self, task_type: str, constraints: Dict[str, Any]) -> str:
+        """
+        Route task to best available model based on constraints
+
+        Args:
+            task_type: Type of task (code_generation, analysis, vision, etc.)
+            constraints: Dict with keys like max_latency_ms, max_cost, required_capabilities
+
+        Returns:
+            Best model name for the task
+        """
+        max_latency = constraints.get("max_latency_ms", float('inf'))
+        required_capabilities = constraints.get("required_capabilities", [])
+
+        # Convert string capability names to enum
+        required_caps = set()
+        for cap in required_capabilities:
+            try:
+                required_caps.add(ModelCapability[cap.upper()])
+            except (KeyError, AttributeError):
+                pass
+
+        # Find best matching model
+        best_model = None
+        best_score = -1
+
+        for model_name, profile in self.model_profiles.items():
+            # Check if model meets requirements
+            if required_caps and not required_caps.issubset(set(profile.capabilities)):
+                continue
+
+            if profile.avg_latency_ms > max_latency:
+                continue
+
+            # Score based on reliability and latency
+            score = profile.reliability_score / (profile.avg_latency_ms / 1000)
+            if score > best_score:
+                best_score = score
+                best_model = model_name
+
+        return best_model or "llava:7b"  # Fallback to default
+
+    def record_performance(self, model: str, latency_ms: float, success: bool) -> None:
+        """Record model performance metrics"""
+        if model not in self.performance_metrics:
+            self.performance_metrics[model] = PerformanceMetrics(
+                model_name=model,
+                avg_latency_ms=latency_ms,
+                success_rate=1.0 if success else 0.0,
+                token_efficiency=0.0
+            )
+        else:
+            metrics = self.performance_metrics[model]
+            # Update running average
+            metrics.avg_latency_ms = (metrics.avg_latency_ms + latency_ms) / 2
+            metrics.success_rate = (metrics.success_rate + (1.0 if success else 0.0)) / 2
+
+    def get_performance_metrics(self, model: str) -> Optional[PerformanceMetrics]:
+        """Get performance metrics for a model"""
+        return self.performance_metrics.get(model)
 
         for path in to_remove:
             del self.file_contexts[path]

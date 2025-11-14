@@ -131,8 +131,12 @@
     "maxSuffixPercentage": 0.2,
     "prefixPercentage": 0.3,
     "onlyMyCode": true,
-    "multilineCompletions": "auto"
+    "multilineCompletions": "auto",
+    "template": "Please provide a code completion for the following context:\n\nFilepath: {{{filepath}}}\nLanguage: {{{language}}}\n\nPrefix:\n{{{prefix}}}\n\nSuffix:\n{{{suffix}}}\n\nProvide ONLY the completion code, no explanations.",
+    "useCache": true,
+    "useOtherFiles": true
   },
+  "customAutocomplete": "autocomplete.ts",
   "ui": {
     "showChatScrollbar": true,
     "showPromptScrollbar": true,
