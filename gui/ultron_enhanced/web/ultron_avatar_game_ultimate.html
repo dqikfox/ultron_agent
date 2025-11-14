@@ -1116,6 +1116,7 @@
             <div class="control-row">
                 <button onclick="startVoiceControl()" data-tooltip="Toggle voice control (V)">🎤 Voice</button>
                 <button onclick="startBattle()" data-tooltip="Start avatar battle (B)">⚔️ Battle</button>
+                <button onclick="startQuest()" data-tooltip="Start D&D Quest (Q)">🗡️ Quest</button>
                 <button onclick="startCollaboration()" data-tooltip="Multi-avatar collaboration (C)">🤝 Collab</button>
                 <button onclick="integrateUltron()" data-tooltip="Connect to ULTRON (I)">🔗 Integrate</button>
                 <button onclick="testAllTools()" data-tooltip="Test all tools">⚡ Test</button>
@@ -2371,6 +2372,7 @@
                 `D - Analytics Dashboard\n` +
                 `V - Voice Control\n` +
                 `B - Battle Mode\n` +
+                `Q - Start D&D Quest\n` +
                 `C - Collaboration Mode\n` +
                 `I - ULTRON Integration\n` +
                 `H - This Help Menu\n` +
@@ -2392,6 +2394,7 @@
                 else if (e.code === 'KeyA') showAllAvatarsInfo();
                 else if (e.code === 'KeyD') showAnalytics();
                 else if (e.code === 'KeyH') toggleShortcuts();
+                else if (e.code === 'KeyQ') startQuest();
             }
         });
         
@@ -2538,6 +2541,110 @@
             console.error('Unhandled promise:', e.reason);
             addMessage('⚠️ Async error detected', 'error');
         });
+        
+        // D&D Quest System
+        let activeQuest = null;
+        let questProgress = 0;
+        const dndQuest = {
+            title: "The Shadow Crystal",
+            description: "A dark wizard has cursed the land. Retrieve the Shadow Crystal from the Cursed Caverns to break the curse.",
+            stages: [
+                {name: "Tavern", npc: "Innkeeper", task: "Gather information"},
+                {name: "Market", npc: "Merchant", task: "Buy supplies"},
+                {name: "City Gate", npc: "Guard", task: "Get travel permit"},
+                {name: "Dark Forest", npc: "Wizard", task: "Learn spell"},
+                {name: "Cursed Caverns", npc: "Guardian", task: "Defeat guardian"},
+                {name: "Crystal Chamber", npc: "Dark Wizard", task: "Retrieve crystal"}
+            ]
+        };
+        
+        async function startQuest() {
+            if (avatars.length === 0) {
+                addMessage('⚠️ Spawn an avatar first to start quest', 'system');
+                return;
+            }
+            
+            activeQuest = dndQuest;
+            questProgress = 0;
+            
+            addMessage(`🗡️ QUEST STARTED: ${activeQuest.title}`, 'system');
+            addMessage(`📜 ${activeQuest.description}`, 'system');
+            showActionFeedback('🗡️ QUEST ACTIVE', 'success');
+            playSound('enable');
+            
+            // Show quest stages
+            activeQuest.stages.forEach((stage, i) => {
+                addMessage(`${i+1}. ${stage.name} - ${stage.task}`, 'system');
+            });
+            
+            // Start first stage
+            await advanceQuest();
+        }
+        
+        async function advanceQuest() {
+            if (!activeQuest || questProgress >= activeQuest.stages.length) {
+                if (activeQuest) {
+                    addMessage('🎉 QUEST COMPLETED! You saved the land!', 'system');
+                    showActionFeedback('🎉 QUEST COMPLETE', 'success');
+                    avatars.forEach(a => addXP(a.id, 500));
+                    activeQuest = null;
+                }
+                return;
+            }
+            
+            const stage = activeQuest.stages[questProgress];
+            addMessage(`📍 Location: ${stage.name}`, 'system');
+            addMessage(`🎭 NPC: ${stage.npc}`, 'system');
+            addMessage(`📋 Task: ${stage.task}`, 'system');
+            
+            // AI NPC interaction
+            const avatar = avatars[0];
+            const npcPrompt = `You are ${stage.npc} in a D&D quest. Location: ${stage.name}. The hero needs to: ${stage.task}. Roleplay as this character and guide them.`;
+            
+            avatar.element.classList.add('speaking');
+            
+            try {
+                const response = await fetch(`http://localhost:8082/api/avatar/${avatar.id}/chat`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        message: npcPrompt,
+                        model: avatar.model,
+                        use_aws: settings.aws_bedrock
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addMessage(`${stage.npc}: ${data.response}`, 'avatar');
+                    
+                    if (settings.voice_synthesis) {
+                        speakText(data.response, stage.npc);
+                    }
+                    
+                    // Roll for success
+                    const roll = Math.floor(Math.random() * 20) + 1;
+                    const dc = 10 + questProgress * 2;
+                    
+                    addMessage(`🎲 Rolling d20... ${roll} vs DC ${dc}`, 'system');
+                    
+                    if (roll >= dc) {
+                        addMessage(`✅ Success! Task completed.`, 'system');
+                        addXP(avatar.id, 100);
+                        questProgress++;
+                        
+                        setTimeout(() => advanceQuest(), 3000);
+                    } else {
+                        addMessage(`❌ Failed! Try again.`, 'system');
+                        addMessage(`💡 Type your response to continue...`, 'system');
+                    }
+                }
+            } catch (error) {
+                addMessage(`❌ Quest error: ${error.message}`, 'error');
+            }
+            
+            avatar.element.classList.remove('speaking');
+        }
         
         // Auto-spawn on load with error handling
         setTimeout(() => {

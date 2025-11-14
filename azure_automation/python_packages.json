@@ -1,0 +1,20 @@
+{
+  "python3_packages": [
+    {
+      "name": "requests",
+      "version": "latest"
+    },
+    {
+      "name": "torch",
+      "version": "latest"
+    },
+    {
+      "name": "onnx",
+      "version": "latest"
+    },
+    {
+      "name": "azure-storage-blob",
+      "version": "latest"
+    }
+  ]
+}

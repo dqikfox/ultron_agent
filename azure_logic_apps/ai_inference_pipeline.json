@@ -1,0 +1,36 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "Http"
+      }
+    },
+    "actions": {
+      "Run_Sentis_Inference": {
+        "type": "Http",
+        "inputs": {
+          "method": "POST",
+          "uri": "http://localhost:8765/inference"
+        }
+      },
+      "Log_Results": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['azureblob']['connectionId']"
+            }
+          }
+        }
+      },
+      "Return_Output": {
+        "type": "Response",
+        "inputs": {
+          "statusCode": 200
+        }
+      }
+    }
+  }
+}
