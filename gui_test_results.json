@@ -1,0 +1,13 @@
+{
+  "Web GUI Access": "\u274c FAIL (Error: HTTPConnectionPool(host='localhost', port=8080): Read timed out. (read timeout=5))",
+  "SSH Server Port 2222": "\u2705 PASS (Port accessible)",
+  "API Server Access": "\u2705 PASS",
+  "SSH API /api/ssh/status": "\u2705 PASS (Endpoint exists, auth required)",
+  "SSH API /api/ssh/start": "\u2705 PASS (Endpoint exists, auth required)",
+  "SSH API /api/ssh/stop": "\u2705 PASS (Endpoint exists, auth required)",
+  "GUI File index.html": "\u2705 PASS (File exists)",
+  "GUI File app.js": "\u2705 PASS (File exists)",
+  "GUI File styles.css": "\u2705 PASS (File exists)",
+  "SSH Tool File": "\u2705 PASS (File exists)",
+  "SSH Configuration": "\u2705 PASS (Port: 2222, Enabled: True)"
+}

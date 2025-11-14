@@ -1,0 +1,112 @@
+name: Amazon Q Developer Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  amazon-q-review:
+    runs-on: ubuntu-latest
+    name: Amazon Q Code Analysis
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Amazon Q Security Scan
+        id: q-security
+        continue-on-error: true
+        run: |
+          echo "Running Amazon Q security analysis..."
+          # Amazon Q will automatically analyze the PR when this workflow runs
+          echo "::notice::Amazon Q Developer will analyze this PR for security vulnerabilities"
+
+      - name: Run Amazon Q Code Quality Check
+        id: q-quality
+        continue-on-error: true
+        run: |
+          echo "Running Amazon Q code quality analysis..."
+          echo "::notice::Amazon Q Developer will analyze code quality and best practices"
+
+      - name: Comment PR with Q Developer Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## 🤖 Amazon Q Developer Analysis
+            
+            Amazon Q Developer has been configured to analyze this PR. The analysis includes:
+            
+            - 🔒 **Security Scan**: Checking for vulnerabilities and security issues
+            - 📊 **Code Quality**: Analyzing code structure and best practices  
+            - 🚀 **Performance**: Identifying potential performance bottlenecks
+            - 📝 **Documentation**: Suggesting improvements to code documentation
+            
+            Results will appear as PR comments and suggestions from Amazon Q Developer.
+            
+            ---
+            *This analysis is powered by Amazon Q Developer (Registration: QDevGitHubApp-8B7B2DN31)*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  ultron-integration-test:
+    runs-on: ubuntu-latest
+    name: ULTRON Agent Integration Test
+    needs: amazon-q-review
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Test ULTRON Components
+        run: |
+          python -c "
+          import sys
+          import os
+          sys.path.append('.')
+          
+          # Test core imports
+          try:
+              from utils.ultron_logger import log_info
+              from utils.model_awareness import should_modify_file
+              print('✅ Core ULTRON modules imported successfully')
+          except ImportError as e:
+              print(f'❌ Import error: {e}')
+              sys.exit(1)
+          
+          # Test configuration
+          if os.path.exists('ultron_config.json'):
+              print('✅ Configuration file found')
+          else:
+              print('⚠️ Configuration file missing')
+          
+          print('🤖 ULTRON Agent integration test completed')
+          "

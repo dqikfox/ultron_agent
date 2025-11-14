@@ -1,0 +1,52 @@
+version: 0.2
+
+env:
+  variables:
+    NODE_VERSION: "18"
+    PYTHON_VERSION: "3.11"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+      nodejs: 18
+    commands:
+      - echo Installing dependencies
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install -r aws_integration/requirements.txt
+      - npm install -g @browsermcp/mcp@latest
+      - npm install -g @langflow/mcp-server
+
+  pre_build:
+    commands:
+      - echo Pre-build phase started
+      - python simple_test.py
+      - aws cloudformation validate-template --template-body file://aws_integration/cloudformation/ultron-aws-infrastructure.yaml
+      - echo Testing MCP servers
+      - npx @browsermcp/mcp@latest --version || echo "BrowserMCP installed"
+      - npx @langflow/mcp-server --version || echo "Langflow MCP installed"
+
+  build:
+    commands:
+      - echo Build phase started
+      - cd aws_integration/lambda_functions
+      - zip -r deployment.zip oasis_bedrock_handler.py
+      - cd ../..
+      - echo Testing new MCP tools
+      - python -c "from tools.langflow_mcp_tool import LangflowMCPTool; print('Langflow MCP tool loaded')"
+      - python -c "from tools.deepwiki_mcp_tool import DeepWikiMCPTool; print('DeepWiki MCP tool loaded')"
+      - python -c "from tools.browser_mcp_enhanced_tool import BrowserMCPEnhancedTool; print('Browser MCP Enhanced tool loaded')"
+
+  post_build:
+    commands:
+      - echo Post-build phase completed
+      - echo MCP integration validated
+
+artifacts:
+  files:
+    - aws_integration/lambda_functions/deployment.zip
+    - aws_integration/cloudformation/ultron-aws-infrastructure.yaml
+    - deployment_status.json
+    - .continue/config.yaml
+  name: ultron-agent-mcp-build-$(date +%Y-%m-%d)

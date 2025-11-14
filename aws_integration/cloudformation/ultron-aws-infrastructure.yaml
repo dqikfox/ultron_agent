@@ -1,0 +1,210 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'ULTRON Agent AWS Infrastructure - Bedrock, Lambda, DynamoDB, and Monitoring'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: 'ultron-agent'
+    Description: 'Project name for resource naming'
+  
+  BudgetAmount:
+    Type: Number
+    Default: 100
+    Description: 'Monthly budget limit in USD'
+
+Resources:
+  # IAM Role for Lambda
+  UltronLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-lambda-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: UltronBedrockAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: 'arn:aws:bedrock:us-east-1::foundation-model/*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource: !GetAtt ConversationsTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub '${DataBucket}/*'
+
+  # DynamoDB Table for Conversations
+  ConversationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-conversations'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: conversation_id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: conversation_id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # S3 Bucket for Data Storage
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-data-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # Lambda Function
+  BedrockHandlerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-bedrock-handler'
+      Runtime: python3.11
+      Handler: oasis_bedrock_handler.lambda_handler
+      Role: !GetAtt UltronLambdaRole.Arn
+      Code:
+        ZipFile: |
+          import json
+          def lambda_handler(event, context):
+              return {'statusCode': 200, 'body': json.dumps('Placeholder')}
+      Environment:
+        Variables:
+          CONVERSATIONS_TABLE: !Ref ConversationsTable
+          DATA_BUCKET: !Ref DataBucket
+      Timeout: 30
+      MemorySize: 512
+
+  # API Gateway
+  UltronAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub '${ProjectName}-api'
+      Description: 'ULTRON Agent API Gateway'
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  # API Gateway Resource
+  ChatResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref UltronAPI
+      ParentId: !GetAtt UltronAPI.RootResourceId
+      PathPart: chat
+
+  # API Gateway Method
+  ChatMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref UltronAPI
+      ResourceId: !Ref ChatResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BedrockHandlerFunction.Arn}/invocations'
+
+  # Lambda Permission for API Gateway
+  LambdaApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref BedrockHandlerFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub '${UltronAPI}/*/POST/chat'
+
+  # API Gateway Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ChatMethod
+    Properties:
+      RestApiId: !Ref UltronAPI
+      StageName: prod
+
+  # CloudWatch Log Group
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectName}-bedrock-handler'
+      RetentionInDays: 14
+
+  # Budget for Cost Control
+  UltronBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: !Sub '${ProjectName}-monthly-budget'
+        BudgetLimit:
+          Amount: !Ref BudgetAmount
+          Unit: USD
+        TimeUnit: MONTHLY
+        BudgetType: COST
+        CostFilters:
+          Service:
+            - Amazon Bedrock
+            - AWS Lambda
+            - Amazon DynamoDB
+            - Amazon API Gateway
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: admin@ultron-agent.com
+
+Outputs:
+  ApiEndpoint:
+    Description: 'API Gateway endpoint URL'
+    Value: !Sub 'https://${UltronAPI}.execute-api.${AWS::Region}.amazonaws.com/prod'
+    Export:
+      Name: !Sub '${ProjectName}-api-endpoint'
+
+  ConversationsTableName:
+    Description: 'DynamoDB table name for conversations'
+    Value: !Ref ConversationsTable
+    Export:
+      Name: !Sub '${ProjectName}-conversations-table'
+
+  DataBucketName:
+    Description: 'S3 bucket name for data storage'
+    Value: !Ref DataBucket
+    Export:
+      Name: !Sub '${ProjectName}-data-bucket'

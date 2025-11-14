@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Agent 3D Avatar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            overflow: hidden;
+            color: #00ff41;
+        }
+
+        #avatar-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #canvas-3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 250px;
+            backdrop-filter: blur(10px);
+        }
+
+        .controls-panel h2 {
+            color: #00ff41;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            color: #00ff41;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .control-group button {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        .control-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.4);
+        }
+
+        .control-group button:active {
+            transform: translateY(0);
+        }
+
+        .status-display {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .status-item span:first-child {
+            color: #00ff41;
+        }
+
+        .status-item span:last-child {
+            color: #fff;
+        }
+
+        .avatar-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 15px 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .avatar-title h1 {
+            color: #00ff41;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .avatar-title p {
+            color: #fff;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .emotion-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .emotion-buttons button {
+            padding: 8px;
+            font-size: 11px;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff41;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 255, 65, 0.1);
+            border-top: 4px solid #00ff41;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="avatar-container">
+        <canvas id="canvas-3d"></canvas>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>INITIALIZING ULTRON AVATAR...</p>
+        </div>
+
+        <div class="avatar-title">
+            <h1>ULTRON AGENT 3.0</h1>
+            <p>Interactive 3D Avatar System</p>
+        </div>
+
+        <div class="controls-panel">
+            <h2>⚙️ Avatar Controls</h2>
+
+            <div class="control-group">
+                <label>Animation Mode:</label>
+                <button onclick="avatarSystem.setAnimation('idle')">🧍 Idle</button>
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarSystem.setAnimation('talking')">🗣️ Talking</button>
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarSystem.setAnimation('thinking')">🤔 Thinking</button>
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarSystem.setAnimation('listening')">👂 Listening</button>
+            </div>
+
+            <div class="control-group">
+                <label>Emotions:</label>
+                <div class="emotion-buttons">
+                    <button onclick="avatarSystem.setEmotion('happy')">😊 Happy</button>
+                    <button onclick="avatarSystem.setEmotion('neutral')">😐 Neutral</button>
+                    <button onclick="avatarSystem.setEmotion('focused')">🎯 Focused</button>
+                    <button onclick="avatarSystem.setEmotion('alert')">⚠️ Alert</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarSystem.resetCamera()">📷 Reset View</button>
+            </div>
+        </div>
+
+        <div class="status-display">
+            <div class="status-item">
+                <span>STATUS:</span>
+                <span id="status-mode">Initializing...</span>
+            </div>
+            <div class="status-item">
+                <span>ANIMATION:</span>
+                <span id="status-animation">None</span>
+            </div>
+            <div class="status-item">
+                <span>EMOTION:</span>
+                <span id="status-emotion">Neutral</span>
+            </div>
+            <div class="status-item">
+                <span>FPS:</span>
+                <span id="status-fps">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        class UltronAvatarSystem {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.avatar = null;
+                this.animations = {};
+                this.currentAnimation = 'idle';
+                this.currentEmotion = 'neutral';
+                this.clock = new THREE.Clock();
+                this.frameCount = 0;
+                this.lastFPSUpdate = 0;
+
+                this.init();
+            }
+
+            init() {
+                // Setup scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x0a0a0a);
+                this.scene.fog = new THREE.Fog(0x0a0a0a, 10, 50);
+
+                // Setup camera
+                this.camera = new THREE.PerspectiveCamera(
+                    75,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000
+                );
+                this.camera.position.set(0, 2, 5);
+                this.camera.lookAt(0, 1, 0);
+
+                // Setup renderer
+                const canvas = document.getElementById('canvas-3d');
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: canvas,
+                    antialias: true,
+                    alpha: true
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                // Add lights
+                this.setupLights();
+
+                // Create avatar
+                this.createAvatar();
+
+                // Add grid
+                this.addGrid();
+
+                // Event listeners
+                window.addEventListener('resize', () => this.onWindowResize());
+                canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+
+                // Hide loading screen
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    this.updateStatus('Online', 'idle', 'neutral');
+                }, 1000);
+
+                // Start animation loop
+                this.animate();
+            }
+
+            setupLights() {
+                // Ambient light
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+                this.scene.add(ambientLight);
+
+                // Main key light (green tint for ULTRON theme)
+                const keyLight = new THREE.DirectionalLight(0x00ff41, 0.8);
+                keyLight.position.set(5, 10, 5);
+                keyLight.castShadow = true;
+                keyLight.shadow.camera.near = 0.1;
+                keyLight.shadow.camera.far = 50;
+                keyLight.shadow.mapSize.width = 2048;
+                keyLight.shadow.mapSize.height = 2048;
+                this.scene.add(keyLight);
+
+                // Fill light
+                const fillLight = new THREE.DirectionalLight(0x4169e1, 0.4);
+                fillLight.position.set(-5, 5, -5);
+                this.scene.add(fillLight);
+
+                // Rim light
+                const rimLight = new THREE.DirectionalLight(0x00ffff, 0.5);
+                rimLight.position.set(0, 5, -10);
+                this.scene.add(rimLight);
+
+                // Point lights for dynamic effect
+                const pointLight1 = new THREE.PointLight(0x00ff41, 0.5, 10);
+                pointLight1.position.set(2, 3, 2);
+                this.scene.add(pointLight1);
+
+                const pointLight2 = new THREE.PointLight(0x4169e1, 0.5, 10);
+                pointLight2.position.set(-2, 3, -2);
+                this.scene.add(pointLight2);
+            }
+
+            createAvatar() {
+                // Create avatar group
+                this.avatar = new THREE.Group();
+
+                // Create head (sphere with metallic material)
+                const headGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+                const headMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x00ff41,
+                    metalness: 0.8,
+                    roughness: 0.2,
+                    emissive: 0x00ff41,
+                    emissiveIntensity: 0.2
+                });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.y = 2;
+                head.castShadow = true;
+                head.name = 'head';
+                this.avatar.add(head);
+
+                // Create eyes (glowing spheres)
+                const eyeGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+                const eyeMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    emissive: 0xffffff,
+                    emissiveIntensity: 1
+                });
+
+                const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                leftEye.position.set(-0.15, 2.1, 0.4);
+                leftEye.name = 'leftEye';
+                this.avatar.add(leftEye);
+
+                const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                rightEye.position.set(0.15, 2.1, 0.4);
+                rightEye.name = 'rightEye';
+                this.avatar.add(rightEye);
+
+                // Create torso
+                const torsoGeometry = new THREE.CylinderGeometry(0.4, 0.5, 1.2, 32);
+                const torsoMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x1a1a2e,
+                    metalness: 0.7,
+                    roughness: 0.3,
+                    emissive: 0x00ff41,
+                    emissiveIntensity: 0.1
+                });
+                const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+                torso.position.y = 1;
+                torso.castShadow = true;
+                torso.name = 'torso';
+                this.avatar.add(torso);
+
+                // Create core light (chest reactor)
+                const coreGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+                const coreMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x00ff41,
+                    emissive: 0x00ff41,
+                    emissiveIntensity: 1
+                });
+                const core = new THREE.Mesh(coreGeometry, coreMaterial);
+                core.position.set(0, 1, 0.42);
+                core.name = 'core';
+                this.avatar.add(core);
+
+                // Add core light
+                const coreLight = new THREE.PointLight(0x00ff41, 1, 5);
+                coreLight.position.copy(core.position);
+                this.avatar.add(coreLight);
+
+                // Create arms
+                const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 16);
+                const armMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x1a1a2e,
+                    metalness: 0.8,
+                    roughness: 0.2
+                });
+
+                const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+                leftArm.position.set(-0.6, 1, 0);
+                leftArm.castShadow = true;
+                leftArm.name = 'leftArm';
+                this.avatar.add(leftArm);
+
+                const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+                rightArm.position.set(0.6, 1, 0);
+                rightArm.castShadow = true;
+                rightArm.name = 'rightArm';
+                this.avatar.add(rightArm);
+
+                // Add holographic ring effect
+                const ringGeometry = new THREE.RingGeometry(0.6, 0.65, 32);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x00ff41,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                ring.position.y = 2.5;
+                ring.name = 'haloRing';
+                this.avatar.add(ring);
+
+                this.scene.add(this.avatar);
+            }
+
+            addGrid() {
+                const gridHelper = new THREE.GridHelper(20, 20, 0x00ff41, 0x1a1a2e);
+                gridHelper.material.opacity = 0.3;
+                gridHelper.material.transparent = true;
+                this.scene.add(gridHelper);
+            }
+
+            setAnimation(type) {
+                this.currentAnimation = type;
+                this.updateStatus(null, type);
+                console.log(`Animation set to: ${type}`);
+            }
+
+            setEmotion(emotion) {
+                this.currentEmotion = emotion;
+                this.updateStatus(null, null, emotion);
+
+                // Update eye color based on emotion
+                const leftEye = this.avatar.getObjectByName('leftEye');
+                const rightEye = this.avatar.getObjectByName('rightEye');
+
+                const emotionColors = {
+                    'happy': 0x00ff41,
+                    'neutral': 0xffffff,
+                    'focused': 0x4169e1,
+                    'alert': 0xff4500
+                };
+
+                const color = emotionColors[emotion] || 0xffffff;
+                if (leftEye) leftEye.material.color.setHex(color);
+                if (rightEye) rightEye.material.color.setHex(color);
+            }
+
+            updateAnimations() {
+                const time = this.clock.getElapsedTime();
+                const head = this.avatar.getObjectByName('head');
+                const torso = this.avatar.getObjectByName('torso');
+                const leftArm = this.avatar.getObjectByName('leftArm');
+                const rightArm = this.avatar.getObjectByName('rightArm');
+                const core = this.avatar.getObjectByName('core');
+                const ring = this.avatar.getObjectByName('haloRing');
+
+                // Animate based on current animation mode
+                switch(this.currentAnimation) {
+                    case 'idle':
+                        // Gentle breathing motion
+                        if (head) head.position.y = 2 + Math.sin(time) * 0.02;
+                        if (torso) torso.scale.y = 1 + Math.sin(time * 2) * 0.02;
+                        if (ring) {
+                            ring.rotation.z = time * 0.5;
+                            ring.material.opacity = 0.3 + Math.sin(time * 2) * 0.2;
+                        }
+                        break;
+
+                    case 'talking':
+                        // Head bobbing and core pulsing
+                        if (head) {
+                            head.position.y = 2 + Math.sin(time * 5) * 0.05;
+                            head.rotation.y = Math.sin(time * 3) * 0.1;
+                        }
+                        if (core) {
+                            core.scale.set(
+                                1 + Math.sin(time * 8) * 0.3,
+                                1 + Math.sin(time * 8) * 0.3,
+                                1 + Math.sin(time * 8) * 0.3
+                            );
+                        }
+                        if (ring) {
+                            ring.rotation.z = time * 1.5;
+                            ring.material.opacity = 0.5 + Math.sin(time * 5) * 0.3;
+                        }
+                        break;
+
+                    case 'thinking':
+                        // Slow head tilt and arm movements
+                        if (head) {
+                            head.rotation.x = Math.sin(time * 0.5) * 0.15;
+                            head.rotation.y = Math.cos(time * 0.3) * 0.2;
+                        }
+                        if (leftArm) leftArm.rotation.z = Math.sin(time) * 0.2;
+                        if (rightArm) rightArm.rotation.z = -Math.sin(time) * 0.2;
+                        if (ring) {
+                            ring.rotation.z = time * 0.3;
+                            ring.scale.set(
+                                1 + Math.sin(time * 2) * 0.1,
+                                1 + Math.sin(time * 2) * 0.1,
+                                1
+                            );
+                        }
+                        break;
+
+                    case 'listening':
+                        // Focused, minimal movement
+                        if (head) {
+                            head.rotation.y = Math.sin(time * 0.5) * 0.1;
+                        }
+                        if (core) {
+                            core.scale.set(
+                                1 + Math.sin(time * 4) * 0.15,
+                                1 + Math.sin(time * 4) * 0.15,
+                                1 + Math.sin(time * 4) * 0.15
+                            );
+                        }
+                        if (ring) {
+                            ring.rotation.z = time * 2;
+                            ring.material.opacity = 0.7 + Math.sin(time * 3) * 0.2;
+                        }
+                        break;
+                }
+
+                // Always rotate avatar slowly
+                this.avatar.rotation.y = Math.sin(time * 0.2) * 0.3;
+            }
+
+            onMouseMove(event) {
+                // Make avatar head follow mouse
+                const head = this.avatar.getObjectByName('head');
+                if (!head) return;
+
+                const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                head.rotation.y += (mouseX * 0.3 - head.rotation.y) * 0.05;
+                head.rotation.x += (mouseY * 0.2 - head.rotation.x) * 0.05;
+            }
+
+            resetCamera() {
+                this.camera.position.set(0, 2, 5);
+                this.camera.lookAt(0, 1, 0);
+            }
+
+            updateStatus(mode, animation, emotion) {
+                if (mode) document.getElementById('status-mode').textContent = mode;
+                if (animation) document.getElementById('status-animation').textContent = animation;
+                if (emotion) document.getElementById('status-emotion').textContent = emotion;
+            }
+
+            updateFPS() {
+                this.frameCount++;
+                const now = performance.now();
+
+                if (now >= this.lastFPSUpdate + 1000) {
+                    const fps = Math.round((this.frameCount * 1000) / (now - this.lastFPSUpdate));
+                    document.getElementById('status-fps').textContent = fps;
+                    this.frameCount = 0;
+                    this.lastFPSUpdate = now;
+                }
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                this.updateAnimations();
+                this.updateFPS();
+
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        // Initialize avatar system
+        let avatarSystem;
+        window.addEventListener('DOMContentLoaded', () => {
+            avatarSystem = new UltronAvatarSystem();
+        });
+    </script>
+</body>
+</html>

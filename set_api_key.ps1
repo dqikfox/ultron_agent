@@ -1,0 +1,2 @@
+$env:OPENAI_API_KEY = "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"
+Write-Host "OPENAI_API_KEY set for current session"
