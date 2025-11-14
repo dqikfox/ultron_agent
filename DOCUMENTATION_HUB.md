@@ -82,7 +82,27 @@
 
 ---
 
-#### 2. Voice System Documentation
+#### 2. Executive Summary - Path A (Lightweight Model Implementation)
+**File**: `EXECUTIVE_SUMMARY_AMAZON_Q.md`
+
+**Contents**:
+- Path A lightweight model implementation overview
+- Memory optimization strategy (73% RAM reduction)
+- Model selection guidelines (5 model tiers)
+- Installation procedures (automated and manual)
+- Configuration management for resource-constrained systems
+- Comprehensive testing and validation
+- Integration with ULTRON Agent brain module
+- Troubleshooting guide for low-memory scenarios
+- Success metrics and performance benchmarks
+
+**When to Use**: Implementing ULTRON on systems with 4GB RAM or less, or optimizing memory usage
+
+**Implementation Timeline**: 15-22 minutes
+
+---
+
+#### 3. Voice System Documentation
 **File**: `VOICE_MICROPHONE_DOCUMENTATION.md`
 
 **Contents**:
@@ -98,7 +118,7 @@
 
 ---
 
-#### 3. MCP Integration Guide
+#### 4. MCP Integration Guide
 **File**: `MCP_INTEGRATION_GUIDE.md`
 
 **Contents**:
@@ -117,7 +137,7 @@
 
 ---
 
-#### 4. System Architecture
+#### 5. System Architecture
 **File**: `SYSTEM_ARCHITECTURE.md`
 
 **Contents**:
@@ -132,7 +152,7 @@
 
 ---
 
-#### 5. Setup Guide
+#### 6. Setup Guide
 **File**: `SETUP_CHECKLIST.md`
 
 **Contents**:
@@ -147,7 +167,7 @@
 
 ---
 
-#### 6. Recent Fixes
+#### 7. Recent Fixes
 **File**: `FIXES_SUMMARY_2025-10-24.md`
 
 **Contents**:
