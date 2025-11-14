@@ -338,7 +338,9 @@ def evolution_metrics():
         }), 200
 
     except Exception as e:
-        return jsonify({"error": f"Failed to get metrics: {str(e)}"}), 500
+        import logging
+        logging.exception("Failed to get metrics")
+        return jsonify({"error": "Failed to get metrics"}), 500
 
 
 @app.route("/api/evolution/suggestions", methods=["GET"])
