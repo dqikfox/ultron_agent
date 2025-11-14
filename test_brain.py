@@ -5,13 +5,6 @@ from unittest.mock import Mock, patch, mock_open, MagicMock
 import asyncio
 from brain import UltronBrain
 
-import pytest
-import json
-import os
-from unittest.mock import Mock, patch, mock_open, MagicMock
-import asyncio
-from brain import UltronBrain
-
 class TestUltronBrain:
     
     @pytest.fixture

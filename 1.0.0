@@ -1,0 +1,28 @@
+Collecting mistralai
+  Downloading mistralai-1.9.11-py3-none-any.whl.metadata (39 kB)
+Collecting eval-type-backport>=0.2.0 (from mistralai)
+  Downloading eval_type_backport-0.2.2-py3-none-any.whl.metadata (2.2 kB)
+Requirement already satisfied: httpx>=0.28.1 in c:\python310\lib\site-packages (from mistralai) (0.28.1)
+Collecting invoke<3.0.0,>=2.2.0 (from mistralai)
+  Downloading invoke-2.2.1-py3-none-any.whl.metadata (3.3 kB)
+Requirement already satisfied: pydantic>=2.10.3 in c:\python310\lib\site-packages (from mistralai) (2.11.7)
+Requirement already satisfied: python-dateutil>=2.8.2 in c:\python310\lib\site-packages (from mistralai) (2.9.0.post0)
+Requirement already satisfied: pyyaml<7.0.0,>=6.0.2 in c:\python310\lib\site-packages (from mistralai) (6.0.2)
+Requirement already satisfied: typing-inspection>=0.4.0 in c:\python310\lib\site-packages (from mistralai) (0.4.1)
+Requirement already satisfied: anyio in c:\python310\lib\site-packages (from httpx>=0.28.1->mistralai) (4.10.0)
+Requirement already satisfied: certifi in c:\python310\lib\site-packages (from httpx>=0.28.1->mistralai) (2025.6.15)
+Requirement already satisfied: httpcore==1.* in c:\python310\lib\site-packages (from httpx>=0.28.1->mistralai) (1.0.9)
+Requirement already satisfied: idna in c:\python310\lib\site-packages (from httpx>=0.28.1->mistralai) (3.10)
+Requirement already satisfied: h11>=0.16 in c:\python310\lib\site-packages (from httpcore==1.*->httpx>=0.28.1->mistralai) (0.16.0)
+Requirement already satisfied: annotated-types>=0.6.0 in c:\python310\lib\site-packages (from pydantic>=2.10.3->mistralai) (0.7.0)
+Requirement already satisfied: pydantic-core==2.33.2 in c:\python310\lib\site-packages (from pydantic>=2.10.3->mistralai) (2.33.2)
+Requirement already satisfied: typing-extensions>=4.12.2 in c:\python310\lib\site-packages (from pydantic>=2.10.3->mistralai) (4.14.0)
+Requirement already satisfied: six>=1.5 in c:\python310\lib\site-packages (from python-dateutil>=2.8.2->mistralai) (1.17.0)
+Requirement already satisfied: exceptiongroup>=1.0.2 in c:\python310\lib\site-packages (from anyio->httpx>=0.28.1->mistralai) (1.3.0)
+Requirement already satisfied: sniffio>=1.1 in c:\python310\lib\site-packages (from anyio->httpx>=0.28.1->mistralai) (1.3.1)
+Downloading mistralai-1.9.11-py3-none-any.whl (442 kB)
+Downloading invoke-2.2.1-py3-none-any.whl (160 kB)
+Downloading eval_type_backport-0.2.2-py3-none-any.whl (5.8 kB)
+Installing collected packages: invoke, eval-type-backport, mistralai
+
+Successfully installed eval-type-backport-0.2.2 invoke-2.2.1 mistralai-1.9.11

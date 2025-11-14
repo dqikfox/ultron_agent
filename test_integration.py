@@ -1,93 +1,65 @@
 #!/usr/bin/env python3
-"""
-Test script to verify ULTRON Agent 3.0 integration.
-"""
+"""Integration test for ULTRON Agent complete system"""
+
 import asyncio
-import sys
-from pathlib import Path
+import requests
+import json
+from utils.ultron_logger import log_info, log_error
 
-# Add project root to path
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
-
-from ultron_agent import setup_logging, get_config, get_logger
-from ultron_agent.core import get_agent
-
-
-async def test_agent_integration():
-    """Test the integrated agent functionality."""
-    # Setup basic logging
-    config = get_config()
-    setup_logging(
-        log_level=config.log_level.value,
-        log_directory=config.log_directory,
-        enable_json=True,
-        enable_console=True
-    )
-
-    logger = get_logger("test", source="integration_test")
-    logger.info("Starting ULTRON Agent 3.0 integration test...")
-
+async def test_system_integration():
+    """Test all major system components"""
+    
+    tests = []
+    
+    # Test 1: Ollama backend
     try:
-        # Test agent initialization
-        logger.info("Testing agent initialization...")
-        agent = await get_agent()
-
-        logger.info(f"✓ Agent initialized successfully")
-        logger.info(f"  Status: {agent.status}")
-        logger.info(f"  Brain: {'✓' if agent.brain else '✗'}")
-        logger.info(f"  Voice: {'✓' if agent.voice else '✗'}")
-        logger.info(f"  Vision: {'✓' if agent.vision else '✗'}")
-        logger.info(f"  GUI: {'✓' if agent.gui else '✗'}")
-        logger.info(f"  Maverick: {'✓' if agent.maverick else '✗'}")
-        logger.info(f"  Tools: {len(agent.tools)} loaded")
-
-        # Test health checks
-        logger.info("\nTesting health checks...")
-        health_result = await agent.health_checker.check_all_health()
-        logger.info(f"✓ Health check completed: {health_result['status']}")
-
-        # Test command handling
-        logger.info("\nTesting command handling...")
-        test_commands = [
-            "list tools",
-            "hello",
-            "what is your status?"
-        ]
-
-        for command in test_commands:
-            logger.info(f"Testing command: '{command}'")
-            try:
-                result = agent.handle_text(command)
-                logger.info(f"  Result: {result[:100]}..." if len(result) > 100 else f"  Result: {result}")
-            except Exception as e:
-                logger.error(f"  Error: {e}")
-
-        # Test Maverick status
-        logger.info("\nTesting Maverick status...")
-        maverick_status = agent.get_maverick_status()
-        logger.info(f"✓ Maverick status: {maverick_status}")
-
-        logger.info("\n🎉 Integration test completed successfully!")
+        response = requests.get("http://localhost:11434/api/tags", timeout=5)
+        tests.append(("Ollama Backend", response.status_code == 200))
+    except:
+        tests.append(("Ollama Backend", False))
+    
+    # Test 2: Web GUI
+    try:
+        response = requests.get("http://localhost:8080", timeout=5)
+        tests.append(("Web GUI", response.status_code == 200))
+    except:
+        tests.append(("Web GUI", False))
+    
+    # Test 3: Amazon Q Auto-run
+    try:
+        with open("ultron_config.json", "r") as f:
+            config = json.load(f)
+        auto_run_enabled = config.get("auto_run", {}).get("enabled", False)
+        tests.append(("Amazon Q Auto-run Config", auto_run_enabled))
+    except:
+        tests.append(("Amazon Q Auto-run Config", False))
+    
+    # Test 4: AI News Search
+    try:
+        import subprocess
+        result = subprocess.run(["python", "get_ai_news.py"], 
+                              capture_output=True, text=True, timeout=10)
+        tests.append(("AI News Search", result.returncode == 0))
+    except:
+        tests.append(("AI News Search", False))
+    
+    # Results
+    passed = sum(1 for _, status in tests if status)
+    total = len(tests)
+    
+    print(f"\n=== ULTRON Agent Integration Test Results ===")
+    for test_name, status in tests:
+        status_str = "PASS" if status else "FAIL"
+        print(f"{test_name}: {status_str}")
+    
+    print(f"\nOverall: {passed}/{total} tests passed")
+    
+    if passed == total:
+        print("All systems operational!")
         return True
-
-    except Exception as e:
-        logger.error(f"❌ Integration test failed: {e}")
+    else:
+        print("Some systems need attention")
         return False
 
-
-def main():
-    """Main test function."""
-    try:
-        success = asyncio.run(test_agent_integration())
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        print("\nTest interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Fatal error: {e}")
-        sys.exit(1)
-
-
 if __name__ == "__main__":
-    main()
+    asyncio.run(test_system_integration())

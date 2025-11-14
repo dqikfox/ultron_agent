@@ -1,188 +1,122 @@
-"""
-Stable Diffusion Tool for ULTRON Agent
+"""Stable Diffusion Image Generation Tool"""
 
-Integrates Stable Diffusion image generation capabilities
-"""
-
-import os
+from typing import Any, Dict
 import subprocess
-import time
-from typing import Dict, Any, Optional
+import os
+
+from tools.tool_interface import ToolInterface
 from utils.ultron_logger import log_info, log_error
 
 
-class StableDiffusionTool:
-    """
-    Tool for generating images using Stable Diffusion
-    """
+class StableDiffusionTool(ToolInterface):
+    """GPU-accelerated Stable Diffusion image generation"""
 
-    name = "Stable Diffusion Image Generator"
-    description = "Generate images using Stable Diffusion models"
+    def __init__(self):
+        self.sd_path = "C:\\Projects\\stable-diffusion"
+        self.output_dir = "outputs"
+        log_info("stable_diffusion", "Initialized Stable Diffusion Tool")
 
-    def __init__(self, config=None):
-        self.config = config or {}
-        # Paths from user configuration
-        self.sd_webui_path = r"C:\Projects\stable-diffusion-webui"
-        self.sd_cli_path = r"C:\Projects\stable-diffusion-3.5-large"
-        self.models_path = r"D:\models\hub"
-        self.output_dir = r"C:\Users\ultro\OneDrive\Pictures\STABLED"
-        os.makedirs(self.output_dir, exist_ok=True)
+    @property
+    def name(self) -> str:
+        return "Stable Diffusion"
 
-        log_info("stable_diffusion_tool", "Stable Diffusion tool initialized")
+    @property
+    def description(self) -> str:
+        return "GPU-accelerated image generation with Stable Diffusion"
 
     def match(self, command: str) -> bool:
-        """Check if command matches image generation"""
-        command_lower = command.lower()
-        return any(keyword in command_lower for keyword in [
-            "generate image", "create image", "stable diffusion",
-            "sd generate", "make picture", "draw image", "ai image"
-        ])
+        keywords = ["generate image", "create image", "stable diffusion", 
+                   "txt2img", "image generation", "draw", "picture"]
+        return any(kw in command.lower() for kw in keywords)
 
-    def execute(self, command: str) -> str:
-        """Execute image generation"""
+    def execute(self, command: str, **kwargs: Any) -> str:
+        log_info("stable_diffusion", f"Generating image: {command}")
+        
         try:
-            # Parse command for parameters
-            params = self._parse_command(command)
-
-            if not params.get('prompt'):
-                return ("Please provide a prompt for image generation. "
-                        "Example: 'generate image of a futuristic city'")
-
-            # Try webui first, fallback to CLI
-            result = self._generate_with_webui(params)
-            if not result:
-                result = self._generate_with_cli(params)
-
-            if result:
-                log_info("stable_diffusion_tool", f"Image generated: {result}")
-                return f"Image generated successfully: {result}"
-            else:
-                return "Failed to generate image. Check logs for details."
-
+            prompt = self._extract_prompt(command)
+            if not prompt:
+                return "Please provide an image prompt. Example: generate image of a cat"
+            
+            # Check if SD is installed
+            if not os.path.exists(self.sd_path):
+                return self._install_instructions()
+            
+            # Generate image
+            output_file = self._generate_image(prompt, **kwargs)
+            
+            return f"Image generated: {output_file}\nPrompt: {prompt}"
+            
         except Exception as e:
-            log_error("stable_diffusion_tool", f"Generation failed: {e}")
-            return f"Image generation failed: {str(e)}"
+            log_error("stable_diffusion", f"Error: {e}", exception=e)
+            return f"Error generating image: {str(e)}"
 
-    def _parse_command(self, command: str) -> Dict[str, Any]:
-        """Parse command for generation parameters"""
-        params = {
-            'prompt': '',
-            'negative_prompt': '',
-            'steps': 20,
-            'width': 512,
-            'height': 512,
-            'guidance_scale': 7.5,
-            'seed': None
-        }
+    def _extract_prompt(self, command: str) -> str:
+        """Extract prompt from command"""
+        keywords = ["generate image", "create image", "draw", "picture of"]
+        for kw in keywords:
+            if kw in command.lower():
+                return command.lower().split(kw)[-1].strip()
+        return command
 
-        # Simple parsing - can be enhanced
-        if 'generate image' in command.lower():
-            # Extract prompt after "generate image of" or similar
-            prompt_start = command.lower().find('generate image')
-            if prompt_start != -1:
-                params['prompt'] = command[
-                    prompt_start + len('generate image'):].strip()
+    def _generate_image(self, prompt: str, **kwargs) -> str:
+        """Generate image using Stable Diffusion"""
+        width = kwargs.get("width", 512)
+        height = kwargs.get("height", 512)
+        steps = kwargs.get("steps", 50)
+        
+        cmd = [
+            "python", "scripts/txt2img.py",
+            "--prompt", prompt,
+            "--W", str(width),
+            "--H", str(height),
+            "--n_samples", "1",
+            "--n_iter", "1",
+            "--ddim_steps", str(steps),
+            "--outdir", self.output_dir
+        ]
+        
+        result = subprocess.run(
+            cmd,
+            cwd=self.sd_path,
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+        
+        if result.returncode == 0:
+            # Find generated image
+            output_path = os.path.join(self.sd_path, self.output_dir)
+            files = os.listdir(output_path)
+            if files:
+                return os.path.join(output_path, files[-1])
+        
+        raise Exception(f"Generation failed: {result.stderr}")
 
-        return params
+    def _install_instructions(self) -> str:
+        return """Stable Diffusion not installed.
 
-    def _generate_with_webui(self, params: Dict[str, Any]) -> Optional[str]:
-        """Generate using Automatic1111 WebUI"""
-        try:
-            # Check if webui is running (simplified check)
-            import requests
-            response = requests.get(
-                'http://127.0.0.1:8080/sdapi/v1/sd-models', timeout=5)
-            if response.status_code != 200:
-                return None
+Run: .\\setup_stable_diffusion.ps1
 
-            # Use WebUI API
-            api_url = 'http://127.0.0.1:8080/sdapi/v1/txt2img'
+Or manually:
+1. git clone https://github.com/basujindal/stable-diffusion.git C:\\Projects\\stable-diffusion
+2. cd C:\\Projects\\stable-diffusion
+3. pip install -r requirements.txt
+4. Download model: python -c "from diffusers import StableDiffusionPipeline; StableDiffusionPipeline.from_pretrained('runwayml/stable-diffusion-v1-5')"
+"""
 
-            payload = {
-                'prompt': params['prompt'],
-                'negative_prompt': params.get('negative_prompt', ''),
-                'steps': params['steps'],
-                'width': params['width'],
-                'height': params['height'],
-                'cfg_scale': params['guidance_scale'],
-                'seed': params.get('seed', -1),
-                'sampler_name': 'Euler a'
-            }
-
-            response = requests.post(api_url, json=payload, timeout=60)
-            if response.status_code == 200:
-                result = response.json()
-                # Save image
-                import base64
-                image_data = base64.b64decode(result['images'][0])
-                filename = f"sd_webui_{int(time.time())}.png"
-                filepath = os.path.join(self.output_dir, filename)
-
-                with open(filepath, 'wb') as f:
-                    f.write(image_data)
-
-                return filepath
-
-        except Exception as e:
-            log_error("stable_diffusion_tool", f"WebUI generation failed: {e}")
-
-        return None
-
-    def _generate_with_cli(self, params: Dict[str, Any]) -> Optional[str]:
-        """Generate using CLI version"""
-        try:
-            if not os.path.exists(self.sd_cli_path):
-                return None
-
-            # Construct command
-            cmd = [
-                'python', 'scripts/txt2img.py',
-                '--prompt', params['prompt'],
-                '--steps', str(params['steps']),
-                '--W', str(params['width']),
-                '--H', str(params['height']),
-                '--output', self.output_dir
-            ]
-
-            if params.get('negative_prompt'):
-                cmd.extend(['--negative_prompt', params['negative_prompt']])
-
-            if params.get('seed'):
-                cmd.extend(['--seed', str(params['seed'])])
-
-            # Run command
-            result = subprocess.run(
-                cmd, cwd=self.sd_cli_path, capture_output=True,
-                text=True, timeout=120)
-
-            if result.returncode == 0:
-                # Find generated file
-                files = os.listdir(self.output_dir)
-                if files:
-                    latest = max(
-                        files,
-                        key=lambda x: os.path.getctime(
-                            os.path.join(self.output_dir, x)))
-                    return os.path.join(self.output_dir, latest)
-
-        except Exception as e:
-            log_error("stable_diffusion_tool", f"CLI generation failed: {e}")
-
-        return None
-
-    @classmethod
-    def schema(cls):
+    @staticmethod
+    def schema() -> Dict[str, Any]:
         return {
-            "name": cls.name,
-            "description": cls.description,
+            "name": "stable_diffusion",
+            "description": "Generate images from text prompts using Stable Diffusion",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "command": {
-                        "type": "string",
-                        "description": "Image generation command with prompt"
-                    }
+                    "prompt": {"type": "string", "description": "Image description"},
+                    "width": {"type": "integer", "default": 512},
+                    "height": {"type": "integer", "default": 512},
+                    "steps": {"type": "integer", "default": 50}
                 },
-                "required": ["command"]
+                "required": ["prompt"]
             }
         }

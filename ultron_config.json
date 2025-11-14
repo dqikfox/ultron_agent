@@ -4,10 +4,30 @@
   "use_api": true,
   "use_gui": true,
   "use_pytorch": true,
+  "api_port": 5000,
+  "web_gui_port": 8080,
+  "chat_port": 8000,
   "voice_engine": "elevenlabs",
   "stt_engine": "whisper",
   "tts_engine": "elevenlabs",
-  "llm_model": "llama3.1",
+  "voice_config": {
+    "wake_word": "hey ultron",
+    "confidence_threshold": 0.7,
+    "timeout_seconds": 30,
+    "language": "en-US",
+    "voice_id": "default",
+    "speaking_rate": 1.0,
+    "enable_interruption": true,
+    "noise_suppression": true,
+    "fallback_chain": [
+      "elevenlabs",
+      "openai_tts",
+      "pyttsx3",
+      "web_speech",
+      "console"
+    ]
+  },
+  "llm_model": "llava:7b",
   "ollama_base_url": "http://localhost:11434",
   "voice_boot_message": "There's No Strings On Me",
   "debug": false,
@@ -50,6 +70,14 @@
   "elevenlabs_agent_id": "e3mik6xHn4Sl51poljxK",
   "voice_cache_dir": "cache/voice",
   "mic_energy_threshold": 300,
+  "voice_enhancement": {
+    "context_awareness": true,
+    "conversation_memory": true,
+    "intent_classification": true,
+    "multi_turn_dialog": true,
+    "emotion_detection": false,
+    "voice_biometrics": false
+  },
   "disable_tts_cache": false,
   "microphone_device_index": null,
   "auto_analysis_enabled": true,
@@ -70,9 +98,21 @@
   "error_recovery_enabled": true,
   "nim_vision_model": "meta/llama-3.2-11b-vision-instruct",
   "performance_monitoring_interval": 10,
+  "diagnostics_enabled": true,
+  "diagnostics_dashboard_port": 5001,
+  "diagnostics_auto_export": true,
+  "diagnostics_export_interval_hours": 24,
   "error_history_max_size": 1000,
   "circuit_breaker_failure_threshold": 5,
   "circuit_breaker_recovery_timeout": 60,
+  "azure_luis_endpoint": "USE_ENV_AZURE_LUIS_ENDPOINT",
+  "azure_luis_key": "USE_ENV_AZURE_LUIS_KEY",
+  "azure_luis_app_id": "USE_ENV_AZURE_LUIS_APP_ID",
+  "azure_luis_app_version": "0.1",
+  "azure_text_analytics_endpoint": "USE_ENV_AZURE_TEXT_ANALYTICS_ENDPOINT",
+  "azure_text_analytics_key": "USE_ENV_AZURE_TEXT_ANALYTICS_KEY",
+  "azure_speech_key": "USE_ENV_AZURE_SPEECH_KEY",
+  "azure_speech_region": "eastus",
   "pytorch_config": {
     "device": "cuda",
     "fallback_to_cpu": true,
@@ -86,5 +126,114 @@
     "max_memory": null,
     "enable_quantization": true,
     "quantization_type": "int8"
+  },
+  "aws_bedrock": {
+    "enabled": false,
+    "api_endpoint": "https://your-api-endpoint.amazonaws.com/prod",
+    "region": "us-east-1",
+    "timeout": 30,
+    "default_model": "amazon.nova-pro-v1:0"
+  },
+  "voice_aws": {
+    "enabled": true,
+    "wake_words": [
+      "hey ultron aws",
+      "voice bedrock",
+      "ultron cloud"
+    ],
+    "response_voice": true
+  },
+  "mcp_enhanced": {
+    "enabled": true,
+    "browser_automation": true,
+    "memory_operations": true
+  },
+  "auto_run": {
+    "enabled": true,
+    "startup_commands": [
+      "start web interface",
+      "tor search latest AI news artificial intelligence 2025",
+      "uncensored search AI breakthrough news 2025",
+      "system status"
+    ],
+    "startup_delay_seconds": 5,
+    "run_in_background": true,
+    "log_auto_commands": true
+  },
+  "openai_computer_use": {
+    "enabled": true,
+    "api_key": "USE_ENV_OPENAI_API_KEY",
+    "model": "gpt-4o",
+    "max_actions_per_request": 10,
+    "action_delay_seconds": 0.5,
+    "screenshot_quality": "high",
+    "safety_mode": true,
+    "allowed_actions": [
+      "click",
+      "type",
+      "key",
+      "scroll",
+      "screenshot"
+    ],
+    "voice_commands": {
+      "enabled": true,
+      "wake_phrases": [
+        "computer",
+        "screen",
+        "click",
+        "type"
+      ]
+    }
+  },
+  "open_interface": {
+    "enabled": true,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "gemini_model": "gemini-1.5-flash",
+    "custom_base_url": null,
+    "custom_model": null,
+    "max_iterations": 6,
+    "max_actions_per_step": 6,
+    "history_limit": 5,
+    "temperature": 0.2,
+    "max_output_tokens": 800,
+    "action_delay_seconds": 0.35,
+    "retry_delay_seconds": 1.0,
+    "monitor_index": 1,
+    "screenshot_dir": "screenshots/open_interface",
+    "log_dir": "logs/open_interface",
+    "allow_mouse_fail_safe": true,
+    "cursor_pause_seconds": 0.05,
+    "course_correction": true,
+    "provider_options": {
+      "openai_api_key": "USE_ENV_OPENAI_API_KEY",
+      "gemini_api_key": "USE_ENV_GEMINI_API_KEY",
+      "custom_api_key": "USE_ENV_CUSTOM_LLM_API_KEY"
+    }
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "requests_per_hour": 100,
+    "burst_size": 10
+  },
+  "ssh_server": {
+    "enabled": true,
+    "port": 2222,
+    "password": "password",
+    "auto_start": true,
+    "allowed_users": ["anyuser"],
+    "bind_address": "0.0.0.0",
+    "max_connections": 5,
+    "connection_timeout": 300,
+    "host_key_path": "~/.ssh/ultron_host_key",
+    "log_connections": true,
+    "security": {
+      "password_authentication": true,
+      "public_key_authentication": false,
+      "allowed_ips": [],
+      "blocked_ips": [],
+      "max_auth_attempts": 3,
+      "auth_timeout": 30
+    }
   }
 }
