@@ -1,27 +1,128 @@
 version: '3.8'
 
-services:
-  ultron-agent:
-    build: .
-    ports:
-      - "8080:8080"
-      - "5000:5000"
-    environment:
-      - AWS_REGION=us-east-1
-      - ULTRON_VERSION=3.0
-    volumes:
-      - ./logs:/app/logs
-    depends_on:
-      - ollama
+# ULTRON Agent 3.0 - Docker Compose Orchestration
+# Production-ready multi-service deployment
+# Services: Ollama (LLM), ULTRON Agent (main), API Server, Web GUI
 
+services:
+  # Ollama LLM Backend - Local inference engine
   ollama:
     image: ollama/ollama:latest
+    container_name: ultron-ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_MODELS=/root/.ollama/models
+      - OLLAMA_DEBUG=1
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - ultron_network
 
+  # ULTRON Agent - Main AI Agent Service
+  ultron-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ultron-agent
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ULTRON_ENVIRONMENT=production
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - API_PORT=5000
+      - WEB_GUI_PORT=8080
+      - CHAT_PORT=8000
+      - LOG_LEVEL=INFO
+      - AWS_REGION=us-east-1
+      - ULTRON_VERSION=3.0
+    ports:
+      - "5000:5000"      # API Server
+      - "8000:8000"      # Chat Server
+      - "8080:8080"      # Web GUI
+    volumes:
+      - ./logs:/app/logs
+      - ./ultron_config.json:/app/ultron_config.json:ro
+      - ultron_cache:/app/.cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - ultron_network
+
+# Volumes for persistent data
 volumes:
   ollama_data:
+    driver: local
+  ultron_cache:
+    driver: local
+
+# Network for service communication
+networks:
+  ultron_network:
+    driver: bridge
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# USAGE INSTRUCTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. Start all services (background):
+#    docker-compose up -d
+#
+# 2. View logs in real-time:
+#    docker-compose logs -f ultron-agent
+#    docker-compose logs -f ollama
+#
+# 3. Check service status:
+#    docker-compose ps
+#
+# 4. Execute command in running container:
+#    docker-compose exec ultron-agent python deployment_validator.py
+#
+# 5. Stop all services:
+#    docker-compose down
+#
+# 6. Remove volumes (WARNING: deletes persistent data):
+#    docker-compose down -v
+#
+# 7. Rebuild image after code changes:
+#    docker-compose build --no-cache
+#
+# Health Check URLs:
+# - API Server: http://localhost:5000/health
+# - Ollama: http://localhost:11434/api/tags
+# - Web GUI: http://localhost:8080
+#
+# Production Considerations:
+# - Health checks automatic recovery
+# - Persistent volumes for data/models
+# - Log rotation (10MB max, 3-5 files)
+# - Network isolation via custom network
+# - Service dependencies with health checks
+# - Resource limits can be added per service
+#
+# ═══════════════════════════════════════════════════════════════════════════════

@@ -42,9 +42,17 @@ class UltronPokedexInterface {
             latestTimestamp: null
         };
         this.dashboardLogLimit = 25;
+        this.performanceHistory = {
+            labels: [],
+            cpu: [],
+            memory: [],
+            disk: []
+        };
+        this.maxHistoryPoints = 12;
         this.latestAgentInfo = null;
         this.latestVoiceStatus = null;
         this.latestLLMStatus = null;
+        this.commandHintCache = [];
         this.dom = {};
         this.voiceStartupAnnounced = false;
         this.userRequestedExport = false; // Prevent auto-download on startup
@@ -118,6 +126,9 @@ class UltronPokedexInterface {
             dashboardDiskBar: document.getElementById('dashboard-disk-bar'),
             dashboardNetwork: document.getElementById('dashboard-network'),
             dashboardLog: document.getElementById('dashboard-log-feed'),
+            performanceChart: document.getElementById('performance-chart'),
+            trendWindowLabel: document.getElementById('trend-window-label'),
+            commandHintsList: document.getElementById('command-hints-list'),
             leds: {
                 led1: document.getElementById('led-1'),
                 led2: document.getElementById('led-2'),
@@ -178,6 +189,17 @@ class UltronPokedexInterface {
                 this.handleDPadInput(direction);
                 this.playSound('button');
             });
+        });
+
+        document.querySelectorAll('.quick-command-chip').forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                const command = event.currentTarget.dataset.quickCommand;
+                this.runQuickCommand(command);
+            });
+        });
+
+        document.getElementById('copy-dashboard-summary')?.addEventListener('click', () => {
+            this.copyDashboardSnapshot();
         });
 
         document.getElementById('btn-a')?.addEventListener('click', () => {
@@ -357,6 +379,23 @@ class UltronPokedexInterface {
         document.addEventListener('keydown', (event) => {
             this.handleKeyboardShortcuts(event);
         });
+
+        // SSH Server Controls
+        document.getElementById('ssh-start-btn')?.addEventListener('click', () => {
+            this.startSSHServer();
+        });
+
+        document.getElementById('ssh-stop-btn')?.addEventListener('click', () => {
+            this.stopSSHServer();
+        });
+
+        document.getElementById('ssh-restart-btn')?.addEventListener('click', () => {
+            this.restartSSHServer();
+        });
+
+        document.getElementById('copy-ssh-command')?.addEventListener('click', () => {
+            this.copySSHCommand();
+        });
     }
 
     setupStartButton() {
@@ -433,7 +472,11 @@ class UltronPokedexInterface {
             clearInterval(this.timers.systemMonitor);
         }
         this.updateSystemStats();
-        this.timers.systemMonitor = setInterval(() => this.updateSystemStats(), 5000);
+        this.updateSSHStatus();
+        this.timers.systemMonitor = setInterval(() => {
+            this.updateSystemStats();
+            this.updateSSHStatus();
+        }, 5000);
     }
 
     startAnalysisPolling() {
@@ -499,6 +542,7 @@ class UltronPokedexInterface {
                 network: 'SIMULATED'
             };
         }
+        this.recordPerformanceSample();
         this.renderSystemStats();
         this.renderDashboardSnapshot();
     }
@@ -536,6 +580,92 @@ class UltronPokedexInterface {
             agent && (agent.textContent = agentStatus);
             uptime && (uptime.textContent = this.latestSystemSnapshot.agent?.uptime || '00:00:00');
         }
+
+        this.renderPerformanceTrends();
+    }
+
+    recordPerformanceSample() {
+        const history = this.performanceHistory;
+        const label = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const cpuValue = Math.max(0, Math.min(100, Number(this.systemStats.cpu) || 0));
+        const memoryValue = Math.max(0, Math.min(100, Number(this.systemStats.memory) || 0));
+        const diskValue = Math.max(0, Math.min(100, Number(this.systemStats.disk) || 0));
+
+        history.labels.push(label);
+        history.cpu.push(cpuValue);
+        history.memory.push(memoryValue);
+        history.disk.push(diskValue);
+
+        while (history.labels.length > this.maxHistoryPoints) {
+            history.labels.shift();
+            history.cpu.shift();
+            history.memory.shift();
+            history.disk.shift();
+        }
+    }
+
+    renderPerformanceTrends() {
+        const canvas = this.dom.performanceChart;
+        if (!canvas) {
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        ctx.clearRect(0, 0, width, height);
+
+        const { labels, cpu, memory, disk } = this.performanceHistory;
+        const totalPoints = labels.length;
+        if (this.dom.trendWindowLabel) {
+            this.dom.trendWindowLabel.textContent = totalPoints
+                ? `Last ${totalPoints} sample${totalPoints > 1 ? 's' : ''}`
+                : 'Awaiting samples…';
+        }
+
+        if (!totalPoints) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+            ctx.font = '12px "Share Tech Mono", monospace';
+            ctx.fillText('Collecting telemetry…', 20, height / 2);
+            return;
+        }
+
+        // Grid background
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i += 1) {
+            const y = 10 + ((height - 20) / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(10, y);
+            ctx.lineTo(width - 10, y);
+            ctx.stroke();
+        }
+
+        const drawLine = (data, color) => {
+            if (!data.length) {
+                return;
+            }
+            ctx.beginPath();
+            data.forEach((value, index) => {
+                const x = 10 + (index / Math.max(1, data.length - 1)) * (width - 20);
+                const y = height - 10 - (value / 100) * (height - 20);
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 4;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        };
+
+        drawLine(cpu, '#ff5c5c');
+        drawLine(memory, '#4fd1c5');
+        drawLine(disk, '#f6e05e');
     }
 
     renderDashboardSnapshot() {
@@ -581,6 +711,7 @@ class UltronPokedexInterface {
 
         // Update footer status bar
         this.updateFooterStatus();
+        this.refreshCommandHints();
     }
 
     updateFooterStatus() {
@@ -603,6 +734,53 @@ class UltronPokedexInterface {
         // LLM Status
         const llmStatus = this.latestLLMStatus?.status || 'OFFLINE';
         this.setTextContent(document.getElementById('footer-llm-status'), llmStatus.toUpperCase());
+    }
+
+    refreshCommandHints() {
+        const list = this.dom.commandHintsList;
+        if (!list) {
+            return;
+        }
+        const hints = this.generateCommandHints();
+        list.innerHTML = '';
+        hints.forEach((hint) => {
+            const item = document.createElement('li');
+            item.className = 'command-hint';
+            item.textContent = hint;
+            list.appendChild(item);
+        });
+    }
+
+    generateCommandHints() {
+        const hints = [];
+        const agentStatus = (this.latestAgentInfo?.status || this.latestSystemSnapshot?.agent?.status || 'UNKNOWN').toUpperCase();
+        const llmStatus = (this.latestLLMStatus?.status || 'OFFLINE').toUpperCase();
+        const modelName = (this.latestLLMStatus?.model || '—').toUpperCase();
+        const networkState = (this.systemStats.network || 'UNKNOWN').toUpperCase();
+
+        if (agentStatus !== 'ONLINE') {
+            hints.push('Agent offline? Run "status" or use the power menu to restart core services.');
+        }
+
+        if (llmStatus !== 'ONLINE') {
+            hints.push(`LLM ${modelName} is ${llmStatus}. Use "help" to review commands or switch Ollama models.`);
+        } else {
+            hints.push(`Need fresh data? Run "capture" or "analyze" before prompting ${modelName}.`);
+        }
+
+        if (!this.voiceEnabled) {
+            hints.push('Voice link is disabled. Enable voice controls before issuing spoken commands.');
+        }
+
+        if (networkState.includes('SIMULATED')) {
+            hints.push('Network telemetry is simulated. Run "status" to confirm backend connectivity.');
+        }
+
+        if (!hints.length) {
+            hints.push('Try "help" to review all console commands or "analyze" to trigger vision.');
+        }
+
+        return hints.slice(0, 3);
     }
 
     setTextContent(node, value) {
@@ -631,6 +809,12 @@ class UltronPokedexInterface {
     }
 
     switchSection(sectionName) {
+        // Prevent navigation away from root path
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/' && currentPath !== '/index.html') {
+            window.history.replaceState(null, '', '/');
+        }
+
         // Update navigation tab states
         document.querySelectorAll('.nav-button').forEach(btn => {
             const isActive = btn.dataset.section === sectionName;
@@ -730,6 +914,16 @@ class UltronPokedexInterface {
         });
     }
 
+    runQuickCommand(command) {
+        const quickCommand = (command || '').trim();
+        if (!quickCommand) {
+            return;
+        }
+        // Mirror the console UX so quick taps still show in the transcript
+        this.handleConsoleCommand(quickCommand);
+        this.dom.consoleInput?.focus();
+    }
+
     async processCommand(command) {
         const lower = command.toLowerCase();
 
@@ -785,6 +979,35 @@ class UltronPokedexInterface {
         } catch (error) {
             console.error('[ULTRON] Backend command failed - app.js:786', error);
             this.addErrorMessage('Backend unavailable. Running in local mode.');
+        }
+    }
+
+    async copyDashboardSnapshot() {
+        const snapshot = [
+            `ULTRON STATUS: ${(this.latestAgentInfo?.status || this.latestSystemSnapshot?.agent?.status || 'UNKNOWN').toUpperCase()}`,
+            `UPTIME: ${this.latestSystemSnapshot?.agent?.uptime || '00:00:00'}`,
+            `VOICE: ${(this.voiceEnabled ? 'ENABLED' : 'DISABLED')} (${(this.latestVoiceStatus?.provider || 'UNSET').toUpperCase()})`,
+            `LLM: ${(this.latestLLMStatus?.model || 'UNKNOWN').toUpperCase()} (${(this.latestLLMStatus?.status || 'OFFLINE').toUpperCase()})`,
+            `CPU: ${Math.round(this.systemStats.cpu || 0)}% | MEMORY: ${Math.round(this.systemStats.memory || 0)}% | DISK: ${Math.round(this.systemStats.disk || 0)}%`,
+            `NETWORK: ${this.systemStats.network || 'UNKNOWN'}`,
+            `TIMESTAMP: ${new Date().toLocaleString()}`
+        ].join('\n');
+
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(snapshot);
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = snapshot;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+            this.addSystemMessage('Status snapshot copied to clipboard.');
+        } catch (error) {
+            console.error('[ULTRON] Snapshot copy failed - app.js:815', error);
+            this.addErrorMessage('Clipboard access denied. Copy manually from console.');
         }
     }
 
@@ -1427,12 +1650,26 @@ class UltronPokedexInterface {
             this.dom.toolGrid.innerHTML = '<div class="empty-state">No tools available</div>';
             return;
         }
+        // PHASE 1D: Tool execution display with status indicators
         this.dom.toolGrid.innerHTML = tools.map(tool => `
-            <div class="tool-card" data-tool="${tool.name}">
-                <h4>${tool.name}</h4>
-                <p>${tool.description || 'No description provided.'}</p>
+            <div class="tool-card" data-tool="${tool.name}" data-tool-status="idle">
+                <div class="tool-status-indicator">
+                    <span class="tool-status-badge idle">IDLE</span>
+                </div>
+                <h4 class="tool-name">${tool.name}</h4>
+                <p class="tool-desc">${tool.description || 'No description provided.'}</p>
+                <div class="tool-meta">
+                    <span class="tool-execution-count">Executions: 0</span>
+                    <span class="tool-status-time">Last: Never</span>
+                </div>
             </div>
         `).join('');
+
+        // Update tool stats
+        const totalToolsEl = document.getElementById('total-tools');
+        if (totalToolsEl) {
+            totalToolsEl.textContent = tools.length;
+        }
 
         this.dom.toolGrid.querySelectorAll('.tool-card').forEach(card => {
             card.addEventListener('click', () => {
@@ -1446,11 +1683,107 @@ class UltronPokedexInterface {
         if (!tool || !this.dom.toolDetails) {
             return;
         }
+        const executionInfo = this.getToolExecutionInfo(toolName);
         this.dom.toolDetails.innerHTML = `
-            <h3>${tool.name}</h3>
-            <p>${tool.description || 'No description provided.'}</p>
-            <pre>${JSON.stringify(tool.parameters || {}, null, 2)}</pre>
+            <div class="tool-details-container">
+                <h3 class="tool-title">🔧 ${tool.name}</h3>
+                <p class="tool-description">${tool.description || 'No description provided.'}</p>
+                <div class="execution-stats">
+                    <div class="stat">
+                        <span class="stat-label">Total Executions:</span>
+                        <span class="stat-val">${executionInfo.count}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Status:</span>
+                        <span class="stat-val">${executionInfo.status}</span>
+                    </div>
+                </div>
+                <button class="execute-tool-btn" id="execute-${tool.name}">Execute Tool</button>
+                <pre class="tool-params">${JSON.stringify(tool.parameters || {}, null, 2)}</pre>
+            </div>
         `;
+
+        // Add execute button handler
+        const executeBtn = document.getElementById(`execute-${tool.name}`);
+        if (executeBtn) {
+            executeBtn.addEventListener('click', () => {
+                this.executeToolFromGUI(tool.name);
+            });
+        }
+    }
+
+    getToolExecutionInfo(toolName) {
+        // Retrieve or initialize tool execution tracking
+        if (!this.toolExecutionStats) {
+            this.toolExecutionStats = {};
+        }
+        if (!this.toolExecutionStats[toolName]) {
+            this.toolExecutionStats[toolName] = {
+                count: 0,
+                lastExecution: null,
+                status: 'idle'
+            };
+        }
+        return this.toolExecutionStats[toolName];
+    }
+
+    async executeToolFromGUI(toolName) {
+        try {
+            this.addSystemMessage(`🔧 Executing tool: ${toolName}...`);
+            const info = this.getToolExecutionInfo(toolName);
+            info.status = 'executing';
+            this.updateToolCard(toolName, 'executing');
+
+            const response = await this.apiCall('/api/tools/execute', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    tool: toolName,
+                    command: `Execute ${toolName} from GUI`
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            info.count += 1;
+            info.lastExecution = new Date().toLocaleTimeString();
+            info.status = 'idle';
+            this.updateToolCard(toolName, 'idle');
+            this.addSystemMessage(`✅ Tool executed: ${toolName}\nResult: ${data.result}`);
+        } catch (error) {
+            console.error('[ULTRON] Tool execution failed', error);
+            const info = this.getToolExecutionInfo(toolName);
+            info.status = 'error';
+            this.updateToolCard(toolName, 'error');
+            this.addErrorMessage(`❌ Tool execution failed: ${error.message}`);
+        }
+    }
+
+    updateToolCard(toolName, status) {
+        const card = document.querySelector(`[data-tool="${toolName}"]`);
+        if (!card) return;
+
+        const statusBadge = card.querySelector('.tool-status-badge');
+        const countEl = card.querySelector('.tool-execution-count');
+        const timeEl = card.querySelector('.tool-status-time');
+
+        if (statusBadge) {
+            statusBadge.className = `tool-status-badge ${status}`;
+            statusBadge.textContent = status.toUpperCase();
+        }
+
+        card.setAttribute('data-tool-status', status);
+
+        const info = this.getToolExecutionInfo(toolName);
+        if (countEl) {
+            countEl.textContent = `Executions: ${info.count}`;
+        }
+        if (timeEl) {
+            timeEl.textContent = info.lastExecution ? `Last: ${info.lastExecution}` : 'Last: Never';
+        }
     }
 
     async refreshTools() {
@@ -2474,6 +2807,119 @@ class UltronPokedexInterface {
                 throw new Error(String(error));
             }
             throw error;
+        }
+    }
+
+    // SSH Server Management Methods
+    async updateSSHStatus() {
+        try {
+            const response = await this.apiCall('/api/ssh/status');
+            if (response.ok) {
+                const status = await response.json();
+                this.updateSSHIndicators(status);
+            }
+        } catch (error) {
+            console.debug('[ULTRON] SSH status check failed - app.js:SSH', error);
+            this.updateSSHIndicators({ running: false, port: 2222, error: error.message });
+        }
+    }
+
+    updateSSHIndicators(status) {
+        const indicator = document.getElementById('ssh-status-indicator');
+        const statusText = document.getElementById('ssh-status-text');
+        const port = document.getElementById('ssh-port');
+        const startBtn = document.getElementById('ssh-start-btn');
+        const stopBtn = document.getElementById('ssh-stop-btn');
+        const restartBtn = document.getElementById('ssh-restart-btn');
+
+        if (indicator) {
+            if (status.running) {
+                indicator.className = 'ssh-status-indicator online';
+                indicator.textContent = '●';
+            } else {
+                indicator.className = 'ssh-status-indicator offline';
+                indicator.textContent = '●';
+            }
+        }
+
+        if (statusText) {
+            statusText.textContent = status.running ? 'ONLINE' : 'OFFLINE';
+        }
+
+        if (port && status.port) {
+            port.textContent = status.port;
+        }
+
+        // Update button states
+        if (startBtn) startBtn.disabled = status.running;
+        if (stopBtn) stopBtn.disabled = !status.running;
+        if (restartBtn) restartBtn.disabled = !status.running;
+    }
+
+    async startSSHServer() {
+        try {
+            this.addSystemMessage('Starting SSH server...');
+            const response = await this.apiCall('/api/ssh/start', { method: 'POST' });
+            if (response.ok) {
+                const result = await response.json();
+                this.addSystemMessage(`SSH server started on port ${result.port || 2222}`);
+                this.playSound('confirm');
+            } else {
+                throw new Error(`Failed to start SSH server: ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('[ULTRON] SSH start failed:', error);
+            this.addSystemMessage(`❌ SSH start failed: ${error.message}`);
+            this.playSound('error');
+        }
+        this.updateSSHStatus();
+    }
+
+    async stopSSHServer() {
+        try {
+            this.addSystemMessage('Stopping SSH server...');
+            const response = await this.apiCall('/api/ssh/stop', { method: 'POST' });
+            if (response.ok) {
+                this.addSystemMessage('SSH server stopped');
+                this.playSound('confirm');
+            } else {
+                throw new Error(`Failed to stop SSH server: ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('[ULTRON] SSH stop failed:', error);
+            this.addSystemMessage(`❌ SSH stop failed: ${error.message}`);
+            this.playSound('error');
+        }
+        this.updateSSHStatus();
+    }
+
+    async restartSSHServer() {
+        try {
+            this.addSystemMessage('Restarting SSH server...');
+            await this.stopSSHServer();
+            setTimeout(async () => {
+                await this.startSSHServer();
+            }, 1000);
+        } catch (error) {
+            console.error('[ULTRON] SSH restart failed:', error);
+            this.addSystemMessage(`❌ SSH restart failed: ${error.message}`);
+            this.playSound('error');
+        }
+    }
+
+    async copySSHCommand() {
+        try {
+            const commandElement = document.querySelector('.ssh-connect-command code');
+            if (commandElement) {
+                const command = commandElement.textContent;
+                await navigator.clipboard.writeText(command);
+                this.addSystemMessage('SSH command copied to clipboard');
+                this.playSound('confirm');
+            }
+        } catch (error) {
+            console.error('[ULTRON] Copy command failed:', error);
+            this.addSystemMessage('❌ Failed to copy command');
+            this.playSound('error');
         }
     }
 

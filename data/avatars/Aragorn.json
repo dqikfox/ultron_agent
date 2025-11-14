@@ -1,0 +1,15 @@
+{
+  "name": "Aragorn",
+  "class": "Warrior",
+  "race": "Elf",
+  "level": 1,
+  "stats": {
+    "attack": 8,
+    "defense": 7,
+    "magic": 2,
+    "speed": 5
+  },
+  "visual": "\u2694\ufe0f\ud83e\udddd",
+  "equipment": [],
+  "inventory": []
+}

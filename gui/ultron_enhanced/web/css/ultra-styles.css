@@ -1,0 +1,187 @@
+/* Ultra Features Styles */
+
+/* Floating Action Buttons */
+.search-btn, .voice-command-btn, .queue-btn, .clipboard-btn, .bookmark-btn, .macro-btn, .export-btn {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(40, 40, 40, 0.95));
+    color: #ff4444;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+    z-index: 9998;
+}
+
+.search-btn { bottom: 220px; right: 20px; }
+.voice-command-btn { bottom: 280px; right: 20px; }
+.queue-btn { bottom: 340px; right: 20px; }
+.clipboard-btn { bottom: 400px; right: 20px; }
+.bookmark-btn { bottom: 460px; right: 20px; }
+.macro-btn { bottom: 520px; right: 20px; }
+.export-btn { bottom: 580px; right: 20px; }
+
+.search-btn:hover, .voice-command-btn:hover, .queue-btn:hover, .clipboard-btn:hover, .bookmark-btn:hover, .macro-btn:hover, .export-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(255, 68, 68, 0.5);
+}
+
+.voice-command-btn.listening {
+    animation: pulse-red 1s infinite;
+    background: rgba(255, 68, 68, 0.3);
+}
+
+.macro-btn.recording {
+    animation: pulse-red 1s infinite;
+    background: rgba(255, 68, 68, 0.3);
+}
+
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 68, 68, 0.5); }
+    50% { box-shadow: 0 0 30px rgba(255, 68, 68, 0.9); }
+}
+
+/* Autocomplete */
+.autocomplete-suggestions {
+    position: absolute;
+    background: rgba(20, 20, 20, 0.98);
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+.autocomplete-suggestions div {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.2s ease;
+}
+
+.autocomplete-suggestions div:hover {
+    background: rgba(255, 68, 68, 0.2);
+}
+
+/* Search Results */
+#search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+.search-result {
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-result:hover {
+    background: rgba(255, 68, 68, 0.2);
+    transform: translateX(5px);
+}
+
+/* Task Queue */
+.task-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.task-input input {
+    flex: 1;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.task-input button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #ff4444, #ff6666);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.task-item.done {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.task-item button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* Clipboard & Bookmarks */
+.clipboard-list, .bookmark-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.clip-item, .bookmark-item {
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.2s ease;
+}
+
+.clip-item:hover, .bookmark-item:hover {
+    background: rgba(255, 68, 68, 0.2);
+    transform: translateX(5px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-btn, .voice-command-btn, .queue-btn, .clipboard-btn, .bookmark-btn, .macro-btn, .export-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        right: 10px;
+    }
+    .search-btn { bottom: 220px; }
+    .voice-command-btn { bottom: 270px; }
+    .queue-btn { bottom: 320px; }
+    .clipboard-btn { bottom: 370px; }
+    .bookmark-btn { bottom: 420px; }
+    .macro-btn { bottom: 470px; }
+    .export-btn { bottom: 520px; }
+}
