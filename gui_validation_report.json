@@ -1,0 +1,358 @@
+{
+  "timestamp": "2025-11-03T15:56:20.964106",
+  "overall_status": "FAIL",
+  "links": {
+    "total": 20,
+    "summary": {
+      "PASS": 11,
+      "FAIL": 8,
+      "WARNING": 0,
+      "SKIP": 1
+    },
+    "details": [
+      {
+        "url": "styles.css",
+        "link_type": "external",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "styles.css",
+        "response_time": null,
+        "source_location": null,
+        "recommendations": [
+          "Verify URL is correct",
+          "Check internet connectivity"
+        ]
+      },
+      {
+        "url": "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap",
+        "link_type": "external",
+        "status": "PASS",
+        "status_code": 200,
+        "error_message": null,
+        "response_time": 0.2868680953979492,
+        "source_location": null,
+        "recommendations": null
+      },
+      {
+        "url": "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap",
+        "link_type": "external",
+        "status": "PASS",
+        "status_code": 200,
+        "error_message": null,
+        "response_time": 0.2853703498840332,
+        "source_location": null,
+        "recommendations": null
+      },
+      {
+        "url": "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js",
+        "link_type": "external",
+        "status": "PASS",
+        "status_code": 200,
+        "error_message": null,
+        "response_time": 0.12517690658569336,
+        "source_location": null,
+        "recommendations": null
+      },
+      {
+        "url": "https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.7/dist/build/static/js/bundle.min.js",
+        "link_type": "external",
+        "status": "PASS",
+        "status_code": 200,
+        "error_message": null,
+        "response_time": 0.09962654113769531,
+        "source_location": null,
+        "recommendations": null
+      },
+      {
+        "url": "assets/sounds.js",
+        "link_type": "external",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "assets/sounds.js",
+        "response_time": null,
+        "source_location": null,
+        "recommendations": [
+          "Verify URL is correct",
+          "Check internet connectivity"
+        ]
+      },
+      {
+        "url": "app.js",
+        "link_type": "external",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "app.js",
+        "response_time": null,
+        "source_location": null,
+        "recommendations": [
+          "Verify URL is correct",
+          "Check internet connectivity"
+        ]
+      },
+      {
+        "url": "comprehensive_test.js",
+        "link_type": "external",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "comprehensive_test.js",
+        "response_time": null,
+        "source_location": null,
+        "recommendations": [
+          "Verify URL is correct",
+          "Check internet connectivity"
+        ]
+      },
+      {
+        "url": "manual_test.js",
+        "link_type": "external",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "manual_test.js",
+        "response_time": null,
+        "source_location": null,
+        "recommendations": [
+          "Verify URL is correct",
+          "Check internet connectivity"
+        ]
+      },
+      {
+        "url": "enhanced_ultron.js",
+        "link_type": "external",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "enhanced_ultron.js",
+        "response_time": null,
+        "source_location": null,
+        "recommendations": [
+          "Verify URL is correct",
+          "Check internet connectivity"
+        ]
+      },
+      {
+        "url": "https://unpkg.com/@elevenlabs/convai-widget-embed",
+        "link_type": "external",
+        "status": "PASS",
+        "status_code": 200,
+        "error_message": null,
+        "response_time": 0.41813039779663086,
+        "source_location": null,
+        "recommendations": null
+      },
+      {
+        "url": "assets/favicon.png",
+        "link_type": "favicon",
+        "status": "PASS",
+        "status_code": null,
+        "error_message": null,
+        "response_time": null,
+        "source_location": "gui\\ultron_enhanced\\web\\assets\\favicon.png",
+        "recommendations": null
+      },
+      {
+        "url": "assets/favicon.ico",
+        "link_type": "favicon",
+        "status": "PASS",
+        "status_code": null,
+        "error_message": null,
+        "response_time": null,
+        "source_location": "gui\\ultron_enhanced\\web\\assets\\favicon.ico",
+        "recommendations": null
+      },
+      {
+        "url": "assets/wake.wav",
+        "link_type": "audio",
+        "status": "PASS",
+        "status_code": null,
+        "error_message": null,
+        "response_time": null,
+        "source_location": "gui\\ultron_enhanced\\web\\assets\\wake.wav",
+        "recommendations": null
+      },
+      {
+        "url": "assets/button_press.wav",
+        "link_type": "audio",
+        "status": "PASS",
+        "status_code": null,
+        "error_message": null,
+        "response_time": null,
+        "source_location": "gui\\ultron_enhanced\\web\\assets\\button_press.wav",
+        "recommendations": null
+      },
+      {
+        "url": "assets/confirm.wav",
+        "link_type": "audio",
+        "status": "PASS",
+        "status_code": null,
+        "error_message": null,
+        "response_time": null,
+        "source_location": "gui\\ultron_enhanced\\web\\assets\\confirm.wav",
+        "recommendations": null
+      },
+      {
+        "url": "http://localhost:8002",
+        "link_type": "local_api",
+        "status": "SKIP",
+        "status_code": null,
+        "error_message": "Localhost URL skipped (requires running services)",
+        "response_time": null,
+        "source_location": null,
+        "recommendations": null
+      },
+      {
+        "url": "http://localhost:5000/health",
+        "link_type": "api",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "Cannot connect to host localhost:5000 ssl:default [The remote computer refused the network connection]",
+        "response_time": null,
+        "source_location": "API: API Health",
+        "recommendations": [
+          "Ensure service is running"
+        ]
+      },
+      {
+        "url": "http://localhost:8080/health",
+        "link_type": "api",
+        "status": "FAIL",
+        "status_code": null,
+        "error_message": "Cannot connect to host localhost:8080 ssl:default [The remote computer refused the network connection]",
+        "response_time": null,
+        "source_location": "API: Web GUI Health",
+        "recommendations": [
+          "Ensure service is running"
+        ]
+      },
+      {
+        "url": "http://localhost:11434/api/tags",
+        "link_type": "api",
+        "status": "PASS",
+        "status_code": 200,
+        "error_message": null,
+        "response_time": null,
+        "source_location": "API: Ollama Models",
+        "recommendations": null
+      }
+    ]
+  },
+  "functions": {
+    "total": 13,
+    "summary": {
+      "DEFINED": 10,
+      "NOT_FOUND": 3
+    },
+    "details": [
+      {
+        "function_name": "init",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 2,
+        "recommendations": null
+      },
+      {
+        "function_name": "cacheDomReferences",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 2,
+        "recommendations": null
+      },
+      {
+        "function_name": "setupEventListeners",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 2,
+        "recommendations": null
+      },
+      {
+        "function_name": "switchSection",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 7,
+        "recommendations": null
+      },
+      {
+        "function_name": "loadSystemInfo",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 1,
+        "recommendations": null
+      },
+      {
+        "function_name": "executeCommand",
+        "status": "NOT_FOUND",
+        "file_location": "app.js",
+        "error_message": "Function not found: executeCommand",
+        "call_count": 0,
+        "recommendations": [
+          "Define function: executeCommand"
+        ]
+      },
+      {
+        "function_name": "speak",
+        "status": "NOT_FOUND",
+        "file_location": "app.js",
+        "error_message": "Function not found: speak",
+        "call_count": 0,
+        "recommendations": [
+          "Define function: speak"
+        ]
+      },
+      {
+        "function_name": "testTTS",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 3,
+        "recommendations": null
+      },
+      {
+        "function_name": "toggleVoiceChat",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 4,
+        "recommendations": null
+      },
+      {
+        "function_name": "loadToolsGrid",
+        "status": "NOT_FOUND",
+        "file_location": "app.js",
+        "error_message": "Function not found: loadToolsGrid",
+        "call_count": 0,
+        "recommendations": [
+          "Define function: loadToolsGrid"
+        ]
+      },
+      {
+        "function_name": "renderDashboardSnapshot",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 9,
+        "recommendations": null
+      },
+      {
+        "function_name": "updateClock",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 3,
+        "recommendations": null
+      },
+      {
+        "function_name": "handleStartupAnnouncement",
+        "status": "DEFINED",
+        "file_location": "app.js",
+        "error_message": null,
+        "call_count": 3,
+        "recommendations": null
+      }
+    ]
+  },
+  "issues_found": 8,
+  "critical_issues": 8
+}

@@ -47,7 +47,7 @@
             "runtimeArgs": [
                 "--remote-debugging-port=9222"
             ],
-            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.9\\out\\startpage\\index.html", // Provide your project's url to finish configuring
+            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.9\\out\\startpage\\index.html",
             "presentation": {
                 "hidden": true
             }
@@ -60,7 +60,7 @@
                 "--headless",
                 "--remote-debugging-port=9222"
             ],
-            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.9.0\\out\\startpage\\index.html", // Provide your project's url to finish configuring
+            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.9.0\\out\\startpage\\index.html",
             "presentation": {
                 "hidden": true
             }
@@ -69,10 +69,20 @@
             "type": "vscode-edge-devtools.debug",
             "name": "Open Edge DevTools",
             "request": "attach",
-            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.9.0\\out\\startpage\\index.html", // Provide your project's url to finish configuring
+            "url": "c:\\Users\\ultro\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.9.0\\out\\startpage\\index.html",
             "presentation": {
                 "hidden": true
             }
+        },
+        {
+            "name": "Attach to Python Functions",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 9091
+            },
+            "preLaunchTask": "func: host start"
         }
     ],
     "compounds": [

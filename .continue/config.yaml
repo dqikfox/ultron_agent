@@ -3,17 +3,63 @@ version: 1.0.28
 schema: v1
 
 models:
-  # Anthropic Models
-  - name: Claude 3.7 Sonnet
-    provider: anthropic
-    model: claude-3-7-sonnet-20240229
-    apiKey: ${ANTHROPIC_API_KEY}
+  # PRIMARY: Local Ollama Models for Coding
+  - name: Qwen 2.5 Coder 7B (Primary)
+    provider: ollama
+    model: qwen2.5-coder:7b
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+      - apply
+    completionOptions:
+      temperature: 0.2
+      maxTokens: 4096
+
+  - name: DeepSeek R1 14B (Reasoning)
+    provider: ollama
+    model: deepseek-r1:14b
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+    completionOptions:
+      temperature: 0.3
+      maxTokens: 8192
+
+  - name: Qwen 3 Coder 480B Cloud (Advanced)
+    provider: ollama
+    model: qwen3-coder:480b-cloud
+    apiBase: http://localhost:11434
     roles:
       - chat
       - edit
       - apply
 
-  - name: Claude 3.5 Sonnet
+  - name: Devstral (Specialized)
+    provider: ollama
+    model: devstral:latest
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+
+  - name: Mistral Small 3.2 (Fast)
+    provider: ollama
+    model: mistral-small3.2:latest
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+
+  - name: Llava 7B (Vision)
+    provider: ollama
+    model: llava:7b
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+
+  # FALLBACK: Cloud Models
+  - name: Claude 3.5 Sonnet (Cloud)
     provider: anthropic
     model: claude-3-5-sonnet-20241022
     apiKey: ${ANTHROPIC_API_KEY}
@@ -22,76 +68,22 @@ models:
       - edit
       - apply
 
-  - name: Claude 4 Sonnet
-    provider: anthropic
-    model: claude-4-sonnet
-    apiKey: ${ANTHROPIC_API_KEY}
-    roles:
-      - chat
-      - edit
+# Autocomplete with local models
+tabAutocompleteModel:
+  provider: ollama
+  model: qwen2.5-coder:1.5b
+  apiBase: http://localhost:11434
+  completionOptions:
+    temperature: 0.1
+    maxTokens: 512
 
-  # Mistral Models
-  - name: Codestral
-    provider: mistral
-    model: codestral-latest
-    apiKey: ${MISTRAL_API_KEY}
-    roles:
-      - autocomplete
+tabAutocompleteOptions:
+  disable: false
+  maxPromptTokens: 1024
+  debounceDelay: 200
+  modelTimeout: 100
+  multilineCompletions: auto
 
-  # Voyage AI Models
-  - name: Voyage Code 3
-    provider: voyage
-    model: voyage-code-3
-    apiKey: ${VOYAGE_API_KEY}
-
-  - name: Voyage Rerank 2
-    provider: voyage
-    model: rerank-2
-    apiKey: ${VOYAGE_API_KEY}
-
-  # XAI Models
-  - name: Grok 4
-    provider: openai
-    model: grok-4
-    apiBase: https://api.x.ai/v1
-    apiKey: ${XAI_API_KEY}
-
-  # Ollama Models (Local)
-  - name: Qwen2.5 Coder 7B
-    provider: ollama
-    model: qwen2.5-coder:7b
-    roles:
-      - chat
-      - autocomplete
-
-  - name: Devstral
-    provider: ollama
-    model: devstral
-
-  - name: Qwen3 30B
-    provider: ollama
-    model: qwen3:30b
-
-  - name: Qwen2.5 Coder 1.5B
-    provider: ollama
-    model: qwen2.5-coder:1.5b
-    roles:
-      - autocomplete
-
-  # Local Agent (ULTRON Agent Integration)
-  - name: Local Agent
-    provider: continue-proxy
-    model: gpt-3.5-turbo
-    apiBase: http://localhost:8000/v1
-    apiKey: ultron-local-key
-    orgScopeId: ultron-local
-    onPremProxyUrl: http://localhost:8000
-    roles:
-      - chat
-      - edit
-      - apply
-
-# Context Providers
 context:
   - provider: diff
   - provider: codebase
@@ -101,15 +93,13 @@ context:
   - provider: code
   - provider: file
   - provider: docs
-  - provider: currentFile
-  - provider: repoMap
-  - provider: openFiles
-  - provider: clipboard
-  - provider: os
-  - provider: commits
-  - provider: problems
+    startUrl: "https://docs.continue.dev"
+    maxDepth: 3
 
-# MCP Servers
+rules:
+  - .continue/rules/project-architecture.md
+  - .continue/rules/coding-standards.md
+
 mcpServers:
   - name: github
     command: npx
@@ -117,40 +107,26 @@ mcpServers:
     env:
       GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_PERSONAL_ACCESS_TOKEN}
 
-  - name: postgres
-    command: npx
-    args: ["-y", "@anthropic-ai/mcp-server-postgres"]
-    env:
-      CONNECTION_STRING: ${POSTGRES_CONNECTION_STRING}
-
   - name: filesystem
     command: npx
     args: ["-y", "@anthropic-ai/mcp-server-filesystem"]
     env:
       PATH: ${FILESYSTEM_PATH}
 
-  - name: playwright
+  - name: browser
     command: npx
-    args: ["-y", "playwright-mcp-server"]
-
-  - name: exa
-    command: npx
-    args: ["-y", "exa-mcp"]
+    args: ["-y", "@anthropic-ai/mcp-server-browser"]
     env:
-      EXA_API_KEY: ${EXA_API_KEY}
+      BROWSER_HEADLESS: "false"
 
-  - name: brave-search
+  - name: browsermcp
     command: npx
-    args: ["-y", "@anthropic-ai/mcp-server-brave-search"]
-    env:
-      BRAVE_API_KEY: ${BRAVE_API_KEY}
+    args: ["@browsermcp/mcp@latest"]
 
-  - name: memory
-    command: npx
-    args: ["-y", "@anthropic-ai/mcp-server-memory"]
-
-  - name: Context7 MCP
+  - name: deepwiki
     type: streamable-http
-    url: https://mcp.context7.com/mcp
+    url: https://mcp.deepwiki.com/mcp
 
-
+  - name: langflow
+    command: npx
+    args: ["-y", "@langflow/mcp-server"]

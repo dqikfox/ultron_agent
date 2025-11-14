@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  stable-diffusion:
+    image: pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+    container_name: ultron-stable-diffusion
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ./stable-diffusion:/workspace
+      - ./models:/models
+      - ./outputs:/outputs
+    ports:
+      - "7860:7860"
+    command: >
+      bash -c "
+      pip install diffusers transformers accelerate safetensors &&
+      python -m diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion
+      "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  txt2imghd:
+    image: python:3.10
+    container_name: ultron-txt2imghd
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ./txt2imghd:/workspace
+      - ./models:/models
+      - ./outputs:/outputs
+    working_dir: /workspace
+    command: >
+      bash -c "
+      git clone https://github.com/jquesnelle/txt2imghd.git . &&
+      pip install -r requirements.txt &&
+      python txt2imghd.py --prompt 'test image'
+      "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

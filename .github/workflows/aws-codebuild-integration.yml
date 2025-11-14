@@ -1,0 +1,48 @@
+name: AWS CodeBuild Integration
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  trigger-codebuild:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Trigger CodeBuild
+        run: |
+          BUILD_ID=$(aws codebuild start-build \
+            --project-name ultron-agent-build \
+            --query 'build.id' --output text)
+          
+          echo "CodeBuild started: $BUILD_ID"
+          
+          # Wait for build completion
+          aws codebuild batch-get-builds --ids $BUILD_ID \
+            --query 'builds[0].buildStatus' --output text
+
+      - name: Get build logs
+        if: always()
+        run: |
+          aws logs get-log-events \
+            --log-group-name /aws/codebuild/ultron-agent-build \
+            --log-stream-name $(aws codebuild batch-get-builds \
+              --ids $BUILD_ID \
+              --query 'builds[0].logs.streamName' --output text) \
+            --query 'events[*].message' --output text

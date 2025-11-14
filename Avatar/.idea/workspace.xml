@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="093382ce-0385-4c8a-a9d6-d399d2b252bd" name="Changes" comment="Add AWS and Amazon Q integration with documentation&#10;&#10;Introduced Amazon Q Developer integration and AWS infrastructure support, including new GitHub workflows for code review and deployment, Lambda handlers, cost monitoring, and Bedrock tool integration. Added comprehensive documentation: setup checklist, architecture guide, integration guides, and inline code comments for critical voice and GUI logic. Updated developer instructions and fixed critical GUI and voice system bugs, ensuring robust voice/microphone handling and improved layout.">
+      <change afterPath="$PROJECT_DIR$/../.codex/config.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.continue/README_AUTOCOMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.continue/autocomplete.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.continue/prompts/orchestration_workflow.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.continue/prompts/task_executor.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.continue/tasks.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.github/COPILOT_CONTEXT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../A2_EXECUTION_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../A2_HANDOFF_DOCUMENT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../A2_QUICK_COMMANDS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../A2_RATE_LIMITING_IMPLEMENTATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../A2_SESSION_TRACKING.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../A2_START_HERE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AGENT_SESSION_17_STATUS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AMAZON_Q_COLLABORATION_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AMAZON_Q_OPTIMIZATION_BRIEF.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AMAZON_Q_PERFORMANCE_EVAL.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AMAZON_Q_TODO_ASSIGNMENT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AMAZON_Q_WORK_REVIEW.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ASYNC_FIX_IMPLEMENTATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AUTOMATED_ORCHESTRATION_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AVATAR_SYSTEM_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CLOUD_VS_LOCAL_DECISION_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COLLABORATION_COMPLETE_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COLLABORATION_EXECUTIVE_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COLLABORATION_HANDOFF.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COLLABORATION_READY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COLLABORATION_STATUS.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COLLABORATION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COMPREHENSIVE_REPOSITORY_ANALYSIS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONFIGURATION_TROUBLESHOOTING_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONTINUE_AUTOCOMPLETE_COMPLETE_FIX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONTINUE_BRIDGE_INSTRUCTIONS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONTINUE_LOCAL_MODELS_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONTINUE_ORCHESTRATION_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONTINUE_QUICK_START.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONTINUE_SETUP_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../CONVERSATION_CLEANUP_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COPILOT_COMPLETE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COPILOT_FINAL_STATUS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COPILOT_STATUS_UPDATE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../COPILOT_TASKS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DEPLOYMENT_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DEPLOY_ENHANCED_TOOLS.ps1" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DOCKER_DNS_RESOLUTION_FIX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DOCKER_FIX_AND_IMPROVEMENTS_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DOCKER_HEALTH_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ENCODING_FIX_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ENHANCEMENTS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EXECUTE_NOW.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EXECUTIVE_SUMMARY_AMAZON_Q.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EXECUTIVE_SUMMARY_WEEK1_SESSION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../FILES_CREATED_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../FINAL_HANDOFF_TO_AMAZON_Q.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../FINAL_STATUS_NOVEMBER_3_2025.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../GUI_VALIDATION_COMPLETE_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../GUI_VALIDATION_EXECUTIVE_SUMMARY.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../GUI_VALIDATION_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../GUI_VALIDATION_NEXT_STEPS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../GUI_VALIDATION_QUICK_REFERENCE.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../GUI_VALIDATION_SYSTEM.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../IMMEDIATE_ACTION_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../IMPLEMENTATION_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../IMPLEMENTATION_RESOURCES_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../IMPROVEMENT_RECOMMENDATIONS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../INDEX_NOVEMBER_3_2025.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../INTEGRATION_TEST_RESULTS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../LANGFLOW_AUTOCOMPLETE_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../LEGACY_FEATURES_IMPLEMENTED.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../MCP_COPILOT_INTEGRATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../MODEL_OPTIMIZATION_65GB_RTX3050.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../OBSERVABILITY_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../OLLAMA_AUTOCOMPLETE_FIX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../OPTIMIZED_A2_A6_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../OPTIMIZED_A2_A6_PLAN_LIGHTWEIGHT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ORCHESTRATION_DEMO_TASK.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ORCHESTRATION_READY.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ORCHESTRATION_SUCCESS.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ORCHESTRATION_TEST_RESULTS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PATH_A_EXECUTION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_1D_GUI_TOOL_DISPLAY_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_1_2_QUICK_START.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_1_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_1_EXECUTION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_1_FINAL_COMPLETION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_1_STATUS_UPDATE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_2A_2B_PROGRESS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_2A_PYCHARM_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_2B_LANGFLOW_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_2_3_ACTION_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3A_CONTINUATION_STRATEGY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3A_TYPE_HINTS_PROGRESS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B2_COMPLETION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_1_CORE_FRAMEWORK_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_5_COMPLETE_FINAL_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_5_EXECUTIVE_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_5_PART_3_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_5_PART_3_DEPLOYMENT_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_5_PART_4_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_5_PART_4_UTILITY_ENHANCEMENT_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_5_PART_5_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_ERROR_HANDLING_ANALYSIS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3B_PROGRESS_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3C_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3C_STATUS.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3C_SUMMARY.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_3_CODE_QUALITY_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_4_COMPLETE_SUMMARY.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_4_PART1_STATUS.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_4_PART2_STATUS.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_4_PART3_STATUS.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_4_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_5_DOCUMENTATION_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_5_EXECUTIVE_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_5_INTEGRATION_TESTING_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_5_INTEGRATION_TESTING_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PHASE_5_INTEGRATION_TESTING_SESSION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PROJECT_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../PROJECT_STATUS_DASHBOARD.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../QUICK_FIX_AUTOCOMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../QUICK_START_LIGHTWEIGHT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../QUICK_START_MODELS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../READING_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../REPOSITORY_ANALYSIS_IMPLEMENTATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../RESOURCE_OPTIMIZATION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../RUNBOOK.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_ARCHITECTURE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_AUDIT_A1_DECORATOR_AUDIT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_AUDIT_DATABASE_TOOLS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_AUDIT_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_CONSOLIDATED_REPORT_TEMPLATE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_DECORATORS_IMPLEMENTATION_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_DECORATOR_AUDIT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_REMEDIATION_SESSION_17.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SECURITY_VERIFICATION_WEEK1_PROGRESS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_11_COMPLETION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_11_FINAL_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_COMPREHENSIVE_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_FINAL_CHECKPOINT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_PHASE_3B3_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_PHASE_3B4_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_PHASE_3B5_ANALYSIS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_PHASE_3B5_PART1_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_PHASE_3B5_PART1_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_12_TECHNICAL_REFERENCE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_13_FINAL_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_13_KICKOFF_CHECKPOINT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_13_PHASE_3B5_PART2_START.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_13_WORK_ACCOMPLISHED.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_14_NEXT_PHASE_RECOMMENDATIONS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_14_PHASE_3B5_PART2_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_15_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_15_FINAL_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_15_PHASE_3B5_PART3_CHECKPOINT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_15_PROGRESS_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_15_PROGRESS_TRACKER.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_16_BROWSER_MCP_COMPLETION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_16_COMPLETION_VERIFIED.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_16_DELIVERABLES.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_16_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_17_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_17_CONSOLE_SUMMARY.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_18_STATUS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_19_STATUS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_7_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_8_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_8_DOCUMENTATION_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_8_FINAL_SUMMARY.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_COMPLETE_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_CONTINUATION_4_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_FINAL_EXECUTIVE_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_PHASE_3A_ACHIEVEMENT.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_PHASE_3A_CONTINUATION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_PHASE_3A_ENHANCED_TOOLS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_PHASE_3A_FINAL_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_PHASE_3A_FINAL_UPDATE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_PHASE_3A_VERIFICATION.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_PHASE_3_PROGRESS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_9_SECOND_CONTINUATION_DELIVERABLES.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_COMPLETE_FINAL_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_FINAL_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_ORCHESTRATION_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_STATUS_FINAL.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SESSION_SUMMARY_NOVEMBER_3_2025.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SETUP_COMPLETE_INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SOLUTION_SUMMARY_AUTOCOMPLETE_FIX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SUPABASE_INTEGRATION_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Simple Agent.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../TASK_ASSIGNMENT_MATRIX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../TROUBLESHOOTING_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VALIDATION_COMPLETE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VS_CODE_TASKS_CHEAT_SHEET.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VS_CODE_TASKS_SETUP.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auto_orchestrator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../build.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../build.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../build_ultron.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../collaboration_dashboard.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../continue_bridge.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../data/avatars/Aragorn.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../deploy.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../deploy.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../deployment_validator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../dnd_game/ASSET_SOURCES.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../dnd_game/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../dnd_game/asset_downloader.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../dnd_game/game_engine.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../dnd_game/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../dnd_game/langflow_asset_ai.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../dnd_game/unity_setup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../fix_docker_dns.ps1" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../game/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../game/chat.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../game/engine.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../game_dev_plan.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../gui/ultron_enhanced/web/index - Copy.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../gui_validation_report.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../gui_validation_report.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../gui_validation_report.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../integrate_enhancements.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../langflow_coding_agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../langflow_game_builder.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../langflow_game_response.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../missing_decorators.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ollama_lightweight.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../orchestrate_local_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../performance_report.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../performance_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pre_deployment_checklist.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q-dev-chat-2025-11-03.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../run_autocomplete_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../scripts/run_lightweight_reviews.ps1" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../set_api_key.ps1" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../start_langflow_coder.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../startup_validator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../supabase/SETUP.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../supabase/setup_supabase_schema.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../task_queue.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test_autocomplete.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test_codex.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test_codex_integration.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test_continue_models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test_game.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test_langflow.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/integration/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/integration/test_api_endpoints.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/integration/test_docker_stack.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/integration/test_file_operations.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/integration/test_ollama_integration.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/test_enhancements.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/test_observability.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/utils/conftest.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/utils/test_dynamic_loader.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/utils/test_security_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/utils/test_task_scheduler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/avatar_builder_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_015415_aws_bedrock_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_015415_database_integration_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_015415_dynamic_code_executor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_015415_github_models_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_021108_aws_bedrock_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_021108_database_integration_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_021108_dynamic_code_executor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/backups/20251103_021108_github_models_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/conversation_cleanup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/directory_sort_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/enhanced_memory_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/file_monitor_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/file_sync_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/gui_function_tester.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/gui_link_validator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/gui_validation_suite.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/hello_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/langflow_integration_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/langflow_workflow_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/reasoning_pipeline_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/tool_performance_tracker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tools/workflow_editor_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ugs_installer" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ultron_agent.sln" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/ALTERNATIVE_DEPLOY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/CloudCodeExample.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/DEPLOY.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/IMPLEMENTATION_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/QUICKSTART.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/SETUP.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UGS_CLI_SETUP.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronAIIntegration.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronCloudManager.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/.ccmconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/UltronModule.csproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/.NETStandard,Version=v2.1.AssemblyAttributes.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.AssemblyInfo.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.AssemblyInfoInputs.cache" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.assets.cache" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.csproj.AssemblyReference.cache" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/UltronModule.csproj.nuget.dgspec.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/UltronModule.csproj.nuget.g.props" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/UltronModule.csproj.nuget.g.targets" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/project.assets.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/obj/project.nuget.cache" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModule/src/UltronCommands.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/UltronModuleClient.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/avatar_game_integration.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/hello-world.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/manifest.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../unity_cloud_code/ultron-command.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/async_tool_orchestrator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/avatar_database.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/avatar_visual_generator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/command_history.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/config_validator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/dynamic_loader.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/error_handlers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/error_recovery.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/health_check.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/intelligent_cache.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/observability.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/performance_tracker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/security.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/security_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../utils/task_scheduler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.continue/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.continue/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.continue/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../.continue/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.vscode/tasks.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.vscode/tasks.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DEPLOYMENT_STATUS.md" beforeDir="false" afterPath="$PROJECT_DIR$/../DEPLOYMENT_STATUS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MASTER_INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/../MASTER_INDEX.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../NEXT_STEPS.md" beforeDir="false" afterPath="$PROJECT_DIR$/../NEXT_STEPS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../adb_backend_enhanced.py" beforeDir="false" afterPath="$PROJECT_DIR$/../adb_backend_enhanced.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../agent_core.py" beforeDir="false" afterPath="$PROJECT_DIR$/../agent_core.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../api_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/../api_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../avatar_game_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/../avatar_game_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../brain.py" beforeDir="false" afterPath="$PROJECT_DIR$/../brain.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/../conftest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gui/ultron_enhanced/web/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/../gui/ultron_enhanced/web/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gui/ultron_enhanced/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../gui/ultron_enhanced/web/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gui/ultron_enhanced/web/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/../gui/ultron_enhanced/web/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gui/ultron_enhanced/web/ultron_avatar_game_ultimate.html" beforeDir="false" afterPath="$PROJECT_DIR$/../gui/ultron_enhanced/web/ultron_avatar_game_ultimate.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mcp.json" beforeDir="false" afterPath="$PROJECT_DIR$/../mcp.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pytest.ini" beforeDir="false" afterPath="$PROJECT_DIR$/../pytest.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../run.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../run.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/ai_development_coordinator.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/ai_development_coordinator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/amazon_q_integration_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/amazon_q_integration_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/aws_bedrock_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/aws_bedrock_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/browser_mcp_enhanced_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/browser_mcp_enhanced_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/browser_mcp_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/browser_mcp_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/database_integration_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/database_integration_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/database_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/database_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/dynamic_code_executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/dynamic_code_executor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/github_models_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/github_models_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/langflow_mcp_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/langflow_mcp_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/langflow_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/langflow_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/mcp_enhanced_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/mcp_enhanced_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/mcp_integration_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/mcp_integration_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/orchestration_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/orchestration_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/pyautogui_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/pyautogui_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/pycharm_integration_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/pycharm_integration_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/repomix_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/repomix_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/stable_diffusion_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/stable_diffusion_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/tool_interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/tool_interface.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/tool_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/tool_loader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/tor_search_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/tor_search_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/uncensored_search_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/uncensored_search_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/voice_aws_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/voice_aws_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tools/web_scraping_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/web_scraping_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ultron_agent_2/gui/ultron_enhanced/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../ultron_agent_2/gui/ultron_enhanced/web/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ultron_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../ultron_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ultron_context.json" beforeDir="false" afterPath="$PROJECT_DIR$/../ultron_context.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../utils/auto_patch_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/../utils/auto_patch_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../utils/event_system.py" beforeDir="false" afterPath="$PROJECT_DIR$/../utils/event_system.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../utils/model_awareness.py" beforeDir="false" afterPath="$PROJECT_DIR$/../utils/model_awareness.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../utils/performance_profiler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../utils/performance_profiler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../voice.py" beforeDir="false" afterPath="$PROJECT_DIR$/../voice.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;dqikfox&quot;
+  }
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOPT35mc6vbPj1&quot;,
+        &quot;number&quot;: 55
+      },
+      &quot;lastSeen&quot;: 1761360053196
+    }
+  ]
+}</component>
+  <component name="GithubProjectSettings">
+    <option name="branchProtectionPatterns">
+      <list>
+        <option value="x" />
+      </list>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/dqikfox/ultron_agent.git&quot;,
+    &quot;accountId&quot;: &quot;a1da0e77-b021-4062-b576-41b5a99146cb&quot;
+  }
+}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="34W2HhfHL5PomCKLx4CSgO9aDQc" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-PY-252.25557.178" />
+        <option value="bundled-python-sdk-ce6832f46686-7b97d883f26b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.25557.178" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="093382ce-0385-4c8a-a9d6-d399d2b252bd" name="Changes" comment="" />
+      <created>1761314921696</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761314921696</updated>
+      <workItem from="1761314923714" duration="10000" />
+      <workItem from="1761354577500" duration="37000" />
+      <workItem from="1761354823780" duration="2259000" />
+      <workItem from="1762538327025" duration="4000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add AWS and Amazon Q integration with documentation&#10;&#10;Introduced Amazon Q Developer integration and AWS infrastructure support, including new GitHub workflows for code review and deployment, Lambda handlers, cost monitoring, and Bedrock tool integration. Added comprehensive documentation: setup checklist, architecture guide, integration guides, and inline code comments for critical voice and GUI logic. Updated developer instructions and fixed critical GUI and voice system bugs, ensuring robust voice/microphone handling and improved layout." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add AWS and Amazon Q integration with documentation&#10;&#10;Introduced Amazon Q Developer integration and AWS infrastructure support, including new GitHub workflows for code review and deployment, Lambda handlers, cost monitoring, and Bedrock tool integration. Added comprehensive documentation: setup checklist, architecture guide, integration guides, and inline code comments for critical voice and GUI logic. Updated developer instructions and fixed critical GUI and voice system bugs, ensuring robust voice/microphone handling and improved layout." />
+  </component>
+</project>
