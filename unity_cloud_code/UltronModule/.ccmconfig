@@ -1,0 +1,10 @@
+{
+  "projectId": "3f675a32-c96c-4d4e-b5a2-c81e23697d10",
+  "environmentId": "production",
+  "moduleConfig": {
+    "name": "UltronModule",
+    "version": "1.0.0",
+    "description": "ULTRON Cloud Code Module",
+    "solution": "UltronModule.csproj"
+  }
+}

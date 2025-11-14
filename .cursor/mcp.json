@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "langflow": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy",
+        "--headers",
+        "x-api-key sk-ga49QmqHWdx4JESGXEPT5OQK6SylBm4Te_pCtwtm138",
+        "http://localhost:7860/api/v1/mcp/project/e6ecbc04-8495-41c2-b078-f9c3bec09411/sse"
+      ],
+      "env": {
+        "LANGFLOW_API_KEY": "sk-ga49QmqHWdx4JESGXEPT5OQK6SylBm4Te_pCtwtm138",
+        "LANGFLOW_PROJECT_ID": "e6ecbc04-8495-41c2-b078-f9c3bec09411"
+      }
+    }
+  }
+}

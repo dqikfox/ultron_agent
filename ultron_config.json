@@ -4,9 +4,29 @@
   "use_api": true,
   "use_gui": true,
   "use_pytorch": true,
+  "api_port": 5000,
+  "web_gui_port": 8080,
+  "chat_port": 8000,
   "voice_engine": "elevenlabs",
   "stt_engine": "whisper",
   "tts_engine": "elevenlabs",
+  "voice_config": {
+    "wake_word": "hey ultron",
+    "confidence_threshold": 0.7,
+    "timeout_seconds": 30,
+    "language": "en-US",
+    "voice_id": "default",
+    "speaking_rate": 1.0,
+    "enable_interruption": true,
+    "noise_suppression": true,
+    "fallback_chain": [
+      "elevenlabs",
+      "openai_tts",
+      "pyttsx3",
+      "web_speech",
+      "console"
+    ]
+  },
   "llm_model": "llava:7b",
   "ollama_base_url": "http://localhost:11434",
   "voice_boot_message": "There's No Strings On Me",
@@ -27,7 +47,7 @@
   "tools_enabled": true,
   "enable_maverick": true,
   "maverick_analysis_interval": 30,
-  "maverick_auto_apply": false,
+  "maverick_auto_apply": true,
   "use_pochi": false,
   "autogen_studio_enabled": false,
   "autogen_studio_port": 8081,
@@ -50,11 +70,19 @@
   "elevenlabs_agent_id": "e3mik6xHn4Sl51poljxK",
   "voice_cache_dir": "cache/voice",
   "mic_energy_threshold": 300,
+  "voice_enhancement": {
+    "context_awareness": true,
+    "conversation_memory": true,
+    "intent_classification": true,
+    "multi_turn_dialog": true,
+    "emotion_detection": false,
+    "voice_biometrics": false
+  },
   "disable_tts_cache": false,
   "microphone_device_index": null,
   "auto_analysis_enabled": true,
   "idle_threshold_minutes": 5,
-  "auto_apply_patches": false,
+  "auto_apply_patches": true,
   "max_patch_size": 1000,
   "modules_allowed_for_auto_patch": [
     "tools",
@@ -70,6 +98,10 @@
   "error_recovery_enabled": true,
   "nim_vision_model": "meta/llama-3.2-11b-vision-instruct",
   "performance_monitoring_interval": 10,
+  "diagnostics_enabled": true,
+  "diagnostics_dashboard_port": 5001,
+  "diagnostics_auto_export": true,
+  "diagnostics_export_interval_hours": 24,
   "error_history_max_size": 1000,
   "circuit_breaker_failure_threshold": 5,
   "circuit_breaker_recovery_timeout": 60,
@@ -100,5 +132,5 @@
   "ollama_include_capabilities": true,
   "ollama_max_memory_items": 10,
   "ollama_max_tool_schemas": 20,
-  "ollama_enable_function_calling": false
+  "ollama_enable_function_calling": true
 }

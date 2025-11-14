@@ -1,0 +1,17 @@
+{
+  "name": "unity_csharp",
+  "description": "Unity C# script generator",
+  "data": {
+    "nodes": [
+      {"id": "input", "type": "ChatInput", "position": {"x": 0, "y": 0}},
+      {"id": "prompt", "type": "Prompt", "position": {"x": 300, "y": 0}, "data": {"template": "You are a Unity C# expert.\n\nTask: {input}\n\nGenerate Unity C# with:\n1. Unity lifecycle methods\n2. SerializeField for inspector\n3. Null checks\n4. Performance best practices\n5. XML documentation\n\nOutput: Complete MonoBehaviour script."}},
+      {"id": "ollama", "type": "OllamaModel", "position": {"x": 600, "y": 0}, "data": {"model_name": "qwen2.5-coder:1.5b", "base_url": "http://localhost:11434"}},
+      {"id": "output", "type": "ChatOutput", "position": {"x": 900, "y": 0}}
+    ],
+    "edges": [
+      {"source": "input", "target": "prompt"},
+      {"source": "prompt", "target": "ollama"},
+      {"source": "ollama", "target": "output"}
+    ]
+  }
+}

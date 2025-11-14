@@ -1,0 +1,122 @@
+{
+  "langflow_flows": {
+    "memory_storage": {
+      "flow_id": "memory-storage-flow",
+      "description": "Store conversations with vector embeddings",
+      "inputs": ["content", "metadata", "session_id"],
+      "outputs": ["storage_id", "embedding_vector"],
+      "components": [
+        "Text Input",
+        "Embedding Generator", 
+        "Vector Store",
+        "Metadata Processor"
+      ]
+    },
+    "memory_retrieval": {
+      "flow_id": "memory-retrieval-flow", 
+      "description": "Retrieve similar conversations from memory",
+      "inputs": ["query", "limit", "session_id"],
+      "outputs": ["similar_conversations", "relevance_scores"],
+      "components": [
+        "Query Input",
+        "Embedding Generator",
+        "Vector Search",
+        "Similarity Ranking"
+      ]
+    },
+    "enhanced_chat": {
+      "flow_id": "enhanced-chat-flow",
+      "description": "Enhanced chat with memory and tool access",
+      "inputs": ["message", "context", "session_id", "tools_available"],
+      "outputs": ["response", "reasoning", "tools_used"],
+      "components": [
+        "Message Input",
+        "Memory Retrieval",
+        "Context Processor", 
+        "LLM Chain",
+        "Tool Selector",
+        "Response Generator"
+      ]
+    },
+    "complex_reasoning": {
+      "flow_id": "complex-reasoning-flow",
+      "description": "Chain-of-thought reasoning for complex queries",
+      "inputs": ["query", "context", "reasoning_mode"],
+      "outputs": ["reasoning_steps", "final_answer", "confidence"],
+      "components": [
+        "Query Analyzer",
+        "Reasoning Chain",
+        "Step Validator",
+        "Confidence Scorer",
+        "Final Synthesizer"
+      ]
+    }
+  },
+  "langflow_config": {
+    "base_url": "http://localhost:7860/api/v1",
+    "timeout": 60,
+    "retry_attempts": 3,
+    "fallback_enabled": true,
+    "memory_backend": "chroma",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2"
+  },
+  "flow_templates": {
+    "basic_memory_flow": {
+      "nodes": [
+        {
+          "type": "TextInput",
+          "name": "user_input",
+          "position": [100, 100]
+        },
+        {
+          "type": "EmbeddingGenerator", 
+          "name": "embedder",
+          "position": [300, 100],
+          "model": "sentence-transformers/all-MiniLM-L6-v2"
+        },
+        {
+          "type": "ChromaDB",
+          "name": "vector_store",
+          "position": [500, 100],
+          "collection": "ultron_memory"
+        }
+      ],
+      "edges": [
+        {"source": "user_input", "target": "embedder"},
+        {"source": "embedder", "target": "vector_store"}
+      ]
+    },
+    "reasoning_flow": {
+      "nodes": [
+        {
+          "type": "TextInput",
+          "name": "complex_query",
+          "position": [100, 100]
+        },
+        {
+          "type": "LLMChain",
+          "name": "step1_analyzer", 
+          "position": [300, 100],
+          "prompt": "Analyze this query and break it into reasoning steps: {query}"
+        },
+        {
+          "type": "LLMChain",
+          "name": "step2_reasoner",
+          "position": [500, 100], 
+          "prompt": "For each step, provide detailed reasoning: {steps}"
+        },
+        {
+          "type": "LLMChain",
+          "name": "step3_synthesizer",
+          "position": [700, 100],
+          "prompt": "Synthesize the reasoning into a final answer: {reasoning}"
+        }
+      ],
+      "edges": [
+        {"source": "complex_query", "target": "step1_analyzer"},
+        {"source": "step1_analyzer", "target": "step2_reasoner"},
+        {"source": "step2_reasoner", "target": "step3_synthesizer"}
+      ]
+    }
+  }
+}

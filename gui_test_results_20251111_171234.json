@@ -1,0 +1,327 @@
+[
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "============================================================"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "STARTING ULTRON GUI NAVIGATION TESTS"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "============================================================"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Dashboard ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/system/stats"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing System Info ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/system/info"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Vision System ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/vision/status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing NVIDIA NIM ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/nvidia/status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Game Status ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/game/status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Tools List ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/tools/list"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Assistant Status ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/assistant/status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing SSH Status ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/ssh/status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing File System ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/files/list"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Tasks ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/tasks/list"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing LLM Models ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/models/list"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Voice Status ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/voice/status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing AutoGen Status ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing GET /api/autogen/status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n--- Testing Command Endpoint ---"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "Testing POST /api/command"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "WARNING",
+    "message": "  Response: 404"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\n============================================================"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "TEST SUMMARY"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "============================================================"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\u2705 Passed: 0/14"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\u274c Failed: 14/14"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "\nDetailed Results:"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Dashboard"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - System Info"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Vision System"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - NVIDIA NIM"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Game Status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Tools List"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Assistant Status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - SSH Status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - File System"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Tasks"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - LLM Models"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Voice Status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - AutoGen Status"
+  },
+  {
+    "timestamp": "2025-11-11 17:12:34",
+    "status": "INFO",
+    "message": "  \u274c FAIL - Command API"
+  }
+]
