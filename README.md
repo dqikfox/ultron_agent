@@ -108,8 +108,11 @@ cp ultron_config.json.example ultron_config.json
 # 3. Start/verify Ollama service
 # 4. Run 5 comprehensive health tests
 # 5. Launch Web GUI and Frontend UI
-# 6. Provide complete system status
+# 6. Start the Copilot ↔ Amazon Q bridge (when dependencies are present)
+# 7. Provide complete system status
 ```
+
+> Tip: set `ENABLE_DIRECT_BRIDGE=0` near the top of `run.bat` if you want to skip the bridge launch.
 
 **New in v3.0**: The launcher now includes **automated health checks** that validate your system before startup:
 - ✅ Service availability check

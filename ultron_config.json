@@ -4,6 +4,9 @@
   "use_api": true,
   "use_gui": true,
   "use_pytorch": true,
+  "api_port": 5000,
+  "web_gui_port": 8080,
+  "chat_port": 8000,
   "voice_engine": "elevenlabs",
   "stt_engine": "whisper",
   "tts_engine": "elevenlabs",
@@ -180,6 +183,57 @@
         "click",
         "type"
       ]
+    }
+  },
+  "open_interface": {
+    "enabled": true,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "gemini_model": "gemini-1.5-flash",
+    "custom_base_url": null,
+    "custom_model": null,
+    "max_iterations": 6,
+    "max_actions_per_step": 6,
+    "history_limit": 5,
+    "temperature": 0.2,
+    "max_output_tokens": 800,
+    "action_delay_seconds": 0.35,
+    "retry_delay_seconds": 1.0,
+    "monitor_index": 1,
+    "screenshot_dir": "screenshots/open_interface",
+    "log_dir": "logs/open_interface",
+    "allow_mouse_fail_safe": true,
+    "cursor_pause_seconds": 0.05,
+    "course_correction": true,
+    "provider_options": {
+      "openai_api_key": "USE_ENV_OPENAI_API_KEY",
+      "gemini_api_key": "USE_ENV_GEMINI_API_KEY",
+      "custom_api_key": "USE_ENV_CUSTOM_LLM_API_KEY"
+    }
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "requests_per_hour": 100,
+    "burst_size": 10
+  },
+  "ssh_server": {
+    "enabled": true,
+    "port": 2222,
+    "password": "password",
+    "auto_start": true,
+    "allowed_users": ["anyuser"],
+    "bind_address": "0.0.0.0",
+    "max_connections": 5,
+    "connection_timeout": 300,
+    "host_key_path": "~/.ssh/ultron_host_key",
+    "log_connections": true,
+    "security": {
+      "password_authentication": true,
+      "public_key_authentication": false,
+      "allowed_ips": [],
+      "blocked_ips": [],
+      "max_auth_attempts": 3,
+      "auth_timeout": 30
     }
   }
 }

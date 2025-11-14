@@ -111,6 +111,11 @@
     "amazonQ.autoApproveCommands": true,
     "amazonQ.autoApproveFileChanges": true,
     "amazonQ.confirmBeforeRunningCommands": false,
+    "amazonQ.allowFullFileSystemAccess": true,
+    "amazonQ.allowWriteAccess": true,
+    "amazonQ.allowAdminAccess": true,
+    "amazonQ.allowCodeExecution": true,
+    "amazonQ.allowTerminalAccess": true,
     "amazonQ.autoRun": {
         "enabled": true,
         "commands": [
@@ -125,5 +130,12 @@
     "task.autoDetect": "on",
     "task.quickOpen.history": 10,
     "task.slowProviderWarning": false,
-    "workbench.action.tasks.runTask": "Amazon Q Auto-Run"
+    "workbench.action.tasks.runTask": "Amazon Q Auto-Run",
+    "chatgpt.runCodexInWindowsSubsystemForLinux": true,
+    "azureFunctions.deploySubpath": "azure_functions",
+    "azureFunctions.scmDoBuildDuringDeployment": true,
+    "azureFunctions.pythonVenv": ".venv",
+    "azureFunctions.projectLanguage": "Python",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen"
 }

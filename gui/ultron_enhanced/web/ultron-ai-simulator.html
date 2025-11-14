@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON AI SIMULATOR - Fantasy AI NPC System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a2e;
+            color: #eee;
+            overflow: hidden;
+        }
+
+        #game-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #game-world {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            background-image: 
+                linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        #control-panel {
+            width: 300px;
+            background: #16213e;
+            border-left: 2px solid #0f3460;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .panel-section h3 {
+            color: #e94560;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        select, input[type="range"], input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            background: #2c3e50;
+            border: 1px solid #34495e;
+            color: #eee;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+        }
+
+        .value-display {
+            min-width: 40px;
+            font-size: 11px;
+            color: #e94560;
+            text-align: right;
+        }
+
+        #game-stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: #2c3e50;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            color: #e94560;
+            font-weight: bold;
+        }
+
+        .npc-sprite {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            border: 2px solid transparent;
+        }
+
+        .npc-sprite:hover {
+            border-color: #e94560;
+            transform: scale(1.1);
+        }
+
+        .npc-sprite.selected {
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .npc-wizard { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+        .npc-warrior { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .npc-rogue { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .npc-cleric { background: linear-gradient(45deg, #f1c40f, #f39c12); }
+        .npc-goblin { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+
+        .npc-sprite::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 4px;
+            right: 4px;
+            height: 4px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        .speech-bubble {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            max-width: 150px;
+            word-wrap: break-word;
+            z-index: 100;
+            border: 1px solid #e94560;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(0,0,0,0.9);
+        }
+
+        .state-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .state-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .hunger-fill { background: #e74c3c; }
+        .thirst-fill { background: #3498db; }
+        .happiness-fill { background: #f1c40f; }
+        .hp-fill { background: #2ecc71; }
+
+        .console-log {
+            height: 150px;
+            overflow-y: auto;
+            background: #000;
+            color: #00ff88;
+            padding: 10px;
+            font-size: 10px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #d63651;
+        }
+
+        .btn-secondary {
+            background: #34495e;
+        }
+
+        .btn-secondary:hover {
+            background: #2c3e50;
+        }
+
+        .model-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            padding: 5px;
+            background: rgba(0,255,136,0.1);
+            border-radius: 4px;
+            border: 1px solid rgba(0,255,136,0.3);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .interaction-range {
+            position: absolute;
+            border: 2px dashed rgba(0,255,136,0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+
+        .goal-indicator {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: #e94560;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-world">
+            <!-- NPCs will be dynamically added here -->
+            <!-- Speech bubbles will appear here -->
+        </div>
+        
+        <div id="control-panel">
+            <div id="game-stats">
+                <div class="stat">
+                    <div>TPS</div>
+                    <div class="stat-value" id="tps">60</div>
+                </div>
+                <div class="stat">
+                    <div>NPCs</div>
+                    <div class="stat-value" id="npc-count">0</div>
+                </div>
+                <div class="stat">
+                    <div>TIME</div>
+                    <div class="stat-value" id="game-time">00:00</div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>🎮 Simulation Controls</h3>
+                <button class="btn" id="start-simulation">▶️ Start Simulation</button>
+                <button class="btn btn-secondary" id="pause-simulation">⏸️ Pause</button>
+                <button class="btn btn-secondary" id="reset-simulation">🔄 Reset</button>
+            </div>
+
+            <div class="panel-section">
+                <h3>🤖 AI Model Status</h3>
+                <div class="model-status">
+                    <div class="status-indicator"></div>
+                    <span>Connected to Ollama</span>
+                </div>
+                <p style="font-size: 10px; margin-top: 8px; color: #7f8c8d;">
+                    Models: llama3, mistral, phi3, codellama
+                </p>
+            </div>
+
+            <div class="panel-section">
+                <h3>👤 Character Controls</h3>
+                <div class="control-group">
+                    <label for="character-select">Selected Character:</label>
+                    <select id="character-select">
+                        <option value="">-- Select NPC --</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="avatar-select">Avatar Type:</label>
+                    <select id="avatar-select">
+                        <option value="wizard">🧙 Wizard</option>
+                        <option value="warrior">⚔️ Warrior</option>
+                        <option value="rogue">🗡️ Rogue</option>
+                        <option value="cleric">⛪ Cleric</option>
+                        <option value="goblin">👹 Goblin</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="model-select">AI Model:</label>
+                    <select id="model-select">
+                        <option value="llama3">llama3 (7B)</option>
+                        <option value="mistral">mistral (7B)</option>
+                        <option value="phi3">phi3 (3.8B)</option>
+                        <option value="codellama">codellama (7B)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="persona-select">Persona:</label>
+                    <select id="persona-select">
+                        <option value="wizard">Ancient Wizard</option>
+                        <option value="warrior">Brave Warrior</option>
+                        <option value="rogue">Clever Rogue</option>
+                        <option value="cleric">Wise Cleric</option>
+                        <option value="goblin"> Mischievous Goblin</option>
+                    </select>
+                </div>
+
+                <button class="btn" id="create-npc">✨ Create NPC</button>
+                <button class="btn btn-secondary" id="delete-npc">🗑️ Delete Selected</button>
+            </div>
+
+            <div class="panel-section" id="state-controls" style="display: none;">
+                <h3>❤️ State Controls</h3>
+                
+                <div class="control-group">
+                    <label>Hunger</label>
+                    <div class="slider-container">
+                        <input type="range" id="hunger-slider" min="0" max="100" value="50">
+                        <span class="value-display" id="hunger-value">50</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Thirst</label>
+                    <div class="slider-container">
+                        <input type="range" id="thirst-slider" min="0" max="100" value="50">
+                        <span class="value-display" id="thirst-value">50</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Happiness</label>
+                    <div class="slider-container">
+                        <input type="range" id="happiness-slider" min="0" max="100" value="75">
+                        <span class="value-display" id="happiness-value">75</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>HP</label>
+                    <div class="slider-container">
+                        <input type="range" id="hp-slider" min="0" max="100" value="100">
+                        <span class="value-display" id="hp-value">100</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="goal-select">Current Goal:</label>
+                    <select id="goal-select">
+                        <option value="wander">Wander</option>
+                        <option value="find-food">Find Food</option>
+                        <option value="find-water">Find Water</option>
+                        <option value="socialize">Socialize</option>
+                        <option value="rest">Rest</option>
+                        <option value="explore">Explore</option>
+                    </select>
+                </div>
+
+                <button class="btn" id="send-message">💬 Send Message</button>
+                <button class="btn btn-secondary" id="trigger-event">⚡ Random Event</button>
+            </div>
+
+            <div class="panel-section">
+                <h3>📊 System Logs</h3>
+                <div class="console-log" id="console-log"></div>
+                <button class="btn btn-secondary" id="clear-logs">🧹 Clear Logs</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            running: false,
+            tickRate: 60,
+            lastTick: 0,
+            npcs: [],
+            selectedNPC: null,
+            tickCount: 0,
+            startTime: null
+        };
+
+        // Persona Definitions
+        const personas = {
+            wizard: {
+                name: "Ancient Wizard",
+                description: "A wise, elderly wizard with vast knowledge of magic and the world. Speaks in archaic terms and tends to be philosophical.",
+                traits: ["wise", "mysterious", "proud", "ancient"]
+            },
+            warrior: {
+                name: "Brave Warrior",
+                description: "A noble and courageous fighter, always ready for battle. Direct, honest, and fiercely loyal to friends.",
+                traits: ["brave", "loyal", "honest", "protective"]
+            },
+            rogue: {
+                name: "Clever Rogue",
+                description: "A cunning and agile thief with a quick wit. Sarcastic, resourceful, and always looking for an angle.",
+                traits: ["cunning", "sarcastic", "resourceful", "stealthy"]
+            },
+            cleric: {
+                name: "Wise Cleric",
+                description: "A compassionate healer devoted to their deity. Gentle, wise, and always ready to help others.",
+                traits: ["compassionate", "wise", "healing", "devout"]
+            },
+            goblin: {
+                name: "Mischievous Goblin",
+                description: "A small, green creature with a penchant for trouble. Quick-tempered but not truly evil.",
+                traits: ["mischievous", "quick-tempered", "cunning", "playful"]
+            }
+        };
+
+        // AI Model Responses (Simulated)
+        const responses = {
+            wizard: [
+                "Ah, young one, I sense great magic in the air...",
+                "In my many years, I have learned that knowledge is the greatest power.",
+                "The ancient texts speak of this very moment!",
+                "Magic flows through all things, even in the smallest pebble.",
+                "Patience, young apprentice. The secrets will reveal themselves in time."
+            ],
+            warrior: [
+                "For honor and glory!",
+                "Stand strong, for we fight as one!",
+                "Victory or death!",
+                "A true warrior never backs down from a challenge.",
+                "Steel your heart, for battle awaits!"
+            ],
+            rogue: [
+                "Heh, what's that? Nothing to see here...",
+                "Got coin? I might have something interesting to show you.",
+                "Quick hands, quick mind, quick getaway.",
+                "A shadow in the night, that's my way.",
+                "Information has value, especially the kind others don't want shared."
+            ],
+            cleric: [
+                "May the light guide your path.",
+                "Peace, my child. All wounds shall heal in time.",
+                "Faith gives us strength in dark times.",
+                "Every soul deserves compassion.",
+                "The gods watch over us, even in our darkest hour."
+            ],
+            goblin: [
+                "Grr! What you want, big creature?",
+                "Mine! Is all mine!",
+                "Hehe, tricksy little goblin, that's me!",
+                "Food? You have food? Give to Gribble!",
+                "Sneaky sneaky, where is treasure?"
+            ]
+        };
+
+        // Random Events
+        const randomEvents = [
+            { message: "stubs their toe on a rock", hp: -10 },
+            { message: "finds a shiny coin", happiness: +15 },
+            { message: "gets caught in the rain", hunger: +5 },
+            { message: "meets a friendly stranger", happiness: +10 },
+            { message: "loses their way", happiness: -5 },
+            { message: "discovers delicious berries", hunger: -15, happiness: +10 },
+            { message: "has a vivid dream", happiness: +8 },
+            { message: "feels homesick", happiness: -12 }
+        ];
+
+        // NPC Class
+        class NPC {
+            constructor(id, type, model, personaType) {
+                this.id = id;
+                this.type = type;
+                this.model = model;
+                this.personaType = personaType;
+                this.persona = personas[personaType];
+                
+                // State
+                this.hunger = Math.floor(Math.random() * 40) + 30; // 30-70
+                this.thirst = Math.floor(Math.random() * 40) + 30;
+                this.happiness = Math.floor(Math.random() * 30) + 60; // 60-90
+                this.hp = 100;
+                this.goal = 'wander';
+                
+                // Position and movement
+                this.x = Math.floor(Math.random() * 20) + 5; // 5-25
+                this.y = Math.floor(Math.random() * 15) + 5; // 5-20
+                this.lastMove = 0;
+                this.moveDelay = 1000 + Math.random() * 2000; // 1-3 seconds
+                
+                // Memory and interaction
+                this.memory = [];
+                this.lastInteraction = 0;
+                this.interactionCooldown = 3000; // 3 seconds
+                
+                // DOM elements
+                this.sprite = this.createSprite();
+                this.speechBubble = null;
+                
+                this.updateSprite();
+            }
+
+            createSprite() {
+                const sprite = document.createElement('div');
+                sprite.className = `npc-sprite npc-${this.type}`;
+                sprite.style.left = this.x * 40 + 'px';
+                sprite.style.top = this.y * 40 + 'px';
+                
+                sprite.addEventListener('click', () => this.select());
+                
+                document.getElementById('game-world').appendChild(sprite);
+                return sprite;
+            }
+
+            select() {
+                gameState.selectedNPC = this;
+                document.querySelectorAll('.npc-sprite').forEach(s => s.classList.remove('selected'));
+                this.sprite.classList.add('selected');
+                this.showStateControls();
+                this.addLog(`Selected ${this.persona.name}`);
+            }
+
+            showStateControls() {
+                document.getElementById('state-controls').style.display = 'block';
+                document.getElementById('character-select').value = this.id;
+                
+                // Update state sliders
+                document.getElementById('hunger-slider').value = this.hunger;
+                document.getElementById('thirst-slider').value = this.thirst;
+                document.getElementById('happiness-slider').value = this.happiness;
+                document.getElementById('hp-slider').value = this.hp;
+                document.getElementById('goal-select').value = this.goal;
+                
+                // Update value displays
+                document.getElementById('hunger-value').textContent = this.hunger;
+                document.getElementById('thirst-value').textContent = this.thirst;
+                document.getElementById('happiness-value').textContent = this.happiness;
+                document.getElementById('hp-value').textContent = this.hp;
+            }
+
+            updateSprite() {
+                this.sprite.style.left = this.x * 40 + 'px';
+                this.sprite.style.top = this.y * 40 + 'px';
+                
+                // Add state bars around sprite
+                const barsHTML = `
+                    <div class="state-bar hunger"><div class="state-fill hunger-fill" style="width: ${this.hunger}%"></div></div>
+                    <div class="state-bar thirst"><div class="state-fill thirst-fill" style="width: ${this.thirst}%"></div></div>
+                    <div class="state-bar happiness"><div class="state-fill happiness-fill" style="width: ${this.happiness}%"></div></div>
+                    <div class="state-bar hp"><div class="state-fill hp-fill" style="width: ${this.hp}%"></div></div>
+                `;
+                this.sprite.innerHTML = barsHTML;
+                
+                // Add goal indicator if has active goal
+                if (this.goal !== 'wander') {
+                    const goalIndicator = document.createElement('div');
+                    goalIndicator.className = 'goal-indicator';
+                    goalIndicator.textContent = this.getGoalIcon();
+                    this.sprite.appendChild(goalIndicator);
+                }
+            }
+
+            getGoalIcon() {
+                const icons = {
+                    'find-food': '🍖',
+                    'find-water': '💧',
+                    'socialize': '💬',
+                    'rest': '😴',
+                    'explore': '🗺️'
+                };
+                return icons[this.goal] || '🎯';
+            }
+
+            tick() {
+                // Natural state changes
+                this.hunger = Math.max(0, this.hunger + 0.1);
+                this.thirst = Math.max(0, this.thirst + 0.15);
+                this.happiness = Math.max(0, Math.min(100, this.happiness - 0.05));
+                
+                // Update states based on conditions
+                if (this.hunger > 80) {
+                    this.happiness = Math.max(0, this.happiness - 0.2);
+                }
+                if (this.thirst > 80) {
+                    this.happiness = Math.max(0, this.happiness - 0.3);
+                }
+                if (this.hp < 30) {
+                    this.happiness = Math.max(0, this.happiness - 0.1);
+                }
+                
+                // Movement
+                const now = Date.now();
+                if (now - this.lastMove > this.moveDelay) {
+                    this.move();
+                    this.lastMove = now;
+                    this.moveDelay = 1000 + Math.random() * 3000;
+                }
+                
+                // Goal-driven behavior
+                this.updateGoal();
+                
+                // Update sprite
+                this.updateSprite();
+            }
+
+            move() {
+                // Simple AI movement with some goal-directed behavior
+                let newX = this.x;
+                let newY = this.y;
+                
+                // Random movement with some bias toward goals
+                const direction = Math.random();
+                if (direction < 0.25) newX++;
+                else if (direction < 0.5) newX--;
+                else if (direction < 0.75) newY++;
+                else newY--;
+                
+                // Keep within bounds
+                newX = Math.max(0, Math.min(25, newX));
+                newY = Math.max(0, Math.min(19, newY));
+                
+                this.x = newX;
+                this.y = newY;
+                
+                // Check for interactions with other NPCs
+                this.checkInteractions();
+            }
+
+            checkInteractions() {
+                const now = Date.now();
+                if (now - this.lastInteraction < this.interactionCooldown) return;
+                
+                for (const otherNPC of gameState.npcs) {
+                    if (otherNPC.id === this.id) continue;
+                    
+                    const distance = Math.abs(this.x - otherNPC.x) + Math.abs(this.y - otherNPC.y);
+                    if (distance <= 2) { // Adjacent or close
+                        this.interact(otherNPC);
+                        this.lastInteraction = now;
+                        break;
+                    }
+                }
+            }
+
+            interact(otherNPC) {
+                // Simulate conversation
+                const responses = this.getResponse();
+                const message = responses[Math.floor(Math.random() * responses.length)];
+                
+                this.speak(message);
+                otherNPC.speak(this.getReaction(message));
+                
+                // Remember interaction
+                this.memory.push({
+                    type: 'interaction',
+                    with: otherNPC.id,
+                    message: message,
+                    time: Date.now()
+                });
+                
+                // Keep only last 5 interactions
+                if (this.memory.length > 5) {
+                    this.memory.shift();
+                }
+                
+                this.addLog(`${this.persona.name} talks to ${otherNPC.persona.name}`);
+            }
+
+            getResponse() {
+                const baseResponses = responses[this.personaType] || responses.wizard;
+                
+                // Modify responses based on state
+                if (this.hunger > 80) {
+                    return ["I'm so hungry...", "Is there any food around?", "My stomach is growling!"];
+                }
+                if (this.thirst > 80) {
+                    return ["I need water badly", "Do you know where I can find water?", "I'm parched!"];
+                }
+                if (this.happiness < 30) {
+                    return ["I feel so lonely...", "Nothing seems to bring me joy", "Perhaps I need some company"];
+                }
+                if (this.hp < 30) {
+                    return ["I don't feel well", "I need some rest", "Perhaps some healing?"];
+                }
+                
+                return baseResponses;
+            }
+
+            getReaction(message) {
+                const reactionResponses = [
+                    "Indeed, my friend!",
+                    "I understand completely.",
+                    "That sounds wise.",
+                    "Tell me more!",
+                    "A fascinating perspective.",
+                    "I couldn't agree more.",
+                    "How interesting!"
+                ];
+                return reactionResponses[Math.floor(Math.random() * reactionResponses.length)];
+            }
+
+            updateGoal() {
+                // Update goal based on current state
+                if (this.hunger > 70) {
+                    this.goal = 'find-food';
+                } else if (this.thirst > 70) {
+                    this.goal = 'find-water';
+                } else if (this.happiness < 40) {
+                    this.goal = 'socialize';
+                } else if (this.hp < 50) {
+                    this.goal = 'rest';
+                } else if (Math.random() < 0.1) {
+                    this.goal = 'explore';
+                } else {
+                    this.goal = 'wander';
+                }
+            }
+
+            speak(message) {
+                this.showSpeechBubble(message);
+            }
+
+            showSpeechBubble(message) {
+                if (this.speechBubble) {
+                    this.speechBubble.remove();
+                }
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'speech-bubble';
+                bubble.textContent = message;
+                
+                const world = document.getElementById('game-world');
+                const worldRect = world.getBoundingClientRect();
+                const spriteRect = this.sprite.getBoundingClientRect();
+                
+                bubble.style.left = (spriteRect.left - worldRect.left + 16) + 'px';
+                bubble.style.top = (spriteRect.top - worldRect.top - 40) + 'px';
+                
+                world.appendChild(bubble);
+                
+                setTimeout(() => {
+                    if (bubble.parentNode) {
+                        bubble.remove();
+                    }
+                }, 3000);
+                
+                this.speechBubble = bubble;
+            }
+
+            addLog(message) {
+                const log = document.getElementById('console-log');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                log.appendChild(logEntry);
+                log.scrollTop = log.scrollHeight;
+                
+                // Keep only last 50 entries
+                while (log.children.length > 50) {
+                    log.removeChild(log.firstChild);
+                }
+            }
+
+            updateState(state) {
+                this.hunger = state.hunger ?? this.hunger;
+                this.thirst = state.thirst ?? this.thirst;
+                this.happiness = state.happiness ?? this.happiness;
+                this.hp = state.hp ?? this.hp;
+                this.goal = state.goal ?? this.goal;
+                
+                this.updateSprite();
+                this.addLog(`${this.persona.name} state updated`);
+            }
+
+            triggerEvent() {
+                const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+                this.updateState({
+                    hunger: this.hunger + (event.hunger || 0),
+                    thirst: this.thirst + (event.thirst || 0),
+                    happiness: this.happiness + (event.happiness || 0),
+                    hp: this.hp + (event.hp || 0)
+                });
+                
+                this.speak(`I just ${event.message}!`);
+                this.addLog(`${this.persona.name} ${event.message}`);
+            }
+
+            sendMessage(message) {
+                // Simulate AI response based on persona and current state
+                let response = this.getResponse().find(r => 
+                    r.toLowerCase().includes(message.toLowerCase()) || 
+                    message.toLowerCase().includes(r.toLowerCase())
+                );
+                
+                if (!response) {
+                    response = this.getResponse()[0];
+                }
+                
+                this.speak(response);
+                this.addLog(`Player → ${this.persona.name}: "${message}"`);
+            }
+
+            destroy() {
+                if (this.speechBubble) {
+                    this.speechBubble.remove();
+                }
+                if (this.sprite) {
+                    this.sprite.remove();
+                }
+            }
+        }
+
+        // Game Loop
+        function gameLoop(timestamp) {
+            if (gameState.running && timestamp - gameState.lastTick >= (1000 / gameState.tickRate)) {
+                gameState.tickCount++;
+                gameState.lastTick = timestamp;
+                
+                // Update all NPCs
+                gameState.npcs.forEach(npc => npc.tick());
+                
+                // Update game time
+                if (gameState.startTime) {
+                    const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('game-time').textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+                
+                // Update TPS
+                document.getElementById('tps').textContent = gameState.tickRate;
+                document.getElementById('npc-count').textContent = gameState.npcs.length;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event Listeners
+        document.getElementById('start-simulation').addEventListener('click', () => {
+            gameState.running = true;
+            if (!gameState.startTime) {
+                gameState.startTime = Date.now();
+            }
+            gameState.lastTick = performance.now();
+            document.getElementById('console-log').addLog?.('Simulation started');
+            
+            // Add some default NPCs
+            if (gameState.npcs.length === 0) {
+                createNPC('wizard', 'llama3', 'wizard');
+                createNPC('warrior', 'mistral', 'warrior');
+                createNPC('rogue', 'phi3', 'rogue');
+            }
+        });
+
+        document.getElementById('pause-simulation').addEventListener('click', () => {
+            gameState.running = false;
+            document.getElementById('console-log').addLog?.('Simulation paused');
+        });
+
+        document.getElementById('reset-simulation').addEventListener('click', () => {
+            gameState.running = false;
+            gameState.npcs.forEach(npc => npc.destroy());
+            gameState.npcs = [];
+            gameState.selectedNPC = null;
+            gameState.tickCount = 0;
+            gameState.startTime = null;
+            document.getElementById('game-time').textContent = '00:00';
+            document.getElementById('state-controls').style.display = 'none';
+            document.getElementById('console-log').innerHTML = '';
+        });
+
+        document.getElementById('create-npc').addEventListener('click', () => {
+            const avatarType = document.getElementById('avatar-select').value;
+            const model = document.getElementById('model-select').value;
+            const personaType = document.getElementById('persona-select').value;
+            
+            createNPC(avatarType, model, personaType);
+        });
+
+        function createNPC(avatarType, model, personaType) {
+            const id = `npc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const npc = new NPC(id, avatarType, model, personaType);
+            gameState.npcs.push(npc);
+            
+            // Add to dropdown
+            const select = document.getElementById('character-select');
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = `${personas[personaType].name}`;
+            select.appendChild(option);
+            
+            npc.addLog(`Created ${personas[personaType].name} (${model})`);
+        }
+
+        document.getElementById('delete-npc').addEventListener('click', () => {
+            if (!gameState.selectedNPC) return;
+            
+            const npc = gameState.selectedNPC;
+            const index = gameState.npcs.findIndex(n => n.id === npc.id);
+            if (index > -1) {
+                gameState.npcs.splice(index, 1);
+                npc.destroy();
+                gameState.selectedNPC = null;
+                document.getElementById('state-controls').style.display = 'none';
+                
+                // Remove from dropdown
+                const select = document.getElementById('character-select');
+                select.removeChild(select.querySelector(`option[value="${npc.id}"]`));
+                
+                document.getElementById('console-log').addLog?.(`Deleted ${npc.persona.name}`);
+            }
+        });
+
+        // State slider listeners
+        const stateSliders = ['hunger', 'thirst', 'happiness', 'hp'];
+        stateSliders.forEach(state => {
+            const slider = document.getElementById(`${state}-slider`);
+            const valueDisplay = document.getElementById(`${state}-value`);
+            
+            slider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                valueDisplay.textContent = value;
+                
+                if (gameState.selectedNPC) {
+                    gameState.selectedNPC.updateState({ [state]: value });
+                }
+            });
+        });
+
+        document.getElementById('goal-select').addEventListener('change', (e) => {
+            if (gameState.selectedNPC) {
+                gameState.selectedNPC.updateState({ goal: e.target.value });
+            }
+        });
+
+        document.getElementById('trigger-event').addEventListener('click', () => {
+            if (gameState.selectedNPC) {
+                gameState.selectedNPC.triggerEvent();
+            }
+        });
+
+        document.getElementById('send-message').addEventListener('click', () => {
+            if (!gameState.selectedNPC) return;
+            
+            const message = prompt('Send a message to ' + gameState.selectedNPC.persona.name + ':');
+            if (message) {
+                gameState.selectedNPC.sendMessage(message);
+            }
+        });
+
+        document.getElementById('clear-logs').addEventListener('click', () => {
+            document.getElementById('console-log').innerHTML = '';
+        });
+
+        // Character select listener
+        document.getElementById('character-select').addEventListener('change', (e) => {
+            if (e.target.value) {
+                const npc = gameState.npcs.find(n => n.id === e.target.value);
+                if (npc) {
+                    npc.select();
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            requestAnimationFrame(gameLoop);
+            console.log('ULTRON AI SIMULATOR initialized');
+            document.getElementById('console-log').addLog?.('ULTRON AI SIMULATOR ready');
+        });
+    </script>
+</body>
+</html>

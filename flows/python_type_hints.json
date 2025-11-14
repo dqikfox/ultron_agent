@@ -1,0 +1,17 @@
+{
+  "name": "python_type_hints",
+  "description": "Add type hints to Python code",
+  "data": {
+    "nodes": [
+      {"id": "input", "type": "ChatInput", "position": {"x": 0, "y": 0}},
+      {"id": "prompt", "type": "Prompt", "position": {"x": 300, "y": 0}, "data": {"template": "Add type hints to this Python code:\n\n{input}\n\nRules:\n- Add type hints to all parameters and returns\n- Use typing module\n- Keep logic unchanged\n- Return only code"}},
+      {"id": "ollama", "type": "OllamaModel", "position": {"x": 600, "y": 0}, "data": {"model_name": "qwen2.5-coder:1.5b", "base_url": "http://localhost:11434"}},
+      {"id": "output", "type": "ChatOutput", "position": {"x": 900, "y": 0}}
+    ],
+    "edges": [
+      {"source": "input", "target": "prompt"},
+      {"source": "prompt", "target": "ollama"},
+      {"source": "ollama", "target": "output"}
+    ]
+  }
+}
