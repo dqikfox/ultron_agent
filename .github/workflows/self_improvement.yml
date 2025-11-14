@@ -1,4 +1,8 @@
 name: ULTRON Self-Improvement Cycle
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 
 on:
   # Run weekly on Monday at 00:00 UTC
