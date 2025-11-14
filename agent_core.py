@@ -30,10 +30,17 @@ try:
 except ImportError:
     KEYBOARD_AVAILABLE = False
 
-# Import performance profiler
+# Import performance profiler and analytics
 from utils.performance_profiler import (
     get_performance_profiler, start_performance_monitoring
 )
+try:
+    from utils.performance_analytics import get_performance_analytics
+    PERFORMANCE_ANALYTICS_AVAILABLE = True
+except ImportError:
+    PERFORMANCE_ANALYTICS_AVAILABLE = False
+    def get_performance_analytics():
+        return None
 
 # Import the correct UltronConfig from ultron_agent package
 try:
@@ -72,6 +79,41 @@ class UltronAgent:
     Handles command routing, tool loading, and system events
     """
 
+    def __init__(self, config_path: str = "ultron_config.json"):
+        """Initialize ULTRON Agent following project architecture"""
+        self.config = self._load_config(config_path)
+        self.logger = self._setup_logging()
+
+        # Initialize performance profiler
+        config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                       else {})
+        self.performance_profiler = get_performance_profiler(config_dict)
+        
+        # Initialize performance analytics
+        self.performance_analytics = None
+        if PERFORMANCE_ANALYTICS_AVAILABLE:
+            self.performance_analytics = get_performance_analytics()
+            self.logger.info("Performance analytics initialized")
+
+        # Core components per copilot instructions
+        self.tools = {}
+        self.is_running = False
+        self.current_task = None
+
+        # Initialize state
+        self.status = AgentStatus.INITIALIZING
+        self.brain = None
+        self.voice = None
+        self.memory = None
+        self.vision = None
+        self.event_system = None
+        self.performance_monitor = None
+        self.task_scheduler = None
+
+        self.logger.info("ULTRON Agent core initialized")
+
+    def _load_config(self, config_path: str = "ultron_config.json"):
+        """Load configuration following project patterns"""
     def __init__(self, config_path: str = "ultron_config.json") -> None:
         """Initialize ULTRON Agent following project architecture
 
@@ -164,6 +206,26 @@ class UltronAgent:
             ValidationError: If configuration values are invalid
         """
         try:
+            self.logger.info("Initializing ULTRON Agent components...")
+
+            # Start performance monitoring
+            config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                           else {})
+            start_performance_monitoring(config_dict)
+            
+            # Start analytics monitoring
+            if self.performance_analytics:
+                self.performance_analytics.start_monitoring(interval_seconds=10)
+
+            # Initialize core systems per copilot instructions
+            await self._initialize_memory()
+            await self._initialize_voice()
+            await self._initialize_vision()
+            await self._initialize_brain()
+            await self._initialize_event_system()
+            await self._initialize_idle_monitor()
+            await self._initialize_keyboard_listener()
+            await self._load_tools()
             with ErrorContext("config_load_config"):
                 # Validate config path
                 if not config_path or not isinstance(config_path, str):
