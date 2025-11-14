@@ -4,7 +4,7 @@ ADB Backend Integration - Updated with Enhanced Commands
 Integrates adb_enhanced_commands.py with Socket.IO server
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, disconnect
 import json
@@ -22,15 +22,10 @@ from adb_enhanced_commands import (
     list_device_features,
     get_battery_info,
     get_memory_info,
-    get_cpu_info,
     get_network_info,
-    get_all_system_properties,
-    broadcast_intent,
-    take_screenshot_raw,
     set_display_size,
     reset_display_size,
     set_display_density,
-    reset_display_density,
     get_logcat_by_level,
     clear_logcat,
 )
@@ -50,12 +45,12 @@ CURRENT_DEVICE = None
 
 def log_info(message):
     """Simple logging"""
-    print(f"[INFO] {message} - adb_backend_enhanced.py:53")
+    print(f"[INFO] {message} - adb_backend_enhanced.py:48")
 
 
 def log_error(message):
     """Error logging"""
-    print(f"[ERROR] {message} - adb_backend_enhanced.py:58")
+    print(f"[ERROR] {message} - adb_backend_enhanced.py:53")
 
 
 @app.route('/health', methods=['GET'])
@@ -141,7 +136,12 @@ def handle_list_permissions(data):
     """List system permissions"""
     try:
         group = data.get('group')
-        result = list_permissions(CURRENT_DEVICE, group)
+        # Prefer device provided in event, fallback to previously selected device.
+        device = data.get('device') or CURRENT_DEVICE
+        if device is None:
+            raise ValueError("No device specified or selected")
+        device = str(device)
+        result = list_permissions(device, group)
 
         emit('list_permissions_response', {
             'success': True,
@@ -448,7 +448,7 @@ if __name__ == '__main__':
         print("[+] Listening on: http://localhost:5003 - adb_backend_enhanced.py:448")
         print("[+] Frontend URL: http://localhost:8080/adb.html - adb_backend_enhanced.py:449")
         print("[+] Health Check: http://localhost:5003/health - adb_backend_enhanced.py:450")
-        print("[DEBUG] Starting socketio.run()...")
+        print("[DEBUG] Starting socketio.run()... - adb_backend_enhanced.py:451")
         socketio.run(
             app,
             host='0.0.0.0',  # Changed from 127.0.0.1 to accept all interfaces
@@ -457,10 +457,10 @@ if __name__ == '__main__':
             allow_unsafe_werkzeug=True
         )
     except KeyboardInterrupt:
-        print("\n[!] Shutdown requested - adb_backend_enhanced.py:458")
+        print("\n[!] Shutdown requested - adb_backend_enhanced.py:460")
         log_info("Backend shutdown by user")
     except Exception as e:
         import traceback
-        print(f"[!] Error: {e} - adb_backend_enhanced.py:461")
+        print(f"[!] Error: {e} - adb_backend_enhanced.py:464")
         traceback.print_exc()
         log_error(f"Backend error: {e}")

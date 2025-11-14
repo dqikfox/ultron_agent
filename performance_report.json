@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-11-02 23:34:05",
+  "game_engine": {
+    "execution_time": "0.0030s",
+    "status": "PASS"
+  },
+  "langflow_api": {
+    "response_time": "27.5388s",
+    "status": "SLOW"
+  },
+  "overall": "NEEDS_OPTIMIZATION"
+}

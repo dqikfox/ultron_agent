@@ -1,0 +1,13 @@
+[InternetShortcut]
+URL=C:\Projects\ultron_agent\start_langflow_admin.bat
+WorkingDirectory=C:\Projects\ultron_agent
+
+[{000214A0-0000-0000-C000-000000000046}]
+Prop3=19,1
+
+; Note: To make this run as admin, you may need to:
+; 1. Right-click the shortcut
+; 2. Click "Properties"
+; 3. Click "Advanced"
+; 4. Check "Run as administrator"
+; 5. Click OK
