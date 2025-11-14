@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON 3D Avatar Viewer</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Orbitron', monospace; }
+        #canvas { width: 100vw; height: 100vh; }
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+        }
+        button {
+            background: #00ff41;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #00bf33; }
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #00ff41;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="controls">
+        <h3>🤖 ULTRON 3D AVATAR</h3>
+        <button onclick="loadModel('ultron+xps.glb')">Ultron v1</button>
+        <button onclick="loadModel('ultron+xps2.glb')">Ultron v2</button>
+        <button onclick="loadModel('ultron+xps3.glb')">Ultron v3</button>
+        <button onclick="loadModel('TOON TROOPER/TROOPER.glb')">Trooper</button>
+        <br>
+        <button onclick="toggleAnimation()">⏯️ Animation</button>
+        <button onclick="resetCamera()">📷 Reset</button>
+    </div>
+    <div id="info">
+        🖱️ Drag to rotate | 🔍 Scroll to zoom | ⌨️ Arrow keys to move
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls, model, mixer, clock;
+        let animationRunning = true;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 1, 3);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('canvas').appendChild(renderer.domElement);
+            
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0x00ff41, 1);
+            directionalLight.position.set(5, 5, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+            
+            const pointLight1 = new THREE.PointLight(0x00aaff, 0.5);
+            pointLight1.position.set(-5, 3, -5);
+            scene.add(pointLight1);
+            
+            const pointLight2 = new THREE.PointLight(0xff00ff, 0.5);
+            pointLight2.position.set(5, 3, -5);
+            scene.add(pointLight2);
+            
+            // Grid
+            const gridHelper = new THREE.GridHelper(10, 10, 0x00ff41, 0x003300);
+            scene.add(gridHelper);
+            
+            clock = new THREE.Clock();
+            
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('keydown', onKeyDown);
+            
+            loadModel('../../../Avatar/ultron+xps.glb');
+            animate();
+        }
+
+        function loadModel(path) {
+            if (model) scene.remove(model);
+            
+            const loader = new GLTFLoader();
+            loader.load(`../../../Avatar/${path}`, (gltf) => {
+                model = gltf.scene;
+                
+                // Center and scale model
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 2 / maxDim;
+                
+                model.scale.multiplyScalar(scale);
+                model.position.sub(center.multiplyScalar(scale));
+                
+                // Enable shadows
+                model.traverse((node) => {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                    }
+                });
+                
+                scene.add(model);
+                
+                // Setup animations
+                if (gltf.animations && gltf.animations.length) {
+                    mixer = new THREE.AnimationMixer(model);
+                    gltf.animations.forEach((clip) => {
+                        mixer.clipAction(clip).play();
+                    });
+                }
+                
+                console.log('Model loaded:', path);
+            }, undefined, (error) => {
+                console.error('Error loading model:', error);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const delta = clock.getDelta();
+            
+            if (mixer && animationRunning) {
+                mixer.update(delta);
+            }
+            
+            // Rotate model slowly
+            if (model && animationRunning) {
+                model.rotation.y += 0.005;
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onKeyDown(event) {
+            const speed = 0.1;
+            switch(event.key) {
+                case 'ArrowUp': camera.position.y += speed; break;
+                case 'ArrowDown': camera.position.y -= speed; break;
+                case 'ArrowLeft': camera.position.x -= speed; break;
+                case 'ArrowRight': camera.position.x += speed; break;
+            }
+        }
+
+        window.loadModel = loadModel;
+        window.toggleAnimation = () => {
+            animationRunning = !animationRunning;
+        };
+        window.resetCamera = () => {
+            camera.position.set(0, 1, 3);
+            controls.reset();
+        };
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+[
+  {
+    "id": "game_dev_001",
+    "status": "pending",
+    "priority": 1,
+    "task": "Build AI Agent Battle Arena Game",
+    "prompt": "Build a turn-based AI Agent Battle Arena game with:\n\n1. GameEngine class (game/engine.py):\n   - Turn management\n   - Agent registration\n   - Victory conditions\n   - State persistence\n\n2. AIAgent class (game/agent.py):\n   - HP, energy, abilities\n   - Model integration (Qwen, DeepSeek, Mistral)\n   - Damage calculation\n   - AI decision-making via Ollama\n\n3. Flask server (game/server.py):\n   - WebSocket support\n   - Game state API\n   - Real-time updates\n\n4. HTML5 Canvas frontend (game/templates/arena.html):\n   - Agent sprites\n   - Turn indicators\n   - Ability buttons\n   - Health bars\n\n5. SQLite database (game/database.py):\n   - Game state persistence\n   - Match history\n   - Agent stats\n\nIntegrate with existing ULTRON systems:\n- Use auto_orchestrator.py for AI decisions\n- Leverage avatar_builder_tool.py for agent creation\n- Connect to Ollama via brain.py\n",
+    "model": "qwen2.5-coder:1.5b",
+    "output_file": "game/",
+    "context_files": [
+      "game_dev_plan.md",
+      "auto_orchestrator.py",
+      "tools/avatar_builder_tool.py",
+      "brain.py"
+    ],
+    "created_by": "amazon_q",
+    "created_at": "2025-01-16T00:00:00"
+  }
+]

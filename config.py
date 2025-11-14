@@ -211,7 +211,9 @@ class ConfigSchema:
             "logflare_backend": {"type": "string"},
             "postman_api": {"type": "string"},
             "petshop_apikey": {"type": "string"},
-            "codegpt_api_key": {"type": "string"}
+            "codegpt_api_key": {"type": "string"},
+            "github_token": {"type": "string"},
+            "postgres_url": {"type": "string"}
         },
         "additionalProperties": True  # Allow custom properties
     }
@@ -456,7 +458,9 @@ class Config:
                 "logflare_backend": os.getenv("LOGFLARE_LOGGER_BACKEND_API_KEY", ""),
                 "postman": os.getenv("POSTMAN_API", ""),
                 "petshop": os.getenv("PETSHOP_APIKEY", ""),
-                "codegpt": os.getenv("CODEGTP_API_KEY", "")
+                "codegpt": os.getenv("CODEGTP_API_KEY", ""),
+                "github_token": os.getenv("GITHUB_TOKEN", ""),
+                "postgres_url": os.getenv("POSTGRES_URL", "postgresql://postgres:%RS@havikz11@db.nlljewgpwiktvxwlspnt.supabase.co:5432/postgres")
             }
         }
 

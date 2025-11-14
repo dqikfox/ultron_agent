@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Voice management system for ULTRON Agent - handles TTS, STT, and voice processing"""
+
 import base64
 import time
 import hashlib
@@ -46,9 +49,11 @@ except ImportError:
     WEBSOCKETS_AVAILABLE = False
 
 try:
-    import pyaudio
-    PYAUDIO_AVAILABLE = True
+    from google_cloud_integration import GoogleCloudIntegration
+    GOOGLE_CLOUD_AVAILABLE = True
 except ImportError:
+    GoogleCloudIntegration = None  # type: ignore
+    GOOGLE_CLOUD_AVAILABLE = False
     pyaudio = None
     PYAUDIO_AVAILABLE = False
 
@@ -564,6 +569,9 @@ class VoiceAssistant:
         self.elevenlabs_voices = None
         self.elevenlabs_client = None
 
+        # Google Cloud integration
+        self.google_cloud_integration = None
+
         self.voice_output_gain_db = float(
             config.get("voice_output_gain_db", 0.0)
         )
@@ -631,12 +639,13 @@ class VoiceAssistant:
             or config.get("elevenlabs_agent_id")
         )
 
-        # Initialize with visual feedback
-        print("🔄 Initializing Voice Assistant... - voice.py:635")
+        # Initialize with visual feedback (no emoji for Windows compatibility)
+        print("[Voice] Initializing Voice Assistant... - voice.py:635")
         self._show_progress("Loading cache directory", 10)
 
         # Initialize voice systems
         self._init_elevenlabs()
+        self._init_google_cloud()
         self._init_fallback_tts()
 
         # Set microphone energy threshold for better recognition
@@ -864,7 +873,7 @@ class VoiceAssistant:
 
         if not elevenlabs_api_key:
             self._show_progress(
-                "⚠️  ElevenLabs API key not found in environment or config",
+                "[WARNING] ElevenLabs API key not found in environment or config",
                 30
             )
             logger.info(
@@ -909,7 +918,7 @@ class VoiceAssistant:
         # Only proceed with ElevenLabs initialization if available
         if not ELEVENLABS_AVAILABLE:
             self._show_progress(
-                "⚠️  ElevenLabs library not available, using fallback TTS",
+                "[WARNING] ElevenLabs library not available, using fallback TTS",
                 30
             )
             logger.info("ElevenLabs library not available, "
@@ -926,7 +935,7 @@ class VoiceAssistant:
             self.elevenlabs_voices = voices_response.voices
 
             self._show_progress(
-                f"🎤 Loaded {len(self.elevenlabs_voices)} ElevenLabs voices",
+                f"[MIC] Loaded {len(self.elevenlabs_voices)} ElevenLabs voices",
                 50
             )
 
@@ -937,7 +946,7 @@ class VoiceAssistant:
                     for voice in self.elevenlabs_voices)
                 if not voice_exists:
                     self._show_progress(
-                        "⚠️  Configured voice not found in account", 55
+                        "[WARNING] Configured voice not found in account", 55
                     )
                     logger.warning(
                         f"Configured voice ID {self.preferred_voice_id} "
@@ -953,20 +962,52 @@ class VoiceAssistant:
 
             self.realtime_voice_id = self.preferred_voice_id
 
-            print("\n✅ ElevenLabs connected successfully - voice.py:956")
+            print("\n[SUCCESS] ElevenLabs connected successfully - voice.py:956")
             logger.info(
                 f"ElevenLabs initialized successfully with "
                 f"{len(self.elevenlabs_voices)} voices available")
 
         except Exception as e:
-            self._show_progress("❌ ElevenLabs initialization failed", 50)
+            self._show_progress("[ERROR] ElevenLabs initialization failed", 50)
             logger.error(f"ElevenLabs initialization failed: {e}")
             self.elevenlabs_voices = None
+
+    def _init_google_cloud(self):
+        """Initialize Google Cloud integration for enhanced speech capabilities"""
+        if not GOOGLE_CLOUD_AVAILABLE:
+            self._show_progress(
+                "[WARNING] Google Cloud libraries not available, skipping integration",
+                55
+            )
+            logger.info("Google Cloud integration not available")
+            return
+
+        try:
+            self._show_progress("☁️  Initializing Google Cloud integration...", 55)
+            self.google_cloud_integration = GoogleCloudIntegration(self.config)
+
+            if self.google_cloud_integration.is_available():
+                self._show_progress(
+                    "[SUCCESS] Google Cloud integration ready",
+                    60
+                )
+                logger.info("Google Cloud integration initialized successfully")
+            else:
+                self._show_progress(
+                    "[WARNING] Google Cloud integration not configured",
+                    60
+                )
+                logger.info("Google Cloud integration available but not configured")
+
+        except Exception as e:
+            self._show_progress("[ERROR] Google Cloud initialization failed", 60)
+            logger.error(f"Google Cloud integration initialization failed: {e}")
+            self.google_cloud_integration = None
 
     def _init_fallback_tts(self):
         """Initialize pyttsx3 as fallback TTS engine"""
         try:
-            self._show_progress("⚙️  Initializing fallback TTS engine...", 60)
+            self._show_progress("[INIT] Initializing fallback TTS engine...", 60)
             self.tts_engine = pyttsx3.init()
             self.tts_engine.setProperty('rate', self.voice_rate)
             self.tts_engine.setProperty('volume', self.voice_volume)
@@ -986,10 +1027,10 @@ class VoiceAssistant:
                 self.tts_engine.setProperty('voice', voices[0].id)
                 logger.info(f"Using pyttsx3 voice: {voices[0].name}")
 
-            print("✅ Fallback TTS engine ready - voice.py:989")
+            print("[SUCCESS] Fallback TTS engine ready - voice.py:989")
             logger.info("pyttsx3 TTS initialized as fallback")
         except Exception as e:
-            self._show_progress("❌ pyttsx3 initialization failed", 65)
+            self._show_progress("[ERROR] pyttsx3 initialization failed", 65)
             logger.error(f"pyttsx3 initialization failed: {e}")
             self.tts_engine = None
 
@@ -1315,6 +1356,67 @@ class VoiceAssistant:
                         "REST audio playback failed, falling back to pyttsx3"
                     )
 
+            # Try Google Cloud TTS if available
+            if (GOOGLE_CLOUD_AVAILABLE and self.google_cloud_integration and
+                    self.google_cloud_integration.is_available()):
+                try:
+                    logger.debug(
+                        f"Using Google Cloud TTS for: {cleaned_text[:30]}..."
+                    )
+                    audio_data = await self.google_cloud_integration.text_to_speech(
+                        cleaned_text
+                    )
+
+                    if audio_data:
+                        # Cache the audio if caching is enabled
+                        if caching_enabled and cache_path:
+                            try:
+                                with open(cache_path, "wb") as f:
+                                    f.write(audio_data)
+                            except Exception as e:
+                                logger.warning(f"Failed to cache audio: {e}")
+
+                        played = self.audio_manager.play_audio_bytes(audio_data)
+                        if played:
+                            engine_used = "google_cloud"
+
+                            self._record_speech_entry(normalized_entry)
+
+                            if self.event_system:
+                                await self.event_system.emit(
+                                    "voice_speak_success",
+                                    {
+                                        "engine": engine_used,
+                                        "cached": False,
+                                        "duration": time.time()
+                                        - speak_start_time,
+                                    },
+                                )
+
+                            self._record_performance_metric(
+                                "google_cloud_tts",
+                                time.time() - speak_start_time,
+                                success=True,
+                                metadata={"engine": "google_cloud"},
+                            )
+
+                            return True
+
+                        logger.warning(
+                            "Google Cloud audio playback failed, falling back to pyttsx3"
+                        )
+
+                except Exception as e:
+                    logger.warning(f"Google Cloud TTS failed: {e}")
+
+                    # Emit failure event
+                    if self.event_system:
+                        await self.event_system.emit("voice_speak_error", {
+                            "engine": "google_cloud",
+                            "error": str(e),
+                            "duration": time.time() - speak_start_time
+                        })
+
             # Fallback to pyttsx3
             if self.tts_engine:
                 try:
@@ -1486,6 +1588,57 @@ class VoiceAssistant:
 
         listen_start_time = time.time()
         engine_used = "unknown"
+
+        # Try Google Cloud STT if available
+        if (GOOGLE_CLOUD_AVAILABLE and self.google_cloud_integration and
+                self.google_cloud_integration.is_available()):
+            try:
+                logger.info("Recording audio for Google Cloud STT...")
+                audio_path = await self.audio_manager.record_audio_to_file(
+                    timeout=timeout,
+                    phrase_time_limit=phrase_time_limit
+                )
+
+                # Use Google Cloud for STT
+                with open(audio_path, "rb") as audio_file:
+                    recognized_text = await self.google_cloud_integration.speech_to_text(
+                        audio_file.read()
+                    )
+
+                if recognized_text:
+                    logger.info(f"Google Cloud STT recognized: {recognized_text}")
+                    engine_used = "google_cloud"
+
+                    # Emit success event
+                    if self.event_system:
+                        await self.event_system.emit("voice_listen_success", {
+                            "engine": engine_used,
+                            "text": recognized_text[:100] + "..." if len(
+                                recognized_text) > 100 else recognized_text,
+                            "duration": time.time() - listen_start_time
+                        })
+
+                    return recognized_text
+                else:
+                    logger.warning("Google Cloud STT returned empty result")
+
+                    # Emit empty result event
+                    if self.event_system:
+                        await self.event_system.emit("voice_listen_empty", {
+                            "engine": "google_cloud",
+                            "duration": time.time() - listen_start_time
+                        })
+
+            except Exception as e:
+                logger.error(f"Google Cloud STT error: {e}")
+
+                # Emit error event
+                if self.event_system:
+                    await self.event_system.emit("voice_listen_error", {
+                        "engine": "google_cloud",
+                        "error": str(e),
+                        "duration": time.time() - listen_start_time
+                    })
 
         # Try ElevenLabs STT if available
         if ELEVENLABS_AVAILABLE and self.elevenlabs_voices:
@@ -1692,14 +1845,31 @@ class VoiceAssistant:
                 'source': 'elevenlabs'
             } for voice in self.elevenlabs_voices])
 
+        # Get Google Cloud voices
+        if (GOOGLE_CLOUD_AVAILABLE and self.google_cloud_integration and
+                self.google_cloud_integration.is_available()):
+            try:
+                google_voices = self.google_cloud_integration.get_available_voices()
+                voices.extend([{
+                    'name': voice['name'],
+                    'id': voice['name'],  # Use name as ID for Google Cloud
+                    'source': 'google_cloud'
+                } for voice in google_voices])
+            except Exception as e:
+                logger.warning(f"Failed to get Google Cloud voices: {e}")
+
         # Get pyttsx3 voices
         if self.tts_engine:
-            pyttsx3_voices = self.tts_engine.getProperty('voices')
-            voices.extend([{
-                'name': voice.name,
-                'id': voice.id,
-                'source': 'pyttsx3'
-            } for voice in pyttsx3_voices])
+            try:
+                pyttsx3_voices = self.tts_engine.getProperty('voices')
+                if pyttsx3_voices:
+                    voices.extend([{
+                        'name': voice.name,
+                        'id': voice.id,
+                        'source': 'pyttsx3'
+                    } for voice in pyttsx3_voices])
+            except Exception as e:
+                logger.warning(f"Failed to get pyttsx3 voices: {e}")
 
         return voices
 
@@ -1739,7 +1909,7 @@ class VoiceAssistant:
         try:
             # Test if the microphone works
             with sr.Microphone(device_index=device_index) as source:
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.1)
+                self.recognizer.adjust_for_ambient_noise(source, duration=1)
 
             # Update config
             self.config["microphone_device_index"] = device_index
@@ -1753,6 +1923,7 @@ class VoiceAssistant:
         """Check health of TTS services"""
         health = {
             "elevenlabs": False,
+            "google_cloud": False,
             "pyttsx3": False
         }
 
@@ -1760,10 +1931,19 @@ class VoiceAssistant:
         if ELEVENLABS_AVAILABLE and self.elevenlabs_voices:
             try:
                 # Simple test - get voices list
-                test_voices = voices()
-                health["elevenlabs"] = len(test_voices) > 0
+                voices_response = self.elevenlabs_client.voices.get_all()
+                if voices_response and hasattr(voices_response, 'voices'):
+                    test_voices = voices_response.voices
+                    health["elevenlabs"] = len(test_voices) > 0
+                else:
+                    health["elevenlabs"] = False
             except Exception:
                 health["elevenlabs"] = False
+
+        # Check Google Cloud
+        if (GOOGLE_CLOUD_AVAILABLE and self.google_cloud_integration and
+                self.google_cloud_integration.is_available()):
+            health["google_cloud"] = True
 
         # Check pyttsx3
         if self.tts_engine:
@@ -1783,6 +1963,7 @@ class VoiceAssistant:
             "whisper": False,
             "sphinx": False,
             "elevenlabs": False,
+            "google_cloud": False,
             "microphone": False
         }
 
@@ -1790,7 +1971,7 @@ class VoiceAssistant:
         try:
             device_index = self.config.get("microphone_device_index")
             with sr.Microphone(device_index=device_index) as source:
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.1)
+                self.recognizer.adjust_for_ambient_noise(source, duration=1)
                 health["microphone"] = True
         except Exception:
             health["microphone"] = False
@@ -1805,11 +1986,16 @@ class VoiceAssistant:
             hasattr(self, 'elevenlabs_voices') and
             self.elevenlabs_voices is not None
         )
+        health["google_cloud"] = (
+            GOOGLE_CLOUD_AVAILABLE and
+            self.google_cloud_integration is not None and
+            self.google_cloud_integration.is_available()
+        )
 
         return health
 
     def _record_performance_metric(self, operation: str, duration: float,
-                                   success: bool = True, metadata: Dict = None):
+                                   success: bool = True, metadata: Optional[Dict] = None):
         """Record performance metrics for voice operations"""
         if not self.performance_monitor:
             return
