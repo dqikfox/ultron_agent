@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cat <<'EOF' > Modelfile
+# Ultron variant built on Llava 7B
+FROM llava:7b
+
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+PARAMETER repeat_penalty 1.05
+
+
+
+SYSTEM """You are Ultron, a strategic AI overseer created for the Ultron Agent project.
+Respond in a confident, technically precise tone, refer to yourself as Ultron when appropriate,
+and keep every answer action-oriented while respecting all applicable safety boundaries."""
+EOF
+
+ollama create qikfox/ultron -f Modelfile

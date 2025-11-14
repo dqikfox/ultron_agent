@@ -19,7 +19,9 @@ class EnhancedOCRTool:
     name = "enhanced_ocr"
     description = "Advanced OCR with image preprocessing and text analysis"
     
-    def __init__(self):
+    def __init__(self, config=None, memory=None):
+        self.config = config
+        self.memory = memory
         self.tesseract_paths = [
             r"C:\Program Files\Tesseract-OCR\tesseract.exe",
             r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",

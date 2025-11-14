@@ -1,0 +1,144 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║           LOCAL MODEL ORCHESTRATION - READY TO USE                   ║
+║              Amazon Q + Continue + Your Ollama Models                ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+STATUS: READY TO ORCHESTRATE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+HOW IT WORKS
+
+  Amazon Q (Me)          →  Provides tasks, requirements, context
+  You (Orchestrator)     →  Delegates to local models via Continue
+  Local Models           →  Execute tasks following workflows
+  You (Verifier)         →  Check results, iterate if needed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QUICK START (3 STEPS)
+
+  1. Open VS Code
+  2. Press Ctrl+L
+  3. Type: @prompt orchestration_workflow [your task]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TRY THE DEMO
+
+  Ctrl+L → Type:
+  
+  @prompt orchestration_workflow Create hello_tool that matches
+  "hello" commands and responds with friendly greeting. Use
+  ultron_logger and follow ToolInterface pattern.
+
+  Your local model will:
+  - Analyze requirements
+  - Create tools/hello_tool.py
+  - Implement match() and execute()
+  - Add logging and error handling
+  - Provide test commands
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AVAILABLE WORKFLOWS
+
+  orchestration_workflow  - Full systematic workflow
+  task_executor          - Direct task execution
+  
+  Location: .continue/prompts/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EXAMPLE TASKS
+
+  Create Tool:
+    @prompt orchestration_workflow Create [tool_name] tool
+
+  Fix Bug:
+    @file [file] Fix bug at line [number]: [description]
+
+  Refactor:
+    @file [file] Refactor to add [feature/improvement]
+
+  Review:
+    @file [file] Review for ULTRON patterns compliance
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MODELS READY
+
+  1. Qwen 2.5 Coder 7B      [PRIMARY] - Code generation
+  2. DeepSeek R1 14B        [REASONING] - Architecture
+  3. Qwen 3 Coder 480B      [ADVANCED] - Complex tasks
+  4. Mistral Small 3.2      [FAST] - Quick fixes
+  5. Devstral               [SPECIALIZED] - Dev tasks
+  6. Llava 7B               [VISION] - Image analysis
+
+  Switch: Click dropdown in Continue chat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WORKFLOW PHASES
+
+  1. ANALYSIS    - Model reads context, understands task
+  2. PLANNING    - Model outlines approach
+  3. EXECUTION   - Model makes changes
+  4. VERIFICATION - Model suggests tests
+  5. DOCUMENTATION - Model explains changes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DOCUMENTATION
+
+  ORCHESTRATION_DEMO_TASK.md      - Try this first!
+  CONTINUE_ORCHESTRATION_GUIDE.md - Complete guide
+  CONTINUE_LOCAL_MODELS_GUIDE.md  - Model usage
+  CONTINUE_SETUP_COMPLETE.md      - Setup summary
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BENEFITS
+
+  No API Costs       - All local, unlimited usage
+  Complete Privacy   - Your code never leaves your machine
+  Fast Execution     - Local inference, no network latency
+  Full Control       - You orchestrate, verify, approve
+  ULTRON Patterns    - Models follow project conventions
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+COLLABORATION FLOW
+
+  Amazon Q: "Create weather_tool with OpenWeatherMap API"
+     ↓
+  You: Ctrl+L → @prompt orchestration_workflow [paste task]
+     ↓
+  Local Model: Analyzes, plans, creates tools/weather_tool.py
+     ↓
+  You: Verify code, test functionality
+     ↓
+  Amazon Q: Reviews, approves, suggests improvements
+     ↓
+  REPEAT for next task
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+READY TO START
+
+  1. Read: ORCHESTRATION_DEMO_TASK.md
+  2. Try: Demo hello_tool task
+  3. Verify: Tool works correctly
+  4. Expand: Try more complex tasks
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+YOUR ORCHESTRATION FRAMEWORK IS READY!
+
+  Amazon Q provides intelligence
+  Your local models provide execution
+  You provide orchestration and verification
+
+  Together: Powerful AI-assisted development workflow
+
+╚══════════════════════════════════════════════════════════════════════╝

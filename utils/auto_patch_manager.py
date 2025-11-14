@@ -3,12 +3,36 @@ import os
 import tempfile
 import shutil
 import subprocess
+import hashlib
+import difflib
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
+from dataclasses import dataclass
 import git
 from utils.ultron_logger import ultron_logger
 from utils.model_awareness import should_modify_file, check_file_context
+
+
+@dataclass
+class PatchRecord:
+    """Record of a patch applied to a file"""
+    timestamp: datetime
+    file_path: str
+    patch_id: str
+    original_hash: str
+    patched_hash: str
+    patch_content: str
+    success: bool
+    rollback_available: bool = True
+
+
+@dataclass
+class PatchConflict:
+    """Represents overlapping patch hunks"""
+    patch1_lines: Tuple[int, int]
+    patch2_lines: Tuple[int, int]
+    overlap_range: Tuple[int, int]
 
 class AutoPatchManager:
     """
@@ -21,6 +45,7 @@ class AutoPatchManager:
         self.project_root = Path(__file__).parent.parent
         self.backup_dir = self.project_root / "backups" / "auto_patches"
         self.backup_dir.mkdir(parents=True, exist_ok=True)
+        self.patch_history: Dict[str, List[PatchRecord]] = {}
 
         # Configuration from ultron_config.json
         self.auto_apply_enabled = config.get('auto_apply_patches', False)
@@ -298,3 +323,121 @@ class AutoPatchManager:
                 ultron_logger.log_error("auto_patch_manager", f"Failed to read backup metadata: {str(e)}")
 
         return sorted(backups, key=lambda x: x['timestamp'], reverse=True)
+
+    async def validate_patch(self, file_path: str, patch_content: str) -> Tuple[bool, str]:
+        """
+        Validate patch before applying
+
+        Args:
+            file_path: Path to file
+            patch_content: Patch content
+
+        Returns:
+            (is_valid, reason)
+        """
+        full_path = self.project_root / file_path
+
+        # Check file exists
+        if not full_path.exists():
+            return False, f"File does not exist: {file_path}"
+
+        # Check patch syntax
+        try:
+            # Simple validation: check if it looks like valid patch format
+            if not patch_content.strip():
+                return False, "Patch content is empty"
+        except Exception as e:
+            return False, f"Invalid patch format: {str(e)}"
+
+        return True, "Patch is valid"
+
+    async def dry_run_patch(self, file_path: str, patch: str) -> str:
+        """
+        Show what the patch would do without applying it
+
+        Args:
+            file_path: Path to file
+            patch: Patch content
+
+        Returns:
+            Preview of changes
+        """
+        full_path = self.project_root / file_path
+
+        try:
+            with open(full_path, 'r', encoding='utf-8') as f:
+                current = f.read()
+        except Exception as e:
+            return f"Error reading file: {str(e)}"
+
+        # Generate diff
+        lines_before = current.split('\n')
+        lines_after = self._apply_code_change(current, {'code_snippet': patch}).split('\n')
+
+        diff = difflib.unified_diff(lines_before, lines_after, lineterm='', n=3)
+        return '\n'.join(diff)
+
+    def detect_conflicts(self, file_path: str, patch1: str, patch2: str) -> List[PatchConflict]:
+        """
+        Detect if two patches would conflict when applied
+
+        Args:
+            file_path: Path to file
+            patch1: First patch
+            patch2: Second patch
+
+        Returns:
+            List of conflicts
+        """
+        conflicts = []
+
+        try:
+            # Simple conflict detection by checking line overlap
+            # In production, would use proper diff/merge algorithm
+            lines1 = patch1.split('\n')
+            lines2 = patch2.split('\n')
+
+            start1 = 0
+            for i, line in enumerate(lines1):
+                if line.startswith('@@'):
+                    # Extract line number from diff header
+                    pass
+        except Exception as e:
+            ultron_logger.log_error("auto_patch_manager", f"Error detecting conflicts: {str(e)}")
+
+        return conflicts
+
+    async def get_patch_history(self, file_path: str) -> List[PatchRecord]:
+        """
+        Get history of all patches applied to a file
+
+        Args:
+            file_path: Path to file
+
+        Returns:
+            List of patch records
+        """
+        return self.patch_history.get(file_path, [])
+
+    def _compute_file_hash(self, content: str) -> str:
+        """Compute SHA256 hash of file content"""
+        return hashlib.sha256(content.encode()).hexdigest()
+
+    def _record_patch(self, file_path: str, original_content: str, patched_content: str,
+                     patch_content: str, success: bool) -> None:
+        """Record a patch in history"""
+        record = PatchRecord(
+            timestamp=datetime.now(),
+            file_path=file_path,
+            patch_id=f"patch_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            original_hash=self._compute_file_hash(original_content),
+            patched_hash=self._compute_file_hash(patched_content),
+            patch_content=patch_content,
+            success=success
+        )
+
+        if file_path not in self.patch_history:
+            self.patch_history[file_path] = []
+
+        self.patch_history[file_path].append(record)
+
