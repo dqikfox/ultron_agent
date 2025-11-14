@@ -1,203 +1,705 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< ours
   <meta charset="UTF-8" />
-  <title>Ultron Enhanced Chat</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultron Voice Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://js.elevenlabs.io/v1"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0e1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-muted: rgba(88, 166, 255, 0.1);
+      --danger: #ff6e6e;
+      --success: #3fb950;
+      --warning: #f7b955;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    main {
+      width: min(960px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 24px 32px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    #status {
+      padding: 12px 32px;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    #status span {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-muted);
+      color: var(--accent);
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    #status span.success {
+      background: rgba(63, 185, 80, 0.12);
+      color: var(--success);
+    }
+
+    #status span.error {
+      background: rgba(255, 110, 110, 0.12);
+      color: var(--danger);
+    }
+
+    #status span.warning {
+      background: rgba(247, 185, 85, 0.12);
+      color: var(--warning);
+    }
+
+    #conversation {
+      flex: 1;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      display: inline-block;
+      line-height: 1.4;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .bubble strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .bubble.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(88, 166, 255, 0.25), rgba(88, 166, 255, 0.05));
+      border: 1px solid rgba(88, 166, 255, 0.35);
+    }
+
+    .bubble.assistant {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .bubble.system {
+      align-self: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+    }
+
+    #elevenlabs-widget {
+      padding: 18px 32px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    #elevenlabs-widget h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    #elevenlabs-widget .widget-status {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      padding: 20px 24px 24px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .controls button,
+    .controls input {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 1rem;
+      padding: 14px 18px;
+      transition: border 0.25s ease, background 0.25s ease, transform 0.2s ease;
+    }
+
+    #text-input {
+      flex: 1;
+      outline: none;
+    }
+
+    #text-input:focus {
+      border-color: rgba(88, 166, 255, 0.65);
+      background: rgba(88, 166, 255, 0.08);
+    }
+
+    #send-btn {
+      background: var(--accent);
+      color: #0b0d11;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 100px;
+    }
+
+    #send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #mic-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      background: rgba(88, 166, 255, 0.18);
+      border-color: rgba(88, 166, 255, 0.45);
+    }
+
+    #mic-btn.recording {
+      background: rgba(255, 110, 110, 0.18);
+      border-color: rgba(255, 110, 110, 0.4);
+      color: var(--danger);
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      header,
+      #status,
+      #elevenlabs-widget,
+      .controls {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      #conversation {
+        padding: 20px;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #send-btn,
+      #mic-btn,
+      #text-input {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Ultron Enhanced Chat</h1>
-  <div id="messages"></div>
-  <button id="record-btn">🎤 Speak</button>
-  <input id="text-input" type="text" placeholder="Type message" />
-  <button id="send-btn">Send</button>
-  <audio id="tts-audio" autoplay></audio>
+  <main>
+    <header>
+      <h1>Ultron Voice Chat</h1>
+      <p>Speak naturally. ElevenLabs handles your voice, Ollama responds, and Supabase keeps the conversation history.</p>
+    </header>
+
+    <div id="status"><span>Initializing…</span></div>
+
+    <section id="conversation" aria-live="polite"></section>
+
+    <section id="elevenlabs-widget">
+      <h2>ElevenLabs Conversational Widget</h2>
+      <p class="widget-status">Loading ElevenLabs widget…</p>
+      <div class="widget-slot" id="elevenlabs-widget-slot"></div>
+    </section>
+
+    <div class="controls">
+      <button id="mic-btn" type="button">🎤 Hold to Talk</button>
+      <input id="text-input" type="text" placeholder="Type a message and press Enter" autocomplete="off" />
+      <button id="send-btn" type="button">Send</button>
+    </div>
+  </main>
+
+  <audio id="tts-output" autoplay></audio>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    const supabaseUrl = window.SUPABASE_URL || 'https://YOUR_PROJECT.supabase.co';
-    const supabaseKey = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const defaultConfig = {
+      supabaseUrl: 'https://YOUR_PROJECT.supabase.co',
+      supabaseAnonKey: 'YOUR_PUBLIC_ANON_KEY',
+      supabaseTable: 'messages',
+      ollamaUrl: 'http://localhost:11434/api/chat',
+      ollamaModel: 'llama3',
+      elevenLabsApiKey: 'YOUR_ELEVENLABS_API_KEY',
+      elevenLabsVoiceId: 'YOUR_ELEVENLABS_VOICE_ID',
+      elevenLabsAgentId: 'YOUR_ELEVENLABS_AGENT_ID',
+      elevenLabsSttEndpoint: 'https://api.elevenlabs.io/v1/speech-to-text',
+      elevenLabsSttModel: 'whisper-1',
+      elevenLabsTtsEndpoint: 'https://api.elevenlabs.io/v1/text-to-speech',
+      elevenLabsTtsModel: 'eleven_monolingual_v1'
+    };
 
-    const messagesEl = document.getElementById('messages');
+    const config = {
+      supabaseUrl: window.ULTRON_SUPABASE_URL ?? defaultConfig.supabaseUrl,
+      supabaseAnonKey: window.ULTRON_SUPABASE_ANON_KEY ?? defaultConfig.supabaseAnonKey,
+      supabaseTable: window.ULTRON_SUPABASE_TABLE ?? defaultConfig.supabaseTable,
+      ollamaUrl: window.ULTRON_OLLAMA_URL ?? defaultConfig.ollamaUrl,
+      ollamaModel: window.ULTRON_OLLAMA_MODEL ?? defaultConfig.ollamaModel,
+      elevenLabsApiKey: window.ELEVENLABS_API_KEY ?? defaultConfig.elevenLabsApiKey,
+      elevenLabsVoiceId: window.ELEVENLABS_VOICE_ID ?? defaultConfig.elevenLabsVoiceId,
+      elevenLabsAgentId: window.ELEVENLABS_AGENT_ID ?? defaultConfig.elevenLabsAgentId,
+      elevenLabsSttEndpoint: window.ELEVENLABS_STT_URL ?? defaultConfig.elevenLabsSttEndpoint,
+      elevenLabsSttModel: window.ELEVENLABS_STT_MODEL ?? defaultConfig.elevenLabsSttModel,
+      elevenLabsTtsEndpoint: window.ELEVENLABS_TTS_URL ?? defaultConfig.elevenLabsTtsEndpoint,
+      elevenLabsTtsModel: window.ELEVENLABS_TTS_MODEL ?? defaultConfig.elevenLabsTtsModel
+    };
 
-    async function saveMessage(role, content) {
-      const { error } = await supabase.from('messages').insert([{ role, content }]);
-      if (error) console.error('Supabase insert error', error);
-    }
+    const state = {
+      conversation: [],
+      recorder: null,
+      chunks: [],
+      isRecording: false,
+      supabase: null
+    };
 
-    function renderMessage(role, content) {
-      const p = document.createElement('p');
-      p.textContent = `${role}: ${content}`;
-      messagesEl.appendChild(p);
-    }
+    const conversationEl = document.getElementById('conversation');
+    const statusEl = document.getElementById('status');
+    const micButton = document.getElementById('mic-btn');
+    const sendButton = document.getElementById('send-btn');
+    const inputEl = document.getElementById('text-input');
+    const audioEl = document.getElementById('tts-output');
+    const widgetContainer = document.getElementById('elevenlabs-widget');
+    const widgetSlot = document.getElementById('elevenlabs-widget-slot');
 
-    async function sendToOllama(prompt) {
-      const response = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'llama3', prompt })
-      });
-      const reader = response.body.getReader();
-      let result = '';
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        result += new TextDecoder().decode(value);
+    const setStatus = (message, level = 'info') => {
+      if (!statusEl) return;
+
+      const span = statusEl.querySelector('span') ?? document.createElement('span');
+      span.textContent = message;
+      span.className = '';
+
+      if (level === 'success') span.classList.add('success');
+      if (level === 'error') span.classList.add('error');
+      if (level === 'warning') span.classList.add('warning');
+
+      if (!span.parentElement) statusEl.appendChild(span);
+    };
+
+    const escapeHtml = (unsafe) =>
+      unsafe.replace(/[&<>'"]/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[char]));
+
+    const appendMessage = (role, content) => {
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${role}`;
+      bubble.innerHTML = \`<strong>\${role === 'user' ? 'You' : role === 'assistant' ? 'Ultron' : 'System'}</strong>\${escapeHtml(content)}\`;
+      conversationEl.appendChild(bubble);
+      conversationEl.scrollTop = conversationEl.scrollHeight;
+    };
+
+    const ensureSupabaseClient = () => {
+      if (!config.supabaseUrl.startsWith('http') || config.supabaseAnonKey.includes('YOUR_')) {
+        setStatus('Supabase keys missing; logging is disabled.', 'warning');
+        return;
       }
+
       try {
-        const json = JSON.parse(result.trim().split('\n').pop());
-        return json.response || '';
-      } catch (e) {
-        return result;
+        state.supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
+        setStatus('Supabase connected. Voice chat ready.', 'success');
+      } catch (error) {
+        console.warn('Supabase initialization failed', error);
+        setStatus('Unable to initialize Supabase client.', 'error');
       }
-    }
+    };
 
-    async function speakText(text) {
-      const voiceId = window.ELEVENLABS_VOICE_ID || 'YOUR_VOICE_ID';
-      const apiKey = window.ELEVENLABS_API_KEY || 'YOUR_ELEVENLABS_API_KEY';
-      const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': apiKey
-        },
-        body: JSON.stringify({ text })
-      });
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      document.getElementById('tts-audio').src = url;
-    }
+    const logMessage = async (role, content) => {
+      if (!state.supabase) return;
+      try {
+        const payload = { role, content };
+        await state.supabase.from(config.supabaseTable).insert([payload]);
+      } catch (error) {
+        console.warn('Supabase insert failed', error);
+      }
+    };
 
-    async function handleSend(text) {
-      if (!text) return;
-      renderMessage('User', text);
-      await saveMessage('user', text);
-      const reply = await sendToOllama(text);
-      renderMessage('Ollama', reply);
-      await saveMessage('bot', reply);
-      await speakText(reply);
-    }
+    const loadHistory = async () => {
+      if (!state.supabase) return;
 
-    document.getElementById('send-btn').addEventListener('click', async () => {
-      const input = document.getElementById('text-input');
-      const text = input.value;
-      input.value = '';
-      await handleSend(text);
-    });
+      try {
+        const { data, error } = await state.supabase
+          .from(config.supabaseTable)
+          .select('role, content')
+          .order('created_at', { ascending: true })
+          .limit(100);
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognizer = new SpeechRecognition();
-      recognizer.continuous = false;
-      recognizer.lang = 'en-US';
-      document.getElementById('record-btn').addEventListener('click', () => recognizer.start());
-      recognizer.onresult = async (event) => {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById('text-input').value = transcript;
-        await handleSend(transcript);
+        if (error) throw error;
+        if (!Array.isArray(data)) return;
+
+        data.forEach(({ role, content }) => {
+          const messageRole = role === 'assistant' ? 'assistant' : role === 'user' ? 'user' : 'system';
+          state.conversation.push({ role: messageRole, content });
+          appendMessage(messageRole, content);
+        });
+      } catch (error) {
+        console.warn('Supabase history fetch failed', error);
+        setStatus('Could not load previous messages from Supabase.', 'warning');
+      }
+    };
+
+    const queryOllama = async () => {
+      setStatus('Querying Ollama…', 'info');
+
+      const body = {
+        model: config.ollamaModel,
+        messages: state.conversation.map((entry) => ({
+          role: entry.role === 'assistant' ? 'assistant' : entry.role,
+          content: entry.content
+        })),
+        stream: false
       };
-    }
-=======
-  <meta charset="UTF-8">
-  <title>Ultron Enhanced Chat</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-  <h1>Ultron Enhanced Chat</h1>
-  <div id="conversation"></div>
-  <button id="mic">🎤 Start Chat</button>
-  <script>
-    const { createClient } = supabase;
-    const supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-    const supabaseKey = 'YOUR_PUBLIC_ANON_KEY';
-    const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    const ELEVEN_API_KEY = 'YOUR_ELEVENLABS_API_KEY';
-    const OLLAMA_URL = 'http://localhost:11434/api/chat';
-    let mediaRecorder;
-    let audioChunks = [];
-
-    async function startRecording() {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioChunks = [];
-      mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => handleAudio(new Blob(audioChunks, { type: 'audio/webm' }));
-      mediaRecorder.start();
-    }
-
-    function stopRecording() {
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-      }
-    }
-
-    async function handleAudio(blob) {
-      const text = await transcribeAudio(blob);
-      appendMessage('user', text);
-      const reply = await chatWithOllama(text);
-      appendMessage('assistant', reply);
-      await speak(reply);
-      await logChat(text, reply);
-    }
-
-    async function transcribeAudio(blob) {
-      const formData = new FormData();
-      formData.append('audio', blob, 'input.webm');
-      const resp = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
-        method: 'POST',
-        headers: { 'xi-api-key': ELEVEN_API_KEY },
-        body: formData
-      });
-      const data = await resp.json();
-      return data.text;
-    }
-
-    async function chatWithOllama(text) {
-      const resp = await fetch(OLLAMA_URL, {
+      const response = await fetch(config.ollamaUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'llama3',
-          messages: [{ role: 'user', content: text }]
-        })
+        body: JSON.stringify(body)
       });
-      const data = await resp.json();
-      return data.message.content;
-    }
 
-    async function speak(text) {
-      const resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech', {
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(\`Ollama request failed: \${message}\`);
+      }
+
+      const data = await response.json();
+      if (data?.message?.content) return data.message.content;
+      if (Array.isArray(data?.messages)) {
+        const assistantReply = data.messages.find((msg) => msg.role === 'assistant');
+        if (assistantReply?.content) return assistantReply.content;
+      }
+
+      throw new Error('Ollama response did not include assistant content.');
+    };
+
+    const speakText = async (text) => {
+      if (!config.elevenLabsApiKey || config.elevenLabsApiKey.includes('YOUR_')) {
+        setStatus('ElevenLabs API key missing. Skipping TTS playback.', 'warning');
+        return;
+      }
+
+      if (!config.elevenLabsVoiceId || config.elevenLabsVoiceId.includes('YOUR_')) {
+        setStatus('ElevenLabs voice ID missing. Skipping TTS playback.', 'warning');
+        return;
+      }
+
+      const endpoint = config.elevenLabsTtsEndpoint.replace(/\/$/, '');
+      const response = await fetch(\`\${endpoint}/\${config.elevenLabsVoiceId}\`, {
         method: 'POST',
         headers: {
-          'xi-api-key': ELEVEN_API_KEY,
+          'xi-api-key': config.elevenLabsApiKey,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({
+          text,
+          model_id: config.elevenLabsTtsModel
+        })
       });
-      const buffer = await resp.arrayBuffer();
-      const audio = new Audio(URL.createObjectURL(new Blob([buffer])));
-      await audio.play();
-    }
 
-    async function logChat(userText, botText) {
-      await supabaseClient.from('messages').insert({ user_text: userText, bot_text: botText });
-    }
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(\`ElevenLabs TTS failed: \${message}\`);
+      }
 
-    function appendMessage(role, text) {
-      const div = document.createElement('div');
-      div.className = role;
-      div.textContent = `${role}: ${text}`;
-      document.getElementById('conversation').appendChild(div);
-    }
+      const audioBuffer = await response.arrayBuffer();
+      const blob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      if (audioEl.src) URL.revokeObjectURL(audioEl.src);
+      audioEl.src = URL.createObjectURL(blob);
+    };
 
-    const micButton = document.getElementById('mic');
-    micButton.addEventListener('mousedown', startRecording);
-    micButton.addEventListener('mouseup', stopRecording);
->>>>>>> theirs
+    const transcribeAudio = async (blob) => {
+      if (!config.elevenLabsApiKey || config.elevenLabsApiKey.includes('YOUR_')) {
+        throw new Error('ElevenLabs API key missing. Cannot transcribe audio.');
+      }
+
+      setStatus('Sending audio to ElevenLabs…', 'info');
+
+      const formData = new FormData();
+      formData.append('file', blob, 'speech.webm');
+      formData.append('model_id', config.elevenLabsSttModel);
+
+      const response = await fetch(config.elevenLabsSttEndpoint, {
+        method: 'POST',
+        headers: { 'xi-api-key': config.elevenLabsApiKey },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(\`ElevenLabs STT failed: \${message || response.statusText}\`);
+      }
+
+      const data = await response.json();
+      const text = data?.text ?? data?.transcript ?? data?.transcription ?? data?.result;
+      if (!text) throw new Error('ElevenLabs did not return transcription text.');
+
+      return text.trim();
+    };
+
+    const handleUserMessage = async (text) => {
+      if (!text) return;
+
+      appendMessage('user', text);
+      state.conversation.push({ role: 'user', content: text });
+      inputEl.value = '';
+
+      await logMessage('user', text);
+
+      try {
+        const reply = await queryOllama();
+        appendMessage('assistant', reply);
+        state.conversation.push({ role: 'assistant', content: reply });
+        await logMessage('assistant', reply);
+        await speakText(reply);
+        setStatus('Ready for your next message.', 'success');
+      } catch (error) {
+        console.error(error);
+        appendMessage('system', 'Something went wrong while contacting Ollama.');
+        setStatus(error.message, 'error');
+      }
+    };
+
+    const handleAudioBlob = async (blob) => {
+      if (!blob || blob.size === 0) {
+        setStatus('No audio captured.', 'warning');
+        return;
+      }
+
+      try {
+        const transcription = await transcribeAudio(blob);
+        if (!transcription) {
+          setStatus('Transcription returned empty text.', 'warning');
+          return;
+        }
+        await handleUserMessage(transcription);
+      } catch (error) {
+        console.error(error);
+        appendMessage('system', 'Unable to transcribe your audio. Please try again.');
+        setStatus(error.message, 'error');
+      }
+    };
+
+    const startRecording = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setStatus('Microphone access is not supported in this browser.', 'error');
+        return;
+      }
+
+      if (state.isRecording) return;
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.chunks = [];
+
+        state.recorder = new MediaRecorder(stream);
+        state.recorder.addEventListener('dataavailable', (event) => {
+          if (event.data?.size > 0) state.chunks.push(event.data);
+        });
+        state.recorder.addEventListener('stop', async () => {
+          const audioBlob = new Blob(state.chunks, { type: 'audio/webm' });
+          state.chunks = [];
+          await handleAudioBlob(audioBlob);
+        });
+
+        state.recorder.start();
+        state.isRecording = true;
+        micButton.classList.add('recording');
+        micButton.textContent = 'Release to Send';
+        setStatus('Recording… release the button to send.', 'info');
+      } catch (error) {
+        console.error(error);
+        setStatus('Microphone permission denied or unavailable.', 'error');
+      }
+    };
+
+    const stopRecording = () => {
+      if (!state.isRecording || !state.recorder) return;
+      state.recorder.stop();
+      state.isRecording = false;
+      micButton.classList.remove('recording');
+      micButton.textContent = '🎤 Hold to Talk';
+    };
+
+    const setupAudioControls = () => {
+      micButton.addEventListener('mousedown', startRecording);
+      micButton.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+        startRecording();
+      }, { passive: false });
+
+      const stopEvents = ['mouseup', 'mouseleave'];
+      stopEvents.forEach((eventName) => {
+        micButton.addEventListener(eventName, stopRecording);
+      });
+      micButton.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        stopRecording();
+      });
+
+      document.addEventListener('mouseup', stopRecording);
+      document.addEventListener('touchend', stopRecording);
+      document.addEventListener('keyup', (event) => {
+        if (event.key === 'Escape') stopRecording();
+      });
+    };
+
+    const setupTextControls = () => {
+      sendButton.addEventListener('click', async () => {
+        sendButton.disabled = true;
+        const text = inputEl.value.trim();
+        await handleUserMessage(text);
+        sendButton.disabled = false;
+      });
+
+      inputEl.addEventListener('keydown', async (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          const text = inputEl.value.trim();
+          await handleUserMessage(text);
+        }
+      });
+    };
+
+    const setupElevenLabsWidget = () => {
+      if (!widgetContainer) return;
+      const statusNode = widgetContainer.querySelector('.widget-status');
+      const widgetApi = window.ElevenLabsWidget || window.ElevenLabs;
+
+      if (!widgetApi) {
+        statusNode.textContent = 'ElevenLabs widget script not available; using fallback recorder.';
+        return;
+      }
+
+      const agentId = config.elevenLabsAgentId && !config.elevenLabsAgentId.includes('YOUR_')
+        ? config.elevenLabsAgentId
+        : null;
+
+      if (!agentId) {
+        statusNode.textContent = 'Set ELEVENLABS_AGENT_ID to enable the official ElevenLabs widget.';
+        return;
+      }
+
+      try {
+        const onTranscription = async (payload) => {
+          const text = typeof payload === 'string'
+            ? payload
+            : payload?.text ?? payload?.transcript ?? payload?.transcription;
+          if (text) await handleUserMessage(text);
+        };
+
+        if (typeof widgetApi.render === 'function') {
+          widgetApi.render({
+            agentId,
+            layout: 'button',
+            autoConnect: false,
+            onStart: () => setStatus('ElevenLabs widget is listening…', 'info'),
+            onStop: () => setStatus('ElevenLabs widget idle.', 'success'),
+            onTranscription
+          }, widgetSlot);
+        } else if (typeof widgetApi.init === 'function') {
+          widgetApi.init({
+            container: widgetSlot,
+            agentId,
+            onTranscription,
+            onOpen: () => setStatus('ElevenLabs widget is listening…', 'info'),
+            onClose: () => setStatus('ElevenLabs widget idle.', 'success')
+          });
+        } else {
+          throw new Error('No compatible ElevenLabs widget API exposed.');
+        }
+
+        statusNode.textContent = 'ElevenLabs widget ready. You can also use the custom mic button below.';
+      } catch (error) {
+        console.warn('Unable to initialize ElevenLabs widget', error);
+        statusNode.textContent = 'ElevenLabs widget failed to initialize; using fallback recorder.';
+      }
+    };
+
+    const init = async () => {
+      ensureSupabaseClient();
+      setupAudioControls();
+      setupTextControls();
+      setupElevenLabsWidget();
+      await loadHistory();
+      setStatus('Ready. Hold the mic or type a message to begin.', 'success');
+    };
+
+    init();
   </script>
 </body>
 </html>
