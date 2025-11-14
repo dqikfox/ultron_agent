@@ -1,0 +1,64 @@
+{
+  "name": "ULTRON Tool Assistant",
+  "description": "Assists with creating and testing ULTRON Agent tools",
+  "data": {
+    "nodes": [
+      {
+        "id": "chat_input",
+        "type": "ChatInput",
+        "position": {"x": 100, "y": 200},
+        "data": {
+          "input_value": "",
+          "should_store_message": true
+        }
+      },
+      {
+        "id": "prompt",
+        "type": "Prompt",
+        "position": {"x": 300, "y": 200},
+        "data": {
+          "template": "You are an expert ULTRON Agent tool developer.\n\nULTRON Tool Requirements:\n- Inherit from ToolInterface\n- Implement: name, description, match(), execute(), schema()\n- Use ultron_logger for logging\n- Minimal code, no verbose implementations\n- Type hints required\n- Error handling with try/except\n\nUser Request: {input}\n\nProvide:\n1. Tool class implementation\n2. Key features\n3. Usage example\n4. Test command",
+          "input_variables": ["input"]
+        }
+      },
+      {
+        "id": "ollama",
+        "type": "ChatOllama",
+        "position": {"x": 500, "y": 200},
+        "data": {
+          "model_name": "qwen3-coder:480b-cloud",
+          "base_url": "http://localhost:11434",
+          "temperature": 0.3
+        }
+      },
+      {
+        "id": "chat_output",
+        "type": "ChatOutput",
+        "position": {"x": 700, "y": 200},
+        "data": {
+          "should_store_message": true
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "chat_input",
+        "target": "prompt",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "source": "prompt",
+        "target": "ollama",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "source": "ollama",
+        "target": "chat_output",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ]
+  }
+}

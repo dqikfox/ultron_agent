@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON - Simple Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #0f0;
+            font-size: 14px;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        #file-input {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #0f0;
+            color: #0f0;
+        }
+
+        input[type="file"] {
+            background: transparent;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="info">
+        <div>🤖 ULTRON - Simple Viewer</div>
+        <div style="margin-top: 10px; font-size: 12px;">
+            Mouse: Left=Rotate | Right=Pan | Scroll=Zoom
+        </div>
+    </div>
+
+    <div id="loading">Loading model...</div>
+
+    <div id="file-input" style="display: none;">
+        <div>Load your own GLB/GLTF file:</div>
+        <input type="file" id="modelFile" accept=".glb,.gltf" />
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        // Camera
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(0, 2, 15);
+
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 2, 0);
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        directionalLight.position.set(5, 10, 7.5);
+        scene.add(directionalLight);
+
+        const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight2.position.set(-5, 5, -5);
+        scene.add(directionalLight2);
+
+        // Create fallback geometry (ULTRON-style robot)
+        function createFallbackModel() {
+            const group = new THREE.Group();
+
+            // Material
+            const material = new THREE.MeshPhongMaterial({
+                color: 0x808080,
+                shininess: 100
+            });
+
+            // Head
+            const headGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const head = new THREE.Mesh(headGeometry, material);
+            head.position.y = 3;
+            group.add(head);
+
+            // Eyes (glowing red)
+            const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const eyeGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.25, 3.1, 0.45);
+            group.add(leftEye);
+
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.25, 3.1, 0.45);
+            group.add(rightEye);
+
+            // Torso
+            const torsoGeometry = new THREE.BoxGeometry(1.5, 2, 0.8);
+            const torso = new THREE.Mesh(torsoGeometry, material);
+            torso.position.y = 1;
+            group.add(torso);
+
+            // Arms
+            const armGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1.5);
+            const leftArm = new THREE.Mesh(armGeometry, material);
+            leftArm.position.set(-1, 1, 0);
+            leftArm.rotation.z = Math.PI / 6;
+            group.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeometry, material);
+            rightArm.position.set(1, 1, 0);
+            rightArm.rotation.z = -Math.PI / 6;
+            group.add(rightArm);
+
+            // Legs
+            const legGeometry = new THREE.CylinderGeometry(0.25, 0.25, 1.5);
+            const leftLeg = new THREE.Mesh(legGeometry, material);
+            leftLeg.position.set(-0.4, -0.75, 0);
+            group.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(legGeometry, material);
+            rightLeg.position.set(0.4, -0.75, 0);
+            group.add(rightLeg);
+
+            return group;
+        }
+
+        // Load model function
+        function loadModel(url) {
+            const loader = new THREE.GLTFLoader();
+
+        loader.load(
+                url,
+            (gltf) => {
+                    // Clear existing models
+                    scene.children.forEach(child => {
+                        if (child.type === 'Group' && child.userData.isModel) {
+                            scene.remove(child);
+                        }
+                    });
+
+                const model = gltf.scene;
+                    model.userData.isModel = true;
+
+                // Calculate bounding box and center
+                const box = new THREE.Box3().setFromObject(model);
+                const size = box.getSize(new THREE.Vector3());
+                const center = box.getCenter(new THREE.Vector3());
+
+                // Scale to fit
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 4 / maxDim;
+                model.scale.multiplyScalar(scale);
+
+                // Center model
+                model.position.set(0, 0, 0);
+                model.position.sub(center.multiplyScalar(scale));
+
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                    document.getElementById('file-input').style.display = 'none';
+
+                console.log('Model loaded:', {
+                    size: size,
+                    center: center,
+                    scale: scale
+                });
+            },
+
+            (xhr) => {
+                    if (xhr.lengthComputable) {
+                const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+                document.getElementById('loading').textContent = `Loading: ${percent}%`;
+                    }
+            },
+
+            (error) => {
+                console.error('Error loading model:', error);
+
+                    // Show fallback model
+                    const fallbackModel = createFallbackModel();
+                    fallbackModel.userData.isModel = true;
+                    scene.add(fallbackModel);
+                    document.getElementById('loading').innerHTML =
+                        'Model not found (404 Error)<br>' +
+                        'Showing fallback ULTRON model<br><br>' +
+                        'Place your "ultron_exported.glb" file in the same folder<br>' +
+                        'or use the file input below to load a different model.';
+
+                    // Show file input
+                    document.getElementById('file-input').style.display = 'block';
+            }
+        );
+        }
+
+        // File input handler
+        document.getElementById('modelFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('loading').textContent = 'Loading custom model...';
+                loadModel(url);
+            }
+        });
+
+        // Try to load the default model
+        const modelPaths = [
+            'ultron_exported.glb',
+            './ultron_exported.glb',
+            './models/ultron_exported.glb',
+            '../ultron_exported.glb'
+        ];
+
+        let currentPathIndex = 0;
+        function tryLoadModel() {
+            if (currentPathIndex >= modelPaths.length) {
+                // All paths failed, create fallback
+                const fallbackModel = createFallbackModel();
+                fallbackModel.userData.isModel = true;
+                scene.add(fallbackModel);
+
+                document.getElementById('loading').innerHTML =
+                    'GLB model not found<br>' +
+                    'Showing fallback ULTRON model<br><br>' +
+                    'To load your model:<br>' +
+                    '1. Place "ultron_exported.glb" in the same folder<br>' +
+                    '2. Or use the file input below';
+
+                document.getElementById('file-input').style.display = 'block';
+                return;
+        }
+
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                modelPaths[currentPathIndex],
+                (gltf) => {
+                    // Success - same as before
+                    const model = gltf.scene;
+                    model.userData.isModel = true;
+
+                    const box = new THREE.Box3().setFromObject(model);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 4 / maxDim;
+                    model.scale.multiplyScalar(scale);
+
+                    model.position.set(0, 0, 0);
+                    model.position.sub(center.multiplyScalar(scale));
+
+                    scene.add(model);
+                    document.getElementById('loading').style.display = 'none';
+                },
+                (xhr) => {
+                    if (xhr.lengthComputable) {
+                        const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+                        document.getElementById('loading').textContent = `Loading: ${percent}%`;
+                    }
+                },
+                (error) => {
+                    // Try next path
+                    currentPathIndex++;
+                    tryLoadModel();
+                }
+            );
+        }
+
+        // Start loading
+        tryLoadModel();
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Rotate fallback model eyes
+            scene.children.forEach(child => {
+                if (child.userData.isModel && child.type === 'Group') {
+                    const time = Date.now() * 0.001;
+                    child.rotation.y = Math.sin(time * 0.5) * 0.1;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

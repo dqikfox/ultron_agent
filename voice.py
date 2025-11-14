@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Voice management system for ULTRON Agent - handles TTS, STT, and voice processing"""
+
 import base64
 import time
 import hashlib
@@ -636,8 +639,8 @@ class VoiceAssistant:
             or config.get("elevenlabs_agent_id")
         )
 
-        # Initialize with visual feedback
-        print("🔄 Initializing Voice Assistant... - voice.py:635")
+        # Initialize with visual feedback (no emoji for Windows compatibility)
+        print("[Voice] Initializing Voice Assistant... - voice.py:635")
         self._show_progress("Loading cache directory", 10)
 
         # Initialize voice systems
@@ -870,7 +873,7 @@ class VoiceAssistant:
 
         if not elevenlabs_api_key:
             self._show_progress(
-                "⚠️  ElevenLabs API key not found in environment or config",
+                "[WARNING] ElevenLabs API key not found in environment or config",
                 30
             )
             logger.info(
@@ -915,7 +918,7 @@ class VoiceAssistant:
         # Only proceed with ElevenLabs initialization if available
         if not ELEVENLABS_AVAILABLE:
             self._show_progress(
-                "⚠️  ElevenLabs library not available, using fallback TTS",
+                "[WARNING] ElevenLabs library not available, using fallback TTS",
                 30
             )
             logger.info("ElevenLabs library not available, "
@@ -932,7 +935,7 @@ class VoiceAssistant:
             self.elevenlabs_voices = voices_response.voices
 
             self._show_progress(
-                f"🎤 Loaded {len(self.elevenlabs_voices)} ElevenLabs voices",
+                f"[MIC] Loaded {len(self.elevenlabs_voices)} ElevenLabs voices",
                 50
             )
 
@@ -943,7 +946,7 @@ class VoiceAssistant:
                     for voice in self.elevenlabs_voices)
                 if not voice_exists:
                     self._show_progress(
-                        "⚠️  Configured voice not found in account", 55
+                        "[WARNING] Configured voice not found in account", 55
                     )
                     logger.warning(
                         f"Configured voice ID {self.preferred_voice_id} "
@@ -959,13 +962,13 @@ class VoiceAssistant:
 
             self.realtime_voice_id = self.preferred_voice_id
 
-            print("\n✅ ElevenLabs connected successfully - voice.py:956")
+            print("\n[SUCCESS] ElevenLabs connected successfully - voice.py:956")
             logger.info(
                 f"ElevenLabs initialized successfully with "
                 f"{len(self.elevenlabs_voices)} voices available")
 
         except Exception as e:
-            self._show_progress("❌ ElevenLabs initialization failed", 50)
+            self._show_progress("[ERROR] ElevenLabs initialization failed", 50)
             logger.error(f"ElevenLabs initialization failed: {e}")
             self.elevenlabs_voices = None
 
@@ -973,7 +976,7 @@ class VoiceAssistant:
         """Initialize Google Cloud integration for enhanced speech capabilities"""
         if not GOOGLE_CLOUD_AVAILABLE:
             self._show_progress(
-                "⚠️  Google Cloud libraries not available, skipping integration",
+                "[WARNING] Google Cloud libraries not available, skipping integration",
                 55
             )
             logger.info("Google Cloud integration not available")
@@ -985,26 +988,26 @@ class VoiceAssistant:
 
             if self.google_cloud_integration.is_available():
                 self._show_progress(
-                    "✅ Google Cloud integration ready",
+                    "[SUCCESS] Google Cloud integration ready",
                     60
                 )
                 logger.info("Google Cloud integration initialized successfully")
             else:
                 self._show_progress(
-                    "⚠️  Google Cloud integration not configured",
+                    "[WARNING] Google Cloud integration not configured",
                     60
                 )
                 logger.info("Google Cloud integration available but not configured")
 
         except Exception as e:
-            self._show_progress("❌ Google Cloud initialization failed", 60)
+            self._show_progress("[ERROR] Google Cloud initialization failed", 60)
             logger.error(f"Google Cloud integration initialization failed: {e}")
             self.google_cloud_integration = None
 
     def _init_fallback_tts(self):
         """Initialize pyttsx3 as fallback TTS engine"""
         try:
-            self._show_progress("⚙️  Initializing fallback TTS engine...", 60)
+            self._show_progress("[INIT] Initializing fallback TTS engine...", 60)
             self.tts_engine = pyttsx3.init()
             self.tts_engine.setProperty('rate', self.voice_rate)
             self.tts_engine.setProperty('volume', self.voice_volume)
@@ -1024,10 +1027,10 @@ class VoiceAssistant:
                 self.tts_engine.setProperty('voice', voices[0].id)
                 logger.info(f"Using pyttsx3 voice: {voices[0].name}")
 
-            print("✅ Fallback TTS engine ready - voice.py:989")
+            print("[SUCCESS] Fallback TTS engine ready - voice.py:989")
             logger.info("pyttsx3 TTS initialized as fallback")
         except Exception as e:
-            self._show_progress("❌ pyttsx3 initialization failed", 65)
+            self._show_progress("[ERROR] pyttsx3 initialization failed", 65)
             logger.error(f"pyttsx3 initialization failed: {e}")
             self.tts_engine = None
 
