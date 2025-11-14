@@ -39,6 +39,124 @@
       "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
       "description": "Headless browser automation with Puppeteer",
       "env": {}
+    },
+    "inspector": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-inspector"],
+      "description": "Interactive MCP Inspector for introspecting servers and tools",
+      "env": {}
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "description": "Persistent memory for context across sessions",
+      "env": {}
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "Enhanced reasoning with step-by-step thinking",
+      "env": {}
+    },
+    "git": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git"],
+      "description": "Git operations and repository management",
+      "env": {}
+    },
+    "sqlite": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "${workspaceFolder}/avatar_game.db"],
+      "description": "SQLite database access for avatar game data",
+      "env": {}
+    },
+    "aws": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-aws"],
+      "description": "AWS services integration (Bedrock, Lambda, S3, etc.)",
+      "env": {
+        "AWS_REGION": "us-east-1"
+      }
+    },
+    "docker": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-docker"],
+      "description": "Docker container management and operations",
+      "env": {}
+    },
+    "python-env": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_server_python"],
+      "description": "Python environment introspection and package management",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    "ollama": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-ollama"],
+      "description": "Ollama model management and inference",
+      "env": {
+        "OLLAMA_HOST": "http://localhost:11434"
+      }
+    },
+    "search": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "description": "Web search for documentation and solutions",
+      "env": {
+        "BRAVE_API_KEY": "${input:brave-api-key}"
+      }
+    },
+    "slack": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "description": "Slack integration for team communication",
+      "env": {
+        "SLACK_BOT_TOKEN": "${input:slack-bot-token}",
+        "SLACK_TEAM_ID": "${input:slack-team-id}"
+      }
+    },
+    "time": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-time"],
+      "description": "Time and timezone utilities",
+      "env": {}
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "description": "HTTP requests and API testing",
+      "env": {}
+    },
+    "langflow": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-proxy",
+        "--headers",
+        "x-api-key sk-ga49QmqHWdx4JESGXEPT5OQK6SylBm4Te_pCtwtm138",
+        "http://localhost:7860/api/v1/mcp/project/e6ecbc04-8495-41c2-b078-f9c3bec09411/sse"
+      ],
+      "description": "LangFlow MCP server for ULTRON workflow automation and flow execution",
+      "env": {
+        "LANGFLOW_MCP_SERVER_ENABLED": "true",
+        "LANGFLOW_MCP_SERVER_TIMEOUT": "30",
+        "LANGFLOW_MCP_SERVER_ENABLE_PROGRESS_NOTIFICATIONS": "true"
+      }
     }
   },
   "inputs": [
@@ -53,6 +171,36 @@
       "id": "postgres-url",
       "description": "PostgreSQL connection string (postgresql://user:pass@host:port/db)",
       "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "langflow-api-key",
+      "description": "LangFlow API Key for MCP authentication (from LangFlow project settings)",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "langflow-project-id",
+      "description": "LangFlow Project ID (from MCP Server tab)",
+      "password": false
+    },
+    {
+      "type": "promptString",
+      "id": "brave-api-key",
+      "description": "Brave Search API Key for web search capabilities",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "slack-bot-token",
+      "description": "Slack Bot Token (xoxb-...)",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "slack-team-id",
+      "description": "Slack Team/Workspace ID",
+      "password": false
     }
   ]
 }

@@ -1,0 +1,79 @@
+{
+  "tasks": [
+    {
+      "id": 6,
+      "status": "completed",
+      "priority": "high",
+      "task": "Avatar System for Game",
+      "prompt": "Create tools/avatar_builder_tool.py with:\n\nClass: AvatarBuilderTool\nFeatures:\n- Generate avatar profiles (name, class, race, stats)\n- Create avatar images (ASCII art or emoji-based)\n- Save/load avatar data\n- Avatar customization\n- Level progression\n\nMethods:\n- match(): 'create avatar', 'build avatar', 'new character'\n- execute(): Generate complete avatar with stats\n- _generate_stats(): Random stats (attack, defense, magic, speed)\n- _create_visual(): ASCII or emoji representation\n- _save_avatar(): Save to JSON file\n- _load_avatar(): Load from JSON file\n- schema(): Return tool metadata\n\nClasses: Warrior, Mage, Rogue, Healer, Ranger, Necromancer, Berserker, Assassin\nRaces: Elf, Dwarf, Orc, Demon, Vampire, Dragon, Zombie, Robot\nStats: 1-10 scale for each attribute\n\nUse ultron_logger, include error handling, follow ToolInterface pattern.",
+      "model": "qwen2.5-coder:1.5b",
+      "output_file": "tools/avatar_builder_tool.py",
+      "created_by": "amazon_q",
+      "created_at": "2025-01-16T00:00:00Z"
+    },
+    {
+      "id": 7,
+      "status": "completed",
+      "priority": "high",
+      "task": "Avatar Visual Generator",
+      "prompt": "Create utils/avatar_visual_generator.py with:\n\nClass: AvatarVisualGenerator\nFeatures:\n- Generate ASCII art avatars\n- Create emoji-based avatars\n- Color-coded by class/race\n- Animation frames for actions\n\nMethods:\n- generate_ascii(class_name, race): Return ASCII art\n- generate_emoji(class_name, race): Return emoji representation\n- get_color_scheme(class_name): Return color codes\n- create_animation(action): Return animation frames\n\nExamples:\nWarrior/Elf: \u2694\ufe0f\ud83e\udddd with green theme\nMage/Demon: \ud83d\udd2e\ud83d\ude08 with purple theme\nRogue/Orc: \ud83d\udde1\ufe0f\ud83d\udc79 with gray theme\n\nUse ultron_logger, include error handling.",
+      "model": "qwen2.5-coder:1.5b",
+      "output_file": "utils/avatar_visual_generator.py",
+      "created_by": "amazon_q",
+      "created_at": "2025-01-16T00:00:00Z"
+    },
+    {
+      "id": 8,
+      "status": "completed",
+      "priority": "medium",
+      "task": "Avatar Database Manager",
+      "prompt": "Create utils/avatar_database.py with:\n\nClass: AvatarDatabase\nFeatures:\n- SQLite database for avatars\n- CRUD operations\n- Search and filter\n- Leaderboard tracking\n\nMethods:\n- create_avatar(data): Insert new avatar\n- get_avatar(id): Retrieve avatar\n- update_avatar(id, data): Update avatar\n- delete_avatar(id): Remove avatar\n- list_avatars(filters): List with filters\n- get_leaderboard(limit): Top avatars by level/stats\n\nDatabase schema:\n- id, name, class, race, level, stats (JSON), created_at, updated_at\n\nUse ultron_logger, SQLite, include error handling.",
+      "model": "qwen2.5-coder:1.5b",
+      "output_file": "utils/avatar_database.py",
+      "created_by": "amazon_q",
+      "created_at": "2025-01-16T00:00:00Z"
+    }
+  ],
+  "completed": [
+    {
+      "task_id": 1,
+      "status": "completed",
+      "code": "..."
+    },
+    {
+      "task_id": 2,
+      "status": "completed",
+      "code": "..."
+    },
+    {
+      "task_id": 3,
+      "status": "completed",
+      "code": "..."
+    },
+    {
+      "task_id": 4,
+      "status": "completed",
+      "code": "..."
+    },
+    {
+      "task_id": 5,
+      "status": "completed",
+      "code": "..."
+    },
+    {
+      "task_id": 6,
+      "status": "completed",
+      "code": "Error: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)"
+    },
+    {
+      "task_id": 7,
+      "status": "completed",
+      "code": "import os\nimport random\nfrom PIL import Image, ImageDraw, ImageFont\nimport numpy as np\nfrom tqdm import tqdm\n\nclass AvatarVisualGenerator:\n    def __init__(self):\n        self.ascii_art_dict = {\n            'Warrior/Elf': {'class_name': '-warrior-elf', 'race': 'Elf', 'theme': 'green'},\n            'Mage/Demon': {'class_name': '-mage-demon', 'race': 'Demon', 'theme': 'purple'},\n            'Rogue/Orc': {'class_name': '-rogue-orc', 'race': 'Orc', 'theme': 'gray'}\n        }\n\n    def generate_ascii(self, class_name, race):\n        ascii_avatar = self.ascii_art_dict.get(f\"{class_name}/{race}\", {'ascii': None})\n        if ascii_avatar['ascii']:\n            return ascii_avatar['ascii']\n        else:\n            raise ValueError(f\"ASCII art not available for {class_name} / {race}\")\n\n    def generate_emoji(self, class_name, race):\n        emoji_avatar = self.ascii_art_dict.get(f\"{class_name}/{race}\", {'emoji': None})\n        if emoji_avatar['emoji']:\n            return emoji_avatar['emoji']\n        else:\n            raise ValueError(f\"Emoji not available for {class_name} / {race}\")\n\n    def get_color_scheme(self, class_name):\n        color_scheme = self.ascii_art_dict.get(f\"{class_name}/{race}\", {'color': None})\n        if color_scheme['color']:\n            return color_scheme['color']\n        else:\n            raise ValueError(f\"Color scheme not available for {class_name}\")\n\n    def create_animation(action):\n        # Placeholder for creating animation frames\n        pass\n\n    def main(self):\n        # Example usage\n        ascii_avatar = self.generate_ascii('Warrior/Elf', 'Elf')\n        print(ascii_avatar)\n\n        emoji_avatar = self.generate_emoji('Mage/Demon', 'Demon')\n        print(emoji_avatar)\n\n        color_scheme = self.get_color_scheme('Rogue/Orc', 'Orc')\n        print(color_scheme)\n\nif __name__ == \"__main__\":\n    av_generator = AvatarVisualGenerator()\n    av_generator.main()"
+    },
+    {
+      "task_id": 8,
+      "status": "completed",
+      "code": "import sqlite3\nfrom datetime import datetime\nimport json\n\nclass AvatarDatabase:\n    def __init__(self):\n        self.conn = sqlite3.connect('avatars.db')\n        self.cursor = self.conn.cursor()\n        self.create_table()\n\n    def create_table(self):\n        \"\"\"Create the avatar table if it does not exist.\"\"\"\n        self.cursor.execute('''\n            CREATE TABLE IF NOT EXISTS avatars (\n                id INTEGER PRIMARY KEY AUTOINCREMENT,\n                name TEXT NOT NULL,\n                class TEXT NOT NULL,\n                race TEXT NOT NULL,\n                level INTEGER NOT NULL,\n                stats TEXT NOT NULL,\n                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,\n                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP\n            )\n        ''')\n        self.conn.commit()\n\n    def create_avatar(self, data):\n        \"\"\"Insert a new avatar into the database.\"\"\"\n        try:\n            self.cursor.execute('''\n                INSERT INTO avatars (name, class, race, level, stats) VALUES (?, ?, ?, ?, ?)\n            ''', (data['name'], data['class'], data['race'], data['level'], json.dumps(data['stats'])))\n            self.conn.commit()\n            return self.get_avatar(self.cursor.lastrowid)\n        except Exception as e:\n            self.logger.error(f\"Failed to create avatar: {e}\")\n            raise\n\n    def get_avatar(self, id):\n        \"\"\"Retrieve an avatar by its ID.\"\"\"\n        try:\n            self.cursor.execute('SELECT * FROM avatars WHERE id = ?', (id,))\n            return self.cursor.fetchone()\n        except Exception as e:\n            self.logger.error(f\"Failed to retrieve avatar: {e}\")\n            raise\n\n    def update_avatar(self, id, data):\n        \"\"\"Update an existing avatar.\"\"\"\n        try:\n            # Update stats if provided\n            if 'stats' in data:\n                data['stats'] = json.dumps(data['stats'])\n            self.cursor.execute('''\n                UPDATE avatars SET name=?, class=?, race=?, level=?, stats=?, updated_at=? WHERE id=?\n            ''', (data['name'], data['class'], data['race'], data['level'], data['stats'], datetime.now(), id))\n            self.conn.commit()\n            return self.get_avatar(id)\n        except Exception as e:\n            self.logger.error(f\"Failed to update avatar: {e}\")\n            raise\n\n    def delete_avatar(self, id):\n        \"\"\"Remove an existing avatar.\"\"\"\n        try:\n            self.cursor.execute('DELETE FROM avatars WHERE id = ?', (id,))\n            self.conn.commit()\n            return True\n        except Exception as e:\n            self.logger.error(f\"Failed to delete avatar: {e}\")\n            raise\n\n    def list_avatars(self, filters):\n        \"\"\"List avatars with optional filters.\"\"\"\n        try:\n            # Convert filters dictionary to SQL WHERE clause\n            where_clause = ' AND '.join([f\"{k} = ?\" for k in filters.keys()])\n            \n            if where_clause:\n                self.cursor.execute(f\"SELECT * FROM avatars WHERE {where_clause}\", list(filters.values()))\n            else:\n                self.cursor.execute('SELECT * FROM avatars')\n            \n            return [self._format_avatar(row) for row in self.cursor.fetchall()]\n        except Exception as e:\n            self.logger.error(f\"Failed to list avatars: {e}\")\n            raise\n\n    def get_leaderboard(self, limit=10):\n        \"\"\"Get the top avatars by level/stats.\"\"\"\n        try:\n            # SQL query to order by level and stats in descending order\n            self.cursor.execute('SELECT * FROM avatars ORDER BY level DESC, stats DESC LIMIT ?', (limit,))\n            return [self._format_avatar(row) for row in self.cursor.fetchall()]\n        except Exception as e:\n            self.logger.error(f\"Failed to get leaderboard: {e}\")\n            raise\n\n    def _format_avatar(self, row):\n        \"\"\"Format the avatar data for display.\"\"\"\n        stats = json.loads(row[5])\n        return {\n            'id': row[0],\n            'name': row[1],\n            'class': row[2],\n            'race': row[3],\n            'level': row[4],\n            'stats': stats,\n            'created_at': row[6],\n            'updated_at': row[7]\n        }\n\n    def __del__(self):\n        \"\"\"Close the database connection.\"\"\"\n        self.conn.close()\n\n# Usage example:\nif __name__ == \"__main__\":\n    avatar_db = AvatarDatabase()\n    \n    # Create a new avatar\n    new_avatar = {'name': 'John Doe', 'class': 'Warrior', 'race': 'Human', 'level': 1, 'stats': {'health': 100}}\n    created_avatar = avatar_db.create_avatar(new_avatar)\n    print(f\"Created Avatar: {created_avatar}\")\n\n    # Retrieve the avatar by ID\n    retrieved_avatar = avatar_db.get_avatar(created_avatar['id'])\n    print(f\"Retrieved Avatar: {retrieved_avatar}\")\n\n    # Update the avatar\n    updated_avatar = {'level': 2}\n    avatar_db.update_avatar(created_avatar['id'], updated_avatar)\n    print(f\"Updated Avatar: {avatar_db.get_avatar(created_avatar['id'])}\")\n\n    # Delete the avatar\n    deleted = avatar_db.delete_avatar(created_avatar['id'])\n    print(f\"Deleted Avatar: {deleted}\")\n\n    # List avatars with filters\n    filtered_avatars = avatar_db.list_avatars({'level': 1})\n    print(\"Filtered Avatars:\", filtered_avatars)\n\n    # Get leaderboard\n    leaderboard = avatar_db.get_leaderboard()\n    print(\"Leaderboard:\", leaderboard)"
+    }
+  ]
+}

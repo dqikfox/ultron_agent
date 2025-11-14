@@ -1,0 +1,57 @@
+{
+  "title": "The Last Guardian",
+  "genre": "Action RPG",
+  "story": "Ancient evil awakens. You are the last guardian with power to stop it.",
+  "acts": [
+    {
+      "name": "Act 1: Awakening",
+      "quests": [
+        "Tutorial",
+        "First Enemy",
+        "Village Elder"
+      ]
+    },
+    {
+      "name": "Act 2: The Journey",
+      "quests": [
+        "Forest Temple",
+        "Mountain Pass",
+        "Ancient Ruins"
+      ]
+    },
+    {
+      "name": "Act 3: Final Battle",
+      "quests": [
+        "Dark Castle",
+        "Boss Fight",
+        "Epilogue"
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Hero",
+      "role": "Player",
+      "abilities": [
+        "Sword",
+        "Magic",
+        "Dash"
+      ]
+    },
+    {
+      "name": "Elder Sage",
+      "role": "Quest Giver",
+      "location": "Village"
+    },
+    {
+      "name": "Mysterious Merchant",
+      "role": "Shop",
+      "location": "Forest"
+    },
+    {
+      "name": "Dark Lord",
+      "role": "Boss",
+      "location": "Castle"
+    }
+  ]
+}

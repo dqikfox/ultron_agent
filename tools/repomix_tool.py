@@ -1,8 +1,8 @@
 """
 ULTRON Agent - Repomix Integration Tool
 
-Provides advanced codebase analysis, packaging, and natural language search capabilities
-for local and remote repositories using Repomix technology.
+Provides advanced codebase analysis, packaging, and natural language search
+capabilities for local and remote repositories using Repomix technology.
 
 Key Features:
 - Pack local codebases for AI analysis
@@ -12,23 +12,25 @@ Key Features:
 - Dynamic report updates without restart
 """
 
-import os
-import json
-import subprocess
 import asyncio
 import hashlib
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
+import json
+import os
 import re
+import subprocess
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from tools.tool_interface import ToolInterface
-from utils.ultron_logger import log_info, log_error, log_ai_decision, log_file_operation
+from utils.ultron_logger import (
+    log_ai_decision, log_error, log_file_operation, log_info
+)
 
 
 class RepomixTool(ToolInterface):
     """
-    Advanced codebase analysis tool using Repomix for AI-powered code understanding.
+    Advanced codebase analysis tool using Repomix for AI-powered understanding.
 
     Capabilities:
     - Package codebases for LLM consumption
@@ -38,11 +40,11 @@ class RepomixTool(ToolInterface):
     - Context-aware code understanding
     """
 
-    def __init__(self):
-        self.output_dir = Path("repomix_output")
+    def __init__(self) -> None:
+        self.output_dir: Path = Path("repomix_output")
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        self.cache_dir = Path("cache/repomix")
+        self.cache_dir: Path = Path("cache/repomix")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Registry of packed outputs for quick access
@@ -57,11 +59,14 @@ class RepomixTool(ToolInterface):
 
     @property
     def description(self) -> str:
-        return "Advanced codebase analysis with natural language search, repository packaging, and AI-powered code understanding"
+        return (
+            "Advanced codebase analysis with natural language search, "
+            "repository packaging, and AI-powered code understanding"
+        )
 
     def match(self, command: str) -> bool:
         """Check if command should trigger Repomix operations"""
-        keywords = [
+        keywords: List[str] = [
             "repomix", "pack codebase", "analyze code", "code analysis",
             "repository analysis", "search codebase", "grep code",
             "package repository", "analyze repository", "code search",
@@ -69,55 +74,87 @@ class RepomixTool(ToolInterface):
         ]
         return any(kw in command.lower() for kw in keywords)
 
-    def execute(self, command: str, **kwargs) -> str:
+    def execute(self, command: str, **kwargs: Any) -> str:
         """Execute Repomix operations"""
         log_info("repomix_tool", f"Executing command: {command}")
 
         try:
-            cmd_lower = command.lower()
+            cmd_lower: str = command.lower()
 
             # Pack local codebase
-            if "pack" in cmd_lower and "local" in cmd_lower or "package directory" in cmd_lower:
-                directory = kwargs.get("directory") or self._extract_path(command)
+            if "pack" in cmd_lower and "local" in cmd_lower or (
+                "package directory" in cmd_lower
+            ):
+                directory: str = (
+                    kwargs.get("directory") or
+                    self._extract_path(command)
+                )
                 return self._pack_local_codebase(directory)
 
             # Pack remote repository
-            elif "pack" in cmd_lower and ("remote" in cmd_lower or "github" in cmd_lower or "repository" in cmd_lower):
-                repo_url = kwargs.get("repo_url") or self._extract_url(command)
+            elif "pack" in cmd_lower and (
+                "remote" in cmd_lower or "github" in cmd_lower or
+                "repository" in cmd_lower
+            ):
+                repo_url: str = (
+                    kwargs.get("repo_url") or self._extract_url(command)
+                )
                 return self._pack_remote_repository(repo_url)
 
             # Natural language search
-            elif "search" in cmd_lower or "grep" in cmd_lower or "find" in cmd_lower:
-                query = kwargs.get("query") or command
-                output_id = kwargs.get("output_id") or self._get_latest_output_id()
+            elif "search" in cmd_lower or "grep" in cmd_lower or (
+                "find" in cmd_lower
+            ):
+                query: str = kwargs.get("query") or command
+                output_id: Optional[str] = (
+                    kwargs.get("output_id") or
+                    self._get_latest_output_id()
+                )
                 return self._grep_repomix_output(query, output_id)
 
             # Read partial content
-            elif "read" in cmd_lower and ("lines" in cmd_lower or "partial" in cmd_lower):
-                output_id = kwargs.get("output_id") or self._get_latest_output_id()
-                start_line = kwargs.get("start_line", 1)
-                end_line = kwargs.get("end_line", 100)
-                return self._read_repomix_output(output_id, start_line, end_line)
+            elif "read" in cmd_lower and (
+                "lines" in cmd_lower or "partial" in cmd_lower
+            ):
+                output_id = (
+                    kwargs.get("output_id") or
+                    self._get_latest_output_id()
+                )
+                start_line: int = kwargs.get("start_line", 1)
+                end_line: int = kwargs.get("end_line", 100)
+                return self._read_repomix_output(
+                    output_id, start_line, end_line
+                )
 
             # Attach new packed output
             elif "attach" in cmd_lower or "register" in cmd_lower:
-                file_path = kwargs.get("file_path") or self._extract_path(command)
+                file_path: str = (
+                    kwargs.get("file_path") or self._extract_path(command)
+                )
                 return self._attach_packed_output(file_path)
 
             # List available outputs
-            elif "list" in cmd_lower or "show" in cmd_lower or "status" in cmd_lower:
+            elif "list" in cmd_lower or "show" in cmd_lower or (
+                "status" in cmd_lower
+            ):
                 return self._list_outputs()
 
             # Get codebase overview
             elif "overview" in cmd_lower or "summary" in cmd_lower:
-                output_id = kwargs.get("output_id") or self._get_latest_output_id()
+                output_id = (
+                    kwargs.get("output_id") or
+                    self._get_latest_output_id()
+                )
                 return self._generate_overview(output_id)
 
             else:
                 return self._show_help()
 
         except Exception as e:
-            log_error("repomix_tool", f"Error executing command: {e}", exception=e)
+            log_error(
+                "repomix_tool", f"Error executing command: {e}",
+                exception=e
+            )
             return f"❌ Repomix Error: {str(e)}"
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -605,12 +642,15 @@ class RepomixTool(ToolInterface):
    - "read lines 1-50 from 20250128_abc123"
 """
 
-    @classmethod
-    def schema(cls) -> dict:
+    @staticmethod
+    def schema() -> Dict[str, Any]:
         """Return tool schema for API documentation"""
         return {
             "name": "repomix_tool",
-            "description": "Advanced codebase analysis with natural language search and repository packaging",
+            "description": (
+                "Advanced codebase analysis with natural language "
+                "search and repository packaging"
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -624,7 +664,9 @@ class RepomixTool(ToolInterface):
                     },
                     "repo_url": {
                         "type": "string",
-                        "description": "GitHub repository URL for remote packing"
+                        "description": (
+                            "GitHub repository URL for remote packing"
+                        )
                     },
                     "query": {
                         "type": "string",
@@ -632,11 +674,15 @@ class RepomixTool(ToolInterface):
                     },
                     "output_id": {
                         "type": "string",
-                        "description": "ID of the packed output to operate on"
+                        "description": (
+                            "ID of the packed output to operate on"
+                        )
                     },
                     "start_line": {
                         "type": "integer",
-                        "description": "Starting line number for partial read"
+                        "description": (
+                            "Starting line number for partial read"
+                        )
                     },
                     "end_line": {
                         "type": "integer",
@@ -646,3 +692,10 @@ class RepomixTool(ToolInterface):
                 "required": ["command"]
             }
         }
+
+
+# Export the tool for auto-discovery
+def get_tool() -> RepomixTool:
+    """Required function for tool loader"""
+    return RepomixTool()
+
