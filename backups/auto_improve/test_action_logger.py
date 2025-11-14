@@ -6,6 +6,7 @@ import json
 import tempfile
 import os
 from unittest.mock import Mock, patch, mock_open
+from urllib.parse import urlparse
 from action_logger import ActionLogger
 
 
@@ -216,7 +217,6 @@ class TestActionLogger:
             assert "NETWORK_ACTIVITY" in call_args
             assert "GET" in call_args
             # Instead of substring matching, parse the URL and check hostname
-            from urllib.parse import urlparse
             # Extract URL from the log message (assumes log includes the URL after the method)
             # Example expected message format: "NETWORK_ACTIVITY: GET https://api.example.com Status=200"
             parts = call_args.split()
