@@ -372,7 +372,9 @@ def evolution_suggestions():
         }), 200
 
     except Exception as e:
-        return jsonify({"error": f"Failed to get suggestions: {str(e)}"}), 500
+        import logging
+        logging.exception("Failed to get suggestions")
+        return jsonify({"error": "Failed to get suggestions"}), 500
 
 
 if __name__ == "__main__":
