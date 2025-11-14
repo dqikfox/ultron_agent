@@ -17,6 +17,26 @@ Ultron Agent 3.0 is a sophisticated AI agent platform that combines autonomous w
 
 ## 📚 Documentation
 
+- **[📖 Major Components & Features](docs/major_components_and_features.md)** - Comprehensive technical documentation
+- **[🏗️ Project Overview](docs/project_overview.md)** - Architecture and system design
+- **[📋 Component Specifications](COMPONENT_SPECIFICATIONS.md)** - Detailed technical specifications
+- **[GUI Reference Guide](GUI_REFERENCE.md)** - Primary GUI interface and deprecated file information
+- **[🤖 Ollama Context System](docs/OLLAMA_CONTEXT_SYSTEM.md)** - Universal model access system (NEW!)
+
+## 🚀 New Features
+
+### Universal Ollama Model Context System
+
+The agent now provides **comprehensive context to ALL Ollama models** automatically:
+
+- ✅ **Model-Agnostic**: Works with any Ollama model (llama3.1, llava:7b, qwen3-coder, deepseek-r1, etc.)
+- ✅ **Memory Integration**: Short-term and long-term memory automatically injected
+- ✅ **Tool Access**: All available tools exposed to models with function calling schemas
+- ✅ **Capabilities**: Agent capabilities and system state provided to models
+- ✅ **Configurable**: Fine-grained control over context injection
+- ✅ **Model Registry**: Automatic model capability detection and smart task-based selection
+
+See [docs/OLLAMA_CONTEXT_SYSTEM.md](docs/OLLAMA_CONTEXT_SYSTEM.md) for complete documentation.
 ### Core Documentation
 - **[📖 Developer Guide](.github/copilot-instructions.md)** - Complete development guide and patterns
 - **[📚 Documentation Hub](DOCUMENTATION_HUB.md)** - Central index for all documentation

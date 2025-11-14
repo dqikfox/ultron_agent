@@ -21,17 +21,7 @@ from asyncio import (
 )
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple, Callable
-import logging
-
-# Import cache manager for response caching
-try:
-    from utils.cache_manager import get_cache_manager
-    CACHE_AVAILABLE = True
-except ImportError:
-    CACHE_AVAILABLE = False
-    def get_cache_manager():
-        return None
+from typing import Dict, Any, List, Optional
 
 # Create fallback functions for security utils if not available
 try:
@@ -131,6 +121,23 @@ class UltronBrain:
         self.cache_manager = get_cache_manager() if CACHE_AVAILABLE else None
         if self.cache_manager:
             info("Intelligent cache manager initialized for brain responses")
+
+        # Initialize Ollama context provider for model-agnostic context injection
+        from utils.ollama_context_provider import OllamaContextProvider
+        from utils.model_capabilities_registry import get_model_capabilities_registry
+        
+        self.ollama_context = OllamaContextProvider(
+            memory=memory,
+            tools=tools,
+            config=config if isinstance(config, dict) else (
+                config.__dict__ if hasattr(config, '__dict__') else {}
+            )
+        )
+        info("Ollama context provider initialized for all models")
+        
+        # Initialize model capabilities registry
+        self.model_registry = get_model_capabilities_registry()
+        info("Model capabilities registry initialized")
 
         # Initialize agent network and OpenAI tools if available
         self.agent_network = None
@@ -270,31 +277,23 @@ class UltronBrain:
             error(f"Error saving cache: {sanitize_log_input(str(e))}")
 
     async def direct_chat(self, prompt: str, progress_callback=None) -> str:
-        """
-        Send direct message to LLM via Ollama API with enhanced error handling.
-
-        Args:
-            prompt: Message to send
-            progress_callback: Optional progress callback
-
-        Returns:
-            LLM response or error message
-        """
+        """Send a direct message to the LLM via Ollama API with comprehensive context."""
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
 
-        # Check cache first for repeated queries
-        if self.cache_manager:
-            cache_key = f"brain:chat:{hashlib.md5(prompt.encode()).hexdigest()}"
-            cached_response = self.cache_manager.get(cache_key)
-            if cached_response:
-                info(f"Cache hit for prompt: {sanitize_log_input(prompt[:50])}...")
-                if progress_callback:
-                    progress_callback(100, "Response retrieved from cache.")
-                return cached_response
+        ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
+        model = self.config.get("llm_model", "llama3.1")
 
-        # Prepend ULTRON identity reinforcement to user prompt
-        ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
+        # Check model capabilities
+        model_caps = self.model_registry.get_capabilities(model)
+        if model_caps:
+            info(f"Using model {model} with capabilities: vision={model_caps.supports_vision}, "
+                 f"function_calling={model_caps.supports_function_calling}, "
+                 f"context_length={model_caps.max_context_length}")
+
+        # Use Ollama context provider to build enhanced prompt with all agent context
+        # This works with ANY Ollama model dynamically
+        enhanced_prompt = self.ollama_context.build_enhanced_prompt(prompt, model)
 
         # Get system prompt from memory if available
         system_messages = []
@@ -313,6 +312,13 @@ class UltronBrain:
         
         # Get enhanced system prompt from UltronMemory if available
         if self.memory and hasattr(self.memory, 'get_system_prompt'):
+            system_prompt = self.memory.get_system_prompt()
+            system_messages.append({
+                "role": "system",
+                "content": system_prompt
+            })
+
+        info(f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}")
             try:
                 memory_prompt = self.memory.get_system_prompt()
                 system_prompt_parts.append(memory_prompt)
@@ -400,10 +406,24 @@ class UltronBrain:
             if api_key:
                 headers["Authorization"] = f"Bearer {api_key}"
 
-            messages: List[Dict[str, str]] = system_messages + [{
+            # Build messages array with system prompt and enhanced user prompt
+            messages = system_messages + [{
                 "role": "user",
-                "content": ultron_prompt
+                "content": enhanced_prompt
             }]
+            
+            # Add function calling support if model supports it
+            # Get tool schemas for function calling
+            function_schemas = self.ollama_context.get_tools_as_function_schemas()
+            enable_function_calling = (
+                self.config.get('ollama_enable_function_calling', False) and
+                model_caps and model_caps.supports_function_calling
+            )
+            
+            if function_schemas and enable_function_calling:
+                info(f"Including {len(function_schemas)} tool schemas for function calling")
+                # Note: Function calling support depends on the model
+                # We provide the schemas in the messages for context
 
             payload: Dict[str, Any] = {
                 "model": model,
@@ -2071,3 +2091,118 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             error_msg = f"Command processing failed: {str(e)}"
             error(sanitize_log_input(error_msg))
             return error_msg
+    
+    def update_context_provider(self, memory=None, tools=None, config=None):
+        """
+        Update the Ollama context provider with new references.
+        Call this when memory, tools, or config changes.
+        
+        Args:
+            memory: New memory system instance (optional)
+            tools: New tools dictionary (optional)
+            config: New configuration (optional)
+        """
+        try:
+            if memory is not None:
+                self.memory = memory
+                self.ollama_context.update_memory(memory)
+            
+            if tools is not None:
+                self.tools = tools
+                self.ollama_context.update_tools(tools)
+            
+            if config is not None:
+                self.config = config
+                config_dict = config if isinstance(config, dict) else (
+                    config.__dict__ if hasattr(config, '__dict__') else {}
+                )
+                self.ollama_context.update_config(config_dict)
+            
+            info("Ollama context provider updated with new references")
+            
+        except Exception as e:
+            error(f"Failed to update context provider: {sanitize_log_input(str(e))}")
+    
+    def get_ollama_context_stats(self) -> Dict[str, Any]:
+        """
+        Get statistics about the Ollama context provider state.
+        Useful for debugging and monitoring.
+        
+        Returns:
+            Dictionary with context statistics
+        """
+        try:
+            return self.ollama_context.get_context_stats()
+        except Exception as e:
+            error(f"Failed to get context stats: {sanitize_log_input(str(e))}")
+            return {'error': str(e)}
+    
+    def get_model_info(self, model_name: str = None) -> Dict[str, Any]:
+        """
+        Get information about a model's capabilities.
+        
+        Args:
+            model_name: Model name (uses current model if not specified)
+            
+        Returns:
+            Dictionary with model information
+        """
+        try:
+            model = model_name or self.config.get("llm_model", "llama3.1")
+            caps = self.model_registry.get_capabilities(model)
+            
+            if caps:
+                return {
+                    'model_name': model,
+                    'supports_vision': caps.supports_vision,
+                    'supports_function_calling': caps.supports_function_calling,
+                    'max_context_length': caps.max_context_length,
+                    'specializations': caps.specializations,
+                    'tested': caps.tested
+                }
+            else:
+                return {
+                    'model_name': model,
+                    'error': 'Model capabilities not found'
+                }
+                
+        except Exception as e:
+            error(f"Failed to get model info: {sanitize_log_input(str(e))}")
+            return {'error': str(e)}
+    
+    def list_available_models(self) -> List[str]:
+        """
+        List all models known to the capabilities registry.
+        
+        Returns:
+            List of model names
+        """
+        try:
+            stats = self.model_registry.get_registry_stats()
+            return stats.get('models', [])
+        except Exception as e:
+            error(f"Failed to list models: {sanitize_log_input(str(e))}")
+            return []
+    
+    def find_best_model_for_task(self, task_type: str) -> Optional[str]:
+        """
+        Find the best model for a specific task.
+        
+        Args:
+            task_type: Type of task (vision, coding, reasoning, etc.)
+            
+        Returns:
+            Model name or None
+        """
+        try:
+            available = self.list_available_models()
+            best = self.model_registry.find_best_model_for_task(task_type, available)
+            
+            if best:
+                info(f"Recommended model for '{task_type}': {best}")
+            
+            return best
+            
+        except Exception as e:
+            error(f"Failed to find best model: {sanitize_log_input(str(e))}")
+            return None

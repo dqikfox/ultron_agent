@@ -553,6 +553,21 @@ class UltronAgent:
         except ImportError as e:
             self.logger.error(f"Brain system initialization failed: {e}")
             self.brain = None
+    
+    def update_brain_context(self):
+        """Update brain's context provider with current agent state"""
+        if self.brain and hasattr(self.brain, 'update_context_provider'):
+            try:
+                config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                               else {})
+                self.brain.update_context_provider(
+                    memory=self.memory,
+                    tools=self.tools,
+                    config=config_dict
+                )
+                self.logger.info("Brain context provider updated with current agent state")
+            except Exception as e:
+                self.logger.error(f"Failed to update brain context: {e}")
 
     async def _initialize_computer_use(self) -> None:
         """Initialize OpenAI Computer Use integration"""
@@ -862,6 +877,27 @@ class UltronAgent:
 
                             # 1) Try importing as package module
                             try:
+                                instance = obj(self.config)
+                            except TypeError:
+                                try:
+                                    instance = obj()
+                                except Exception as inst_e:
+                                    self.logger.error(f"Tool class {name} init failed: {inst_e}")
+                                    continue
+                        except Exception as inst_e:
+                            self.logger.error(f"Tool class {name} init failed: {inst_e}")
+                            continue
+
+                        try:
+                            self.tools[name.lower()] = instance
+                            self.logger.info(f"Loaded tool: {name}")
+                        except Exception as e2:
+                            self.logger.error(f"Failed to register tool {name}: {e2}")
+            except Exception as e:
+                self.logger.error(f"Failed to inspect tool classes in {tool_file}: {e}")
+        
+        # Update brain context after all tools are loaded
+        self.update_brain_context()
                                 module = importlib.import_module(f"tools.{stem}")
                             except ImportError as import_err:
                                 log_error("agent_core", f"Package import failed for tools.{stem}: {import_err}")
