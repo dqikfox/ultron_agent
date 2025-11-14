@@ -39,6 +39,29 @@
       "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
       "description": "Headless browser automation with Puppeteer",
       "env": {}
+    },
+    "inspector": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-inspector"],
+      "description": "Interactive MCP Inspector for introspecting servers and tools",
+      "env": {}
+    },
+    "langflow": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-proxy",
+        "--headers",
+        "x-api-key sk-ga49QmqHWdx4JESGXEPT5OQK6SylBm4Te_pCtwtm138",
+        "http://localhost:7860/api/v1/mcp/project/e6ecbc04-8495-41c2-b078-f9c3bec09411/sse"
+      ],
+      "description": "LangFlow MCP server for ULTRON workflow automation and flow execution",
+      "env": {
+        "LANGFLOW_MCP_SERVER_ENABLED": "true",
+        "LANGFLOW_MCP_SERVER_TIMEOUT": "30",
+        "LANGFLOW_MCP_SERVER_ENABLE_PROGRESS_NOTIFICATIONS": "true"
+      }
     }
   },
   "inputs": [
@@ -53,6 +76,18 @@
       "id": "postgres-url",
       "description": "PostgreSQL connection string (postgresql://user:pass@host:port/db)",
       "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "langflow-api-key",
+      "description": "LangFlow API Key for MCP authentication (from LangFlow project settings)",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "langflow-project-id",
+      "description": "LangFlow Project ID (from MCP Server tab)",
+      "password": false
     }
   ]
 }

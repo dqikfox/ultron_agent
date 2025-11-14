@@ -1,0 +1,47 @@
+{
+  "app_service": {
+    "name": "ultron-unity-game",
+    "location": "eastus",
+    "sku": "B1",
+    "runtime": "PYTHON|3.10",
+    "startup_command": "python main.py"
+  },
+  "functions": {
+    "name": "ultron-ai-functions",
+    "runtime": "python",
+    "version": "3.10",
+    "functions": [
+      {
+        "name": "GenerateGameContent",
+        "trigger": "http"
+      },
+      {
+        "name": "RunAIInference",
+        "trigger": "http"
+      },
+      {
+        "name": "SaveGameState",
+        "trigger": "http"
+      }
+    ]
+  },
+  "storage": {
+    "name": "ultrongamestorage",
+    "sku": "Standard_LRS",
+    "containers": [
+      "game-saves",
+      "player-data",
+      "ai-models"
+    ]
+  },
+  "cognitive": {
+    "name": "ultron-ai-services",
+    "kind": "CognitiveServices",
+    "sku": "S0",
+    "services": [
+      "OpenAI",
+      "Speech",
+      "Vision"
+    ]
+  }
+}

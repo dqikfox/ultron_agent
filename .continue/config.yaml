@@ -3,27 +3,31 @@ version: 1.0.28
 schema: v1
 
 models:
-  # Anthropic Models
-  - name: Claude 3.7 Sonnet
-    provider: anthropic
-    model: claude-3-7-sonnet-20240229
-    apiKey: ${ANTHROPIC_API_KEY}
+  # PRIMARY: Local Ollama Models for Coding
+  - name: Qwen 2.5 Coder 7B (Primary)
+    provider: ollama
+    model: qwen2.5-coder:7b
+    apiBase: http://localhost:11434
     roles:
       - chat
       - edit
       - apply
+    completionOptions:
+      temperature: 0.2
+      maxTokens: 4096
 
-  - name: Claude 3.5 Sonnet
-    provider: anthropic
-    model: claude-3-5-sonnet-20241022
-    apiKey: ${ANTHROPIC_API_KEY}
+  - name: DeepSeek R1 14B (Reasoning)
+    provider: ollama
+    model: deepseek-r1:14b
+    apiBase: http://localhost:11434
     roles:
       - chat
       - edit
-      - apply
+    completionOptions:
+      temperature: 0.3
+      maxTokens: 8192
 
-  # ULTRON Agent Models (port 11434)
-  - name: ULTRON Development Assistant
+  - name: Qwen 3 Coder 480B Cloud (Advanced)
     provider: ollama
     model: qwen3-coder:480b-cloud
     apiBase: http://localhost:11434
@@ -32,14 +36,53 @@ models:
       - edit
       - apply
 
-  - name: ULTRON Brain (Llava 7B)
+  - name: Devstral (Specialized)
+    provider: ollama
+    model: devstral:latest
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+
+  - name: Mistral Small 3.2 (Fast)
+    provider: ollama
+    model: mistral-small3.2:latest
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+
+  - name: Llava 7B (Vision)
     provider: ollama
     model: llava:7b
     apiBase: http://localhost:11434
     roles:
       - chat
+
+  # FALLBACK: Cloud Models
+  - name: Claude 3.5 Sonnet (Cloud)
+    provider: anthropic
+    model: claude-3-5-sonnet-20241022
+    apiKey: ${ANTHROPIC_API_KEY}
+    roles:
+      - chat
       - edit
       - apply
+
+# Autocomplete with local models
+tabAutocompleteModel:
+  provider: ollama
+  model: qwen2.5-coder:1.5b
+  apiBase: http://localhost:11434
+  completionOptions:
+    temperature: 0.1
+    maxTokens: 512
+
+tabAutocompleteOptions:
+  disable: false
+  maxPromptTokens: 1024
+  debounceDelay: 200
+  modelTimeout: 100
+  multilineCompletions: auto
 
 context:
   - provider: diff
