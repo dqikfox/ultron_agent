@@ -1,0 +1,250 @@
+/* OMEGA Styles - Final Evolution */
+
+.notes-btn, .recorder-btn, .snippets-btn, .favorites-btn, .tutorial-btn, .darkmode-btn, .fullscreen-btn, .print-btn {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(184, 134, 11, 0.95));
+    color: gold;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    z-index: 9996;
+}
+
+.notes-btn { left: 20px; bottom: 640px; }
+.recorder-btn { left: 20px; bottom: 580px; }
+.snippets-btn { left: 20px; bottom: 520px; }
+.favorites-btn { left: 20px; bottom: 460px; }
+.tutorial-btn { left: 20px; bottom: 400px; }
+.darkmode-btn { left: 20px; bottom: 340px; }
+.fullscreen-btn { left: 20px; bottom: 280px; }
+.print-btn { left: 20px; bottom: 220px; }
+
+.notes-btn:hover, .recorder-btn:hover, .snippets-btn:hover, .favorites-btn:hover, .tutorial-btn:hover, .darkmode-btn:hover, .fullscreen-btn:hover, .print-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+}
+
+.recorder-btn.recording {
+    animation: pulse-gold 1s infinite;
+}
+
+@keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.9); }
+}
+
+/* Notes */
+#notes-area {
+    width: 100%;
+    min-height: 300px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    color: gold;
+    font-family: 'Share Tech Mono', monospace;
+    resize: vertical;
+    margin-bottom: 15px;
+}
+
+.notes-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.notes-actions button {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 6px;
+    color: gold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notes-actions button:hover {
+    background: rgba(255, 215, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Snippets */
+.snippet-input {
+    margin-bottom: 20px;
+}
+
+.snippet-input input, .snippet-input textarea {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 6px;
+    color: gold;
+    font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 10px;
+}
+
+.snippet-input textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.snippet-item {
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.snippet-item strong {
+    color: gold;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.snippet-item pre {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    color: #0ff;
+    margin-bottom: 10px;
+}
+
+.snippet-item button {
+    padding: 6px 12px;
+    background: rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 4px;
+    color: gold;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+/* Global Search */
+.global-search {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9995;
+    width: 500px;
+}
+
+.global-search input {
+    width: 100%;
+    padding: 12px 20px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    border-radius: 25px;
+    color: gold;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+}
+
+#global-search-results {
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 10px 15px;
+    color: gold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.search-result-item:hover {
+    background: rgba(255, 215, 0, 0.2);
+}
+
+/* Tutorial */
+.tutorial-content {
+    padding: 20px;
+}
+
+.tutorial-content h3 {
+    color: gold;
+    margin-bottom: 15px;
+}
+
+.tutorial-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.tutorial-content li {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 6px;
+    color: gold;
+}
+
+.tutorial-content kbd {
+    background: rgba(255, 215, 0, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    color: gold;
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Dark Mode */
+.dark-mode {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.dark-mode img, .dark-mode video {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* Favorites */
+.favorite-item {
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    color: gold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.favorite-item:hover {
+    background: rgba(255, 215, 0, 0.2);
+    transform: translateX(5px);
+}
+
+/* Print Mode */
+@media print {
+    .notes-btn, .recorder-btn, .snippets-btn, .favorites-btn, .tutorial-btn, .darkmode-btn, .fullscreen-btn, .print-btn,
+    .quick-actions-bar, .theme-switcher, .global-search {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .notes-btn, .recorder-btn, .snippets-btn, .favorites-btn, .tutorial-btn, .darkmode-btn, .fullscreen-btn, .print-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        left: 10px;
+    }
+    .global-search {
+        width: 90%;
+    }
+}

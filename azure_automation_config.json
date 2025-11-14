@@ -1,0 +1,7 @@
+{
+  "name": "ultron",
+  "resource_group": "resource",
+  "subscription": "3800ba58-67c9-477b-ab3a-bc02808c38f6",
+  "location": "eastus",
+  "sku": "Basic"
+}

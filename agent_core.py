@@ -7,12 +7,22 @@ Following copilot instructions architecture
 import asyncio
 import logging
 import sys
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 import importlib
 import inspect
 from datetime import datetime
 from enum import Enum
+from diagnostics import diagnostic_wrapper, track_metric, get_diagnostics
+from utils.error_handlers import (
+    ConfigError, ToolError, AsyncError, ResourceError, ValidationError,
+    TimeoutError as UltronTimeoutError, NetworkError, ErrorContext, with_retry
+)
+from utils.ultron_logger import log_info, log_error, log_ai_decision
+from utils.error_recovery import retry_on_failure
+from utils.command_history import CommandHistory
+from utils.performance_tracker import PerformanceMonitor, track_performance
+from utils.performance_tracker import track_performance
 
 try:
     import keyboard
@@ -20,10 +30,17 @@ try:
 except ImportError:
     KEYBOARD_AVAILABLE = False
 
-# Import performance profiler
+# Import performance profiler and analytics
 from utils.performance_profiler import (
     get_performance_profiler, start_performance_monitoring
 )
+try:
+    from utils.performance_analytics import get_performance_analytics
+    PERFORMANCE_ANALYTICS_AVAILABLE = True
+except ImportError:
+    PERFORMANCE_ANALYTICS_AVAILABLE = False
+    def get_performance_analytics():
+        return None
 
 # Import the correct UltronConfig from ultron_agent package
 try:
@@ -53,6 +70,7 @@ class AgentStatus(Enum):
     INITIALIZING = "initializing"
     RUNNING = "running"
     MAINTENANCE = "maintenance"
+    ERROR = "error"
 
 
 class UltronAgent:
@@ -70,6 +88,12 @@ class UltronAgent:
         config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
                        else {})
         self.performance_profiler = get_performance_profiler(config_dict)
+        
+        # Initialize performance analytics
+        self.performance_analytics = None
+        if PERFORMANCE_ANALYTICS_AVAILABLE:
+            self.performance_analytics = get_performance_analytics()
+            self.logger.info("Performance analytics initialized")
 
         # Core components per copilot instructions
         self.tools = {}
@@ -85,45 +109,102 @@ class UltronAgent:
         self.event_system = None
         self.performance_monitor = None
         self.task_scheduler = None
-        self.platform_manager = None
 
         self.logger.info("ULTRON Agent core initialized")
 
     def _load_config(self, config_path: str = "ultron_config.json"):
         """Load configuration following project patterns"""
+    def __init__(self, config_path: str = "ultron_config.json") -> None:
+        """Initialize ULTRON Agent following project architecture
+
+        Args:
+            config_path: Path to configuration file (default: ultron_config.json)
+
+        Raises:
+            ConfigError: If configuration loading fails
+            ResourceError: If system resources cannot be initialized
+            ValidationError: If component initialization fails validation
+        """
         try:
-            if ULTRON_CONFIG_AVAILABLE:
-                # Use the proper UltronConfig from ultron_agent package
-                config_file = Path(config_path)
-                if config_file.exists():
-                    return load_config(config_file)
-                else:
-                    return load_config()  # Use defaults
-            else:
-                # Fallback to simple config
-                return UltronConfig()
-        except Exception as e:
-            print(f"Failed to load config: {e}, using defaults - agent_core.py:105")
-            return UltronConfig()
+            # Load configuration with error context
+            with ErrorContext("config_loading"):
+                self.config = self._load_config(config_path)
+                if not self.config:
+                    raise ConfigError("Configuration is None after loading", {"config_path": config_path})
+                log_info("agent_core", f"Configuration loaded successfully from {config_path}")
 
-    def _setup_logging(self) -> logging.Logger:
-        """Setup logging per copilot instructions"""
-        # Get log level from config
-        log_level_str = getattr(self.config, 'log_level', 'INFO')
-        log_level = getattr(logging, log_level_str.upper(), logging.INFO)
+            # Setup logging with error context
+            with ErrorContext("logging_setup"):
+                self.logger = self._setup_logging()
+                if not self.logger:
+                    raise ValidationError("Logger setup failed", {"config_path": config_path})
 
-        logging.basicConfig(
-            level=log_level,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.FileHandler("ultron.log"),
-                logging.StreamHandler(sys.stdout),
-            ],
-        )
-        return logging.getLogger(__name__)
+            # Initialize diagnostics system with fallback
+            try:
+                config_dict: Dict[str, Any] = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                                               else {})
+                self.diagnostics = get_diagnostics(config_dict)
+            except Exception as diag_error:
+                log_error("agent_core", f"Diagnostics initialization failed: {diag_error}")
+                self.diagnostics = None  # Fallback to None
 
-    async def initialize(self):
-        """Initialize all components per copilot architecture"""
+            # Initialize performance profiler with safe fallback
+            try:
+                self.performance_profiler = get_performance_profiler(config_dict)
+            except Exception as perf_error:
+                log_error("agent_core", f"Performance profiler initialization failed: {perf_error}")
+                self.performance_profiler = None  # Fallback to None
+
+            # Core components per copilot instructions
+            self.tools: Dict[str, Any] = {}
+            self.is_running: bool = False
+            self.current_task: Optional[Any] = None
+
+            # Enhancement systems
+            self.command_history = CommandHistory()
+            self.performance_monitor = PerformanceMonitor() if hasattr(self, 'performance_profiler') else None
+
+            # Initialize state with proper types
+            self.status: AgentStatus = AgentStatus.INITIALIZING
+            self.brain: Optional[Any] = None
+            self.voice: Optional[Any] = None
+            self.memory: Optional[Any] = None
+            self.vision: Optional[Any] = None
+            self.event_system: Optional[Any] = None
+            self.performance_monitor: Optional[Any] = None
+            self.task_scheduler: Optional[Any] = None
+            self.platform_manager: Optional[Any] = None
+
+            log_info("agent_core", "ULTRON Agent core initialized successfully",
+                    extra={"config_path": config_path, "components_initialized": 9})
+
+        except ConfigError as cfg_err:
+            log_error("agent_core", f"Configuration error during init: {cfg_err.message}",
+                     extra=cfg_err.to_dict())
+            raise
+        except ValidationError as val_err:
+            log_error("agent_core", f"Validation error during init: {val_err.message}",
+                     extra=val_err.to_dict())
+            raise
+        except Exception as init_err:
+            error_msg = f"Unexpected error during agent initialization: {str(init_err)}"
+            log_error("agent_core", error_msg, exception=init_err)
+            raise ResourceError(error_msg, {"error_type": type(init_err).__name__,
+                                           "config_path": config_path}) from init_err
+
+    def _load_config(self, config_path: str = "ultron_config.json") -> Any:
+        """Load configuration following project patterns
+
+        Args:
+            config_path: Path to configuration file
+
+        Returns:
+            Configuration object
+
+        Raises:
+            ConfigError: If configuration cannot be loaded or validated
+            ValidationError: If configuration values are invalid
+        """
         try:
             self.logger.info("Initializing ULTRON Agent components...")
 
@@ -131,6 +212,10 @@ class UltronAgent:
             config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
                            else {})
             start_performance_monitoring(config_dict)
+            
+            # Start analytics monitoring
+            if self.performance_analytics:
+                self.performance_analytics.start_monitoring(interval_seconds=10)
 
             # Initialize core systems per copilot instructions
             await self._initialize_memory()
@@ -138,36 +223,249 @@ class UltronAgent:
             await self._initialize_vision()
             await self._initialize_brain()
             await self._initialize_event_system()
-            await self._initialize_platform_manager()
             await self._initialize_idle_monitor()
             await self._initialize_keyboard_listener()
             await self._load_tools()
+            with ErrorContext("config_load_config"):
+                # Validate config path
+                if not config_path or not isinstance(config_path, str):
+                    raise ValidationError("Invalid config path", {"config_path": config_path})
 
-            # Start web interface after all tools are loaded
-            await self._start_web_interface()
+                log_info("agent_core", f"Loading configuration from {config_path}")
 
-            # Update status
-            self.status = AgentStatus.RUNNING
-            self.is_running = True
+                try:
+                    if ULTRON_CONFIG_AVAILABLE:
+                        # Use the proper UltronConfig from ultron_agent package
+                        config_file = Path(config_path)
+                        if config_file.exists():
+                            config_obj = load_config(config_file)
+                        else:
+                            log_error("agent_core", f"Config file not found at {config_path}, using defaults")
+                            config_obj = load_config()  # Use defaults
+                    else:
+                        # Fallback to simple config
+                        log_error("agent_core", "ULTRON_CONFIG not available, using UltronConfig fallback")
+                        config_obj = UltronConfig()
 
-            self.logger.info("ULTRON Agent fully initialized and ready")
+                    if not config_obj:
+                        raise ConfigError("Configuration object is None", {"config_path": config_path})
 
-            # Perform initial identity maintenance
-            await self.maintain_ultron_identity()
+                    log_info("agent_core", "Configuration loaded successfully",
+                            extra={"config_path": config_path})
+                    return config_obj
 
-            # Start voice listening if configured
-            voice_enabled = (self.config.get('use_voice', False) or
-                            self.config.get('voice_enabled', False))
-            if voice_enabled:
-                msg = "Voice system enabled, starting voice listening..."
-                self.logger.info(msg)
-                # Start voice listening in background task
-                import asyncio
-                asyncio.create_task(self.start_voice_listening())
+                except ConfigError:
+                    raise  # Re-raise ConfigError
+                except ValidationError:
+                    raise  # Re-raise ValidationError
+                except FileNotFoundError as file_err:
+                    raise ConfigError(f"Configuration file not found: {config_path}",
+                                    {"config_path": config_path, "error": str(file_err)}) from file_err
+                except Exception as load_err:
+                    raise ConfigError(f"Failed to load configuration: {str(load_err)}",
+                                    {"config_path": config_path, "error": str(load_err)}) from load_err
 
-        except Exception as e:
-            self.logger.error(f"Failed to initialize ULTRON Agent: {e}")
+        except ConfigError as cfg_err:
+            log_error("agent_core", f"Configuration error: {cfg_err.message}",
+                     extra=cfg_err.to_dict())
             raise
+        except ValidationError as val_err:
+            log_error("agent_core", f"Configuration validation error: {val_err.message}",
+                     extra=val_err.to_dict())
+            raise
+        except Exception as unexpected_err:
+            error_msg = f"Unexpected error loading configuration: {str(unexpected_err)}"
+            log_error("agent_core", error_msg, exception=unexpected_err)
+            # Attempt to use default config as last resort
+            try:
+                return UltronConfig()
+            except Exception as default_err:
+                raise ConfigError(error_msg, {"error_type": type(unexpected_err).__name__,
+                                             "default_error": str(default_err)}) from unexpected_err
+
+    def _setup_logging(self) -> logging.Logger:
+        """Setup logging per copilot instructions
+
+        Returns:
+            Configured logger instance
+
+        Raises:
+            ValidationError: If logging configuration is invalid
+        """
+        try:
+            with ErrorContext("logging_setup"):
+                # Get log level from config with safe access
+                log_level_str: str = getattr(self.config, 'log_level', 'INFO')
+                if not isinstance(log_level_str, str):
+                    log_level_str = 'INFO'
+
+                # Validate log level
+                log_level: int = getattr(logging, log_level_str.upper(), logging.INFO)
+                if not isinstance(log_level, int):
+                    log_level = logging.INFO
+
+                # Configure logging with error handling for handlers
+                try:
+                    handlers: List[logging.Handler] = []
+
+                    # File handler with safe path
+                    try:
+                        file_handler = logging.FileHandler("ultron.log")
+                        handlers.append(file_handler)
+                    except Exception as file_err:
+                        print(f"Warning: Could not create file handler: {file_err}")
+
+                    # Console handler (always available)
+                    try:
+                        console_handler = logging.StreamHandler(sys.stdout)
+                        handlers.append(console_handler)
+                    except Exception as console_err:
+                        print(f"Warning: Could not create console handler: {console_err}")
+
+                    if not handlers:
+                        raise ValidationError("No logging handlers could be created",
+                                            {"log_level": log_level_str})
+
+                    logging.basicConfig(
+                        level=log_level,
+                        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                        handlers=handlers,
+                    )
+
+                    logger = logging.getLogger(__name__)
+                    log_info("agent_core", "Logging system initialized",
+                            extra={"log_level": log_level_str, "handlers": len(handlers)})
+                    return logger
+
+                except ValidationError:
+                    raise
+                except Exception as config_err:
+                    raise ValidationError(f"Logging configuration failed: {str(config_err)}",
+                                        {"log_level": log_level_str, "error": str(config_err)}) from config_err
+
+        except ValidationError as val_err:
+            print(f"Logging validation error: {val_err.message}")
+            raise
+        except Exception as unexpected_err:
+            print(f"Unexpected logging setup error: {str(unexpected_err)}")
+            # Fallback logger with minimal config
+            logging.basicConfig(level=logging.INFO)
+            return logging.getLogger(__name__)
+
+    async def initialize(self) -> None:
+        """Initialize all components per copilot architecture
+
+        Performs comprehensive initialization of agent subsystems with cascading
+        error recovery and progress tracking.
+
+        Raises:
+            AsyncError: If critical initialization operations fail
+            ResourceError: If system resources cannot be initialized
+            ConfigError: If component configuration is invalid
+        """
+        init_start_time: float = datetime.now().timestamp()
+        initialized_components: List[str] = []
+
+        try:
+            with ErrorContext("agent_initialization"):
+                log_info("agent_core", "Starting ULTRON Agent component initialization...")
+                self.status = AgentStatus.INITIALIZING
+
+                # Start performance monitoring with error isolation
+                try:
+                    config_dict: Dict[str, Any] = (self.config.__dict__ if hasattr(self.config, '__dict__')
+                                                   else {})
+                    start_performance_monitoring(config_dict)
+                    initialized_components.append("performance_monitoring")
+                except Exception as perf_err:
+                    log_error("agent_core", f"Performance monitoring setup failed: {perf_err}")
+                    # Continue - this is non-critical
+
+                # Initialize core systems with cascading error recovery
+                # Use function references instead of immediate coroutine creation
+                init_sequence: List[Tuple[str, Any]] = [
+                    ("memory", self._initialize_memory),
+                    ("voice", self._initialize_voice),
+                    ("vision", self._initialize_vision),
+                    ("brain", self._initialize_brain),
+                    ("computer_use", self._initialize_computer_use),
+                    ("event_system", self._initialize_event_system),
+                    ("platform_manager", self._initialize_platform_manager),
+                    ("idle_monitor", self._initialize_idle_monitor),
+                    ("keyboard_listener", self._initialize_keyboard_listener),
+                    ("tools", self._load_tools),
+                ]
+
+                # Execute initialization tasks sequentially with individual error handling
+                for task_name, task_func in init_sequence:
+                    try:
+                        # Create and await coroutine when we're ready
+                        await task_func()
+                        initialized_components.append(task_name)
+                        log_info("agent_core", f"Initialized {task_name} successfully",
+                                extra={"component": task_name})
+                    except AsyncError as async_err:
+                        log_error("agent_core", f"Async error initializing {task_name}: {async_err.message}",
+                                 extra=async_err.to_dict())
+                        # Continue with next component
+                    except Exception as comp_err:
+                        error_msg = f"Failed to initialize {task_name}: {str(comp_err)}"
+                        log_error("agent_core", error_msg, exception=comp_err)
+                        # Continue with next component for resilience
+
+                # Start web interface after tools loaded with error isolation
+                try:
+                    await self._start_web_interface()
+                    initialized_components.append("web_interface")
+                except Exception as web_err:
+                    log_error("agent_core", f"Web interface startup failed: {web_err}")
+                    # Continue - web interface is non-critical
+
+                # Update status and markers
+                self.status = AgentStatus.RUNNING
+                self.is_running = True
+
+                init_duration: float = datetime.now().timestamp() - init_start_time
+                log_ai_decision("agent_core", "Agent initialization completed",
+                               ai_model="agent_core",
+                               confidence_score=len(initialized_components) / len(init_tasks),
+                               reasoning=f"Initialized {len(initialized_components)}/{len(init_tasks)} components in {init_duration:.2f}s")
+
+                # Perform initial identity maintenance with error isolation
+                try:
+                    await self.maintain_ultron_identity()
+                except Exception as identity_err:
+                    log_error("agent_core", f"Identity maintenance failed: {identity_err}")
+                    # Continue - this is non-critical
+
+                # Start voice listening if configured with error isolation
+                voice_enabled: bool = (self.config.get('use_voice', False) or
+                                      self.config.get('voice_enabled', False))
+                if voice_enabled:
+                    try:
+                        msg = "Voice system enabled, starting voice listening..."
+                        log_info("agent_core", msg)
+                        asyncio.create_task(self.start_voice_listening())
+                    except Exception as voice_err:
+                        log_error("agent_core", f"Voice listening startup failed: {voice_err}")
+                        # Continue - voice is non-critical
+
+                log_info("agent_core", "ULTRON Agent fully initialized and ready",
+                        extra={"initialized_components": len(initialized_components),
+                               "duration_seconds": f"{init_duration:.2f}",
+                               "components": initialized_components})
+
+        except AsyncError as async_err:
+            self.status = AgentStatus.ERROR
+            error_msg = f"Async error during initialization: {async_err.message}"
+            log_error("agent_core", error_msg, extra=async_err.to_dict())
+            raise
+        except Exception as init_err:
+            self.status = AgentStatus.ERROR
+            error_msg = f"Unexpected error during agent initialization: {str(init_err)}"
+            log_error("agent_core", error_msg, exception=init_err)
+            raise ResourceError(error_msg, {"initialized_count": len(initialized_components),
+                                           "error_type": type(init_err).__name__}) from init_err
 
     def initialize_sync(self):
         """Synchronous initialize method for non-async contexts"""
@@ -178,24 +476,37 @@ class UltronAgent:
             self.logger.error(f"Sync initialization failed: {e}")
             raise
 
-    async def _initialize_memory(self):
-        """Initialize enhanced ULTRON memory system"""
+    async def _initialize_memory(self) -> None:
+        """Initialize enhanced ULTRON memory system (REQUIRED for identity)"""
         self.logger.info("Initializing ULTRON memory system...")
         try:
             from memory import UltronMemory
             self.memory = UltronMemory(self.config)
-            self.logger.info("ULTRON memory system initialized successfully")
+            self.logger.info("✅ ULTRON memory system initialized with identity awareness")
+            
+            # Verify system prompt is available
+            if hasattr(self.memory, 'get_system_prompt'):
+                test_prompt = self.memory.get_system_prompt()
+                if "ULTRON" in test_prompt:
+                    self.logger.info("✅ ULTRON identity confirmed in system prompt")
+                else:
+                    self.logger.warning("⚠️ ULTRON identity missing from system prompt")
+            
         except ImportError as e:
-            self.logger.warning(f"ULTRON memory not available, falling back to basic memory: {e}")
+            self.logger.error(f"❌ CRITICAL: UltronMemory not available - identity will be compromised: {e}")
+            self.logger.error("Attempting fallback to basic Memory (NOT RECOMMENDED)")
             try:
                 from memory import Memory
                 self.memory = Memory()
-                self.logger.info("Basic memory system initialized")
+                self.logger.warning("⚠️ Basic memory initialized - ULTRON identity features disabled")
             except ImportError as e2:
-                self.logger.error(f"No memory system available: {e2}")
+                self.logger.error(f"❌ No memory system available: {e2}")
                 self.memory = None
+        except Exception as e:
+            self.logger.error(f"❌ Memory initialization failed: {e}")
+            self.memory = None
 
-    async def _initialize_voice(self):
+    async def _initialize_voice(self) -> None:
         """Initialize voice system with fallback chain per copilot instructions"""
         self.logger.info(
             "Initializing voice system "
@@ -221,7 +532,7 @@ class UltronAgent:
             self.logger.error(f"Voice system initialization failed: {e}")
             self.voice = None
 
-    async def _initialize_vision(self):
+    async def _initialize_vision(self) -> None:
         """Initialize vision system"""
         self.logger.info("Initializing vision system...")
         try:
@@ -232,7 +543,7 @@ class UltronAgent:
             self.logger.error(f"Vision system initialization failed: {e}")
             self.vision = None
 
-    async def _initialize_brain(self):
+    async def _initialize_brain(self) -> None:
         """Initialize brain system with tools and memory"""
         self.logger.info("Initializing brain system...")
         try:
@@ -243,14 +554,25 @@ class UltronAgent:
             self.logger.error(f"Brain system initialization failed: {e}")
             self.brain = None
 
-    async def _initialize_event_system(self):
+    async def _initialize_computer_use(self) -> None:
+        """Initialize OpenAI Computer Use integration"""
+        self.logger.info("Initializing OpenAI Computer Use...")
+        try:
+            from openai_computer_use_integration import ultron_computer_use
+            self.computer_use = ultron_computer_use
+            self.logger.info("OpenAI Computer Use initialized successfully")
+        except ImportError as e:
+            self.logger.error(f"Computer Use initialization failed: {e}")
+            self.computer_use = None
+
+    async def _initialize_event_system(self) -> None:
         """Initialize event system for inter-component communication"""
         self.logger.info("Initializing event system...")
         from utils.event_system import EventSystem
         self.event_system = EventSystem()
         self.logger.info("Event system initialized successfully")
 
-    async def _initialize_platform_manager(self):
+    async def _initialize_platform_manager(self) -> None:
         """Initialize platform manager for cross-platform support"""
         self.logger.info("Initializing platform manager...")
         try:
@@ -261,7 +583,7 @@ class UltronAgent:
             self.logger.error(f"Platform manager initialization failed: {e}")
             self.platform_manager = None
 
-    async def _initialize_idle_monitor(self):
+    async def _initialize_idle_monitor(self) -> None:
         """Initialize idle monitor for auto-analysis triggering"""
         self.logger.info("Initializing idle monitor...")
         if not self.event_system:
@@ -272,14 +594,14 @@ class UltronAgent:
         self.idle_monitor = IdleMonitor(self.event_system, idle_threshold)
 
         # Set callback for idle trigger
-        async def on_idle():
+        async def on_idle() -> None:
             await self._trigger_auto_analysis()
 
         self.idle_monitor.set_idle_callback(on_idle)
         await self.idle_monitor.start_monitoring()
         self.logger.info("Idle monitor initialized and started")
 
-    async def _initialize_keyboard_listener(self):
+    async def _initialize_keyboard_listener(self) -> None:
         """Initialize Print Screen key listener for automatic screenshot analysis"""
         if not KEYBOARD_AVAILABLE:
             self.logger.warning("Keyboard library not available, Print Screen functionality disabled")
@@ -464,109 +786,179 @@ class UltronAgent:
                 "count": count
             })
 
-    async def _load_tools(self):
-        """Dynamically load tools from tools/ directory with robust fallback"""
-        tools_dir = Path(__file__).parent / "tools"
-        if not tools_dir.exists():
-            self.logger.warning("Tools directory not found")
-            return
+    async def _load_tools(self) -> None:
+        """Dynamically load tools from tools/ directory with robust fallback
 
-        self.logger.info("Loading tools...")
+        Implements resilient tool discovery and loading with multiple fallback
+        strategies and comprehensive error isolation.
 
-        # Add tools directory to path
-        if str(tools_dir) not in sys.path:
-            sys.path.insert(0, str(tools_dir))
+        Raises:
+            ToolError: If tool loading fails critically
+            ValidationError: If tool validation fails
+        """
+        tools_loaded: int = 0
+        tools_failed: int = 0
 
-        # Helper: load a module object from a path using importlib.util if available
-        def _load_module_importlib(module_name: str, file_path: Path):
-            try:
-                util = getattr(importlib, "util", None)
-                if util is None:
-                    return None
-                spec = util.spec_from_file_location(module_name, str(file_path))
-                if spec and spec.loader:
-                    module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(module)  # type: ignore[attr-defined]
-                    return module
-                return None
-            except Exception as e:
-                self.logger.debug(f"importlib load failed for {file_path}: {e}")
-                return None
+        try:
+            with ErrorContext("tool_loading"):
+                tools_dir: Path = Path(__file__).parent / "tools"
+                if not tools_dir.exists():
+                    error_msg = f"Tools directory not found at {tools_dir}"
+                    log_error("agent_core", error_msg)
+                    raise ToolError(error_msg, {"tools_dir": str(tools_dir)})
 
-        # Helper: fallback loader using runpy.run_path
-        def _load_module_runpy(module_name: str, file_path: Path):
-            try:
-                import runpy
-                ns = runpy.run_path(str(file_path))
-                # Create a simple object to attach attributes for inspect to work
-                class _Mod:  # minimal container
-                    pass
-                mod = _Mod()
-                for k, v in ns.items():
-                    setattr(mod, k, v)
-                return mod
-            except Exception as e:
-                self.logger.debug(f"runpy load failed for {file_path}: {e}")
-                return None
+                log_info("agent_core", f"Loading tools from {tools_dir}...")
 
-        # Scan for tool files
-        skip_files = {"__init__", "base"}
-        for tool_file in tools_dir.glob("*.py"):
-            stem = tool_file.stem
-            if stem in skip_files:
-                continue
+                # Add tools directory to path with validation
+                if str(tools_dir) not in sys.path:
+                    try:
+                        sys.path.insert(0, str(tools_dir))
+                    except Exception as path_err:
+                        log_error("agent_core", f"Failed to add tools directory to path: {path_err}")
+                        # Continue anyway
 
-            module = None
-            # 1) Try importing as package module (tools.<name>)
-            try:
-                import importlib as _importlib
-                module = _importlib.import_module(f"tools.{stem}")
-            except Exception as e:
-                self.logger.warning(f"package import failed for tools.{stem}: {e}")
-                continue  # Skip this tool entirely if it can't be imported
+                # Helper: load module using importlib.util
+                def _load_module_importlib(module_name: str, file_path: Path) -> Optional[Any]:
+                    try:
+                        util = getattr(importlib, "util", None)
+                        if util is None:
+                            return None
+                        spec = util.spec_from_file_location(module_name, str(file_path))
+                        if spec and spec.loader:
+                            module = importlib.util.module_from_spec(spec)
+                            spec.loader.exec_module(module)
+                            return module
+                        return None
+                    except Exception as import_err:
+                        log_error("agent_core", f"importlib load failed for {file_path}: {import_err}")
+                        return None
 
-            # 2) Fallback to importlib.util by path
-            if module is None:
-                module = _load_module_importlib(stem, tool_file)
+                # Helper: fallback loader using runpy
+                def _load_module_runpy(module_name: str, file_path: Path) -> Optional[Any]:
+                    try:
+                        import runpy
+                        ns: Dict[str, Any] = runpy.run_path(str(file_path))
+                        # Create minimal container for attributes
+                        class _Mod:  # type: ignore
+                            pass
+                        mod = _Mod()
+                        for k, v in ns.items():
+                            setattr(mod, k, v)
+                        return mod
+                    except Exception as runpy_err:
+                        log_error("agent_core", f"runpy load failed for {file_path}: {runpy_err}")
+                        return None
 
-            # 3) Fallback to runpy execution
-            if module is None:
-                module = _load_module_runpy(stem, tool_file)
-
-            if module is None:
-                self.logger.error(f"Failed to load tool module from {tool_file}")
-                continue
-
-            # Find tool classes with match and execute methods
-            try:
-                for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if name in {"Tool", "BaseTool", "Base"}:
+                # Scan for tool files
+                skip_files: set = {"__init__", "base", "tool_interface", "tool_loader"}
+                for tool_file in tools_dir.glob("*.py"):
+                    stem: str = tool_file.stem
+                    if stem in skip_files:
                         continue
-                    if hasattr(obj, "match") and hasattr(obj, "execute"):
-                        # Try to construct with config and memory; fallback to config only, then default
-                        instance = None
-                        try:
-                            instance = obj(self.config, self.memory)
-                        except TypeError:
-                            try:
-                                instance = obj(self.config)
-                            except TypeError:
-                                try:
-                                    instance = obj()
-                                except Exception as inst_e:
-                                    self.logger.error(f"Tool class {name} init failed: {inst_e}")
-                                    continue
-                        except Exception as inst_e:
-                            self.logger.error(f"Tool class {name} init failed: {inst_e}")
-                            continue
 
-                        try:
-                            self.tools[name.lower()] = instance
-                            self.logger.info(f"Loaded tool: {name}")
-                        except Exception as e2:
-                            self.logger.error(f"Failed to register tool {name}: {e2}")
-            except Exception as e:
-                self.logger.error(f"Failed to inspect tool classes in {tool_file}: {e}")
+                    try:
+                        with ErrorContext(f"tool_load_{stem}"):
+                            module: Optional[Any] = None
+
+                            # 1) Try importing as package module
+                            try:
+                                module = importlib.import_module(f"tools.{stem}")
+                            except ImportError as import_err:
+                                log_error("agent_core", f"Package import failed for tools.{stem}: {import_err}")
+                                # Continue to fallback methods
+                            except Exception as import_err:
+                                log_error("agent_core", f"Unexpected error importing tools.{stem}: {import_err}")
+                                continue
+
+                            # 2) Fallback to importlib.util by path
+                            if module is None:
+                                module = _load_module_importlib(stem, tool_file)
+
+                            # 3) Fallback to runpy execution
+                            if module is None:
+                                module = _load_module_runpy(stem, tool_file)
+
+                            if module is None:
+                                log_error("agent_core", f"All loading methods failed for {tool_file}")
+                                tools_failed += 1
+                                continue
+
+                            # Find and register tool classes
+                            try:
+                                for name, obj in inspect.getmembers(module, inspect.isclass):
+                                    if name in {"Tool", "BaseTool", "Base", "ToolInterface"}:
+                                        continue
+
+                                    # Validate tool interface
+                                    if not (hasattr(obj, "match") and hasattr(obj, "execute")):
+                                        continue
+
+                                    # Try to instantiate with cascading parameter strategies
+                                    instance: Optional[Any] = None
+                                    init_params: List[str] = []
+
+                                    try:
+                                        instance = obj(self.config, self.memory)
+                                        init_params = ["config", "memory"]
+                                    except TypeError:
+                                        try:
+                                            instance = obj(self.config)
+                                            init_params = ["config"]
+                                        except TypeError:
+                                            try:
+                                                instance = obj()
+                                                init_params = []
+                                            except Exception as init_err:
+                                                log_error("agent_core", f"Tool {name} instantiation failed with all strategies: {init_err}")
+                                                tools_failed += 1
+                                                continue
+                                    except Exception as init_err:
+                                        log_error("agent_core", f"Tool {name} initialization failed: {init_err}")
+                                        tools_failed += 1
+                                        continue
+
+                                    # Validate instance
+                                    if instance is None:
+                                        log_error("agent_core", f"Tool {name} instantiation returned None")
+                                        tools_failed += 1
+                                        continue
+
+                                    try:
+                                        self.tools[name.lower()] = instance
+                                        tools_loaded += 1
+                                        log_info("agent_core", f"Loaded tool: {name}",
+                                                extra={"tool_name": name, "init_params": init_params})
+                                    except Exception as reg_err:
+                                        log_error("agent_core", f"Failed to register tool {name}: {reg_err}")
+                                        tools_failed += 1
+
+                            except Exception as inspect_err:
+                                log_error("agent_core", f"Failed to inspect classes in {tool_file}: {inspect_err}")
+                                tools_failed += 1
+
+                    except ErrorContext:
+                        raise  # Re-raise context manager errors
+                    except Exception as tool_err:
+                        log_error("agent_core", f"Unexpected error loading tool {stem}: {tool_err}")
+                        tools_failed += 1
+
+                log_ai_decision("agent_core", f"Tool loading completed",
+                               ai_model="agent_core",
+                               confidence_score=tools_loaded / max(1, tools_loaded + tools_failed),
+                               reasoning=f"Loaded {tools_loaded} tools, {tools_failed} failed")
+
+                if tools_loaded == 0:
+                    log_error("agent_core", "No tools were successfully loaded")
+                    # Don't raise - agent can function without tools
+
+        except ToolError as tool_err:
+            log_error("agent_core", f"Tool loading error: {tool_err.message}",
+                     extra=tool_err.to_dict())
+            raise
+        except Exception as load_err:
+            error_msg = f"Unexpected error during tool loading: {str(load_err)}"
+            log_error("agent_core", error_msg, exception=load_err)
+            # Don't raise - agent can function without tools as fallback
 
     async def speak(self, text: str, async_mode: bool = True) -> bool:
         """Speak text using the initialized voice system."""
@@ -614,10 +1006,12 @@ class UltronAgent:
             self.logger.error(f"Voice speaking failed: {exc}")
             return False
 
+    @diagnostic_wrapper("agent_core", track_performance=True)
     async def handle_voice_command(self, command: str):
         """Process a voice command through the agent system"""
         try:
             self.logger.info(f"Processing voice command: {command}")
+            track_metric("agent_core", "voice_commands", 1, "count")
 
             # Process through brain for AI response
             if self.brain:
@@ -710,104 +1104,215 @@ class UltronAgent:
         self.tools[name.lower()] = instance
         self.logger.info(f"Registered tool: {name}")
 
+    @retry_on_failure(max_retries=3)
+    @track_performance
     async def process_command(
-        self, command: str, context: Dict[str, Any] = None
+        self, command: str, context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Process command through agent system per copilot instructions"""
-        if not self.is_running:
-            raise RuntimeError(
-                "Agent is not running. Call initialize() first."
-            )
+        """Process command through agent system per copilot instructions
 
-        context = context or {}
+        Implements multi-phase command routing with tool-first strategy,
+        brain processing fallback, and comprehensive error isolation.
+
+        Args:
+            command: The command string to process
+            context: Optional context dictionary
+
+        Returns:
+            Response dictionary with command, response, metadata
+
+        Raises:
+            AsyncError: If processing fails critically
+        """
+        if not self.is_running:
+            error_msg = "Agent is not running. Call initialize() first."
+            log_error("agent_core", error_msg)
+            raise AsyncError(error_msg, {"agent_running": False})
+
+        if not command or not isinstance(command, str):
+            error_msg = f"Invalid command: {command}"
+            log_error("agent_core", error_msg)
+            raise ValidationError(error_msg, {"command": str(command)})
+
+        context: Dict[str, Any] = context or {}
         self.current_task = command
+        processing_start: float = datetime.now().timestamp()
 
         try:
-            self.logger.info(f"Processing command: {command}")
+            with ErrorContext("command_processing"):
+                log_info("agent_core", f"Processing command: {command}",
+                        extra={"context_keys": list(context.keys())})
 
-            # Basic response
-            response = {
-                "command": command,
-                "response": f"ULTRON received: {command}",
-                "timestamp": str(datetime.now()),
-                "success": True,
-            }
-
-            # Check for matching tools (support sync or async match)
-            matching_tools = []
-            for tool_name, tool in self.tools.items():
-                try:
-                    if hasattr(tool, "match"):
-                        match_fn = tool.match
-                        # Determine if match expects (command) or
-                        # (command, context)
-                        try:
-                            sig = inspect.signature(match_fn)
-                            param_count = len(sig.parameters)
-                        except Exception:
-                            param_count = 2  # default to (command, context)
-                        try:
-                            if param_count <= 1:
-                                match_result = match_fn(command)
-                            else:
-                                match_result = match_fn(command, context)
-                            if inspect.isawaitable(match_result):
-                                match_result = await match_result
-                        except TypeError:
-                            # Fallback to single-arg call
-                            match_result = match_fn(command)
-                            if inspect.isawaitable(match_result):
-                                match_result = await match_result
-                        if match_result:
-                            matching_tools.append((tool_name, tool))
-                except Exception as e:
-                    self.logger.error(f"Tool {tool_name} match failed: {e}")
-
-            # Execute matching tools (support sync or async execute)
-            if matching_tools:
-                tool_results = []
-                for tool_name, tool in matching_tools:
+                # PHASE 1A: Brain Tool Routing with error isolation
+                if self.brain:
                     try:
-                        exec_result = tool.execute(command)
-                        if inspect.isawaitable(exec_result):
-                            exec_result = await exec_result
-                        tool_results.append(
-                            {
+                        can_handle: bool
+                        tool_name: Optional[str]
+                        can_handle, tool_name = (
+                            self.brain.can_tool_handle_this(command)
+                        )
+
+                        if can_handle and tool_name:
+                            try:
+                                tool_result: str = self.brain.execute_tool(
+                                    tool_name, command
+                                )
+                                processing_time: float = datetime.now().timestamp() - processing_start
+                                log_info("agent_core", f"Tool executed successfully: {tool_name}",
+                                        extra={"tool": tool_name, "duration_seconds": f"{processing_time:.3f}"})
+                                return {
+                                    "command": command,
+                                    "response": tool_result,
+                                    "tool": tool_name,
+                                    "timestamp": str(datetime.now()),
+                                    "success": True,
+                                    "processing_time_seconds": processing_time,
+                                }
+                            except Exception as tool_exec_err:
+                                log_error("agent_core", f"Brain tool execution failed: {tool_exec_err}",
+                                         exception=tool_exec_err)
+                                # Fall through to other methods
+
+                    except Exception as brain_err:
+                        log_error("agent_core", f"Brain command evaluation failed: {brain_err}",
+                                 exception=brain_err)
+                        # Fall through to tool matching
+
+                # Initialize base response
+                response: Dict[str, Any] = {
+                    "command": command,
+                    "response": f"ULTRON received: {command}",
+                    "timestamp": str(datetime.now()),
+                    "success": True,
+                    "tool_count": 0,
+                }
+
+                # PHASE 1B: Tool Matching with error isolation
+                matching_tools: List[Tuple[str, Any]] = []
+
+                try:
+                    for tool_name, tool in self.tools.items():
+                        try:
+                            if hasattr(tool, "match"):
+                                match_fn: Any = tool.match
+
+                                # Determine match function signature
+                                try:
+                                    sig: inspect.Signature = inspect.signature(match_fn)
+                                    param_count: int = len(sig.parameters)
+                                except Exception:
+                                    param_count = 2  # Default to (command, context)
+
+                                # Invoke with appropriate parameters
+                                try:
+                                    match_result: Any
+                                    if param_count <= 1:
+                                        match_result = match_fn(command)
+                                    else:
+                                        match_result = match_fn(command, context)
+
+                                    if inspect.isawaitable(match_result):
+                                        match_result = await match_result
+
+                                except TypeError:
+                                    # Fallback to single-arg
+                                    match_result = match_fn(command)
+                                    if inspect.isawaitable(match_result):
+                                        match_result = await match_result
+
+                                if match_result:
+                                    matching_tools.append((tool_name, tool))
+                                    log_info("agent_core", f"Tool matched: {tool_name}")
+
+                        except Exception as match_err:
+                            log_error("agent_core", f"Tool {tool_name} match failed: {match_err}")
+                            # Continue with next tool
+
+                except Exception as match_phase_err:
+                    log_error("agent_core", f"Tool matching phase failed: {match_phase_err}")
+                    # Continue with response
+
+                # PHASE 2: Tool Execution with error isolation
+                if matching_tools:
+                    tool_results: List[Dict[str, Any]] = []
+
+                    for tool_name, tool in matching_tools:
+                        try:
+                            exec_result: Any = tool.execute(command)
+                            if inspect.isawaitable(exec_result):
+                                exec_result = await exec_result
+
+                            tool_results.append({
                                 "tool": tool_name,
                                 "result": exec_result,
                                 "success": True
-                            }
-                        )
-                        self.logger.info(
-                            f"Tool {tool_name} executed successfully"
-                        )
+                            })
+                            log_info("agent_core", f"Tool {tool_name} executed successfully")
 
-                    except Exception as e:
-                        self.logger.error(
-                            f"Tool {tool_name} execution failed: {e}"
-                        )
-                        tool_results.append(
-                            {
+                        except Exception as exec_err:
+                            log_error("agent_core", f"Tool {tool_name} execution failed: {exec_err}",
+                                     exception=exec_err)
+                            tool_results.append({
                                 "tool": tool_name,
-                                "error": str(e),
+                                "error": str(exec_err),
                                 "success": False
-                            }
-                        )
+                            })
 
-                response["tools"] = tool_results
-                response["response"] = (
-                    f"Executed {len(tool_results)} tools for: {command}"
-                )
+                    response["tools"] = tool_results
+                    response["response"] = (
+                        f"Executed {len([t for t in tool_results if t['success']])} of {len(tool_results)} tools"
+                    )
+                    response["tool_count"] = len(matching_tools)
 
-            return response
+                # Log performance and complete
+                processing_time = datetime.now().timestamp() - processing_start
+                log_ai_decision("agent_core", "Command processing completed",
+                               ai_model="agent_core",
+                               confidence_score=1.0 if response["success"] else 0.5,
+                               reasoning=f"Processed with {len(matching_tools)} tools in {processing_time:.3f}s")
 
-        except Exception as e:
-            self.logger.error(f"Command processing failed: {e}")
+                response["processing_time_seconds"] = processing_time
+
+                # Record in command history
+                self.command_history.add(command, response, success=response.get("success", True))
+
+                return response
+
+        except AsyncError as async_err:
+            error_time = datetime.now().timestamp() - processing_start
+            log_error("agent_core", f"Async error during command processing: {async_err.message}",
+                     extra=async_err.to_dict())
             return {
                 "command": command,
-                "error": str(e),
+                "error": async_err.message,
+                "error_type": "async_error",
                 "success": False,
                 "timestamp": str(datetime.now()),
+                "processing_time_seconds": error_time,
+            }
+        except ValidationError as val_err:
+            error_time = datetime.now().timestamp() - processing_start
+            log_error("agent_core", f"Validation error: {val_err.message}",
+                     extra=val_err.to_dict())
+            return {
+                "command": command,
+                "error": val_err.message,
+                "error_type": "validation_error",
+                "success": False,
+                "timestamp": str(datetime.now()),
+                "processing_time_seconds": error_time,
+            }
+        except Exception as proc_err:
+            error_time = datetime.now().timestamp() - processing_start
+            error_msg = f"Unexpected error during command processing: {str(proc_err)}"
+            log_error("agent_core", error_msg, exception=proc_err)
+            return {
+                "command": command,
+                "error": error_msg,
+                "error_type": type(proc_err).__name__,
+                "success": False,
+                "timestamp": str(datetime.now()),
+                "processing_time_seconds": error_time,
             }
 
     async def maintain_ultron_identity(self) -> bool:

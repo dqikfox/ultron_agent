@@ -1,0 +1,17 @@
+{
+  "name": "debug_assistant",
+  "description": "Debug and fix code",
+  "data": {
+    "nodes": [
+      {"id": "input", "type": "ChatInput", "position": {"x": 0, "y": 0}},
+      {"id": "prompt", "type": "Prompt", "position": {"x": 300, "y": 0}, "data": {"template": "Debug this code/error:\n\n{input}\n\nProvide:\n1. Root cause analysis\n2. Fixed code\n3. Explanation\n4. Prevention tips\n\nOutput: Fixed code first, then explanation."}},
+      {"id": "ollama", "type": "OllamaModel", "position": {"x": 600, "y": 0}, "data": {"model_name": "qwen2.5-coder:1.5b", "base_url": "http://localhost:11434"}},
+      {"id": "output", "type": "ChatOutput", "position": {"x": 900, "y": 0}}
+    ],
+    "edges": [
+      {"source": "input", "target": "prompt"},
+      {"source": "prompt", "target": "ollama"},
+      {"source": "ollama", "target": "output"}
+    ]
+  }
+}

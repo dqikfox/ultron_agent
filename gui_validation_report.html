@@ -1,0 +1,569 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ULTRON GUI Validation Report</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { margin: 10px 0 0 0; opacity: 0.9; }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .summary-card h3 { margin: 0 0 10px 0; color: #667eea; }
+        .summary-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .section {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background: #1e1e1e;
+            color: #667eea;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #667eea;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #404040;
+        }
+        tr:hover { background: #353535; }
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .status-pass { background: #27ae60; color: white; }
+        .status-fail { background: #e74c3c; color: white; }
+        .status-warning { background: #f39c12; color: white; }
+        .status-skip { background: #95a5a6; color: white; }
+        .link-list {
+            list-style: none;
+            padding: 0;
+        }
+        .link-list li {
+            padding: 8px;
+            margin-bottom: 8px;
+            background: #1e1e1e;
+            border-radius: 4px;
+            border-left: 3px solid #e74c3c;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #404040;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 ULTRON GUI Validation Report</h1>
+            <p>Generated: 2025-11-03T15:56:20.964106</p>
+            <p>Status: <strong>FAIL</strong></p>
+        </div>
+
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Links</h3>
+                <div class="value">20</div>
+            </div>
+            <div class="summary-card">
+                <h3>✅ Passing</h3>
+                <div class="value" style="color: #27ae60;">
+                    11
+                </div>
+            </div>
+            <div class="summary-card">
+                <h3>❌ Failing</h3>
+                <div class="value" style="color: #e74c3c;">
+                    8
+                </div>
+            </div>
+            <div class="summary-card">
+                <h3>⚠️ Warnings</h3>
+                <div class="value" style="color: #f39c12;">
+                    0
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Link Status Breakdown</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            styles.css...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>styles.css</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            https://fonts.googleapis.com/css2?family=Orbitron:wght@400;7...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socke...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-ch...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            assets/sounds.js...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>assets/sounds.js</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            app.js...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            comprehensive_test.js...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>comprehensive_test.js</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            manual_test.js...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>manual_test.js</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            enhanced_ultron.js...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>enhanced_ultron.js</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            https://unpkg.com/@elevenlabs/convai-widget-embed...
+                        </td>
+                        <td>external</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            assets/favicon.png...
+                        </td>
+                        <td>favicon</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            assets/favicon.ico...
+                        </td>
+                        <td>favicon</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            assets/wake.wav...
+                        </td>
+                        <td>audio</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            assets/button_press.wav...
+                        </td>
+                        <td>audio</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            assets/confirm.wav...
+                        </td>
+                        <td>audio</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            http://localhost:8002...
+                        </td>
+                        <td>local_api</td>
+                        <td>
+                            <span class="status status-skip">
+                                SKIP
+                            </span>
+                        </td>
+                        <td>Localhost URL skipped (requires running services)</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            http://localhost:5000/health...
+                        </td>
+                        <td>api</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>Cannot connect to host localhost:5000 ssl:default [The remote computer refused the network connection]</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            http://localhost:8080/health...
+                        </td>
+                        <td>api</td>
+                        <td>
+                            <span class="status status-fail">
+                                FAIL
+                            </span>
+                        </td>
+                        <td>Cannot connect to host localhost:8080 ssl:default [The remote computer refused the network connection]</td>
+                    </tr>
+
+                    <tr>
+                        <td style="word-break: break-all; font-size: 12px;">
+                            http://localhost:11434/api/tags...
+                        </td>
+                        <td>api</td>
+                        <td>
+                            <span class="status status-pass">
+                                PASS
+                            </span>
+                        </td>
+                        <td>None</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Function Status</h2>
+            <p>Total Functions Checked: 13</p>
+            <p>✅ Defined: 10</p>
+            <p>❌ Not Found: 3</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Function Name</th>
+                        <th>Status</th>
+                        <th>File</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>init</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>cacheDomReferences</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>setupEventListeners</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>switchSection</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>loadSystemInfo</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>executeCommand</td>
+                        <td>
+                            <span class="status status-not_found">
+                                NOT_FOUND
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>speak</td>
+                        <td>
+                            <span class="status status-not_found">
+                                NOT_FOUND
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>testTTS</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>toggleVoiceChat</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>loadToolsGrid</td>
+                        <td>
+                            <span class="status status-not_found">
+                                NOT_FOUND
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>renderDashboardSnapshot</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>updateClock</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                    <tr>
+                        <td>handleStartupAnnouncement</td>
+                        <td>
+                            <span class="status status-defined">
+                                DEFINED
+                            </span>
+                        </td>
+                        <td>app.js</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>ULTRON GUI Validation Suite - Production Quality Assurance</p>
+        </div>
+    </div>
+</body>
+</html>

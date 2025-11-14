@@ -1,0 +1,20 @@
+{
+  "name": "ultron-web-app",
+  "framework": "react",
+  "backend": {
+    "auth": {
+      "cognito": true
+    },
+    "api": {
+      "graphql": true
+    },
+    "storage": {
+      "s3": true
+    }
+  },
+  "frontend": {
+    "buildCommand": "npm run build",
+    "startCommand": "npm start",
+    "outputDirectory": "build"
+  }
+}
