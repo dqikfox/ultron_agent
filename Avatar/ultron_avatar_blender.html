@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Agent 3D Avatar - Blender Model</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            overflow: hidden;
+            color: #00ff41;
+        }
+
+        #avatar-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #canvas-3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 250px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .controls-panel h2 {
+            color: #00ff41;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            color: #00ff41;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .control-group button {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        .control-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .status-display {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .status-item span:first-child {
+            color: #00ff41;
+        }
+
+        .status-item span:last-child {
+            color: #fff;
+        }
+
+        .avatar-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 15px 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .avatar-title h1 {
+            color: #00ff41;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .avatar-title p {
+            color: #fff;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff41;
+            font-size: 24px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 255, 65, 0.1);
+            border-top: 4px solid #00ff41;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 255, 65, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00ff41;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div id="avatar-container">
+        <canvas id="canvas-3d"></canvas>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">LOADING ULTRON MODEL...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="avatar-title" style="display:none;" id="title-panel">
+            <h1>ULTRON AGENT 3.0</h1>
+            <p>Blender Model Viewer</p>
+        </div>
+
+        <div class="controls-panel" style="display:none;" id="controls-panel">
+            <h2>🎮 Controls</h2>
+
+            <div class="control-group">
+                <label>Rotation Speed:</label>
+                <input type="range" id="rotation-speed" min="0" max="2" step="0.1" value="0.5">
+            </div>
+
+            <div class="control-group">
+                <label>Zoom:</label>
+                <input type="range" id="zoom-level" min="1" max="10" step="0.5" value="5">
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarViewer.toggleRotation()">⏯️ Toggle Rotation</button>
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarViewer.toggleWireframe()">🔲 Toggle Wireframe</button>
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarViewer.resetView()">📷 Reset View</button>
+            </div>
+
+            <div class="control-group">
+                <button onclick="avatarViewer.switchLight()">💡 Cycle Lighting</button>
+            </div>
+        </div>
+
+        <div class="status-display" style="display:none;" id="status-panel">
+            <div class="status-item">
+                <span>MODEL:</span>
+                <span id="status-model">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span>VERTICES:</span>
+                <span id="status-verts">0</span>
+            </div>
+            <div class="status-item">
+                <span>FACES:</span>
+                <span id="status-faces">0</span>
+            </div>
+            <div class="status-item">
+                <span>MATERIALS:</span>
+                <span id="status-materials">0</span>
+            </div>
+            <div class="status-item">
+                <span>FPS:</span>
+                <span id="status-fps">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        class UltronAvatarViewer {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.model = null;
+                this.mixer = null;
+                this.clock = new THREE.Clock();
+                this.isRotating = true;
+                this.rotationSpeed = 0.5;
+                this.currentLighting = 0;
+                this.frameCount = 0;
+                this.lastFPSUpdate = 0;
+
+                this.init();
+            }
+
+            init() {
+                // Setup scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x0a0a0a);
+                this.scene.fog = new THREE.Fog(0x0a0a0a, 10, 50);
+
+                // Setup camera
+                this.camera = new THREE.PerspectiveCamera(
+                    75,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000
+                );
+                this.camera.position.set(0, 2, 5);
+
+                // Setup renderer
+                const canvas = document.getElementById('canvas-3d');
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: canvas,
+                    antialias: true,
+                    alpha: true
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                // Setup controls
+                this.controls = new THREE.OrbitControls(this.camera, canvas);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.minDistance = 2;
+                this.controls.maxDistance = 20;
+
+                // Add lights
+                this.setupLights();
+
+                // Add grid
+                this.addGrid();
+
+                // Load model
+                this.loadModel();
+
+                // Event listeners
+                window.addEventListener('resize', () => this.onWindowResize());
+                document.getElementById('rotation-speed').addEventListener('input', (e) => {
+                    this.rotationSpeed = parseFloat(e.target.value);
+                });
+                document.getElementById('zoom-level').addEventListener('input', (e) => {
+                    const zoom = parseFloat(e.target.value);
+                    this.camera.position.setLength(zoom);
+                });
+
+                // Start animation loop
+                this.animate();
+            }
+
+            setupLights() {
+                // Ambient light
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+                ambientLight.name = 'ambient';
+                this.scene.add(ambientLight);
+
+                // Key light (ULTRON green)
+                const keyLight = new THREE.DirectionalLight(0x00ff41, 1);
+                keyLight.position.set(5, 10, 5);
+                keyLight.castShadow = true;
+                keyLight.name = 'key';
+                this.scene.add(keyLight);
+
+                // Fill light
+                const fillLight = new THREE.DirectionalLight(0x4169e1, 0.5);
+                fillLight.position.set(-5, 5, -5);
+                fillLight.name = 'fill';
+                this.scene.add(fillLight);
+
+                // Rim light
+                const rimLight = new THREE.DirectionalLight(0x00ffff, 0.6);
+                rimLight.position.set(0, 5, -10);
+                rimLight.name = 'rim';
+                this.scene.add(rimLight);
+            }
+
+            addGrid() {
+                const gridHelper = new THREE.GridHelper(20, 20, 0x00ff41, 0x1a1a2e);
+                gridHelper.material.opacity = 0.3;
+                gridHelper.material.transparent = true;
+                this.scene.add(gridHelper);
+            }
+
+            loadModel() {
+                const loader = new THREE.GLTFLoader();
+                const modelPath = 'ultron_model.glb';
+
+                loader.load(
+                    modelPath,
+                    (gltf) => this.onModelLoaded(gltf),
+                    (xhr) => this.onProgress(xhr),
+                    (error) => this.onError(error)
+                );
+            }
+
+            onModelLoaded(gltf) {
+                this.model = gltf.scene;
+
+                // Center and scale model
+                const box = new THREE.Box3().setFromObject(this.model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 3 / maxDim;
+                this.model.scale.setScalar(scale);
+
+                this.model.position.sub(center.multiplyScalar(scale));
+                this.model.position.y = 0;
+
+                // Enable shadows
+                this.model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                // Add animations if available
+                if (gltf.animations && gltf.animations.length > 0) {
+                    this.mixer = new THREE.AnimationMixer(this.model);
+                    gltf.animations.forEach((clip) => {
+                        this.mixer.clipAction(clip).play();
+                    });
+                }
+
+                this.scene.add(this.model);
+
+                // Update status
+                this.updateModelStats();
+
+                // Hide loading, show UI
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('title-panel').style.display = 'block';
+                document.getElementById('controls-panel').style.display = 'block';
+                document.getElementById('status-panel').style.display = 'block';
+
+                document.getElementById('status-model').textContent = 'Loaded ✓';
+            }
+
+            onProgress(xhr) {
+                if (xhr.lengthComputable) {
+                    const percentComplete = (xhr.loaded / xhr.total) * 100;
+                    document.getElementById('progress-fill').style.width = percentComplete + '%';
+                    document.getElementById('loading-text').textContent =
+                        `LOADING... ${Math.round(percentComplete)}%`;
+                }
+            }
+
+            onError(error) {
+                console.error('Model loading error:', error);
+                document.getElementById('loading-text').innerHTML =
+                    `❌ ERROR LOADING MODEL<br><small>Make sure ultron_model.glb exists<br>Run export_to_web.py in Blender first!</small>`;
+                document.getElementById('loading-spinner').style.display = 'none';
+            }
+
+            updateModelStats() {
+                if (!this.model) return;
+
+                let vertices = 0;
+                let faces = 0;
+                let materials = new Set();
+
+                this.model.traverse((child) => {
+                    if (child.isMesh) {
+                        vertices += child.geometry.attributes.position.count;
+                        faces += child.geometry.index ? child.geometry.index.count / 3 : vertices / 3;
+                        materials.add(child.material.uuid);
+                    }
+                });
+
+                document.getElementById('status-verts').textContent = vertices.toLocaleString();
+                document.getElementById('status-faces').textContent = Math.floor(faces).toLocaleString();
+                document.getElementById('status-materials').textContent = materials.size;
+            }
+
+            toggleRotation() {
+                this.isRotating = !this.isRotating;
+            }
+
+            toggleWireframe() {
+                if (!this.model) return;
+
+                this.model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.wireframe = !child.material.wireframe;
+                    }
+                });
+            }
+
+            resetView() {
+                this.camera.position.set(0, 2, 5);
+                this.controls.target.set(0, 0, 0);
+                this.controls.update();
+            }
+
+            switchLight() {
+                this.currentLighting = (this.currentLighting + 1) % 3;
+
+                const key = this.scene.getObjectByName('key');
+                const fill = this.scene.getObjectByName('fill');
+                const rim = this.scene.getObjectByName('rim');
+
+                switch(this.currentLighting) {
+                    case 0: // Standard ULTRON green
+                        key.color.setHex(0x00ff41);
+                        fill.color.setHex(0x4169e1);
+                        rim.color.setHex(0x00ffff);
+                        break;
+                    case 1: // Blue theme
+                        key.color.setHex(0x4169e1);
+                        fill.color.setHex(0x00ffff);
+                        rim.color.setHex(0x1e90ff);
+                        break;
+                    case 2: // Red alert
+                        key.color.setHex(0xff0000);
+                        fill.color.setHex(0xff4500);
+                        rim.color.setHex(0xffff00);
+                        break;
+                }
+            }
+
+            updateFPS() {
+                this.frameCount++;
+                const now = performance.now();
+
+                if (now >= this.lastFPSUpdate + 1000) {
+                    const fps = Math.round((this.frameCount * 1000) / (now - this.lastFPSUpdate));
+                    document.getElementById('status-fps').textContent = fps;
+                    this.frameCount = 0;
+                    this.lastFPSUpdate = now;
+                }
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                const delta = this.clock.getDelta();
+
+                // Update animations
+                if (this.mixer) {
+                    this.mixer.update(delta);
+                }
+
+                // Auto-rotate
+                if (this.isRotating && this.model) {
+                    this.model.rotation.y += 0.01 * this.rotationSpeed;
+                }
+
+                // Update controls
+                this.controls.update();
+
+                // Update FPS
+                this.updateFPS();
+
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        // Initialize viewer
+        let avatarViewer;
+        window.addEventListener('DOMContentLoaded', () => {
+            avatarViewer = new UltronAvatarViewer();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "response": " I'm sorry, but your message does not contain enough information for me to provide a meaningful response. Please rephrase or provide more context so that I can assist you better. ",
+  "model": "llava:7b",
+  "tts_enabled": false,
+  "preferred_model": "llava:7b",
+  "preferred_available": true
+}

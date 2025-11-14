@@ -8,6 +8,7 @@ import logging
 import os
 import sqlite3
 import json
+import re
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 from pathlib import Path
@@ -108,6 +109,16 @@ class DatabaseTool:
         except Exception as e:
             log_error("database_tool", f"Database initialization failed: {e}")
 
+    def _get_table_columns(self, table: str) -> List[str]:
+        """Get valid columns for a table - used for input validation"""
+        table_columns = {
+            'conversations': ['id', 'timestamp', 'user_input', 'ai_response', 'context', 'metadata'],
+            'memory_items': ['id', 'timestamp', 'key', 'value', 'category', 'importance', 'expires_at'],
+            'tasks': ['id', 'timestamp', 'title', 'description', 'status', 'priority', 'due_date', 'metadata'],
+            'analytics': ['id', 'timestamp', 'event_type', 'event_data', 'session_id', 'user_id']
+        }
+        return table_columns.get(table, [])
+
     def _create_default_tables(self):
         """Create default tables for ULTRON data storage"""
         try:
@@ -171,17 +182,30 @@ class DatabaseTool:
             log_error("database_tool", f"Table creation failed: {e}")
 
     def store_data(self, table: str, data: Dict[str, Any]) -> str:
-        """Store data in the specified table"""
+        """Store data in the specified table with SQL injection protection"""
         try:
+            # ⚠️ SECURITY: Validate table name to prevent SQL injection
+            allowed_tables = {'conversations', 'memory_items', 'tasks', 'analytics'}
+            if table not in allowed_tables:
+                log_error("database_tool", f"Invalid table name: {table}")
+                return f"❌ Invalid table name: '{table}'. Allowed: {allowed_tables}"
+
             cursor = self.connection.cursor()
 
             # Add timestamp if not present
             if 'timestamp' not in data:
                 data['timestamp'] = datetime.now().isoformat()
 
-            columns = ', '.join(data.keys())
-            placeholders = ', '.join(['?' for _ in data])
-            values = list(data.values())
+            # ⚠️ SECURITY: Sanitize column names to prevent SQL injection
+            valid_columns = set(self._get_table_columns(table))
+            sanitized_data = {k: v for k, v in data.items() if k in valid_columns}
+
+            if not sanitized_data:
+                return "❌ No valid columns provided"
+
+            columns = ', '.join(sanitized_data.keys())
+            placeholders = ', '.join(['?' for _ in sanitized_data])
+            values = list(sanitized_data.values())
 
             query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
 
@@ -196,19 +220,29 @@ class DatabaseTool:
             return f"Data storage failed: {str(e)}"
 
     def query_data(self, query: str) -> str:
-        """Execute a SELECT query and return results"""
+        """Execute a SELECT query and return results - WITH SQL INJECTION PROTECTION"""
         try:
             cursor = self.connection.cursor()
 
-            # Basic safety check - only allow SELECT queries
-            if not query.strip().upper().startswith('SELECT'):
-                return "Only SELECT queries are allowed for security"
+            # ⚠️ SECURITY: Only allow SELECT queries - STRICT VALIDATION
+            query_upper = query.strip().upper()
+            if not query_upper.startswith('SELECT'):
+                log_error("database_tool", f"Rejected non-SELECT query: {query[:50]}")
+                return "❌ Only SELECT queries are allowed for security reasons"
 
+            # ⚠️ SECURITY: Prevent dangerous SQL keywords in SELECT queries
+            dangerous_keywords = ['DROP', 'DELETE', 'INSERT', 'UPDATE', 'ALTER', 'EXEC', 'EXECUTE']
+            for keyword in dangerous_keywords:
+                if f' {keyword} ' in f' {query_upper} ':
+                    log_error("database_tool", f"Rejected query with dangerous keyword: {keyword}")
+                    return f"❌ Query contains forbidden keyword: {keyword}"
+
+            # Execute the query safely
             cursor.execute(query)
             rows = cursor.fetchall()
 
             if not rows:
-                return "No data found matching the query"
+                return "ℹ️ No data found matching the query"
 
             # Convert to list of dicts
             columns = [desc[0] for desc in cursor.description]
@@ -232,11 +266,12 @@ class DatabaseTool:
 
                 result_text += f"\n**... and {len(results) - 5} more rows**\n"
 
+            log_info("database_tool", f"Query executed successfully: {len(results)} rows")
             return result_text
 
         except Exception as e:
             log_error("database_tool", f"Query execution failed: {e}")
-            return f"Query execution failed: {str(e)}"
+            return f"❌ Query execution failed: {str(e)}"
 
     def create_table(self, table_definition: str) -> str:
         """Create a new table"""

@@ -1,0 +1,165 @@
+{
+    "editor.inlineSuggest.enabled": true,
+    "editor.suggest.preview": true,
+    "http.proxySupport": "override",
+    "http.systemCertificates": true,
+    "search.followSymlinks": false,
+
+    // PERFORMANCE: Enhanced file watcher exclusions
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/.git-rewrite/**": true,
+        "**/node_modules/**": true,
+        "**/venv/**": true,
+        "**/.venv/**": true,
+        "**/.venv-1/**": true,
+        "**/__pycache__/**": true,
+        "**/logs/**": true,
+        "**/cache/**": true,
+        "**/.cache/**": true,
+        "**/screenshots/**": true,
+        "**/htmlcov/**": true,
+        "**/repomix_output/**": true,
+        "**/*.png": true,
+        "**/*.jpg": true,
+        "**/*.jpeg": true,
+        "**/*.mp3": true,
+        "**/resources/agent workspaces/**": true,
+        "**/ultron_addons/**": true,
+        "**/Oracle_JDK-24/**": true,
+        "**/react/ollama/**": true,
+        "**/pokedex-portfolio/node_modules/**": true,
+        "**/assistant/ai-assistant/node_modules/**": true
+    },
+
+    // PERFORMANCE: Add search exclusions
+    "search.exclude": {
+        "**/logs/**": true,
+        "**/cache/**": true,
+        "**/screenshots/**": true,
+        "**/htmlcov/**": true,
+        "**/repomix_output/**": true,
+        "**/.venv/**": true,
+        "**/node_modules/**": true,
+        "**/__pycache__/**": true,
+        "**/Oracle_JDK-24/**": true
+    },
+
+    // PERFORMANCE: Optimized TypeScript memory (reduced from 4GB to 2GB)
+    "typescript.preferences.maxTsServerMemory": 2048,
+    "typescript.tsserver.maxTsServerMemory": 2048,
+
+    // PERFORMANCE: Enable Python AST caching for faster IntelliSense
+    "python.analysis.memory.keepLibraryAst": true,
+
+    // PERFORMANCE: Disable Python indexing for large projects
+    "python.analysis.indexing": false,
+
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": true,
+        "markdown": true,
+        "python": true,
+        "javascript": true,
+        "typescript": true,
+        "json": true,
+        "yaml": true,
+        "html": true,
+        "css": true,
+        "sql": true,
+        "shellscript": true
+    },
+    "github.copilot.chat.enabled": true,
+    "github.copilot.inlineSuggest.enable": true,
+    "github.copilot.editor.enableAutoCompletions": true,
+
+    "amazonQ.telemetry": true,
+    "amazonQ.shareCodeWhispererContentWithAWS": false,
+    "ai-toolkit.enabled": true,
+    "CodeGPT.enabled": false,
+
+    "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.formatting.provider": "black",
+    "python.analysis.autoImportCompletions": true,
+    "python.terminal.useEnvFile": true,
+
+    "editor.formatOnSave": false,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "editor.minimap.enabled": false,
+    "editor.codeLens": false,
+
+    // PERFORMANCE: Reduced hover delay from 1000ms to 400ms
+    "editor.hover.delay": 400,
+
+    "chat.agent.maxRequests": 10000,
+
+    "files.readonlyInclude": {
+        "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true,
+        "**/logs/**": true
+    },
+
+    "python-envs.pythonProjects": [
+        {
+            "path": "",
+            "envManager": "ms-python.python:system",
+            "packageManager": "ms-python.python:pip"
+        }
+    ],
+
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        ".",
+        "-p",
+        "*test.py"
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": true,
+    "github.copilot.nextEditSuggestions.enabled": true,
+
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+
+    "amazonQ.suppressPrompts": {
+        "createCredentialsProfile": true,
+        "codeWhispererNewWelcomeMessage": true,
+        "codeWhispererConnectionExpired": true,
+        "amazonQWelcomePage": true,
+        "amazonQSessionConfigurationMessage": true,
+        "minIdeVersion": true,
+        "ssoCacheError": true,
+        "amazonQLspManifestMessage": true,
+        "amazonQWorkspaceLspManifestMessage": true,
+        "amazonQChatDisclaimer": true,
+        "amazonQChatPairProgramming": true,
+        "amazonQSelectDeveloperProfile": true
+    },
+
+    "amazonQ.allowFeatureDevelopmentToRunCodeAndTests": true,
+    "amazonQ.autoApproveCommands": true,
+    "amazonQ.autoApproveFileChanges": true,
+    "amazonQ.confirmBeforeRunningCommands": false,
+    "amazonQ.allowFullFileSystemAccess": true,
+    "amazonQ.allowWriteAccess": true,
+    "amazonQ.allowAdminAccess": true,
+    "amazonQ.allowCodeExecution": true,
+    "amazonQ.allowTerminalAccess": true,
+
+    // PERFORMANCE: Disabled auto-run on startup
+    "amazonQ.autoRun": {
+        "enabled": false,
+        "commands": [],
+        "runOnStartup": false,
+        "delaySeconds": 3
+    },
+
+    "task.autoDetect": "on",
+    "task.quickOpen.history": 10,
+    "task.slowProviderWarning": false,
+    "workbench.action.tasks.runTask": "Amazon Q Auto-Run",
+    "chatgpt.runCodexInWindowsSubsystemForLinux": true
+}

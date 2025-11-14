@@ -316,9 +316,12 @@ function runAllTests() {
     console.log('✅ GUI testing completed!');
 }
 
+// DISABLED: Auto-run tests are disabled to prevent unwanted power menu opening
 // Auto-run tests when script loads
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runAllTests);
-} else {
-    runAllTests();
-}
+// if (document.readyState === 'loading') {
+//     document.addEventListener('DOMContentLoaded', runAllTests);
+// } else {
+//     runAllTests();
+// }
+
+// Tests can now be manually triggered from browser console with: runAllTests()

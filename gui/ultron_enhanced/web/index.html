@@ -3,15 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>ULTRON Aether Nexus</title>
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/advanced-styles.css">
+    <link rel="stylesheet" href="css/ultra-styles.css">
+    <link rel="stylesheet" href="css/nexus-styles.css">
+    <link rel="stylesheet" href="css/omega-styles.css">
+    <link rel="stylesheet" href="css/premium-visuals.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body class="ultron-steampunk">
+    <!-- Langflow AI Coder Widget (Top Priority) -->
+    <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.7/dist/build/static/js/bundle.min.js"></script>
+    <langflow-chat
+        window_title="ULTRON Coder"
+        flow_id="92c810b5-4829-4466-9ff1-7ad19b694435"
+        host_url="http://localhost:7860">
+    </langflow-chat>
+
     <div class="ambient-overlay"></div>
     <div class="ambient-overlay secondary"></div>
     <div class="floating-gear gear-left"></div>
@@ -158,7 +174,7 @@
                                     <span class="nav-icon">🤖</span>
                                     <span class="nav-label">AUTOGEN</span>
                                 </button>
-                                <button class="nav-button" data-section="assistant" role="tab" aria-selected="false" aria-controls="assistant-section" tabindex="-1" onclick="window.open('http://localhost:5173', '_blank')">
+                                <button class="nav-button" data-section="assistant" role="tab" aria-selected="false" aria-controls="assistant-section" tabindex="-1" onclick="window.open('http://localhost:8002', '_blank')">
                                     <span class="nav-icon">🤖</span>
                                     <span class="nav-label">AI CHAT</span>
                                 </button>
@@ -178,6 +194,26 @@
                                     <span class="nav-icon">🎨</span>
                                     <span class="nav-label">AI ART</span>
                                 </button>
+                                <button class="nav-button" data-section="autonomous" role="tab" aria-selected="false" aria-controls="autonomous-section" tabindex="-1">
+                                    <span class="nav-icon">🧠</span>
+                                    <span class="nav-label">AUTONOMOUS</span>
+                                </button>
+                                <button class="nav-button" data-section="game" role="tab" aria-selected="false" aria-controls="game-section" tabindex="-1" onclick="window.open('ultron_avatar_game.html', '_blank')">
+                                    <span class="nav-icon">🎮</span>
+                                    <span class="nav-label">GAME</span>
+                                </button>
+                                <button class="nav-button" data-section="adb" role="tab" aria-selected="false" aria-controls="adb-section" tabindex="-1" onclick="window.open('adb.html', '_blank')">
+                                    <span class="nav-icon">📱</span>
+                                    <span class="nav-label">ADB MGR</span>
+                                </button>
+                                <button class="nav-button" data-section="langflow" role="tab" aria-selected="false" aria-controls="langflow-section" tabindex="-1">
+                                    <span class="nav-icon">💻</span>
+                                    <span class="nav-label">CODER</span>
+                                </button>
+                                <button class="nav-button" data-section="ai-rpg" role="tab" aria-selected="false" aria-controls="ai-rpg-section" tabindex="-1" onclick="window.open('ultron-ai-simulator.html', '_blank')">
+                                    <span class="nav-icon">🎮</span>
+                                    <span class="nav-label">AI RPG</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -187,7 +223,6 @@
                         <div class="screen-border">
                             <div class="screen-content">
 
-                                <!-- Console Section -->
                                 <!-- Dashboard Section -->
                                 <section id="dashboard-section" class="section-content active" role="tabpanel" aria-labelledby="dashboard-tab" aria-hidden="false">
                                     <h2 class="section-title">AETHER OPERATIONS MATRIX</h2>
@@ -228,6 +263,18 @@
                                                 <div class="metric-value" id="dashboard-network">--</div>
                                             </div>
                                         </div>
+                                        <div class="dashboard-card trends-card">
+                                            <div class="dashboard-card-header">
+                                                <span>Performance Trends</span>
+                                                <span id="trend-window-label" class="trend-window-label">Awaiting samples…</span>
+                                            </div>
+                                            <canvas id="performance-chart" width="360" height="140" role="img" aria-label="CPU, memory, and disk trend visualization"></canvas>
+                                            <div class="trend-legend" role="list">
+                                                <span class="legend-item" role="listitem"><span class="legend-dot cpu"></span>CPU</span>
+                                                <span class="legend-item" role="listitem"><span class="legend-dot memory"></span>Memory</span>
+                                                <span class="legend-item" role="listitem"><span class="legend-dot disk"></span>Disk</span>
+                                            </div>
+                                        </div>
                                         <div class="dashboard-card activity-card">
                                             <div class="dashboard-card-header">
                                                 <span>Recent Activity</span>
@@ -247,6 +294,28 @@
                                         <div class="message system-message">
                                             <span class="timestamp">[00:00:00]</span>
                                             <span class="message-content">⚙️ Aether Nexus Online</span>
+                                        </div>
+                                    </div>
+                                    <div class="quick-commands-panel" aria-label="Quick command shortcuts and contextual help">
+                                        <div class="quick-commands-header">
+                                            <span class="panel-title">Quick Commands</span>
+                                            <button id="copy-dashboard-summary" class="copy-snapshot-btn" type="button" aria-label="Copy the latest status snapshot to clipboard">
+                                                Copy Status Snapshot
+                                            </button>
+                                        </div>
+                                        <div class="quick-commands-grid" role="group" aria-label="Common Ultron commands">
+                                            <button type="button" class="quick-command-chip" data-quick-command="status">System Status</button>
+                                            <button type="button" class="quick-command-chip" data-quick-command="help">Available Commands</button>
+                                            <button type="button" class="quick-command-chip" data-quick-command="capture">Capture Screen</button>
+                                            <button type="button" class="quick-command-chip" data-quick-command="analyze">Analyze Vision</button>
+                                            <button type="button" class="quick-command-chip" data-quick-command="theme blue">Switch Theme</button>
+                                            <button type="button" class="quick-command-chip" data-quick-command="theme high-contrast">High Contrast</button>
+                                        </div>
+                                        <div class="command-hints" aria-live="polite" aria-atomic="true">
+                                            <div class="command-hints-title">Contextual Tips</div>
+                                            <ul id="command-hints-list" class="command-hints-list">
+                                                <li class="command-hint">Hints will appear here after telemetry loads.</li>
+                                            </ul>
                                         </div>
                                     </div>
                                     <div class="console-input-container">
@@ -287,6 +356,42 @@
                                             <div class="card-value connection-status" id="network-status" aria-live="polite" aria-label="Network connection status">CONNECTED</div>
                                         </div>
                                     </div>
+
+                                    <!-- SSH Server Control Section -->
+                                    <div class="service-controls" role="region" aria-label="Service Controls">
+                                        <div class="list-title">SERVICE MANAGEMENT</div>
+                                        <div class="ssh-control-panel">
+                                            <div class="ssh-status-card">
+                                                <div class="card-header">
+                                                    <span class="service-icon">🔒</span>
+                                                    <span class="service-name">SSH REVERSE TUNNEL</span>
+                                                    <span class="ssh-status-indicator" id="ssh-status-indicator" aria-live="polite">●</span>
+                                                </div>
+                                                <div class="ssh-info">
+                                                    <div class="ssh-connection-info" id="ssh-connection-info">
+                                                        Port: <span id="ssh-port">2222</span> |
+                                                        Status: <span id="ssh-status-text">CHECKING...</span>
+                                                    </div>
+                                                    <div class="ssh-connect-command" id="ssh-connect-command">
+                                                        <code>ssh -p 2222 user@192.168.1.104</code>
+                                                        <button class="copy-btn" id="copy-ssh-command" title="Copy SSH command">📋</button>
+                                                    </div>
+                                                </div>
+                                                <div class="ssh-controls">
+                                                    <button class="control-btn ssh-start-btn" id="ssh-start-btn" aria-label="Start SSH server">
+                                                        ▶️ START
+                                                    </button>
+                                                    <button class="control-btn ssh-stop-btn" id="ssh-stop-btn" aria-label="Stop SSH server">
+                                                        ⏹️ STOP
+                                                    </button>
+                                                    <button class="control-btn ssh-restart-btn" id="ssh-restart-btn" aria-label="Restart SSH server">
+                                                        🔄 RESTART
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="process-list" id="process-list" role="region" aria-label="Running processes">
                                         <div class="list-title">RUNNING PROCESSES</div>
                                         <div class="process-content">Loading processes...</div>
@@ -294,18 +399,40 @@
                                 </section>
 
                                 <!-- Vision Section -->
-                                <div id="vision-section" class="section-content">
-                                    <div class="section-title">OPTICAL ARRAY</div>
-                                    <div class="vision-controls">
-                                        <button class="vision-btn" id="capture-btn">📷 CAPTURE</button>
-                                        <button class="vision-btn" id="analyze-btn">🔍 ANALYZE</button>
-                                    </div>
-                                    <div class="vision-display" id="vision-display">
-                                        <div class="vision-placeholder">
-                                            Ready for screen capture and analysis
+                                <section id="vision-section" class="section-content" role="tabpanel" aria-labelledby="vision-tab" aria-hidden="true">
+                                    <h2 class="section-title">ENHANCED ULTRON CONTROL</h2>
+
+                                    <div class="voice-control">
+                                        <button id="voiceBtn" class="voice-btn">🎤 Start Listening</button>
+                                        <div class="command-input">
+                                            <input type="text" id="commandInput" placeholder="Type command or use voice: 'hey ultron open chrome and search for cars'">
                                         </div>
                                     </div>
-                                </div>
+
+                                    <div class="quick-actions">
+                                        <button id="screenshotBtn" class="action-btn">📸 Enhanced Screenshot</button>
+                                        <button id="systemInfoBtn" class="action-btn">💻 System Info</button>
+                                    </div>
+
+                                    <div id="status" class="status">Ready</div>
+
+                                    <div id="results" class="results-container"></div>
+
+                                    <div class="command-history">
+                                        <h4>📜 Command History</h4>
+                                        <div id="commandHistory"></div>
+                                    </div>
+
+                                    <div class="capabilities">
+                                        <h4>🚀 System Capabilities</h4>
+                                        <div id="capabilities"></div>
+                                    </div>
+
+                                    <div class="help-section">
+                                        <h4>💡 Example Commands</h4>
+                                        <div id="exampleCommands"></div>
+                                    </div>
+                                </section>
 
                                 <!-- Tasks Section -->
                                 <div id="tasks-section" class="section-content">
@@ -515,41 +642,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Dashboard Section -->
-                                <div id="dashboard-section" class="section-content">
-                                    <div class="section-title">SYSTEM DASHBOARD</div>
-                                    <div class="dashboard-content">
-                                        <div class="dashboard-grid">
-                                            <div class="dashboard-card">
-                                                <h3>System Overview</h3>
-                                                <div class="dashboard-metrics">
-                                                    <div class="metric">
-                                                        <span class="metric-label">Status:</span>
-                                                        <span class="metric-value" id="overall-status">Loading...</span>
-                                                    </div>
-                                                    <div class="metric">
-                                                        <span class="metric-label">Agent:</span>
-                                                        <span class="metric-value" id="agent-status">Loading...</span>
-                                                    </div>
-                                                    <div class="metric">
-                                                        <span class="metric-label">Uptime:</span>
-                                                        <span class="metric-value" id="system-uptime">00:00:00</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="dashboard-card">
-                                                <h3>Quick Actions</h3>
-                                                <div class="dashboard-actions">
-                                                    <button class="action-btn" onclick="ultronInterface.loadSystemInfo()">Refresh Status</button>
-                                                    <button class="action-btn" onclick="ultronInterface.loadNvidiaStatus()">Check NVIDIA</button>
-                                                    <button class="action-btn" onclick="ultronInterface.switchSection('system')">View Details</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                </section>
 
                                 <!-- LLM Chat Section -->
                                 <section id="llm-chat-section" class="section-content" role="tabpanel" aria-labelledby="llm-chat-tab" aria-hidden="true">
@@ -639,30 +732,243 @@
                                     </div>
                                 </div>
 
-                                <!-- NVIDIA Section -->
-                                <div id="nvidia-section" class="section-content">
-                                    <div class="section-title">NVIDIA AI INTERFACE</div>
-                                    <div class="nvidia-content">
-                                        <div class="nvidia-status">
-                                            <div class="status-card">
-                                                <h3>GPU Status</h3>
-                                                <div class="nvidia-metrics" id="nvidia-metrics">
-                                                    <div class="metric">Loading NVIDIA information...</div>
-                                                </div>
+                                <!-- NVIDIA ATLAS Section -->
+                                <div id="nvidia-section" class="section-content atlas-nvidia-section">
+                                    <div class="atlas-bg-pattern"></div>
+                                    <div class="section-title atlas-title">
+                                        <span class="atlas-icon">⚡</span>
+                                        ATLAS NEURAL CORE
+                                        <span class="atlas-status-pulse"></span>
+                                    </div>
+
+                                    <!-- ATLAS Neural Grid -->
+                                    <div class="atlas-neural-grid">
+                                        <!-- Left Panel - GPU Core Status -->
+                                        <div class="atlas-panel atlas-panel-left">
+                                            <div class="atlas-panel-header">
+                                                <div class="atlas-header-glow"></div>
+                                                <span class="atlas-header-icon">🔷</span>
+                                                QUANTUM GPU CORE
                                             </div>
-                                            <div class="status-card">
-                                                <h3>Available Models</h3>
-                                                <div class="model-list" id="model-list">
-                                                    <div class="model-item">Loading models...</div>
+                                            <div class="atlas-metrics-container" id="nvidia-metrics">
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">STATUS</span>
+                                                    <span class="metric-value atlas-glow-blue">ONLINE</span>
+                                                </div>
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">POWER</span>
+                                                    <span class="metric-value atlas-glow-orange">87%</span>
+                                                </div>
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">TEMP</span>
+                                                    <span class="metric-value">65°C</span>
+                                                </div>
+                                                <div class="atlas-metric-row">
+                                                    <span class="metric-label">MEMORY</span>
+                                                    <span class="metric-value">8.2 / 12 GB</span>
+                                                </div>
+                                                <div class="atlas-energy-bar">
+                                                    <div class="energy-fill" style="width: 68%"></div>
+                                                    <div class="energy-glow"></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="nvidia-actions">
-                                            <button class="action-btn primary" onclick="ultronInterface.loadNvidiaStatus()">Refresh Status</button>
-                                            <button class="action-btn" onclick="window.open('http://localhost:5173', '_blank')">Open NVIDIA Chat</button>
+
+                                        <!-- Center Panel - Neural Models -->
+                                        <div class="atlas-panel atlas-panel-center">
+                                            <div class="atlas-panel-header">
+                                                <div class="atlas-header-glow"></div>
+                                                <span class="atlas-header-icon">🧠</span>
+                                                NEURAL ARCHITECTURE
+                                            </div>
+                                            <div class="atlas-models-grid" id="model-list">
+                                                <div class="atlas-model-card active">
+                                                    <div class="model-card-glow"></div>
+                                                    <div class="model-icon">🤖</div>
+                                                    <div class="model-name">Llama 4 Maverick</div>
+                                                    <div class="model-specs">17B • 128K Context</div>
+                                                    <div class="model-status">
+                                                        <span class="status-dot active"></span>
+                                                        READY
+                                                    </div>
+                                                </div>
+                                                <div class="atlas-model-card">
+                                                    <div class="model-card-glow"></div>
+                                                    <div class="model-icon">⚡</div>
+                                                    <div class="model-name">GPTOSS 120B</div>
+                                                    <div class="model-specs">120B • Ultra Scale</div>
+                                                    <div class="model-status">
+                                                        <span class="status-dot active"></span>
+                                                        READY
+                                                    </div>
+                                                </div>
+                                                <div class="atlas-model-card">
+                                                    <div class="model-card-glow"></div>
+                                                    <div class="model-icon">🔥</div>
+                                                    <div class="model-name">Llama 3.3 70B</div>
+                                                    <div class="model-specs">70B • High Precision</div>
+                                                    <div class="model-status">
+                                                        <span class="status-dot active"></span>
+                                                        READY
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Panel - System Control -->
+                                        <div class="atlas-panel atlas-panel-right">
+                                            <div class="atlas-panel-header">
+                                                <div class="atlas-header-glow"></div>
+                                                <span class="atlas-header-icon">⚙️</span>
+                                                COMMAND MATRIX
+                                            </div>
+                                            <div class="atlas-control-panel">
+                                                <div class="atlas-stats-display">
+                                                    <div class="stat-item">
+                                                        <div class="stat-icon">📡</div>
+                                                        <div class="stat-info">
+                                                            <div class="stat-label">UPLINK</div>
+                                                            <div class="stat-value atlas-glow-blue">ACTIVE</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <div class="stat-icon">🔐</div>
+                                                        <div class="stat-info">
+                                                            <div class="stat-label">API KEYS</div>
+                                                            <div class="stat-value atlas-glow-orange">2/2</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <div class="stat-icon">⚡</div>
+                                                        <div class="stat-info">
+                                                            <div class="stat-label">WEBSOCKET</div>
+                                                            <div class="stat-value atlas-glow-blue">ENABLED</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="atlas-action-buttons">
+                                                    <button class="atlas-btn atlas-btn-primary" onclick="ultronInterface.loadNvidiaStatus()">
+                                                        <span class="btn-glow"></span>
+                                                        <span class="btn-icon">🔄</span>
+                                                        <span class="btn-text">SYNC NEURAL CORE</span>
+                                                    </button>
+                                                    <button class="atlas-btn atlas-btn-launch" onclick="window.open('http://localhost:8002', '_blank')">
+                                                        <span class="btn-glow"></span>
+                                                        <span class="btn-icon">🚀</span>
+                                                        <span class="btn-text">LAUNCH ATLAS INTERFACE</span>
+                                                    </button>
+                                                </div>
+
+                                                <div class="atlas-network-viz">
+                                                    <div class="network-node node-1"></div>
+                                                    <div class="network-node node-2"></div>
+                                                    <div class="network-node node-3"></div>
+                                                    <div class="network-line line-1"></div>
+                                                    <div class="network-line line-2"></div>
+                                                    <div class="network-line line-3"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ATLAS Footer Info -->
+                                    <div class="atlas-footer">
+                                        <div class="footer-line"></div>
+                                        <div class="footer-content">
+                                            <span class="footer-label">NEURAL INTERFACE</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-value">PORT 8002</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-label">PROTOCOL</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-value">HTTP/WS</span>
+                                            <span class="footer-separator">▪</span>
+                                            <span class="footer-label atlas-glow-blue">ATLAS ONLINE</span>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Autonomous Section -->
+                                <section id="autonomous-section" class="section-content" role="tabpanel" aria-labelledby="autonomous-tab" aria-hidden="true">
+                                    <h2 class="section-title">AUTONOMOUS OPERATIONS</h2>
+                                    <div class="autonomous-content">
+                                        <div class="autonomous-status">
+                                            <div class="status-card">
+                                                <h3>Autonomous Brain Status</h3>
+                                                <div class="autonomous-metrics" id="autonomous-metrics">
+                                                    <div class="metric">
+                                                        <span class="metric-label">Status:</span>
+                                                        <span class="metric-value" id="autonomous-status">Initializing...</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Learning Records:</span>
+                                                        <span class="metric-value" id="learning-records">0</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Active Tasks:</span>
+                                                        <span class="metric-value" id="active-tasks">0</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Success Rate:</span>
+                                                        <span class="metric-value" id="success-rate">--</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="autonomous-controls">
+                                            <div class="control-group">
+                                                <button class="autonomous-btn primary" id="start-autonomous-btn">
+                                                    <span class="btn-icon">🧠</span>
+                                                    Start Autonomous Mode
+                                                </button>
+                                                <button class="autonomous-btn" id="stop-autonomous-btn">
+                                                    <span class="btn-icon">⏹️</span>
+                                                    Stop Autonomous Mode
+                                                </button>
+                                                <button class="autonomous-btn" id="test-integration-btn">
+                                                    <span class="btn-icon">🔍</span>
+                                                    Run Integration Test
+                                                </button>
+                                            </div>
+                                            <div class="control-group">
+                                                <button class="autonomous-btn secondary" id="proactive-monitoring-btn">
+                                                    <span class="btn-icon">🔍</span>
+                                                    Start Proactive Monitoring
+                                                </button>
+                                                <button class="autonomous-btn secondary" id="evolve-capabilities-btn">
+                                                    <span class="btn-icon">🌱</span>
+                                                    Evolve Capabilities
+                                                </button>
+                                                <button class="autonomous-btn secondary" id="view-learning-data-btn">
+                                                    <span class="btn-icon">📊</span>
+                                                    View Learning Data
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="autonomous-output" id="autonomous-output">
+                                            <div class="output-header">Autonomous Operations Log</div>
+                                            <div class="output-content">
+                                                <div class="output-message system-message">
+                                                    <span class="timestamp">[00:00:00]</span>
+                                                    <span class="message-content">Autonomous system ready for activation</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- Langflow Coder Section -->
+                                <section id="langflow-section" class="section-content" role="tabpanel" aria-labelledby="langflow-tab" aria-hidden="true">
+                                    <h2 class="section-title">LANGFLOW AI CODER</h2>
+                                    <div class="langflow-content">
+                                        <p style="color: #ff4444; text-align: center; padding: 2rem; font-family: 'Share Tech Mono', monospace;">
+                                            💻 Langflow AI Coder is now available as a floating widget at the top of the page.
+                                            <br><br>
+                                            Click the chat icon to open the ULTRON Coder interface.
+                                        </p>
+                                    </div>
+                                </section>
 
                                 <!-- Stable Diffusion Section -->
                                 <div id="stable-diffusion-section" class="section-content">
@@ -853,20 +1159,24 @@
             <div class="ultron-footer-status" role="status" aria-live="polite">
                 <div class="footer-glow"></div>
                 <div class="footer-metric">
-                    <span class="footer-label">SYSTEM VECTOR</span>
-                    <span class="footer-value" id="footer-vector">STABLE</span>
+                    <span class="footer-label">Ollama</span>
+                    <span class="footer-value" id="footer-ollama">OFFLINE</span>
                 </div>
                 <div class="footer-metric">
-                    <span class="footer-label">NEURAL SYNC</span>
-                    <span class="footer-value" id="footer-sync">99.2%</span>
+                    <span class="footer-label">Uptime</span>
+                    <span class="footer-value" id="footer-uptime">00:00:00</span>
                 </div>
                 <div class="footer-metric">
-                    <span class="footer-label">AETHER FLOW</span>
-                    <span class="footer-value" id="footer-flow">PRIME</span>
+                    <span class="footer-label">ElevenLabs Voice</span>
+                    <span class="footer-value" id="footer-voice">DISABLED</span>
                 </div>
                 <div class="footer-metric">
-                    <span class="footer-label">OPERATOR</span>
-                    <span class="footer-value">SIGNED IN</span>
+                    <span class="footer-label">LLM</span>
+                    <span class="footer-value" id="footer-llm-model">QWEN3-CODER:480B-CLOUD</span>
+                </div>
+                <div class="footer-metric">
+                    <span class="footer-label">LLM Status</span>
+                    <span class="footer-value" id="footer-llm-status">OFFLINE</span>
                 </div>
             </div>
         </div>
@@ -901,6 +1211,12 @@
     <script src="app.js"></script>
     <script src="comprehensive_test.js"></script>
     <script src="manual_test.js"></script>
+    <script src="enhanced_ultron.js"></script>
+    <script src="js/enhancements.js"></script>
+    <script src="js/advanced-features.js"></script>
+    <script src="js/ultra-features.js"></script>
+    <script src="js/nexus-features.js"></script>
+    <script src="js/omega-features.js"></script>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 
 <style>
@@ -1137,6 +1453,159 @@
     font-family: 'Share Tech Mono', monospace;
 }
 
+/* Autonomous Operations Styles */
+.autonomous-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+}
+
+.autonomous-status {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.autonomous-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.autonomous-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.control-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.autonomous-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.autonomous-btn.primary {
+    background: linear-gradient(45deg, #00ff00, #00cc00);
+    color: #000;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.autonomous-btn.primary:hover {
+    background: linear-gradient(45deg, #00cc00, #00aa00);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+.autonomous-btn.secondary {
+    background: linear-gradient(45deg, #ff4444, #ff6666);
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+}
+
+.autonomous-btn.secondary:hover {
+    background: linear-gradient(45deg, #ff6666, #ff8888);
+    box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+    transform: translateY(-2px);
+}
+
+.autonomous-btn:not(.primary):not(.secondary) {
+    background: linear-gradient(45deg, #666666, #888888);
+    color: white;
+}
+
+.autonomous-btn:not(.primary):not(.secondary):hover {
+    background: linear-gradient(45deg, #888888, #aaaaaa);
+    transform: translateY(-2px);
+}
+
+.autonomous-output {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.output-header {
+    background: rgba(255, 0, 0, 0.2);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+    font-weight: bold;
+    color: #ff4444;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.output-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.output-message {
+    margin-bottom: 0.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.output-message .timestamp {
+    color: #888;
+    margin-right: 0.5rem;
+}
+
+.output-message .message-content {
+    color: #fff;
+}
+
+.output-message.system-message .message-content {
+    color: #00ff00;
+}
+
+.metric-value.active {
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.metric-value.stopped {
+    color: #ff4444;
+}
+
+.metric-value.error {
+    color: #ff6666;
+    text-shadow: 0 0 5px rgba(255, 102, 102, 0.5);
+}
+
+.metric-value.starting {
+    color: #ffaa00;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 /* ElevenLabs Text Input Styles */
 .text-input-section {
     margin-top: 1rem;
@@ -1166,29 +1635,22 @@
 
 <!-- Emergency initialization script -->
 <script>
-    // Force initialization after a delay if not already done
+    // Emergency initialization disabled - main initialization should work now
+    // Keeping error handler for debugging
     setTimeout(() => {
-        console.log('Emergency check starting'); // Debug log
         if (!window.ultronInterface) {
-            console.log('Emergency instantiating'); // Debug log
-            console.log('🚨 Emergency initialization triggered - app.js:2387');
-            try {
-                window.ultronInterface = new UltronPokedexInterface();
-                console.log('✅ Emergency initialization successful - app.js:2390');
-            } catch (error) {
-                console.error('❌ Emergency initialization failed: - app.js:2392', error);
-            }
+            console.warn('⚠️ ULTRON Interface not initialized after 2 seconds. Check browser console for errors.');
         } else {
-            console.log('Emergency skipped - interface already exists'); // Debug log
+            console.log('✅ ULTRON Interface initialized successfully');
         }
     }, 2000);
 
     // Add global error handler
     window.addEventListener('error', (event) => {
-        console.error('🚨 Global JavaScript error: - app.js:2399', event.error);
-        console.error('Error message: - app.js:2400', event.message);
-        console.error('Error file: - app.js:2401', event.filename);
-        console.error('Error line: - app.js:2402', event.lineno);
+        console.error('🚨 Global JavaScript error:', event.error);
+        console.error('Error message:', event.message);
+        console.error('Error file:', event.filename);
+        console.error('Error line:', event.lineno);
     });
 
     // Stable Diffusion Interface
@@ -1351,9 +1813,256 @@
         }
     }
 
-    // Initialize Stable Diffusion interface when DOM is ready
+    // Autonomous Operations Interface
+    class AutonomousInterface {
+        constructor() {
+            this.isAutonomousActive = false;
+            this.isMonitoringActive = false;
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            this.updateStatus();
+        }
+
+        bindEvents() {
+            const startBtn = document.getElementById('start-autonomous-btn');
+            const stopBtn = document.getElementById('stop-autonomous-btn');
+            const testBtn = document.getElementById('test-integration-btn');
+            const monitoringBtn = document.getElementById('proactive-monitoring-btn');
+            const evolveBtn = document.getElementById('evolve-capabilities-btn');
+            const learningBtn = document.getElementById('view-learning-data-btn');
+
+            if (startBtn) startBtn.addEventListener('click', () => this.startAutonomousMode());
+            if (stopBtn) stopBtn.addEventListener('click', () => this.stopAutonomousMode());
+            if (testBtn) testBtn.addEventListener('click', () => this.runIntegrationTest());
+            if (monitoringBtn) monitoringBtn.addEventListener('click', () => this.toggleProactiveMonitoring());
+            if (evolveBtn) evolveBtn.addEventListener('click', () => this.evolveCapabilities());
+            if (learningBtn) learningBtn.addEventListener('click', () => this.viewLearningData());
+        }
+
+        async startAutonomousMode() {
+            if (this.isAutonomousActive) return;
+
+            this.logMessage('Starting autonomous mode...');
+            this.updateStatus('Starting...');
+
+            try {
+                const response = await fetch('/api/autonomous/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.isAutonomousActive = true;
+                    this.updateStatus('Active');
+                    this.logMessage('Autonomous mode activated successfully');
+                } else {
+                    throw new Error(result.error || 'Failed to start autonomous mode');
+                }
+            } catch (error) {
+                console.error('Autonomous start error:', error);
+                this.logMessage(`Failed to start: ${error.message}`);
+                this.updateStatus('Error');
+            }
+        }
+
+        async stopAutonomousMode() {
+            if (!this.isAutonomousActive) return;
+
+            this.logMessage('Stopping autonomous mode...');
+
+            try {
+                const response = await fetch('/api/autonomous/stop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.isAutonomousActive = false;
+                    this.updateStatus('Stopped');
+                    this.logMessage('Autonomous mode deactivated');
+                } else {
+                    throw new Error(result.error || 'Failed to stop autonomous mode');
+                }
+            } catch (error) {
+                console.error('Autonomous stop error:', error);
+                this.logMessage(`Failed to stop: ${error.message}`);
+            }
+        }
+
+        async runIntegrationTest() {
+            this.logMessage('Running integration test...');
+
+            try {
+                const response = await fetch('/api/test/integration', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    this.logMessage(`Integration test completed: ${result.passed}/${result.total} tests passed`);
+                    this.updateMetrics(result);
+                } else {
+                    throw new Error(result.error || 'Test failed');
+                }
+            } catch (error) {
+                console.error('Integration test error:', error);
+                this.logMessage(`Test failed: ${error.message}`);
+            }
+        }
+
+        async toggleProactiveMonitoring() {
+            const action = this.isMonitoringActive ? 'stop' : 'start';
+            this.logMessage(`${action === 'start' ? 'Starting' : 'Stopping'} proactive monitoring...`);
+
+            try {
+                const response = await fetch(`/api/proactive/${action}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.isMonitoringActive = !this.isMonitoringActive;
+                    const btn = document.getElementById('proactive-monitoring-btn');
+                    if (btn) {
+                        btn.innerHTML = `<span class="btn-icon">🔍</span>${this.isMonitoringActive ? 'Stop' : 'Start'} Proactive Monitoring`;
+                    }
+                    this.logMessage(`Proactive monitoring ${this.isMonitoringActive ? 'started' : 'stopped'}`);
+                } else {
+                    throw new Error(result.error || 'Failed to toggle monitoring');
+                }
+            } catch (error) {
+                console.error('Monitoring toggle error:', error);
+                this.logMessage(`Failed to ${action} monitoring: ${error.message}`);
+            }
+        }
+
+        async evolveCapabilities() {
+            this.logMessage('Evolving capabilities...');
+
+            try {
+                const response = await fetch('/api/autonomous/evolve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    this.logMessage(`Evolution completed: ${result.new_rules} new rules, ${(result.success_rate * 100).toFixed(1)}% success rate`);
+                    this.updateLearningMetrics(result);
+                } else {
+                    throw new Error(result.error || 'Evolution failed');
+                }
+            } catch (error) {
+                console.error('Evolution error:', error);
+                this.logMessage(`Evolution failed: ${error.message}`);
+            }
+        }
+
+        async viewLearningData() {
+            this.logMessage('Retrieving learning data...');
+
+            try {
+                const response = await fetch('/api/autonomous/learning-data');
+                const result = await response.json();
+
+                if (response.ok) {
+                    this.displayLearningData(result);
+                } else {
+                    throw new Error(result.error || 'Failed to retrieve learning data');
+                }
+            } catch (error) {
+                console.error('Learning data error:', error);
+                this.logMessage(`Failed to retrieve learning data: ${error.message}`);
+            }
+        }
+
+        updateStatus(status = 'Initializing...') {
+            const statusElement = document.getElementById('autonomous-status');
+            if (statusElement) {
+                statusElement.textContent = status;
+                statusElement.className = `metric-value ${status.toLowerCase().replace(' ', '-')}`;
+            }
+        }
+
+        updateMetrics(testResult) {
+            if (testResult.passed !== undefined && testResult.total !== undefined) {
+                const successRate = ((testResult.passed / testResult.total) * 100).toFixed(1);
+                const successElement = document.getElementById('success-rate');
+                if (successElement) {
+                    successElement.textContent = `${successRate}%`;
+                }
+            }
+        }
+
+        updateLearningMetrics(evolutionResult) {
+            const recordsElement = document.getElementById('learning-records');
+            const successElement = document.getElementById('success-rate');
+
+            if (recordsElement && evolutionResult.total_learning_records) {
+                recordsElement.textContent = evolutionResult.total_learning_records;
+            }
+
+            if (successElement && evolutionResult.success_rate) {
+                successElement.textContent = `${(evolutionResult.success_rate * 100).toFixed(1)}%`;
+            }
+        }
+
+        displayLearningData(data) {
+            const outputContent = document.querySelector('#autonomous-output .output-content');
+            if (!outputContent) return;
+
+            const timestamp = new Date().toLocaleTimeString();
+            const message = document.createElement('div');
+            message.className = 'output-message';
+            message.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span>
+                <span class="message-content">Learning Data: ${data.total_records} records, ${data.recent_decisions} recent decisions</span>
+            `;
+
+            outputContent.appendChild(message);
+            outputContent.scrollTop = outputContent.scrollHeight;
+        }
+
+        logMessage(message) {
+            console.log(`[Autonomous] ${message}`);
+
+            const outputContent = document.querySelector('#autonomous-output .output-content');
+            if (!outputContent) return;
+
+            const timestamp = new Date().toLocaleTimeString();
+            const messageElement = document.createElement('div');
+            messageElement.className = 'output-message';
+            messageElement.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span>
+                <span class="message-content">${message}</span>
+            `;
+
+            outputContent.appendChild(messageElement);
+            outputContent.scrollTop = outputContent.scrollHeight;
+
+            // Also log to main interface if available
+            if (window.ultronInterface && window.ultronInterface.logMessage) {
+                window.ultronInterface.logMessage(`[Autonomous] ${message}`);
+            }
+        }
+    }
+
+    // Initialize interfaces when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
         window.stableDiffusionInterface = new StableDiffusionInterface();
+        window.autonomousInterface = new AutonomousInterface();
     });
 </script>
 

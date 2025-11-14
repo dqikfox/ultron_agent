@@ -1,0 +1,40 @@
+ULTRON GUI - Button Layout Fixed
+=================================
+
+LEFT SIDE (Bottom to Top):
+- 📝 Notes (bottom: 640px)
+- 🎥 Recorder (bottom: 580px)
+- 💻 Snippets (bottom: 520px)
+- ⭐ Favorites (bottom: 460px)
+- 🎓 Tutorial (bottom: 400px)
+- 🌙 Dark Mode (bottom: 340px)
+- ⛶ Fullscreen (bottom: 280px)
+- 🖨️ Print (bottom: 220px)
+
+RIGHT SIDE (Bottom to Top):
+- 📸 Screenshot (bottom: 80px)
+- 🔍 Analyze (bottom: 140px)
+- 💾 Save (bottom: 200px)
+- 🔄 Refresh (bottom: 220px)
+- 🎤 Voice (bottom: 280px)
+- 🔍 Search (bottom: 340px)
+- 🎙️ Voice Cmd (bottom: 400px)
+- 📋 Tasks (bottom: 460px)
+- 📎 Clipboard (bottom: 520px)
+- ⭐ Bookmarks (bottom: 580px)
+- ⏺️ Macro (bottom: 640px)
+- 💾 Export (bottom: 700px)
+- 🤖 AI (bottom: 760px)
+- 👥 Collab (bottom: 820px)
+- 📊 Analytics (bottom: 880px)
+- 🗂️ Workspace (bottom: 940px)
+- 🔌 Plugins (bottom: 1000px)
+
+TOP CENTER:
+- 🔍 Global Search Bar
+
+TOP RIGHT:
+- 🎨 Theme Switcher
+
+All buttons now properly spaced with 60px gaps!
+No overlapping!
