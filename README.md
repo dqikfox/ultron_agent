@@ -92,6 +92,23 @@ See [docs/OLLAMA_CONTEXT_SYSTEM.md](docs/OLLAMA_CONTEXT_SYSTEM.md) for complete 
 
 ## Quick Start
 
+### Ubuntu/Linux Setup
+
+```bash
+# Automated setup
+./setup_ubuntu.sh
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Start ULTRON
+./run.sh
+```
+
+See **[UBUNTU_SETUP.md](UBUNTU_SETUP.md)** for detailed Linux installation guide.
+
+### Windows Setup
+
 ### 1. Installation
 ```bash
 # Clone the repository
