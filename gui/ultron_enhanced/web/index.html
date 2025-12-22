@@ -10,24 +10,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="css/advanced-styles.css">
-    <link rel="stylesheet" href="css/ultra-styles.css">
-    <link rel="stylesheet" href="css/nexus-styles.css">
-    <link rel="stylesheet" href="css/omega-styles.css">
-    <link rel="stylesheet" href="css/premium-visuals.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body class="ultron-steampunk">
-    <!-- Langflow AI Coder Widget (Top Priority) -->
-    <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.7/dist/build/static/js/bundle.min.js"></script>
-    <langflow-chat
-        window_title="ULTRON Coder"
-        flow_id="92c810b5-4829-4466-9ff1-7ad19b694435"
-        host_url="http://localhost:7860">
-    </langflow-chat>
-
     <div class="ambient-overlay"></div>
     <div class="ambient-overlay secondary"></div>
     <div class="floating-gear gear-left"></div>
@@ -206,14 +193,6 @@
                                     <span class="nav-icon">📱</span>
                                     <span class="nav-label">ADB MGR</span>
                                 </button>
-                                <button class="nav-button" data-section="langflow" role="tab" aria-selected="false" aria-controls="langflow-section" tabindex="-1">
-                                    <span class="nav-icon">💻</span>
-                                    <span class="nav-label">CODER</span>
-                                </button>
-                                <button class="nav-button" data-section="ai-rpg" role="tab" aria-selected="false" aria-controls="ai-rpg-section" tabindex="-1" onclick="window.open('ultron-ai-simulator.html', '_blank')">
-                                    <span class="nav-icon">🎮</span>
-                                    <span class="nav-label">AI RPG</span>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -223,6 +202,7 @@
                         <div class="screen-border">
                             <div class="screen-content">
 
+                                <!-- Console Section -->
                                 <!-- Dashboard Section -->
                                 <section id="dashboard-section" class="section-content active" role="tabpanel" aria-labelledby="dashboard-tab" aria-hidden="false">
                                     <h2 class="section-title">AETHER OPERATIONS MATRIX</h2>
@@ -263,18 +243,6 @@
                                                 <div class="metric-value" id="dashboard-network">--</div>
                                             </div>
                                         </div>
-                                        <div class="dashboard-card trends-card">
-                                            <div class="dashboard-card-header">
-                                                <span>Performance Trends</span>
-                                                <span id="trend-window-label" class="trend-window-label">Awaiting samples…</span>
-                                            </div>
-                                            <canvas id="performance-chart" width="360" height="140" role="img" aria-label="CPU, memory, and disk trend visualization"></canvas>
-                                            <div class="trend-legend" role="list">
-                                                <span class="legend-item" role="listitem"><span class="legend-dot cpu"></span>CPU</span>
-                                                <span class="legend-item" role="listitem"><span class="legend-dot memory"></span>Memory</span>
-                                                <span class="legend-item" role="listitem"><span class="legend-dot disk"></span>Disk</span>
-                                            </div>
-                                        </div>
                                         <div class="dashboard-card activity-card">
                                             <div class="dashboard-card-header">
                                                 <span>Recent Activity</span>
@@ -294,28 +262,6 @@
                                         <div class="message system-message">
                                             <span class="timestamp">[00:00:00]</span>
                                             <span class="message-content">⚙️ Aether Nexus Online</span>
-                                        </div>
-                                    </div>
-                                    <div class="quick-commands-panel" aria-label="Quick command shortcuts and contextual help">
-                                        <div class="quick-commands-header">
-                                            <span class="panel-title">Quick Commands</span>
-                                            <button id="copy-dashboard-summary" class="copy-snapshot-btn" type="button" aria-label="Copy the latest status snapshot to clipboard">
-                                                Copy Status Snapshot
-                                            </button>
-                                        </div>
-                                        <div class="quick-commands-grid" role="group" aria-label="Common Ultron commands">
-                                            <button type="button" class="quick-command-chip" data-quick-command="status">System Status</button>
-                                            <button type="button" class="quick-command-chip" data-quick-command="help">Available Commands</button>
-                                            <button type="button" class="quick-command-chip" data-quick-command="capture">Capture Screen</button>
-                                            <button type="button" class="quick-command-chip" data-quick-command="analyze">Analyze Vision</button>
-                                            <button type="button" class="quick-command-chip" data-quick-command="theme blue">Switch Theme</button>
-                                            <button type="button" class="quick-command-chip" data-quick-command="theme high-contrast">High Contrast</button>
-                                        </div>
-                                        <div class="command-hints" aria-live="polite" aria-atomic="true">
-                                            <div class="command-hints-title">Contextual Tips</div>
-                                            <ul id="command-hints-list" class="command-hints-list">
-                                                <li class="command-hint">Hints will appear here after telemetry loads.</li>
-                                            </ul>
                                         </div>
                                     </div>
                                     <div class="console-input-container">
@@ -356,42 +302,6 @@
                                             <div class="card-value connection-status" id="network-status" aria-live="polite" aria-label="Network connection status">CONNECTED</div>
                                         </div>
                                     </div>
-
-                                    <!-- SSH Server Control Section -->
-                                    <div class="service-controls" role="region" aria-label="Service Controls">
-                                        <div class="list-title">SERVICE MANAGEMENT</div>
-                                        <div class="ssh-control-panel">
-                                            <div class="ssh-status-card">
-                                                <div class="card-header">
-                                                    <span class="service-icon">🔒</span>
-                                                    <span class="service-name">SSH REVERSE TUNNEL</span>
-                                                    <span class="ssh-status-indicator" id="ssh-status-indicator" aria-live="polite">●</span>
-                                                </div>
-                                                <div class="ssh-info">
-                                                    <div class="ssh-connection-info" id="ssh-connection-info">
-                                                        Port: <span id="ssh-port">2222</span> |
-                                                        Status: <span id="ssh-status-text">CHECKING...</span>
-                                                    </div>
-                                                    <div class="ssh-connect-command" id="ssh-connect-command">
-                                                        <code>ssh -p 2222 user@192.168.1.104</code>
-                                                        <button class="copy-btn" id="copy-ssh-command" title="Copy SSH command">📋</button>
-                                                    </div>
-                                                </div>
-                                                <div class="ssh-controls">
-                                                    <button class="control-btn ssh-start-btn" id="ssh-start-btn" aria-label="Start SSH server">
-                                                        ▶️ START
-                                                    </button>
-                                                    <button class="control-btn ssh-stop-btn" id="ssh-stop-btn" aria-label="Stop SSH server">
-                                                        ⏹️ STOP
-                                                    </button>
-                                                    <button class="control-btn ssh-restart-btn" id="ssh-restart-btn" aria-label="Restart SSH server">
-                                                        🔄 RESTART
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div class="process-list" id="process-list" role="region" aria-label="Running processes">
                                         <div class="list-title">RUNNING PROCESSES</div>
                                         <div class="process-content">Loading processes...</div>
@@ -642,7 +552,41 @@
                                             </div>
                                         </div>
                                     </div>
-                                </section>
+                                </div>
+
+                                <!-- Dashboard Section -->
+                                <div id="dashboard-section" class="section-content">
+                                    <div class="section-title">SYSTEM DASHBOARD</div>
+                                    <div class="dashboard-content">
+                                        <div class="dashboard-grid">
+                                            <div class="dashboard-card">
+                                                <h3>System Overview</h3>
+                                                <div class="dashboard-metrics">
+                                                    <div class="metric">
+                                                        <span class="metric-label">Status:</span>
+                                                        <span class="metric-value" id="overall-status">Loading...</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Agent:</span>
+                                                        <span class="metric-value" id="agent-status">Loading...</span>
+                                                    </div>
+                                                    <div class="metric">
+                                                        <span class="metric-label">Uptime:</span>
+                                                        <span class="metric-value" id="system-uptime">00:00:00</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="dashboard-card">
+                                                <h3>Quick Actions</h3>
+                                                <div class="dashboard-actions">
+                                                    <button class="action-btn" onclick="ultronInterface.loadSystemInfo()">Refresh Status</button>
+                                                    <button class="action-btn" onclick="ultronInterface.loadNvidiaStatus()">Check NVIDIA</button>
+                                                    <button class="action-btn" onclick="ultronInterface.switchSection('system')">View Details</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- LLM Chat Section -->
                                 <section id="llm-chat-section" class="section-content" role="tabpanel" aria-labelledby="llm-chat-tab" aria-hidden="true">
@@ -958,18 +902,6 @@
                                     </div>
                                 </section>
 
-                                <!-- Langflow Coder Section -->
-                                <section id="langflow-section" class="section-content" role="tabpanel" aria-labelledby="langflow-tab" aria-hidden="true">
-                                    <h2 class="section-title">LANGFLOW AI CODER</h2>
-                                    <div class="langflow-content">
-                                        <p style="color: #ff4444; text-align: center; padding: 2rem; font-family: 'Share Tech Mono', monospace;">
-                                            💻 Langflow AI Coder is now available as a floating widget at the top of the page.
-                                            <br><br>
-                                            Click the chat icon to open the ULTRON Coder interface.
-                                        </p>
-                                    </div>
-                                </section>
-
                                 <!-- Stable Diffusion Section -->
                                 <div id="stable-diffusion-section" class="section-content">
                                     <div class="section-title">STABLE DIFFUSION ART GENERATOR</div>
@@ -1212,11 +1144,6 @@
     <script src="comprehensive_test.js"></script>
     <script src="manual_test.js"></script>
     <script src="enhanced_ultron.js"></script>
-    <script src="js/enhancements.js"></script>
-    <script src="js/advanced-features.js"></script>
-    <script src="js/ultra-features.js"></script>
-    <script src="js/nexus-features.js"></script>
-    <script src="js/omega-features.js"></script>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 
 <style>
