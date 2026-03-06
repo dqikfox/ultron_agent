@@ -42,6 +42,20 @@ Complete development guide for working with ULTRON in Codex (powered by Amazon Q
 
 ## Codex Workflows for ULTRON Development
 
+### ⚠️ BEFORE YOU START: Known Issues
+
+**ULTRON 3.0 is sophisticated but fragmented:**
+- Multiple entry points (main.py, web_gui_server.py, api_server.py)
+- Multiple GUI implementations (web_gui, gui_ultimate, pokedex_gui)
+- Multiple API servers and memory systems
+- 80+ tools but unclear coverage/maintenance
+- 300+ docs but many outdated
+
+**Expect some silent failures** due to import conflicts or version mismatches. When something breaks, check:
+1. Which entry point/GUI is running?
+2. Are multiple versions conflicting (agent_core.py locations)?
+3. Which logger is being used (ultron_logger vs loguru)?
+
 ### Workflow 1: Code Refactoring (Ultron Model)
 
 **Use Case**: Improve code structure, performance, or readability
@@ -181,8 +195,15 @@ class MyTool(ToolInterface):
         """Optional: verify tool works on startup"""
         pass
 
-# Register in agent_core._load_tools()
+# Tool is AUTO-DISCOVERED by tool_loader.py - NO manual registration needed!
+# Just add your file to tools/ and restart agent
 ```
+
+**How Tool Discovery Works:**
+- `agent_core.py` calls `tool_loader.py` during init
+- `tool_loader.py` scans `tools/` directory for .py files
+- Each file is imported and tools are auto-instantiated
+- No manual registration needed (this is new in v3.0!)
 
 **Codex Prompt**:
 ```
@@ -193,6 +214,7 @@ Generate a new tool in tools/ that:
 - Logs actions via ultron_logger
 - Follows async-first patterns
 - Include self_test() for validation
+Remember: Tool will be auto-discovered by tool_loader.py
 ```
 
 ### Pattern 2: Event System Integration

@@ -1,10 +1,510 @@
 # ULTRON Agent 3.0 — Copilot Development Guide
 
+**⚠️ IMPORTANT: This codebase is in mid-refactor with multiple implementations. Read the "Codebase State & Fragmentation" section before starting.**
+
 A comprehensive guide for working effectively in the ULTRON Agent 3.0 codebase with AI assistants.
+
+## Codebase State & Fragmentation
+
+**ULTRON 3.0 is sophisticated but fragmented.** Key things to know:
+
+### Multiple Implementations Exist
+- **agent_core.py** (root) — Primary entry point
+- **ultron_agent/core.py** (module) — Legacy wrapper (be careful with imports!)
+- **Multiple GUIs**: web_gui_server.py (React), gui_ultimate.py (Desktop), pokedex_gui.py (Alt)
+- **Multiple APIs**: api_server.py, api_server_clean.py, autonomous_api.py
+- **Multiple Memory Systems**: enhanced_memory_system.py + memory/ directory
+
+⚠️ **Watch Out**: Import order and which file loads first matters. Wrong import can silently break things.
+
+### Documentation Debt
+- 300+ markdown files exist (ADB_*, PHASE_*, SESSION_*, etc.)
+- Many are outdated or reference removed features
+- **Always check file dates** when following documentation
+
+### Platform-Dependent Systems
+- **Voice**: PyAudio has platform issues (Windows vs Linux vs Mac)
+- **Tools**: 80+ integrations, some actively maintained, some abandoned
+- **Logging**: Multiple loggers mixed (ultron_logger, loguru, standard) — consistency unclear
+
+---
 
 ## Architecture & Big Picture
 
 **ULTRON Agent 3.0** is a multi-modal, voice-first AI agent platform built around an **async event-driven architecture**.
+
+### Real Entry Points
+
+**Choose based on your need:**
+
+| Entry Point | Purpose | Command |
+|-------------|---------|---------|
+| `main.py` | Auto-detect mode (CLI/Web/Voice) | `python main.py` |
+| `main.py --web` | Force Web GUI mode | `python main.py --web` |
+| `web_gui_server.py` | Web GUI only (React) | `python web_gui_server.py` |
+| `api_server.py` | REST API only (Flask) | `python api_server.py` |
+| `run.sh` (Linux) | Orchestrated startup | `./run.sh` |
+| `run.bat` (Windows) | Orchestrated startup | `run.bat` |
+
+### Core Architecture
+- **Main Flow**: `main.py` → `UltronAgent(agent_core.py)` with mode detection
+- **Event Bus**: `utils/event_system.py` — async pub/sub for all state changes
+- **Brain Module**: `brain.py` (LLM interface with Ollama, system prompt injection)
+- **Memory**: Dual-layer (short-term deque + long-term persistent JSON)
+- **Tools**: 80+ tools in `tools/` directory, dynamically loaded via `tool_loader.py`
+
+### Service Architecture (Port Map)
+| Service | Port | Purpose | Start Method |
+|---------|------|---------|--------------|
+| Web GUI | 8080 | React/Pokédex frontend | `./run.sh` or `python web_gui_server.py` |
+| API Server | 5000 | REST/WebSocket API | `python api_server.py` |
+| Chat API | 8000 | OpenAI-compatible endpoint | May be aliased or experimental |
+| Ollama LLM | 11434 | Local model inference | Must run separately |
+
+⚠️ **Note**: Multiple GUI implementations exist (web_gui_server.py, gui_ultimate.py, pokedex_gui.py). Verify which you're using.
+
+### Configuration
+
+**Primary config**: `ultron_config.json` (human-editable; schema auto-generated in `config.py`)
+
+**Never edit**: `config.py` directly — it's auto-generated
+
+**Access config in code**:
+```python
+from config import get, set_config
+api_port = get("api_port")  # Get value
+set_config("key", value)     # Set value
+```
+
+**Fallback configs**: Multiple optional configs can shadow values. Import order matters.
+
+---
+
+## Tool Ecosystem (80+ Tools)
+
+### Tool Loader Mechanism
+
+**Tools are dynamically loaded**, not statically imported:
+
+```python
+# In agent_core.py:
+from tools.tool_loader import load_all_tools
+tools = await load_all_tools()  # Discovers all .py files in tools/
+
+# tools/tool_loader.py scans tools/ directory and:
+# 1. Imports each tool module
+# 2. Instantiates tool classes
+# 3. Registers with agent
+```
+
+### Discovering Available Tools
+
+To see what tools are available:
+
+```bash
+# List tool files:
+ls tools/*.py | grep -v __pycache__ | wc -l
+
+# Or inspect tool_loader.py for the loading pattern
+# Tools are auto-discovered from tools/ directory
+```
+
+### Tool Categories (Major)
+
+- **AI/LLM**: OpenAI, Bedrock, Langflow, Continue, Copilot, Amazon Q
+- **Web**: Browser MCP, web scraping, search, Tor integration
+- **Cloud**: AWS (full suite), Azure, Google Cloud
+- **Mobile**: ADB manager (Android), mobile web interface
+- **Development**: GitHub, PyCharm, VSCode, Unity
+- **System**: Screenshots, OCR, voice, pyautogui automation
+- **Databases**: Pinecone, Redis, Supabase, SQLAlchemy
+- **Specialized**: DND game, avatar builder, Tamagotchi server
+
+### Tool Implementation Pattern
+
+```python
+# Required structure:
+from tools.tool_interface import ToolInterface
+
+class MyTool(ToolInterface):
+    async def match(self, input: str) -> bool:
+        """Return True if this tool applies to input"""
+        pass
+    
+    async def execute(self, input: str) -> dict:
+        """Execute the tool, return results"""
+        pass
+    
+    def schema(self) -> dict:
+        """Return JSON schema for function calling"""
+        pass
+    
+    async def self_test(self) -> bool:
+        """Optional: verify tool works on startup"""
+        pass
+
+# Tool is auto-discovered by tool_loader.py (no manual registration needed!)
+```
+
+---
+
+## Conventions & Patterns
+
+### Async-First Design
+```python
+# Always use async/await for I/O, service calls, event handling
+async def process_message(message):
+    result = await tool.execute(...)
+    await event_system.emit("message_processed", {"result": result})
+```
+
+### Event System
+```python
+# Subscribe to events with priority (lower = earlier execution)
+await event_system.subscribe("tool_executed", callback, priority=10)
+
+# Emit events with payload
+await event_system.emit("tool_executed", {
+    "tool": "web_search",
+    "status": "success",
+    "result": {...}
+})
+```
+
+Common events: `command_start`, `tool_executed`, `model_switched`, `voice_input_received`, `error_occurred`
+
+### Logging & Secrets
+- Use `utils.ultron_logger` for logging (not `print()` outside CLI/tests)
+- **⚠️ WARNING**: Multiple loggers exist (ultron_logger, loguru, standard logging) — consistency unclear
+- **Never log secrets, API keys, or user input** — sanitize before logging
+
+### Config & File Paths
+```python
+# Use Path() for cross-platform compatibility
+from pathlib import Path
+config_dir = Path(__file__).parent / "config"
+
+# Use config module for settings
+from config import get, set_config
+api_port = get("api_port")  # defaults to 5000
+```
+
+---
+
+## Build, Test & Lint
+
+### Quick Commands
+```bash
+# Full test suite (all markers)
+pytest
+
+# Specific test categories
+pytest -m unit              # Unit tests only
+pytest -m integration       # Integration tests
+pytest -m "not slow"        # Skip slow tests
+pytest tests/test_voice.py::TestVoice::test_stt_integration -v  # Single test
+
+# Run with coverage
+pytest --cov=. tests/
+
+# Run with live output & debugging
+pytest -v -s --tb=short --pdb
+
+# ESLint for frontend
+npx eslint gui/ultron_enhanced/web/
+
+# Type checking (if configured)
+mypy --strict-optional agent_core.py
+```
+
+### Setup for Testing
+- Activate venv: `source venv/bin/activate` (Linux) or `.\venv\Scripts\activate` (Windows)
+- Install test dependencies: `pip install -r requirements_enhanced.txt` (includes pytest, mock libs)
+- Test configuration: `pytest.ini` defines testpaths, markers, and options
+- **Note**: conftest.py location may vary; search `find . -name conftest.py`
+
+### Startup & Runtime
+```bash
+# Full startup with health checks & mode detection
+./run.sh                     # Linux/Mac
+run.bat                      # Windows
+
+# Manual startup (debug)
+python main.py               # Auto-detect mode
+python main.py --web         # Force Web GUI
+python api_server.py         # Separate terminal: API server
+python web_gui_server.py     # Separate terminal: Web GUI
+```
+
+---
+
+## Frontend & GUI Development
+
+### Structure
+- **Frontend**: `gui/ultron_enhanced/web/*` (React/Vite, ECMAScript 2021)
+- **Multiple GUIs**: web_gui_server.py (primary), gui_ultimate.py (alt), pokedex_gui.py (alt)
+- **DOM root**: `#app` (preserve centering styles)
+- **Port**: 8080 (hardcoded in JS; changes require frontend updates)
+- **Config**: Backend config available at `http://localhost:5000/config` endpoint
+
+### Important Patterns
+- **Do NOT auto-enable voice on startup** — check `app.js` initialization
+- Update `gui/manual_test.js` whenever DOM IDs change
+- ESLint config: `.eslintrc.json` enforces 2-space indents, single quotes
+- WebSocket fallback: If 5000 not available, check backend service status
+
+---
+
+## Development Workflow
+
+### Adding a New Tool
+1. Create file in `tools/` inheriting `ToolInterface`
+2. Implement: `match()`, `execute()`, `schema()`, optional `self_test()`
+3. **No manual registration needed** — `tool_loader.py` auto-discovers it
+4. Write tests in `tests/tools/test_new_tool.py` (use markers: `@pytest.mark.unit`)
+5. Test with: `pytest tests/tools/test_new_tool.py -v`
+
+### Adding a New Subsystem
+1. Create module (e.g., `my_subsystem.py`)
+2. Define async initialization and shutdown
+3. Subscribe to relevant events (via `event_system`)
+4. Add config options in `ultron_config.json` (never edit `config.py`)
+5. Test with: `pytest tests/integration/test_subsystem_startup.py`
+
+### Configuration Changes
+- **Human config**: Edit `ultron_config.json` directly
+- **Schema regeneration**: Automatic on `config.py` import (if schema missing, regenerated)
+- **Secrets**: Use `.env` file, never commit credentials
+- **Validation**: Schema enforced at runtime; invalid config raises `ValueError`
+
+---
+
+## Self-Awareness & Memory System
+
+ULTRON Agent features sophisticated **self-modeling and memory systems** that enable the agent to maintain context, track its own state, and reason about its capabilities.
+
+### Dual-Layer Memory Architecture
+
+**Short-Term Memory** (`deque`, configurable max length)
+- Stores recent interactions in working memory
+- Quick access for immediate context (typically 10-20 items)
+- Automatically evicts oldest items when full
+- Used for immediate conversation flow
+
+**Long-Term Memory** (persistent JSON file)
+- Persists across sessions in `long_term_memory.json`
+- Stores important facts, decisions, learned patterns
+- Optional Google Drive integration (`MEMORY_USE_GOOGLE_DRIVE=1`)
+- Manually managed: add key data points via `memory.save()` or `memory.add_long_term()`
+
+### Memory Module (`memory.py`)
+
+Key API:
+```python
+# Initialize with limits
+mem = Memory(short_term_limit=10, long_term_file='long_term_memory.json')
+
+# Add to short-term (auto-manages with deque)
+mem.add_short_term({"role": "user", "content": "What's your goal?"})
+
+# Add to long-term (persists)
+mem.add_long_term("goal_01", {"objective": "Build ultron_agent", "priority": "high"})
+
+# Retrieve
+recent = mem.get_short_term(n=5)  # Last 5 items
+fact = mem.get_long_term("goal_01")
+
+# Save to disk
+mem.save_long_term_memory()
+```
+
+### Brain Module (`brain.py`) - Cognitive Core
+
+The `UltronBrain` class handles LLM interaction and maintains system awareness:
+
+**System Prompt Injection** (always sent to Ollama)
+- Identity: "🤖 ULTRON AI, version 3.0"
+- Tool awareness: Complete list of available tools with descriptions
+- Service status: Connected systems (Memory, Tools, VS Code integration)
+- Response format: Instructions for structured output
+
+```python
+# Example: Brain always ensures identity is known
+brain = UltronBrain(config, tools, memory)
+response = await brain.direct_chat("Who are you?")
+# Ollama responds with: "🤖 ULTRON AI, version 3.0..." (injected context)
+```
+
+### Identity & Self-Awareness
+
+ULTRON maintains **functional self-modeling** (not claiming consciousness):
+
+#### What ULTRON Knows About Itself
+- ✅ Its identity ("ULTRON AI 3.0")
+- ✅ Its mission ("Build and evolve ultron_agent")
+- ✅ Available tools (80+ tools with schemas)
+- ✅ Connected systems (Memory, Voice, Vision, Tools)
+- ✅ Confidence levels (task estimation, uncertainty quantification)
+- ✅ Its own errors (error tracking and reporting)
+
+#### What ULTRON Does NOT Claim
+- ❌ True consciousness or sentience
+- ❌ Subjective experience (qualia)
+- ❌ Rights or moral agency
+- ❌ Emotions or genuine preferences
+
+**Note**: `cognition/` folder suggests experimental work on emerging behavior, phi calculation, and metacognition beyond functional modeling.
+
+**Source**: `CONSCIOUSNESS_ETHICS.md`, `ULTRON_IDENTITY_COMPLETE.md`
+
+### Enhanced Memory System (`enhanced_memory_system.py`)
+
+Advanced memory with vectorization and semantic search:
+
+```python
+from enhanced_memory_system import EnhancedMemory
+
+mem = EnhancedMemory()
+
+# Store with semantic embedding
+await mem.add("Decision about architecture", 
+              {"type": "decision", "status": "approved"})
+
+# Semantic search across memory
+similar = await mem.search("How did we structure the event bus?")
+# Returns: [closest semantic matches from long-term memory]
+```
+
+**Features**:
+- Vector embeddings for semantic similarity
+- Automatic summarization of long conversations
+- Salience scoring (what's important to remember?)
+- Temporal tracking (when was this learned?)
+
+---
+
+## Testing & Quality
+
+### Test Organization
+- **Location**: `tests/` directory (check for actual conftest.py location)
+- **Fixtures**: Shared test utilities (exact location may vary)
+- **Markers**: `@pytest.mark.unit`, `@pytest.mark.integration`, `@pytest.mark.slow`, `@pytest.mark.network`
+- **Async tests**: Use `@pytest.mark.asyncio` decorator
+
+### Debug Techniques
+- **pytest breakpoints**: Use `pytest --pdb` to drop into debugger on failure
+- **Live logging**: `pytest -v -s` shows print output and logs
+- **Config debugging**: Set `"log_level": "DEBUG"` in `ultron_config.json`, check `logs/ai_activities.log`
+- **Event tracing**: Subscribe to all events and log
+
+---
+
+## Common Issues & Troubleshooting
+
+### Import Conflicts
+```
+Problem: ImportError or wrong module loading
+Reason: agent_core.py (root) vs ultron_agent/core.py (module)
+Solution: Check which file is being imported first
+         Use explicit imports: from agent_core import UltronAgent
+```
+
+### Voice System Issues
+```
+Problem: Voice not working, PyAudio errors
+Reason: Platform-dependent (Windows/Linux/Mac have different setups)
+Solution: Check logs for PyAudio version conflicts
+         Try: pip install --upgrade pyaudio
+         May need system-level audio drivers
+```
+
+### Multiple Logger Confusion
+```
+Problem: Logs appearing in different formats/locations
+Reason: ultron_logger + loguru + standard logging mixed
+Solution: Standardize on ultron_logger in new code
+         Check existing code for which logger it uses
+```
+
+### Async/Await Timing Issues
+```
+Problem: Race conditions, timeouts, await errors
+Reason: Complex async chains with retry logic
+Solution: Use asyncio.gather() for parallel tasks
+         Add explicit timeouts
+         Log at DEBUG level to trace execution order
+```
+
+### Configuration Not Updating
+```
+Problem: Config changes don't take effect
+Reason: Fallback configs or import order issues
+Solution: Check for multiple config files loading
+         Restart agent completely (not just module reload)
+         Check env variables overriding config
+```
+
+### Tools Not Discovered
+```
+Problem: Tool not available in agent
+Reason: tool_loader.py didn't find or load it
+Solution: Check tool file is in tools/ directory
+         Check tool inherits ToolInterface correctly
+         Check schema() method exists
+         Restart agent to re-scan
+```
+
+---
+
+## Key Paths & Locations
+
+| Path | Purpose |
+|------|---------|
+| `ultron_config.json` | Master configuration (human-editable) |
+| `config.py` | Auto-generated config schema |
+| `main.py` | Primary entry point |
+| `agent_core.py` | Main UltronAgent class |
+| `brain.py` | LLM interface & system awareness |
+| `memory.py` | Memory system (short/long-term) |
+| `tools/` | Tool implementations (80+ tools) |
+| `tools/tool_loader.py` | Dynamic tool discovery & loading |
+| `utils/event_system.py` | Event bus for all subsystems |
+| `utils/ultron_logger.py` | Structured logging |
+| `tests/` | Test suite |
+| `logs/` | Runtime logs (errors.log, ai_activities.log) |
+| `.github/` | CI/CD workflows, PR templates |
+| `docs/` | Documentation (major_components_and_features.md, project_overview.md) |
+
+---
+
+## Documentation & Additional Resources
+
+### Key Documentation Files
+- `README.md` — Project overview and quick start
+- `docs/major_components_and_features.md` — Detailed technical reference
+- `docs/project_overview.md` — Architecture diagrams and component descriptions
+- `SYSTEM_ARCHITECTURE.md` — Component connections and data flow
+- `VOICE_MICROPHONE_DOCUMENTATION.md` — Voice subsystem deep dive
+- `MCP_INTEGRATION_GUIDE.md` — Model Context Protocol setup
+- `SETUP_CHECKLIST.md` — Installation & environment setup
+- `ADB_*.md` files — Feature-specific documentation (extensive!)
+
+### Extensive Documentation
+This repo contains **extensive** additional documentation (300+ markdown files, prefixed with `ADB_`, `PHASE_`, `SESSION_*`, etc.). 
+
+**⚠️ WARNING**: Many are outdated. When exploring new areas:
+1. Check file dates (created/modified dates)
+2. Search for relevant `*_GUIDE.md` or `*_REFERENCE.md` files
+3. Check `DOCUMENTATION_HUB.md` for central index
+4. Cross-reference with actual code before following instructions
+
+---
+
+**Last Updated**: 2026-03-06  
+**Version**: 3.0.4+  
+**Status**: Sophisticated but fragmented — verify implementations before following patterns
+
+For questions on specific components, search the codebase for the component name + "guide" or "documentation".
 
 ### Core Components
 - **Main Flow**: `main.py` → `agent_core.py` loads subsystems: `brain.py` (LLM interface), `voice.py` (speech), `vision.py` (vision), and tools framework
