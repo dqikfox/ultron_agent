@@ -1,0 +1,15 @@
+#!/bin/bash
+# Post-merge hook to alert about documentation changes
+
+echo "Checking for merged documentation changes..."
+
+if git diff HEAD~1 HEAD --name-only | grep -q "copilot-instructions.md"; then
+    echo "📖 Copilot instructions were updated"
+    echo "   Review: .github/copilot-instructions.md"
+fi
+
+if git diff HEAD~1 HEAD --name-only | grep -q "TOOLS_INVENTORY.md"; then
+    echo "🔧 Tool inventory was updated"
+    echo "   Review: TOOLS_INVENTORY.md"
+fi
+
