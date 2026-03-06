@@ -1,0 +1,94 @@
+{
+  "version": "1.0",
+  "description": "ULTRON Agent Safety Policies - Production Grade",
+
+  "file_access": {
+    "allowed_base_paths": [
+      "/home/ultro/projects",
+      "/home/ultro/Documents",
+      "/home/ultro/Downloads",
+      "/tmp/ultron_workspace"
+    ],
+    "blocked_paths": [
+      "/etc",
+      "/var",
+      "/usr",
+      "/sys",
+      "/proc",
+      "/boot",
+      "/root"
+    ],
+    "max_file_size_mb": 10,
+    "require_confirmation": {
+      "write": true,
+      "delete": true,
+      "execute": false
+    }
+  },
+
+  "command_execution": {
+    "allowed_commands": [
+      "/usr/bin/ls",
+      "/usr/bin/cat",
+      "/usr/bin/grep",
+      "/usr/bin/find",
+      "/usr/bin/whoami",
+      "/usr/bin/pwd",
+      "/usr/bin/date",
+      "/usr/bin/python3",
+      "/usr/bin/git",
+      "/usr/bin/docker",
+      "python3 /home/ultro/projects/**/*.py"
+    ],
+    "blocked_commands": [
+      "rm -rf /",
+      "dd if=*",
+      "mkfs.*",
+      "fdisk",
+      "parted",
+      "> /dev/sd*",
+      "chmod 777",
+      "chown root",
+      "sudo",
+      "su -"
+    ],
+    "max_execution_time_seconds": 30,
+    "require_confirmation": true,
+    "network_access": "restricted"
+  },
+
+  "network_access": {
+    "allowed_domains": [
+      "api.openai.com",
+      "localhost",
+      "127.0.0.1",
+      "github.com",
+      "pypi.org",
+      "*.azure.com"
+    ],
+    "blocked_ports": [22, 23, 3389],
+    "rate_limit_requests_per_minute": 30
+  },
+
+  "memory_limits": {
+    "max_memory_mb": 4096,
+    "max_redis_keys": 10000,
+    "context_window_messages": 50,
+    "persist_conversations": true
+  },
+
+  "security": {
+    "log_all_actions": true,
+    "require_user_confirmation_destructive": true,
+    "sandbox_mode": true,
+    "allow_code_execution": false,
+    "encryption_at_rest": false
+  },
+
+  "monitoring": {
+    "enable_prometheus": true,
+    "enable_logging": true,
+    "log_level": "INFO",
+    "alert_on_policy_violation": true
+  }
+}

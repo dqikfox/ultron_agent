@@ -13,6 +13,36 @@ logger = logging.getLogger(__name__)
 
 
 class UltronVoiceManager:
+
+        def self_test(self) -> dict:
+            """
+            Run diagnostics on all available TTS engines and basic speak functionality.
+            Returns a dict with status and per-engine results.
+            """
+            results = {"status": "ok", "engines": {}, "errors": []}
+            available = self.get_available_engines()
+            if not available:
+                results["status"] = "fail"
+                results["errors"].append("No TTS engines available")
+                return results
+            for engine in available:
+                try:
+                    ok = self.test_engine(engine)
+                    results["engines"][engine] = "ok" if ok else "fail"
+                    if not ok:
+                        results["status"] = "fail"
+                        results["errors"].append(f"Engine {engine} failed test")
+                except Exception as e:
+                    results["engines"][engine] = f"error: {e}"
+                    results["status"] = "fail"
+                    results["errors"].append(f"Engine {engine} error: {e}")
+            # Optionally, test basic speak (mute or short text)
+            try:
+                self.speak("Test.", async_mode=False, engine=available[0])
+            except Exception as e:
+                results["status"] = "fail"
+                results["errors"].append(f"Basic speak failed: {e}")
+            return results
     """Voice manager with multiple TTS engine support"""
 
     def __init__(self, config=None, ultron_config=None):

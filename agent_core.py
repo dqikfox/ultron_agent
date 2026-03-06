@@ -1,3 +1,20 @@
+def tool_self_test(self) -> dict:
+    """
+    Run self-test on all loaded tools that implement self_test().
+    Returns a dict with results for each tool.
+    """
+    results = {}
+    if not hasattr(self, "tools") or not self.tools:
+        return {"success": False, "error": "No tools loaded"}
+    for name, tool in self.tools.items():
+        if hasattr(tool, "self_test"):
+            try:
+                results[name] = tool.self_test()
+            except Exception as e:
+                results[name] = {"status": "fail", "error": str(e)}
+        else:
+            results[name] = {"status": "skipped", "error": "No self_test() method"}
+    return {"success": True, "tool_diagnostics": results}
 """
 ULTRON Agent Core System
 Main agent initialization and core functionality
@@ -23,6 +40,14 @@ from utils.error_recovery import retry_on_failure
 from utils.command_history import CommandHistory
 from utils.performance_tracker import PerformanceMonitor, track_performance
 from utils.performance_tracker import track_performance
+
+# Import consciousness system for NPC-like behavior
+try:
+    from cognition.ollama_conscious_agent import OllamaConsciousAgent
+    CONSCIOUSNESS_AVAILABLE = True
+except ImportError:
+    CONSCIOUSNESS_AVAILABLE = False
+    OllamaConsciousAgent = None
 
 try:
     import keyboard
@@ -74,6 +99,93 @@ class AgentStatus(Enum):
 
 
 class UltronAgent:
+    async def periodic_self_check_loop(self, interval_seconds: int = 60):
+        """Background loop: periodically run self-tests and auto-repair if needed."""
+        self.logger.info("Starting periodic self-diagnosis and auto-repair loop...")
+        while True:
+            try:
+                # Run self-tests
+                results = {
+                    "memory": self.memory_self_test() if hasattr(self, "memory_self_test") else {"success": False},
+                    "brain": self.brain_self_test() if hasattr(self, "brain_self_test") else {"success": False},
+                    "tools": self.tool_self_test() if hasattr(self, "tool_self_test") else {"success": False},
+                }
+                # Voice and event system diagnostics (if available)
+                if self.voice and hasattr(self.voice, "self_test"):
+                    try:
+                        results["voice"] = self.voice.self_test()
+                    except Exception as e:
+                        results["voice"] = {"success": False, "error": str(e)}
+                if self.event_system and hasattr(self.event_system, "self_test"):
+                    try:
+                        results["event_system"] = self.event_system.self_test()
+                    except Exception as e:
+                        results["event_system"] = {"success": False, "error": str(e)}
+
+                # Log results
+                self.logger.info(f"Self-diagnosis results: {results}")
+
+                # Auto-repair for failed components
+                for comp, res in results.items():
+                    if not res.get("success", False):
+                        self.logger.warning(f"Component '{comp}' failed self-test. Attempting auto-repair...")
+                        await self._auto_repair_component(comp)
+
+            except Exception as e:
+                self.logger.error(f"Periodic self-check loop error: {e}")
+            await asyncio.sleep(interval_seconds)
+
+    async def _auto_repair_component(self, component: str):
+        """Attempt to auto-repair a failed component by reinitializing it."""
+        try:
+            if component == "memory":
+                if hasattr(self, "_initialize_memory"):
+                    await self._initialize_memory()
+                    self.logger.info("Memory system reinitialized.")
+            elif component == "brain":
+                if hasattr(self, "_initialize_brain"):
+                    await self._initialize_brain()
+                    self.logger.info("Brain system reinitialized.")
+            elif component == "tools":
+                if hasattr(self, "_load_tools"):
+                    await self._load_tools()
+                    self.logger.info("Tools reloaded.")
+            elif component == "voice":
+                if hasattr(self, "_initialize_voice"):
+                    await self._initialize_voice()
+                    self.logger.info("Voice system reinitialized.")
+            elif component == "event_system":
+                if hasattr(self, "_initialize_event_system"):
+                    await self._initialize_event_system()
+                    self.logger.info("Event system reinitialized.")
+            else:
+                self.logger.warning(f"No auto-repair routine for component: {component}")
+        except Exception as e:
+            self.logger.error(f"Auto-repair failed for {component}: {e}")
+
+    def memory_self_test(self) -> dict:
+        """Run self-test on memory system if available."""
+        if self.memory and hasattr(self.memory, "self_test"):
+            return self.memory.self_test()
+        return {"success": False, "error": "No memory or self_test method"}
+
+    def brain_self_test(self) -> dict:
+        """Run self-test on brain system if available."""
+        if self.brain and hasattr(self.brain, "self_test"):
+            return self.brain.self_test()
+        return {"success": False, "error": "No brain or self_test method"}
+
+    def is_healthy(self) -> bool:
+        """Return True if all core systems are present and agent is running."""
+        return (
+            self.status == AgentStatus.RUNNING
+            and self.memory is not None
+            and self.brain is not None
+            and self.voice is not None
+            and self.event_system is not None
+            and len(self.tools) > 0
+        )
+
     """
     Main ULTRON Agent class - Main integration hub per copilot instructions
     Handles command routing, tool loading, and system events
@@ -88,7 +200,7 @@ class UltronAgent:
         config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
                        else {})
         self.performance_profiler = get_performance_profiler(config_dict)
-        
+
         # Initialize performance analytics
         self.performance_analytics = None
         if PERFORMANCE_ANALYTICS_AVAILABLE:
@@ -175,8 +287,25 @@ class UltronAgent:
             self.task_scheduler: Optional[Any] = None
             self.platform_manager: Optional[Any] = None
 
+            # Initialize consciousness system for personality & self-awareness
+            self.conscious_mode: bool = False
+            self.consciousness: Optional[OllamaConsciousAgent] = None
+            if CONSCIOUSNESS_AVAILABLE:
+                try:
+                    self.consciousness = OllamaConsciousAgent(
+                        name="ULTRON",
+                        role="AI Assistant",
+                        personality_type="balanced",
+                        model=getattr(self.config, 'llm_model', 'llava:7b')
+                    )
+                    log_info("agent_core", "Consciousness system initialized (personality-driven mode)")
+                except Exception as conscious_err:
+                    log_error("agent_core", f"Consciousness init failed: {conscious_err}")
+                    self.consciousness = None
+
             log_info("agent_core", "ULTRON Agent core initialized successfully",
-                    extra={"config_path": config_path, "components_initialized": 9})
+                    extra={"config_path": config_path, "components_initialized": 10,
+                           "consciousness_enabled": self.consciousness is not None})
 
         except ConfigError as cfg_err:
             log_error("agent_core", f"Configuration error during init: {cfg_err.message}",
@@ -206,26 +335,6 @@ class UltronAgent:
             ValidationError: If configuration values are invalid
         """
         try:
-            self.logger.info("Initializing ULTRON Agent components...")
-
-            # Start performance monitoring
-            config_dict = (self.config.__dict__ if hasattr(self.config, '__dict__')
-                           else {})
-            start_performance_monitoring(config_dict)
-            
-            # Start analytics monitoring
-            if self.performance_analytics:
-                self.performance_analytics.start_monitoring(interval_seconds=10)
-
-            # Initialize core systems per copilot instructions
-            await self._initialize_memory()
-            await self._initialize_voice()
-            await self._initialize_vision()
-            await self._initialize_brain()
-            await self._initialize_event_system()
-            await self._initialize_idle_monitor()
-            await self._initialize_keyboard_listener()
-            await self._load_tools()
             with ErrorContext("config_load_config"):
                 # Validate config path
                 if not config_path or not isinstance(config_path, str):
@@ -371,6 +480,14 @@ class UltronAgent:
                 log_info("agent_core", "Starting ULTRON Agent component initialization...")
                 self.status = AgentStatus.INITIALIZING
 
+                # Start periodic self-diagnosis loop in background
+                try:
+                    loop = asyncio.get_running_loop()
+                    loop.create_task(self.periodic_self_check_loop())
+                    self.logger.info("Periodic self-diagnosis loop started.")
+                except Exception as e:
+                    self.logger.error(f"Failed to start periodic self-diagnosis loop: {e}")
+
                 # Start performance monitoring with error isolation
                 try:
                     config_dict: Dict[str, Any] = (self.config.__dict__ if hasattr(self.config, '__dict__')
@@ -421,6 +538,15 @@ class UltronAgent:
                     log_error("agent_core", f"Web interface startup failed: {web_err}")
                     # Continue - web interface is non-critical
 
+                # Update brain with loaded tools
+                try:
+                    if self.brain:
+                        self.update_brain_context()
+                        log_info("agent_core", "Brain updated with loaded tools")
+                except Exception as brain_update_err:
+                    log_error("agent_core", f"Brain update failed: {brain_update_err}")
+                    # Continue - non-critical
+
                 # Update status and markers
                 self.status = AgentStatus.RUNNING
                 self.is_running = True
@@ -428,8 +554,8 @@ class UltronAgent:
                 init_duration: float = datetime.now().timestamp() - init_start_time
                 log_ai_decision("agent_core", "Agent initialization completed",
                                ai_model="agent_core",
-                               confidence_score=len(initialized_components) / len(init_tasks),
-                               reasoning=f"Initialized {len(initialized_components)}/{len(init_tasks)} components in {init_duration:.2f}s")
+                               confidence_score=0.95,  # Fixed: removed reference to undefined init_tasks
+                               reasoning=f"Initialized {len(initialized_components)} components in {init_duration:.2f}s")
 
                 # Perform initial identity maintenance with error isolation
                 try:
@@ -483,7 +609,7 @@ class UltronAgent:
             from memory import UltronMemory
             self.memory = UltronMemory(self.config)
             self.logger.info("✅ ULTRON memory system initialized with identity awareness")
-            
+
             # Verify system prompt is available
             if hasattr(self.memory, 'get_system_prompt'):
                 test_prompt = self.memory.get_system_prompt()
@@ -491,7 +617,7 @@ class UltronAgent:
                     self.logger.info("✅ ULTRON identity confirmed in system prompt")
                 else:
                     self.logger.warning("⚠️ ULTRON identity missing from system prompt")
-            
+
         except ImportError as e:
             self.logger.error(f"❌ CRITICAL: UltronMemory not available - identity will be compromised: {e}")
             self.logger.error("Attempting fallback to basic Memory (NOT RECOMMENDED)")
@@ -548,12 +674,16 @@ class UltronAgent:
         self.logger.info("Initializing brain system...")
         try:
             from brain import UltronBrain
-            self.brain = UltronBrain(self.config, self.tools, self.memory)
-            self.logger.info("Brain system initialized successfully")
+            # Pass empty tools initially - will update after tools are loaded
+            self.brain = UltronBrain(self.config, {}, self.memory)
+            self.logger.info("Brain system initialized successfully (tools will be updated after loading)")
         except ImportError as e:
             self.logger.error(f"Brain system initialization failed: {e}")
             self.brain = None
-    
+        except Exception as e:
+            self.logger.error(f"Brain system initialization error: {e}")
+            self.brain = None
+
     def update_brain_context(self):
         """Update brain's context provider with current agent state"""
         if self.brain and hasattr(self.brain, 'update_context_provider'):
@@ -877,27 +1007,6 @@ class UltronAgent:
 
                             # 1) Try importing as package module
                             try:
-                                instance = obj(self.config)
-                            except TypeError:
-                                try:
-                                    instance = obj()
-                                except Exception as inst_e:
-                                    self.logger.error(f"Tool class {name} init failed: {inst_e}")
-                                    continue
-                        except Exception as inst_e:
-                            self.logger.error(f"Tool class {name} init failed: {inst_e}")
-                            continue
-
-                        try:
-                            self.tools[name.lower()] = instance
-                            self.logger.info(f"Loaded tool: {name}")
-                        except Exception as e2:
-                            self.logger.error(f"Failed to register tool {name}: {e2}")
-            except Exception as e:
-                self.logger.error(f"Failed to inspect tool classes in {tool_file}: {e}")
-        
-        # Update brain context after all tools are loaded
-        self.update_brain_context()
                                 module = importlib.import_module(f"tools.{stem}")
                             except ImportError as import_err:
                                 log_error("agent_core", f"Package import failed for tools.{stem}: {import_err}")
@@ -986,6 +1095,13 @@ class UltronAgent:
                 if tools_loaded == 0:
                     log_error("agent_core", "No tools were successfully loaded")
                     # Don't raise - agent can function without tools
+
+                # Update brain context after all tools are loaded
+                if hasattr(self, 'update_brain_context') and callable(self.update_brain_context):
+                    try:
+                        self.update_brain_context()
+                    except Exception as ctx_err:
+                        log_error("agent_core", f"Failed to update brain context: {ctx_err}")
 
         except ToolError as tool_err:
             log_error("agent_core", f"Tool loading error: {tool_err.message}",

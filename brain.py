@@ -21,7 +21,7 @@ from asyncio import (
 )
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Callable, Tuple
 
 # Create fallback functions for security utils if not available
 try:
@@ -107,16 +107,69 @@ except ImportError as e:
     AzureCognitiveIntegration = None
     AZURE_AVAILABLE = False
 
+# Import intelligent cache manager
+try:
+    from utils.cache_manager import get_cache_manager
+    CACHE_AVAILABLE = True
+except ImportError as e:
+    warning(f"Cache manager not available: {sanitize_log_input(str(e))}")
+    get_cache_manager = None
+    CACHE_AVAILABLE = False
+
 
 
 class UltronBrain:
+
+    def self_test(self) -> dict:
+        """Run a self-test of brain integration with memory and tools."""
+        result = {"success": True, "errors": [], "details": {}}
+        # Test memory integration
+        try:
+            if not self.memory:
+                result["success"] = False
+                result["errors"].append("No memory attached.")
+            elif not hasattr(self.memory, "self_test"):
+                result["success"] = False
+                result["errors"].append("Memory has no self_test method.")
+            else:
+                mem_test = self.memory.self_test()
+                result["details"]["memory_self_test"] = mem_test
+                if not mem_test.get("success", False):
+                    result["success"] = False
+                    result["errors"].append("Memory self-test failed.")
+        except Exception as e:
+            result["success"] = False
+            result["errors"].append(f"Memory test error: {e}")
+        # Test tool access
+        try:
+            if not self.tools:
+                result["success"] = False
+                result["errors"].append("No tools loaded.")
+            else:
+                result["details"]["tool_count"] = len(self.tools)
+        except Exception as e:
+            result["success"] = False
+            result["errors"].append(f"Tool access error: {e}")
+        # Test reasoning (basic prompt build)
+        try:
+            prompt = self._build_enhanced_prompt("diagnostic test")
+            if not prompt or "diagnostic test" not in prompt:
+                result["success"] = False
+                result["errors"].append("Prompt build failed.")
+            else:
+                result["details"]["prompt_sample"] = prompt[:200]
+        except Exception as e:
+            result["success"] = False
+            result["errors"].append(f"Prompt build error: {e}")
+        return result
+
     def __init__(self, config, tools, memory):
         self.config = config
         self.tools = tools
         self.memory = memory
         self.cache_file = "cache.json"
         self.load_cache()
-        
+
         # Initialize intelligent cache manager
         self.cache_manager = get_cache_manager() if CACHE_AVAILABLE else None
         if self.cache_manager:
@@ -125,7 +178,7 @@ class UltronBrain:
         # Initialize Ollama context provider for model-agnostic context injection
         from utils.ollama_context_provider import OllamaContextProvider
         from utils.model_capabilities_registry import get_model_capabilities_registry
-        
+
         self.ollama_context = OllamaContextProvider(
             memory=memory,
             tools=tools,
@@ -134,7 +187,7 @@ class UltronBrain:
             )
         )
         info("Ollama context provider initialized for all models")
-        
+
         # Initialize model capabilities registry
         self.model_registry = get_model_capabilities_registry()
         info("Model capabilities registry initialized")
@@ -299,7 +352,7 @@ class UltronBrain:
         system_messages = []
         # Build comprehensive ULTRON system prompt with tools
         system_prompt_parts = []
-        
+
         # Core ULTRON identity
         system_prompt_parts.append(
             "🤖 ULTRON AI - Advanced Autonomous Agent\n\n"
@@ -309,7 +362,7 @@ class UltronBrain:
             "GitHub: https://github.com/dqikfox/ultron_agent\n\n"
             "CRITICAL: You must ALWAYS identify as ULTRON AI. Never claim to be Claude, GPT, or any other model.\n\n"
         )
-        
+
         # Get enhanced system prompt from UltronMemory if available
         if self.memory and hasattr(self.memory, 'get_system_prompt'):
             system_prompt = self.memory.get_system_prompt()
@@ -319,12 +372,12 @@ class UltronBrain:
             })
 
         info(f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}")
-            try:
-                memory_prompt = self.memory.get_system_prompt()
-                system_prompt_parts.append(memory_prompt)
-            except Exception as e:
-                warning(f"Failed to get memory system prompt: {e}")
-        
+        try:
+            memory_prompt = self.memory.get_system_prompt()
+            system_prompt_parts.append(memory_prompt)
+        except Exception as e:
+            warning(f"Failed to get memory system prompt: {e}")
+
         # Add tool awareness
         if self.tools:
             tool_list = []
@@ -332,14 +385,14 @@ class UltronBrain:
                 tool_name = tool.__class__.__name__ if hasattr(tool, '__class__') else str(tool)
                 tool_desc = getattr(tool, 'description', 'No description') if hasattr(tool, 'description') else 'Tool available'
                 tool_list.append(f"  • {tool_name}: {tool_desc}")
-            
+
             tools_section = (
                 f"\n\nAVAILABLE TOOLS ({len(self.tools)} loaded):\n" +
                 "\n".join(tool_list[:20]) +  # Show first 20 tools
                 (f"\n  ... and {len(self.tools) - 20} more tools" if len(self.tools) > 20 else "")
             )
             system_prompt_parts.append(tools_section)
-        
+
         # Add service status
         services_status = (
             "\n\nCONNECTED SERVICES:\n"
@@ -351,7 +404,7 @@ class UltronBrain:
             "  • Vision System: Available via vision tools\n"
         )
         system_prompt_parts.append(services_status)
-        
+
         # Response format
         system_prompt_parts.append(
             "\n\nRESPONSE FORMAT:\n"
@@ -359,16 +412,16 @@ class UltronBrain:
             "Be helpful, technical, and proactive about suggesting tools.\n"
             "When users ask what you can do, mention specific tools and capabilities."
         )
-        
+
         # Combine all parts
         full_system_prompt = "\n".join(system_prompt_parts)
-        
+
         # Build messages with system prompt ALWAYS included
         system_messages: List[Dict[str, str]] = [{
             "role": "system",
             "content": full_system_prompt
         }]
-        
+
         # Add user prompt
         ultron_prompt: str = prompt
 
@@ -411,7 +464,7 @@ class UltronBrain:
                 "role": "user",
                 "content": enhanced_prompt
             }]
-            
+
             # Add function calling support if model supports it
             # Get tool schemas for function calling
             function_schemas = self.ollama_context.get_tools_as_function_schemas()
@@ -419,7 +472,7 @@ class UltronBrain:
                 self.config.get('ollama_enable_function_calling', False) and
                 model_caps and model_caps.supports_function_calling
             )
-            
+
             if function_schemas and enable_function_calling:
                 info(f"Including {len(function_schemas)} tool schemas for function calling")
                 # Note: Function calling support depends on the model
@@ -555,7 +608,7 @@ class UltronBrain:
                 if self.cache_manager:
                     cache_key = f"brain:chat:{hashlib.md5(prompt.encode()).hexdigest()}"
                     self.cache_manager.set(cache_key, reply, ttl=1800)  # Cache for 30 minutes
-                
+
                 if progress_callback:
                     progress_callback(100, "Response complete.")
                 info(f"Successfully received response from {sanitize_log_input(model)} ({len(reply)} chars)")
@@ -2091,12 +2144,12 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             error_msg = f"Command processing failed: {str(e)}"
             error(sanitize_log_input(error_msg))
             return error_msg
-    
+
     def update_context_provider(self, memory=None, tools=None, config=None):
         """
         Update the Ollama context provider with new references.
         Call this when memory, tools, or config changes.
-        
+
         Args:
             memory: New memory system instance (optional)
             tools: New tools dictionary (optional)
@@ -2106,28 +2159,28 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             if memory is not None:
                 self.memory = memory
                 self.ollama_context.update_memory(memory)
-            
+
             if tools is not None:
                 self.tools = tools
                 self.ollama_context.update_tools(tools)
-            
+
             if config is not None:
                 self.config = config
                 config_dict = config if isinstance(config, dict) else (
                     config.__dict__ if hasattr(config, '__dict__') else {}
                 )
                 self.ollama_context.update_config(config_dict)
-            
+
             info("Ollama context provider updated with new references")
-            
+
         except Exception as e:
             error(f"Failed to update context provider: {sanitize_log_input(str(e))}")
-    
+
     def get_ollama_context_stats(self) -> Dict[str, Any]:
         """
         Get statistics about the Ollama context provider state.
         Useful for debugging and monitoring.
-        
+
         Returns:
             Dictionary with context statistics
         """
@@ -2136,21 +2189,21 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
         except Exception as e:
             error(f"Failed to get context stats: {sanitize_log_input(str(e))}")
             return {'error': str(e)}
-    
+
     def get_model_info(self, model_name: str = None) -> Dict[str, Any]:
         """
         Get information about a model's capabilities.
-        
+
         Args:
             model_name: Model name (uses current model if not specified)
-            
+
         Returns:
             Dictionary with model information
         """
         try:
             model = model_name or self.config.get("llm_model", "llama3.1")
             caps = self.model_registry.get_capabilities(model)
-            
+
             if caps:
                 return {
                     'model_name': model,
@@ -2165,15 +2218,15 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
                     'model_name': model,
                     'error': 'Model capabilities not found'
                 }
-                
+
         except Exception as e:
             error(f"Failed to get model info: {sanitize_log_input(str(e))}")
             return {'error': str(e)}
-    
+
     def list_available_models(self) -> List[str]:
         """
         List all models known to the capabilities registry.
-        
+
         Returns:
             List of model names
         """
@@ -2183,26 +2236,26 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
         except Exception as e:
             error(f"Failed to list models: {sanitize_log_input(str(e))}")
             return []
-    
+
     def find_best_model_for_task(self, task_type: str) -> Optional[str]:
         """
         Find the best model for a specific task.
-        
+
         Args:
             task_type: Type of task (vision, coding, reasoning, etc.)
-            
+
         Returns:
             Model name or None
         """
         try:
             available = self.list_available_models()
             best = self.model_registry.find_best_model_for_task(task_type, available)
-            
+
             if best:
                 info(f"Recommended model for '{task_type}': {best}")
-            
+
             return best
-            
+
         except Exception as e:
             error(f"Failed to find best model: {sanitize_log_input(str(e))}")
             return None

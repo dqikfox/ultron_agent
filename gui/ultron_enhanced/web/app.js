@@ -21,7 +21,6 @@ class UltronPokedexInterface {
         // Dependency: handleStartupAnnouncement() also enforces this.voiceEnabled = false
         // Related: toggleVoiceChat() manages state transitions with server sync
         this.voiceEnabled = false;
-        this.soundEnabled = true;
         this.isListening = false;
         this.isSpeaking = false;
         this.shouldRestartRecognition = false;
@@ -143,7 +142,6 @@ class UltronPokedexInterface {
             btn.addEventListener('click', (event) => {
                 const section = event.currentTarget.dataset.section;
                 this.switchSection(section);
-                this.playSound('button');
             });
 
             // Keyboard navigation for tabs
@@ -167,7 +165,6 @@ class UltronPokedexInterface {
                         event.preventDefault();
                         const section = event.currentTarget.dataset.section;
                         this.switchSection(section);
-                        this.playSound('button');
                         break;
                 }
             });
@@ -187,7 +184,6 @@ class UltronPokedexInterface {
             btn.addEventListener('click', (event) => {
                 const direction = event.currentTarget.dataset.direction;
                 this.handleDPadInput(direction);
-                this.playSound('button');
             });
         });
 
@@ -204,12 +200,10 @@ class UltronPokedexInterface {
 
         document.getElementById('btn-a')?.addEventListener('click', () => {
             this.handleActionButton('A');
-            this.playSound('confirm');
         });
 
         document.getElementById('btn-b')?.addEventListener('click', () => {
             this.handleActionButton('B');
-            this.playSound('button');
         });
 
         document.getElementById('btn-power')?.addEventListener('click', () => {
@@ -227,13 +221,10 @@ class UltronPokedexInterface {
         });
 
         document.getElementById('btn-volume')?.addEventListener('click', () => {
-            this.toggleSound();
-            this.playSound('button');
         });
 
         document.getElementById('btn-settings')?.addEventListener('click', () => {
             this.switchSection('settings');
-            this.playSound('button');
         });
 
         document.getElementById('capture-btn')?.addEventListener('click', () => {
@@ -1062,25 +1053,15 @@ class UltronPokedexInterface {
     }
 
     playStartupSound() {
-        this.playSound('startup');
+        // Sound system removed
     }
 
     playSound(sound) {
-        if (!this.soundEnabled) {
-            return;
-        }
-        try {
-            const audio = new Audio(`sounds/${sound}.mp3`);
-            audio.volume = 0.4;
-            audio.play().catch((error) => console.debug('[ULTRON] Audio blocked - app.js:852', error));
-        } catch (error) {
-            console.debug('[ULTRON] Audio play failed - app.js:854', error);
-        }
+        // Sound system removed
     }
 
     toggleSound() {
-        this.soundEnabled = !this.soundEnabled;
-        this.addSystemMessage(`Sound ${this.soundEnabled ? 'enabled' : 'muted'}`);
+        // Sound system removed
     }
 
     startLEDSequence() {

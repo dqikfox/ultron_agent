@@ -323,7 +323,7 @@ class DeploymentValidator:
 
         # Check LLM model
         model = self.config.get('llm_model', 'unknown')
-        if model not in ['llava:7b', 'llama3.1', 'deepseek-r1:14b', 'qwen3-coder:480b-cloud']:
+        if model not in ['dolphin3:latest', 'llava:7b', 'llama3.1', 'deepseek-r1:14b', 'qwen3-coder:480b-cloud']:
             warnings.append(f"Unusual model: {model}")
 
         # Check ports
@@ -465,7 +465,7 @@ class DeploymentValidator:
     def validate_models(self) -> bool:
         """Check model availability"""
         ollama_url = self.config.get('ollama_base_url', 'http://localhost:11434')
-        default_model = self.config.get('llm_model', 'llava:7b')
+        default_model = self.config.get('llm_model', 'dolphin3:latest')
 
         try:
             import requests

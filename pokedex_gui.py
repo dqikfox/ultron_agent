@@ -758,7 +758,21 @@ class IntegratedPokedexGUI:
         """Execute command through agent in background thread"""
         try:
             if hasattr(self.agent_ref, 'process_command'):
-                response = self.agent_ref.process_command(command)
+                # Properly run the async process_command and get the result
+                import asyncio
+                try:
+                    loop = asyncio.get_running_loop()
+                except RuntimeError:
+                    loop = None
+
+                if loop and loop.is_running():
+                    # If already in an event loop (rare in thread), use run_coroutine_threadsafe
+                    future = asyncio.run_coroutine_threadsafe(
+                        self.agent_ref.process_command(command), loop
+                    )
+                    response = future.result()
+                else:
+                    response = asyncio.run(self.agent_ref.process_command(command))
                 if response:
                     self.add_to_conversation("ULTRON", response)
         except Exception as e:

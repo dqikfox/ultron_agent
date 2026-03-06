@@ -124,8 +124,20 @@ def test_command_processing():
 
         for cmd in test_commands:
             try:
-                response = agent.process_command(cmd)
-                print(f"✅ Command '{cmd}' -> Response: {response[:50]}...")
+                # Handle async process_command properly
+                import asyncio
+                import inspect
+                
+                if hasattr(agent, 'process_command'):
+                    if inspect.iscoroutinefunction(agent.process_command):
+                        # Run async method
+                        response = asyncio.run(agent.process_command(cmd))
+                    else:
+                        # Sync method
+                        response = agent.process_command(cmd)
+                    print(f"✅ Command '{cmd}' -> Response: {str(response)[:50]}...")
+                else:
+                    print(f"⚠️ Command '{cmd}' -> No process_command method")
             except Exception as e:
                 print(f"⚠️ Command '{cmd}' failed: {e}")
 

@@ -1,0 +1,13 @@
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.csproj.AssemblyReference.cache
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.GeneratedMSBuildEditorConfig.editorconfig
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.AssemblyInfoInputs.cache
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.AssemblyInfo.cs
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.csproj.CoreCompileInputs.cache
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.sourcelink.json
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/bin/Debug/netstandard2.1/UltronModule.deps.json
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/bin/Debug/netstandard2.1/UltronModule.dll
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/bin/Debug/netstandard2.1/UltronModule.pdb
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/bin/Debug/netstandard2.1/UltronModule.xml
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.dll
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.xml
+/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/Debug/netstandard2.1/UltronModule.pdb

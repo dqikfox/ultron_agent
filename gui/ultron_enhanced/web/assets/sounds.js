@@ -1,63 +1,4 @@
-/**
- * ULTRON Enhanced - Sound System
- * Handles audio effects and voice feedback for the Pokedex interface
- */
-
-class UltronSoundSystem {
-    constructor() {
-        this.audioContext = null;
-        this.sounds = new Map();
-        this.volume = 0.7;
-        this.muted = false;
-        this.initialized = false;
-        
-        this.initializeAudioContext();
-        this.loadDefaultSounds();
-    }
-
-    async initializeAudioContext() {
-        try {
-            // Create audio context
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Handle browser autoplay restrictions
-            if (this.audioContext.state === 'suspended') {
-                document.addEventListener('click', () => {
-                    this.audioContext.resume();
-                }, { once: true });
-            }
-            
-            this.initialized = true;
-            console.log('ULTRON Sound System initialized');
-        } catch (error) {
-            console.warn('Audio initialization failed:', error);
-        }
-    }
-
-    loadDefaultSounds() {
-        // Define default sound effects using Web Audio API
-        this.soundDefinitions = {
-            wake: {
-                type: 'tone',
-                frequency: 440,
-                duration: 0.3,
-                volume: 0.5
-            },
-            confirm: {
-                type: 'beep',
-                frequency: 800,
-                duration: 0.1,
-                volume: 0.4
-            },
-            error: {
-                type: 'buzz',
-                frequency: 200,
-                duration: 0.5,
-                volume: 0.6
-            },
-            button: {
-                type: 'click',
-                frequency: 1000,
+// Sound system removed. File intentionally left blank to prevent missing file errors.
                 duration: 0.05,
                 volume: 0.3
             },
@@ -90,21 +31,21 @@ class UltronSoundSystem {
         try {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
-            
+
             oscillator.frequency.value = frequency;
             oscillator.type = type;
-            
+
             // Apply volume with fade in/out
             gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
             gainNode.gain.linearRampToValueAtTime(volume * this.volume, this.audioContext.currentTime + 0.01);
             gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-            
+
             oscillator.start(this.audioContext.currentTime);
             oscillator.stop(this.audioContext.currentTime + duration);
-            
+
         } catch (error) {
             console.warn('Sound generation failed:', error);
         }
@@ -124,21 +65,21 @@ class UltronSoundSystem {
         try {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
-            
+
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(startFreq, this.audioContext.currentTime);
             oscillator.frequency.linearRampToValueAtTime(endFreq, this.audioContext.currentTime + duration);
-            
+
             gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
             gainNode.gain.linearRampToValueAtTime(0.4 * this.volume, this.audioContext.currentTime + 0.01);
             gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-            
+
             oscillator.start(this.audioContext.currentTime);
             oscillator.stop(this.audioContext.currentTime + duration);
-            
+
         } catch (error) {
             console.warn('Sweep generation failed:', error);
         }
@@ -256,27 +197,27 @@ class UltronSoundSystem {
     speak(text, options = {}) {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(text);
-            
+
             // Configure voice
             utterance.rate = options.rate || 1.0;
             utterance.pitch = options.pitch || 1.0;
             utterance.volume = options.volume || this.volume;
-            
+
             // Try to use a robotic/computer voice if available
             const voices = speechSynthesis.getVoices();
-            const preferredVoice = voices.find(voice => 
+            const preferredVoice = voices.find(voice =>
                 voice.name.toLowerCase().includes('robot') ||
                 voice.name.toLowerCase().includes('computer') ||
                 voice.name.toLowerCase().includes('microsoft david')
             );
-            
+
             if (preferredVoice) {
                 utterance.voice = preferredVoice;
             }
-            
+
             // Play confirmation sound before speaking
             this.playConfirmSound();
-            
+
             speechSynthesis.speak(utterance);
         } else {
             console.warn('Speech synthesis not supported');

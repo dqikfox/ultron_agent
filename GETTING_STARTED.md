@@ -84,7 +84,7 @@ ollama pull qwen3-coder:480b-cloud
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `llm_model` | `llava:7b` | Primary AI model to use |
+| `llm_model` | `dolphin3:latest` | Primary AI model to use |
 | `ollama_base_url` | `http://localhost:11434` | Ollama service endpoint |
 | `voice_enabled` | `false` | Enable voice features |
 | `elevenlabs_api_key` | `USE_ENV_ELEVENLABS_APIKEY` | ElevenLabs API key (optional) |
@@ -107,9 +107,10 @@ ollama pull qwen3-coder:480b-cloud
 # 5. Web GUI & Frontend UI launch
 ```
 
+
 **What the Health Checks Do**:
 - ✅ Test 1: Service availability (Ollama responding)
-- ✅ Test 2: Model availability (llava:7b loaded)
+- ✅ Test 2: Model availability (dolphin3:latest loaded)
 - ✅ Test 3: Text generation (basic inference)
 - ✅ Test 4: Chat API (conversational interface)
 - ✅ Test 5: Context retention (multi-turn memory)

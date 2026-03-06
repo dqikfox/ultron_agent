@@ -88,6 +88,29 @@ class ToolInterface(ABC):
         """
         pass
 
+    def self_test(self) -> Dict[str, Any]:
+        """
+        Run a basic self-diagnostic for the tool.
+
+        Returns:
+            Dict: Diagnostic results (status, message, errors)
+        """
+        result = {
+            "tool": self.name,
+            "status": "ok",
+            "message": "Self-test passed (default implementation)",
+            "errors": []
+        }
+        try:
+            # Optionally, subclasses can override for deeper checks
+            _ = self.match("diagnostic_test")
+            _ = self.schema()
+        except Exception as e:
+            result["status"] = "fail"
+            result["message"] = f"Self-test failed: {e}"
+            result["errors"].append(str(e))
+        return result
+
     def get_metadata(self) -> Dict[str, Any]:
         """
         Get tool metadata with validation.

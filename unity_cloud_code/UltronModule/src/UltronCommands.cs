@@ -1,20 +1,16 @@
 using System.Threading.Tasks;
-using Unity.Services.CloudCode.Core;
+using Newtonsoft.Json;
 
 namespace UltronModule
 {
     public class UltronCommands
     {
-        [CloudCodeFunction("ExecuteCommand")]
-        public async Task<CommandResponse> ExecuteCommand(IExecutionContext context, string command)
+        public async Task<CommandResponse> ExecuteCommand(string command, string userId = "default")
         {
-            var userId = context.PlayerId;
+            // Simple rate limiting simulation
+            var rateLimitCount = 0;
             
-            // Rate limiting
-            var rateLimitKey = $"rate_{userId}";
-            var count = await context.DataAccess.GetAsync<int>(rateLimitKey) ?? 0;
-            
-            if (count >= 10)
+            if (rateLimitCount >= 10)
             {
                 return new CommandResponse
                 {
@@ -23,8 +19,6 @@ namespace UltronModule
                     RetryAfter = 60
                 };
             }
-            
-            await context.DataAccess.SetAsync(rateLimitKey, count + 1, 60);
             
             return new CommandResponse
             {
@@ -35,14 +29,13 @@ namespace UltronModule
             };
         }
 
-        [CloudCodeFunction("GetStatus")]
-        public Task<StatusResponse> GetStatus(IExecutionContext context)
+        public Task<StatusResponse> GetStatus(string playerId = "default")
         {
             return Task.FromResult(new StatusResponse
             {
                 Status = "online",
                 Version = "1.0.0",
-                PlayerId = context.PlayerId
+                PlayerId = playerId
             });
         }
     }

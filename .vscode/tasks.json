@@ -73,6 +73,57 @@
             "problemMatcher": []
         },
         {
+            "label": "🤖 Test MiniMax AI",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-c",
+                "from tools.minimax_ai_tool import MinimaxAITool; import json; config = json.load(open('ultron_config.json')); tool = MinimaxAITool(config); print(tool.execute('Hello from ULTRON'))"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🧠 Test Claude API",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "-c",
+                "import requests; r=requests.post('https://api.anthropic.com/v1/messages', headers={'x-api-key':'REDACTED_ANTHROPIC_KEY_1','Content-Type':'application/json','anthropic-version':'2023-06-01'}, json={'model':'claude-3-haiku-20240307','max_tokens':50,'messages':[{'role':'user','content':'Hello ULTRON'}]}); print('✅ Claude API working' if r.status_code==200 else f'❌ Error: {r.status_code}')"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🚀 Run Mini-Agent",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cd Mini-Agent && python3 -m mini_agent.cli --workspace ../workspace"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "🔍 Logic Verify (gpt-oss:20b-cloud)",
             "type": "shell",
             "command": "pwsh",

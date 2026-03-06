@@ -1,15 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "jEi2B6SbmTk=",
-  "success": false,
-  "projectFilePath": "C:\\Projects\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
-  "expectedPackageFiles": [],
-  "logs": [
-    {
-      "code": "NU1301",
-      "level": "Error",
-      "message": "Failed to retrieve information about 'Unity.Services.CloudCode.Core' from remote source 'https://packages.unity.com/nuget/registry/FindPackagesById()?id='Unity.Services.CloudCode.Core'&semVerLevel=2.0.0'.",
-      "libraryId": "Unity.Services.CloudCode.Core"
-    }
-  ]
+  "dgSpecHash": "L2rWfQq9l8U=",
+  "success": true,
+  "projectFilePath": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
+  "expectedPackageFiles": [
+    "/home/ultro/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
+    "/home/ultro/.nuget/packages/netstandard.library.ref/2.1.0/netstandard.library.ref.2.1.0.nupkg.sha512"
+  ],
+  "logs": []
 }

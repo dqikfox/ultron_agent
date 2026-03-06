@@ -1,0 +1,44 @@
+# Enterprise dependencies for ULTRON Agent
+# Production-grade voice, monitoring, and tool orchestration
+
+# Voice Pipeline
+vosk==0.3.45
+openai-whisper==20231117
+# TTS.api causing issues, use pyttsx3 for now
+# coqui-tts==0.21.0
+
+# LangChain ecosystem
+langchain==0.1.20
+langchain-community==0.0.38
+langchain-core==0.1.52
+
+# Memory & Caching
+redis==5.0.4
+aioredis==2.0.1
+
+# Monitoring
+prometheus-client==0.20.0
+prometheus-fastapi-instrumentator==6.1.0
+
+# Enhanced tools
+watchdog==4.0.2
+pyudev==0.24.1
+
+# API & Web
+fastapi==0.110.0
+uvicorn[standard]==0.27.0
+websockets==12.0
+python-multipart==0.0.9
+
+# Security enhancements
+cryptography==42.0.5
+pyjwt==2.8.0
+
+# Audio processing
+sounddevice==0.4.6
+soundfile==0.12.1
+webrtcvad==2.0.10
+
+# Optional GPU acceleration
+# torch==2.2.0+cu118
+# torchaudio==2.2.0+cu118

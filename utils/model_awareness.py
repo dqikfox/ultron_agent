@@ -511,7 +511,8 @@ class ModelAwareness:
                 best_score = score
                 best_model = model_name
 
-        return best_model or "llava:7b"  # Fallback to default
+        from config import config
+        return best_model or config.get('llm_model', 'dolphin3:latest')  # Fallback to config default
 
     def record_performance(self, model: str, latency_ms: float, success: bool) -> None:
         """Record model performance metrics"""

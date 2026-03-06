@@ -62,11 +62,20 @@ models:
   - name: Claude 3.5 Sonnet (Cloud)
     provider: anthropic
     model: claude-3-5-sonnet-20241022
-    apiKey: ${ANTHROPIC_API_KEY}
+    apiKey: REDACTED_ANTHROPIC_KEY_1
     roles:
       - chat
       - edit
       - apply
+
+  - name: MiniMax ABAB 6.5S (Cloud)
+    provider: openai
+    model: abab6.5s-chat
+    apiKey: REDACTED_API_KEY_1
+    apiBase: https://api.minimax.chat/v1
+    roles:
+      - chat
+      - edit
 
 # Autocomplete with local models
 tabAutocompleteModel:

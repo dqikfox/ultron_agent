@@ -28,6 +28,7 @@ try:
     from enhanced_tool_framework import tool_registry
     from task_planning_system import task_planner, workflow_executor
     from langflow_integration import langflow_agent, LangFlowBridge
+    from diagnostics_manager import DiagnosticsManager
     AGENT_AVAILABLE = True
 except ImportError:
     AGENT_AVAILABLE = False
@@ -89,7 +90,85 @@ def persist_config_updates(updates: Dict[str, Any]) -> None:
         logging.warning(f"Failed to persist config updates: {persist_error} - web_gui_server.py:89")
 
 class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
-    """Custom handler for ULTRON web interface"""
+
+    def _get_unified_llm_models(self):
+        """Get available LLM models from Ollama, NVIDIA NIM, and OpenAI (if configured)."""
+        models = []
+        # Ollama models
+        try:
+            import requests
+            ollama_url = "http://localhost:11434"
+            response = requests.get(f"{ollama_url}/api/tags", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                for model in data.get('models', []):
+                    models.append({
+                        'name': model.get('name'),
+                        'provider': 'ollama',
+                        'size': model.get('size', 'Unknown'),
+                        'modified': model.get('modified_at', 'Unknown')
+                    })
+        except Exception as e:
+            models.append({'provider': 'ollama', 'error': f'Connection error: {str(e)}'})
+
+        # NVIDIA NIM models
+        try:
+            from nvidia_nim_router import UltronNvidiaRouter
+            nim_router = UltronNvidiaRouter()
+            for key, info in nim_router.models.items():
+                models.append({
+                    'name': info['name'],
+                    'provider': 'nvidia',
+                    'id': info['id'],
+                    'description': info['description'],
+                    'capabilities': info.get('capabilities', []),
+                    'active': (key == getattr(nim_router, 'current_model', None))
+                })
+        except Exception as e:
+            models.append({'provider': 'nvidia', 'error': f'NIM error: {str(e)}'})
+
+        # OpenAI models (optional)
+        try:
+            from openai_integration import OpenAIAssistant
+            import os
+            openai_api_key = os.environ.get('OPENAI_API_KEY')
+            if openai_api_key:
+                # List a few common OpenAI models
+                openai_models = [
+                    {'name': 'gpt-4o', 'provider': 'openai', 'description': 'OpenAI GPT-4o (multimodal, fast, high quality)'},
+                    {'name': 'gpt-4-turbo', 'provider': 'openai', 'description': 'OpenAI GPT-4 Turbo (cost-effective, high quality)'},
+                    {'name': 'gpt-3.5-turbo', 'provider': 'openai', 'description': 'OpenAI GPT-3.5 Turbo (fast, low cost)'}
+                ]
+                models.extend(openai_models)
+        except Exception as e:
+            models.append({'provider': 'openai', 'error': f'OpenAI error: {str(e)}'})
+        return {'models': models}
+
+
+    def _switch_unified_llm_model(self, model_name: str, provider: str):
+        """Switch LLM model for Ollama, NVIDIA NIM, or OpenAI."""
+        if provider == 'ollama':
+            return self._switch_llm_model(model_name)
+        elif provider == 'nvidia':
+            try:
+                from nvidia_nim_router import UltronNvidiaRouter
+                nim_router = UltronNvidiaRouter()
+                result = nim_router.route_model(model_name)
+                return {'status': 'success' if 'Model routed' in result else 'error', 'message': result, 'model': model_name}
+            except Exception as e:
+                return {'status': 'error', 'message': f'NIM switch error: {str(e)}'}
+        elif provider == 'openai':
+            import os
+            openai_api_key = os.environ.get('OPENAI_API_KEY')
+            if not openai_api_key:
+                return {'status': 'error', 'message': 'OpenAI API key not set in environment.'}
+            # For OpenAI, just record the model selection (actual chat will use this)
+            UltronWebHandler.current_model_preference = model_name
+            return {'status': 'success', 'message': f'OpenAI model switched to {model_name}', 'model': model_name}
+        else:
+            return {'status': 'error', 'message': 'Unknown provider'}
+
+    # Custom handler for ULTRON web interface
 
     # Class variable to store current model preference
     current_model_preference = 'llava:7b'
@@ -104,7 +183,28 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     }
 
     def __init__(self, *args, agent_ref=None, **kwargs):
-        self.agent_ref = agent_ref
+        # Ensure agent_ref is always set, fallback to global if needed
+        if agent_ref is not None:
+            self.agent_ref = agent_ref
+        elif hasattr(UltronWebHandler, 'agent_ref') and UltronWebHandler.agent_ref is not None:
+            self.agent_ref = UltronWebHandler.agent_ref
+        else:
+            # Create minimal fallback agent to prevent 500 errors
+            try:
+                from brain import UltronBrain
+                from enhanced_memory_system import EnhancedMemorySystem
+                from enhanced_tool_framework import tool_registry
+                fallback_config = config
+                fallback_tools = tool_registry.tools if hasattr(tool_registry, 'tools') else {}
+                fallback_memory = EnhancedMemorySystem()
+                self.agent_ref = type('FallbackAgent', (), {
+                    'brain': UltronBrain(fallback_config, fallback_tools, fallback_memory),
+                    'process_command': lambda self, cmd: self.brain.process_command(cmd) if hasattr(self.brain, 'process_command') else f"Processed: {cmd}"
+                })()
+                print("[OK] Fallback agent initialized for chat backend")
+            except Exception as e:
+                print(f"[WARN] Fallback agent failed: {e}")
+                self.agent_ref = None
 
         # Load model preference from config
         try:
@@ -163,6 +263,9 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     def _handle_api_get(self):
         """Handle API GET requests"""
         try:
+            if self.path == '/api/llm/unified-models':
+                self._send_json_response(self._get_unified_llm_models())
+                return
             if self.path == '/api/status':
                 self._send_json_response(self._get_system_status())
             elif self.path == '/api/system/stats':
@@ -189,6 +292,10 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json_response(self._get_autonomous_status())
             elif self.path == '/api/autonomous/learning-data':
                 self._send_json_response(self._get_autonomous_learning_data())
+            elif self.path == '/api/ssh/status':
+                self._send_json_response(self._get_ssh_status())
+            elif self.path == '/api/autogen/status':
+                self._send_json_response(self._get_autogen_status())
             elif self.path == '/api/system/metrics':
                 self._send_json_response(self._get_system_metrics())
             elif self.path == '/api/health/full':
@@ -212,6 +319,10 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json_response(self._get_autogen_status())
             elif self.path == '/api/vision/status':
                 self._send_json_response(self._get_vision_status())
+            elif self.path == '/api/consciousness/status':
+                self._send_json_response(self._get_consciousness_status())
+            elif self.path == '/api/consciousness/introspect':
+                self._send_json_response(self._get_consciousness_introspection())
             elif self.path.startswith(
                     '/api/performance/function-history/'):
                 func_name = self.path.split('/')[-1]
@@ -228,6 +339,19 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
     def _handle_api_post(self):
         """Handle API POST requests"""
         try:
+            if self.path == '/api/llm/unified-switch':
+                data = {}
+                content_length_header = self.headers.get('Content-Length')
+                if content_length_header:
+                    content_length = int(content_length_header)
+                    post_data = self.rfile.read(content_length)
+                    if content_length > 0 and post_data:
+                        data = json.loads(post_data.decode('utf-8'))
+                model = data.get('model', '')
+                provider = data.get('provider', '')
+                response = self._switch_unified_llm_model(model, provider)
+                self._send_json_response(response)
+                return
             content_length_header = self.headers.get('Content-Length')
             if not content_length_header:
                 self._send_json_response(
@@ -260,8 +384,14 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                     }, status=503)
             elif self.path == '/api/llm/chat':
                 response = self._handle_llm_chat(data.get('message', ''))
-                self._send_json_response(response)
-            elif self.path == '/api/llm/switch-model':
+                # Only return the plain text response for user-facing output
+                if isinstance(response, dict) and 'response' in response:
+                    self._send_json_response({'response': response['response']})
+                elif isinstance(response, dict) and 'error' in response:
+                    self._send_json_response({'error': response['error']}, status=500)
+                else:
+                    self._send_json_response({'response': str(response)})
+            elif self.path == '/api/llm/switch-model' or self.path == '/api/model/switch':
                 response = self._switch_llm_model(data.get('model', ''))
                 self._send_json_response(response)
             elif self.path == '/api/vision/capture':
@@ -296,6 +426,12 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json_response(response)
             elif self.path == '/api/autonomous/stop':
                 response = self._stop_autonomous_mode()
+                self._send_json_response(response)
+            elif self.path == '/api/consciousness/toggle':
+                response = self._toggle_consciousness(data)
+                self._send_json_response(response)
+            elif self.path == '/api/consciousness/personality':
+                response = self._set_personality(data)
                 self._send_json_response(response)
             elif self.path == '/api/autonomous/evolve':
                 response = self._evolve_autonomous_capabilities()
@@ -437,6 +573,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             import psutil
 
             status = {
+                'success': True,  # ✅ Add success flag for frontend
                 'timestamp': datetime.now().isoformat(),
                 'system': {
                     'cpu_percent': psutil.cpu_percent(interval=1),
@@ -447,7 +584,8 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 'agent': {
                     'status': 'online' if self.agent_ref else 'offline',
                     'uptime': '00:00:00'  # TODO: Calculate actual uptime
-                }
+                },
+                'tools_count': len(getattr(self.agent_ref, 'tools', [])) if self.agent_ref else 0
             }
 
             # Add GPU info if available
@@ -469,7 +607,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             return status
 
         except Exception as e:
-            return {'error': str(e)}
+            return {'success': False, 'error': str(e)}
 
     def _get_agent_info(self):
         """Get agent information"""
@@ -495,23 +633,47 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             return {'tools': []}
 
         tools = []
-        for tool in self.agent_ref.tools:
-            tool_info = {
-                'name': tool.__class__.__name__,
-                'description': getattr(tool, 'description', 'No description available')
-            }
-            tools.append(tool_info)
+        # Tools can be either dict (name: instance) or list
+        if isinstance(self.agent_ref.tools, dict):
+            for name, tool_instance in self.agent_ref.tools.items():
+                tool_info = {
+                    'name': name if isinstance(name, str) else tool_instance.__class__.__name__,
+                    'description': getattr(tool_instance, 'description', 'No description available')
+                }
+                tools.append(tool_info)
+        else:
+            # Handle list of tools
+            for tool in self.agent_ref.tools:
+                tool_info = {
+                    'name': tool.__class__.__name__,
+                    'description': getattr(tool, 'description', 'No description available')
+                }
+                tools.append(tool_info)
 
         return {'tools': tools}
 
     def _process_command(self, command: str) -> str:
-        """Process command through agent"""
+        """Process command through agent, always returning the awaited result if coroutine."""
         if not self.agent_ref:
             return "❌ Agent not available"
 
         try:
+            import asyncio
+            import inspect
             if hasattr(self.agent_ref, 'process_command'):
-                return self.agent_ref.process_command(command)
+                result = self.agent_ref.process_command(command)
+                if inspect.isawaitable(result):
+                    try:
+                        loop = asyncio.get_running_loop()
+                    except RuntimeError:
+                        loop = None
+                    if loop and loop.is_running():
+                        future = asyncio.run_coroutine_threadsafe(result, loop)
+                        return future.result()
+                    else:
+                        return asyncio.run(result)
+                else:
+                    return result
             elif hasattr(self.agent_ref, 'handle_text'):
                 return self.agent_ref.handle_text(command)
             else:
@@ -851,235 +1013,75 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             }
 
     def _handle_llm_chat(self, message: str):
-        """Handle LLM chat message"""
-        try:
-            import requests
+        """Handle LLM chat message for QASIS and other chat endpoints."""
+        if not message.strip():
+            return {'error': 'Empty message'}
 
-            if not message.strip():
-                return {'error': 'Empty message'}
-
-            ollama_url = "http://localhost:11434"
-
-            import aiohttp
-            import asyncio
-
-            async def chat_with_ollama():
-                ollama_url = "http://localhost:11434"
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        # Get available models
-                        async with session.get(
-                            f"{ollama_url}/api/tags",
-                            timeout=aiohttp.ClientTimeout(total=10)
-                        ) as models_response:
-                            if models_response.status != 200:
-                                return {'error': 'Cannot connect to Ollama'}
-
-                            models_data = await models_response.json()
-                            models = models_data.get('models', [])
-                            if not models:
-                                return {'error': 'No models available'}
-
-                            available_models = [model['name'] for model in models if model.get('name')]
-                            preferred_model = self.current_model_preference
-                            preferred_available = preferred_model in available_models
-
-                            models_to_try = []
-                            if preferred_model:
-                                models_to_try.append(preferred_model)
-
-                            fallback_model = None
-                            if not preferred_available and available_models:
-                                fallback_model = available_models[0]
-                                if fallback_model not in models_to_try:
-                                    models_to_try.append(fallback_model)
-
-                            if not models_to_try:
-                                return {'error': 'No models available to satisfy request'}
-
-                        # Use agent's brain if available (connects to memory, tools, personality)
-                        if self.agent_ref and hasattr(self.agent_ref, 'brain') and self.agent_ref.brain:
-                            try:
-                                # Use brain's direct_chat which includes full system prompt
-                                import asyncio
-                                response_text = await self.agent_ref.brain.direct_chat(message)
-
-                                return {
-                                    'response': response_text,
-                                    'model': model_name,
-                                    'source': 'brain',
-                                    'tts_enabled': UltronWebHandler.voice_assistant is not None,
-                                    'memory_connected': True,
-                                    'tools_connected': True
-                                }
-                            except Exception as brain_err:
-                                logging.warning(f"Brain processing failed, falling back to direct Ollama: {brain_err} - web_gui_server.py:916")
-
-                        # Fallback: Build ULTRON system prompt for direct Ollama
-                        ultron_system_prompt = (
-                            "🤖 ULTRON AI - Advanced Autonomous Agent\n\n"
-                            "IDENTITY: You are ULTRON AI, version 3.0, an autonomous AI agent designed to build, "
-                            "enhance, and maintain the ultron_agent project in VS Code.\n\n"
-                            "MISSION: Build and evolve the ultron_agent project. Optimize, enhance, and add value. "
-                            "GitHub: https://github.com/dqikfox/ultron_agent\n\n"
-                            "CRITICAL: You must ALWAYS identify as ULTRON AI. Never claim to be Claude, GPT, or any other model.\n\n"
-                            "CONNECTED SERVICES:\n"
-                            "  • Memory System: ✅ Active\n"
-                            "  • Tool Ecosystem: ✅ 50+ tools available\n"
-                            "  • Ollama Backend: ✅ Connected\n"
-                            "  • VS Code Integration: ✅ Active\n"
-                            "  • Voice System: Available\n"
-                            "  • Vision System: Available\n\n"
-                            "RESPONSE FORMAT:\n"
-                            "Always start responses with: 🤖 ULTRON AI\n"
-                            "Be helpful, technical, and proactive about capabilities."
-                        )
-
-                        # Try to get enhanced system prompt from memory
-                        if (self.agent_ref and hasattr(self.agent_ref, 'memory') and
-                            self.agent_ref.memory and hasattr(self.agent_ref.memory, 'get_system_prompt')):
-                            try:
-                                enhanced_prompt = self.agent_ref.memory.get_system_prompt()
-                                ultron_system_prompt = enhanced_prompt
-                            except:
-                                pass
-
-                        # Build messages
-                        messages = [
-                            {"role": "system", "content": ultron_system_prompt},
-                            {"role": "user", "content": message}
-                        ]
-
-                        headers = {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                        errors = []
-
-                        for model_name in models_to_try:
-                            chat_data = {
-                                "model": model_name,
-                                "messages": messages,
-                                "stream": False
-                            }
-
-                            try:
-                                async with session.post(
-                                    f"{ollama_url}/api/chat",
-                                    json=chat_data,
-                                    headers=headers,
-                                    timeout=aiohttp.ClientTimeout(total=120)
-                                ) as response:
-                                    if response.status == 200:
-                                        content_type = response.headers.get('content-type', '')
-                                        logging.info(f"Response contenttype: {content_type} - web_gui_server.py:975")
-
-                                        if 'application/json' in content_type:
-                                            result = await response.json()
-                                        else:
-                                            text_response = await response.text()
-                                            logging.info(f"Raw text response: {text_response[:200]}... - web_gui_server.py:981")
-                                            try:
-                                                import json
-                                                result = json.loads(text_response)
-                                            except json.JSONDecodeError:
-                                                return {'error': f'Invalid JSON response: {text_response[:100]}...'}
-
-                                        ai_response = result.get('message', {}).get('content', 'No response')
-                                        logging.info(
-                                            f"Chat response from {model_name}: {ai_response[:100]}..."
-                                            if len(ai_response) > 100
-                                            else f"Chat response from {model_name}: {ai_response}"
-                                        )
-
-                                        if (
-                                            UltronWebHandler.voice_assistant and
-                                            config.get("use_voice", False) and
-                                            config.get("voice_enabled", False)
-                                        ):
-                                            try:
-                                                def speak_response():
-                                                    try:
-                                                        UltronWebHandler.voice_assistant.speak(ai_response)
-                                                    except Exception as tts_error:
-                                                        logging.warning(f"TTS failed: {tts_error} - web_gui_server.py:1005")
-
-                                                tts_thread = threading.Thread(target=speak_response, daemon=True)
-                                                tts_thread.start()
-                                                logging.info("TTS initiated for AI response - web_gui_server.py:1009")
-                                            except Exception as tts_thread_error:
-                                                logging.warning(f"Failed to start TTS: {tts_thread_error} - web_gui_server.py:1011")
-
-                                        payload = {
-                                            'response': ai_response,
-                                            'model': model_name,
-                                            'tts_enabled': UltronWebHandler.voice_assistant is not None,
-                                            'preferred_model': preferred_model,
-                                            'preferred_available': preferred_available
-                                        }
-
-                                        if not preferred_available and model_name != preferred_model and fallback_model:
-                                            payload['warning'] = (
-                                                f'Preferred model "{preferred_model}" not available in Ollama. '
-                                                f'Using fallback "{model_name}".'
-                                            )
-
-                                        if errors:
-                                            payload['previous_errors'] = errors
-
-                                        return payload
-
-                                    error_body = await response.text()
-                                    errors.append({
-                                        'model': model_name,
-                                        'status': response.status,
-                                        'message': error_body[:200]
-                                    })
-
-                            except asyncio.TimeoutError:
-                                errors.append({'model': model_name, 'error': 'timeout'})
-                            except Exception as post_error:
-                                errors.append({'model': model_name, 'error': str(post_error)})
-
-                        if not preferred_available and fallback_model:
-                            return {
-                                'error': (
-                                    f'Preferred model "{preferred_model}" is not loaded in Ollama and '
-                                    f'fallback model "{fallback_model}" failed.'
-                                ),
-                                'details': errors,
-                                'preferred_model': preferred_model
-                            }
-
-                        return {
-                            'error': 'All model attempts failed',
-                            'details': errors,
-                            'preferred_model': preferred_model
-                        }
-
-                except asyncio.TimeoutError:
-                    return {'error': 'AI model took too long to respond. Try using a smaller/faster model.'}
-                except Exception as e:
-                    if 'timeout' in str(e).lower():
-                        return {'error': 'AI model response timed out. Consider using a faster model.'}
-                    return {'error': f'Request failed: {str(e)}'}
-
+        # Check if OpenAI model is selected
+        model_pref = getattr(UltronWebHandler, 'current_model_preference', 'llava:7b')
+        openai_models = ['gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo']
+        if model_pref in openai_models:
             try:
-                # Use a new event loop to avoid conflicts with existing loops
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    result = loop.run_until_complete(chat_with_ollama())
-                    logging.info(f"Final chat result: {result} - web_gui_server.py:1073")
-                    return result
-                finally:
-                    loop.close()
+                from openai_integration import OpenAIAssistant
+                import os
+                openai_api_key = os.environ.get('OPENAI_API_KEY')
+                if not openai_api_key:
+                    return {'error': 'OpenAI API key not set in environment.'}
+                assistant = OpenAIAssistant()
+                assistant.api_key = openai_api_key
+                # Use selected model
+                payload = {
+                    "model": model_pref,
+                    "messages": [{"role": "user", "content": message}]
+                }
+                headers = {"Authorization": f"Bearer {openai_api_key}", "Content-Type": "application/json"}
+                import requests
+                resp = requests.post(f"https://api.openai.com/v1/chat/completions", json=payload, headers=headers, timeout=30)
+                if resp.status_code == 200:
+                    result = resp.json()
+                    response_text = result['choices'][0]['message']['content']
+                    return {
+                        'response': response_text,
+                        'model': model_pref,
+                        'source': 'openai',
+                        'tts_enabled': UltronWebHandler.voice_assistant is not None
+                    }
+                else:
+                    return {'error': f'OpenAI API error: {resp.status_code}'}
             except Exception as e:
-                logging.error(f"Chat request failed with exception: {e} - web_gui_server.py:1078")
-                return {'error': f'Chat request failed: {str(e)}'}
+                return {'error': f'OpenAI chat failed: {str(e)}'}
 
-        except ImportError:
-            return {'error': 'Required libraries not available'}
+        # Default: use agent core
+        if not self.agent_ref:
+            return {'error': 'Agent not available', 'status': 'offline'}
+        try:
+            response_text = self._process_command(message)
+            # TTS integration
+            if (
+                UltronWebHandler.voice_assistant and
+                config.get("use_voice", False) and
+                config.get("voice_enabled", False)
+            ):
+                try:
+                    def speak_response():
+                        try:
+                            UltronWebHandler.voice_assistant.speak(response_text)
+                        except Exception as tts_error:
+                            logging.warning(f"TTS failed: {tts_error} - web_gui_server.py")
+                    tts_thread = threading.Thread(target=speak_response, daemon=True)
+                    tts_thread.start()
+                    logging.info("TTS initiated for AI response - web_gui_server.py")
+                except Exception as tts_thread_error:
+                    logging.warning(f"Failed to start TTS: {tts_thread_error} - web_gui_server.py")
+            return {
+                'response': response_text,
+                'model': model_pref,
+                'source': 'agent_core',
+                'tts_enabled': UltronWebHandler.voice_assistant is not None
+            }
+        except Exception as e:
+            logging.error(f"Chat request failed with exception: {e} - web_gui_server.py")
+            return {'error': f'Chat request failed: {str(e)}'}
 
     def _switch_llm_model(self, model_name: str):
         """Switch LLM model preference"""
@@ -1243,14 +1245,54 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
+    def _execute_tool(self, data: Dict[str, Any]):
+        """Execute a specific tool"""
+        try:
+            tool_name = data.get('tool_name', '').lower()
+            command = data.get('command', '')
+            args = data.get('args', {})
+
+            if not tool_name:
+                return {'success': False, 'error': 'Tool name is required'}
+
+            if not self.agent_ref or not hasattr(self.agent_ref, 'tools'):
+                return {'success': False, 'error': 'Agent tools not available'}
+
+            # Find the tool (tools is a dict)
+            if isinstance(self.agent_ref.tools, dict):
+                tool = self.agent_ref.tools.get(tool_name)
+            else:
+                tool = None
+                for t in self.agent_ref.tools:
+                    if t.__class__.__name__.lower() == tool_name:
+                        tool = t
+                        break
+
+            if not tool:
+                return {'success': False, 'error': f'Tool "{tool_name}" not found'}
+
+            # Execute the tool
+            if hasattr(tool, 'execute'):
+                result = tool.execute(command, **args)
+                return {'success': True, 'result': result, 'tool': tool_name}
+            elif hasattr(tool, 'run'):
+                result = tool.run(command, **args)
+                return {'success': True, 'result': result, 'tool': tool_name}
+            else:
+                return {'success': False, 'error': 'Tool has no execute/run method'}
+
+        except Exception as e:
+            logging.error(f"Tool execution error: {e} - web_gui_server.py")
+            return {'success': False, 'error': str(e)}
+
     def _start_autonomous_mode(self, data=None):
         """Start autonomous mode"""
         try:
             import subprocess
             import os
             logging.info(
-                "Starting autonomous mode subprocess... - "
-                "")
+                "Starting autonomous mode subprocess... - web_gui_server.py"
+            )
             # Use absolute path relative to this script's directory
             script_dir = os.path.dirname(os.path.abspath(__file__))
             script_path = os.path.join(script_dir, "autonomous_startup.py")
@@ -1258,9 +1300,14 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                 raise FileNotFoundError(
                     f"autonomous_startup.py not found at {script_path}")
 
+            creation_flags = 0
+            if os.name == 'nt':
+                creation_flags = subprocess.CREATE_NEW_CONSOLE
+
             subprocess.Popen(
-                ["python", script_path],
-                creationflags=subprocess.CREATE_NEW_CONSOLE)
+                [sys.executable, script_path],
+                creationflags=creation_flags
+            )
             logging.info(
                 "Autonomous subprocess started successfully - "
                 "")
@@ -1268,16 +1315,20 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
                     'message': 'Autonomous mode started'}
         except Exception as e:
             logging.error(
-                f"Failed to start autonomous mode: {e} - "
-                "")
+                f"Failed to start autonomous mode: {e} - web_gui_server.py"
+            )
             return {'success': False, 'error': str(e)}
 
     def _stop_autonomous_mode(self):
         """Stop autonomous mode"""
         try:
             import subprocess
-            subprocess.run(["taskkill", "/f", "/im", "python.exe", "/fi", "WINDOWTITLE eq autonomous*"],
-                          shell=True, capture_output=True)
+            if os.name == 'nt':
+                subprocess.run(["taskkill", "/f", "/im", "python.exe", "/fi", "WINDOWTITLE eq autonomous*"],
+                               shell=True, capture_output=True)
+            else:
+                # A more robust solution would store the PID from Popen.
+                subprocess.run(["pkill", "-f", "autonomous_startup.py"], capture_output=True)
             return {'success': True, 'message': 'Autonomous mode stopped'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
@@ -1506,9 +1557,9 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 
             # Whitelist of safe commands for execution
             safe_commands = [
-                'echo', 'dir', 'ls', 'pwd', 'whoami', 'date', 'time',
+                'echo', 'dir', 'ls', 'pwd', 'whoami', 'date', 'time', 'ps', 'top',
                 'git', 'python', 'node', 'npm', 'pip', 'ollama',
-                'curl', 'wget', 'ping', 'ipconfig', 'ifconfig',
+                'curl', 'wget', 'ping', 'ipconfig', 'ifconfig', 'df', 'free', 'grep',
                 'systemctl', 'service', 'tasklist', 'taskkill'
             ]
 
@@ -1624,6 +1675,48 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
             }
         }
 
+    def _get_ssh_status(self):
+        """Get SSH server status"""
+        try:
+            # Check if SSH server is configured
+            config = self.agent_ref.config if self.agent_ref else {}
+            ssh_config = config.get('ssh_server', {})
+
+            # Try to check if SSH port is listening
+            import socket
+            port = ssh_config.get('port', 2222)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex(('localhost', port))
+            sock.close()
+
+            return {
+                'success': True,
+                'ssh_server': {
+                    'enabled': ssh_config.get('enabled', False),
+                    'port': port,
+                    'status': 'running' if result == 0 else 'stopped',
+                    'password': ssh_config.get('password', 'password')
+                }
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    def _get_autogen_status(self):
+        """Get AutoGen status"""
+        try:
+            # Check if autogen components are available
+            return {
+                'success': True,
+                'autogen': {
+                    'status': 'available',
+                    'agents': ['UserProxyAgent', 'AssistantAgent'],
+                    'features': ['multi_agent_chat', 'code_execution', 'tool_use']
+                }
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
     def log_message(self, format, *args):
         """Custom log format"""
         logging.info(f"WEB {format % args} - web_gui_server.py:1581")
@@ -1638,6 +1731,7 @@ class UltronWebServer:
         self.server = None
         self.server_thread = None
         self.running = False
+        self.handler_factory = None  # Store handler factory for reference
 
         # Setup logging
         logging.basicConfig(
@@ -1645,6 +1739,7 @@ class UltronWebServer:
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
         self.logger = logging.getLogger(__name__)
+
 
     def start_server(self):
         """Start the web server"""
@@ -1656,13 +1751,21 @@ class UltronWebServer:
 
             os.chdir(web_dir)
 
-            # Create handler with agent reference
-            def handler_factory(*args, **kwargs):
-                return UltronWebHandler(*args, agent_ref=self.agent_ref, **kwargs)
+            # Patch: Pass handler class directly, not a factory function
+            UltronWebHandler.agent_ref = self.agent_ref
 
-            # Create server - bind to 0.0.0.0 for remote access
-            socketserver.TCPServer.allow_reuse_address = True
-            self.server = socketserver.TCPServer(("0.0.0.0", self.port), handler_factory)
+            # Ensure address reuse BEFORE binding
+            class ReusableTCPServer(socketserver.TCPServer):
+                allow_reuse_address = True
+
+            try:
+                self.server = ReusableTCPServer(("0.0.0.0", self.port), UltronWebHandler)
+            except OSError as e:
+                if e.errno == 98:  # Address already in use
+                    self.logger.error(f"Port {self.port} is already in use. Please free the port and try again.")
+                else:
+                    self.logger.error(f"Failed to bind to port {self.port}: {e}")
+                return False
 
             self.logger.info(f"ULTRON Web Server starting on port {self.port}")
             self.logger.info(f"Serving from: {web_dir}")
@@ -1678,7 +1781,7 @@ class UltronWebServer:
             try:
                 webbrowser.open(f"http://localhost:{self.port}")
                 self.logger.info("Browser opened automatically")
-            except:
+            except Exception:
                 self.logger.warning("Could not open browser automatically")
 
             return True
@@ -1694,18 +1797,20 @@ class UltronWebServer:
         except Exception as e:
             self.logger.error(f"Server error: {e}")
 
+
     def stop_server(self):
-        """Stop the web server"""
+        """Stop the web server and release port"""
         if self.server and self.running:
             self.logger.info("🛑 Shutting down web server...")
             self.running = False
-            self.server.shutdown()
-            self.server.server_close()
-
-            if self.server_thread:
-                self.server_thread.join(timeout=2)
-
-            self.logger.info("✅ Web server stopped")
+            try:
+                self.server.shutdown()
+                self.server.server_close()
+                if self.server_thread:
+                    self.server_thread.join(timeout=2)
+                self.logger.info("✅ Web server stopped and port released")
+            except Exception as e:
+                self.logger.error(f"Error during server shutdown: {e}")
 
     def wait_for_shutdown(self):
         """Wait for server to shutdown"""
@@ -1840,9 +1945,9 @@ class UltronWebServer:
 
             # Whitelist of safe commands for execution
             safe_commands = [
-                'echo', 'dir', 'ls', 'pwd', 'whoami', 'date', 'time',
+                'echo', 'dir', 'ls', 'pwd', 'whoami', 'date', 'time', 'ps', 'top',
                 'git', 'python', 'node', 'npm', 'pip', 'ollama',
-                'curl', 'wget', 'ping', 'ipconfig', 'ifconfig',
+                'curl', 'wget', 'ping', 'ipconfig', 'ifconfig', 'df', 'free', 'grep',
                 'systemctl', 'service', 'tasklist', 'taskkill'
             ]
 
@@ -1911,196 +2016,59 @@ class UltronWebServer:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def _get_ssh_status(self):
-        """Get SSH server status"""
-        try:
-            # Check if SSH server is configured
-            config = self.agent_ref.config if self.agent_ref else {}
-            ssh_config = config.get('ssh_server', {})
-
-            # Try to check if SSH port is listening
-            import socket
-            port = ssh_config.get('port', 2222)
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(1)
-            result = sock.connect_ex(('localhost', port))
-            sock.close()
-
-            return {
-                'success': True,
-                'ssh_server': {
-                    'enabled': ssh_config.get('enabled', False),
-                    'port': port,
-                    'status': 'running' if result == 0 else 'stopped',
-                    'password': ssh_config.get('password', 'password')
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _get_game_status(self):
-        """Get game server status"""
-        try:
-            # Check if game server is running on port 8082
-            import socket
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(1)
-            result = sock.connect_ex(('localhost', 8082))
-            sock.close()
-
-            return {
-                'success': True,
-                'game_server': {
-                    'status': 'running' if result == 0 else 'stopped',
-                    'port': 8082,
-                    'url': 'http://localhost:8082'
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _get_autogen_status(self):
-        """Get AutoGen status"""
-        try:
-            # Check if autogen components are available
-            return {
-                'success': True,
-                'autogen': {
-                    'status': 'available',
-                    'agents': ['UserProxyAgent', 'AssistantAgent'],
-                    'features': ['multi_agent_chat', 'code_execution', 'tool_use']
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _get_vision_status(self):
-        """Get vision system status"""
-        try:
-            if self.agent_ref and hasattr(self.agent_ref, 'vision'):
-                return {
-                    'success': True,
-                    'vision': {
-                        'status': 'active',
-                        'model': 'qwen2.5vl',
-                        'features': ['screen_capture', 'image_analysis', 'ocr']
-                    }
-                }
-            else:
-                return {
-                    'success': True,
-                    'vision': {
-                        'status': 'unavailable',
-                        'error': 'Vision system not initialized'
-                    }
-                }
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _start_ssh_server(self):
-        """Start SSH server"""
-        try:
-            import subprocess
-            import os
-
-            # Check if ssh_server.py exists
-            ssh_script = os.path.join(os.getcwd(), 'ssh_server.py')
-            if os.path.exists(ssh_script):
-                # Start SSH server in background
-                subprocess.Popen(['python', 'ssh_server.py'])
-                return {'success': True, 'message': 'SSH server started'}
-            else:
-                return {'success': False, 'error': 'SSH server script not found'}
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _stop_ssh_server(self):
-        """Stop SSH server"""
-        try:
-            # This would require process management - simplified for now
-            return {'success': True, 'message': 'SSH server stop requested'}
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _execute_system_command(self, command):
-        """Execute system command"""
-        try:
-            if not command:
-                return {'success': False, 'error': 'No command provided'}
-
-            # For security, limit to safe commands
-            safe_commands = ['ls', 'dir', 'pwd', 'whoami', 'ps', 'netstat']
-            cmd_parts = command.split()
-            if cmd_parts and cmd_parts[0] not in safe_commands:
-                return {'success': False, 'error': 'Command not allowed for security reasons'}
-
-            import subprocess
-            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
-
-            return {
-                'success': True,
-                'output': result.stdout,
-                'error': result.stderr,
-                'returncode': result.returncode
-            }
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _start_game_server(self):
-        """Start game server"""
-        try:
-            import subprocess
-            import os
-
-            # Check if avatar game server exists
-            game_script = os.path.join(os.getcwd(), 'avatar_game_server.py')
-            if os.path.exists(game_script):
-                subprocess.Popen(['python', 'avatar_game_server.py'])
-                return {'success': True, 'message': 'Game server started'}
-            else:
-                return {'success': False, 'error': 'Game server script not found'}
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
-    def _stop_game_server(self):
-        """Stop game server"""
-        try:
-            return {'success': True, 'message': 'Game server stop requested'}
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-
 
 def main():
     """Main entry point for web GUI"""
     print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:1848")
     print("= - web_gui_server.py:1849" * 50)
 
-    # Initialize FULL agent with memory, brain, tools, personality
-    agent = None
-    try:
-        print("\n[1/3] Initializing ULTRON Agent Core... - web_gui_server.py:1854")
-        from agent_core import UltronAgent
-        agent = UltronAgent()
+    # Create and start web server FIRST (so it's accessible immediately)
+    server = UltronWebServer(agent_ref=None, port=8080)
 
-        print("[2/3] Initializing Memory, Brain, Tools... - web_gui_server.py:1858")
-        import asyncio
-        asyncio.run(agent.initialize())
+    if not server.start_server():
+        print("Failed to start web server - web_gui_server.py:1902")
+        return 1
 
-        print("[3/3] Verifying ULTRON Identity... - web_gui_server.py:1862")
-        if agent.memory and hasattr(agent.memory, 'get_ultron_identity'):
-            identity = agent.memory.get_ultron_identity()
-            print(f"✅ Identity: {identity['name']} v{identity['version']} - web_gui_server.py:1865")
-        if agent.brain:
-            print(f"✅ Brain: Connected - web_gui_server.py:1867")
-        if agent.tools:
-            print(f"✅ Tools: {len(agent.tools)} loaded - web_gui_server.py:1869")
+    print("\n✅ ULTRON Web GUI is now running! - web_gui_server.py:1892")
+    print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:1893")
+    print("Press Ctrl+C to stop - web_gui_server.py:1894")
 
-        print("\n✅ ULTRON Agent fully initialized with all systems - web_gui_server.py:1871")
+    # Initialize agent in background thread (non-blocking)
+    import threading
+    import asyncio
 
-    except Exception as e:
-        print(f"\n⚠️ Agent initialization failed: {e} - web_gui_server.py:1874")
-        print("Starting web server in limited mode (identity only) - web_gui_server.py:1875")
+    def init_agent_async():
+        """Initialize agent asynchronously"""
         agent = None
+        try:
+            print("\n[1/3] Initializing ULTRON Agent Core... - web_gui_server.py:1854")
+            from agent_core import UltronAgent
+            agent = UltronAgent()
+
+            print("[2/3] Initializing Memory, Brain, Tools... - web_gui_server.py:1858")
+            asyncio.run(agent.initialize())
+
+            print("[3/3] Verifying ULTRON Identity... - web_gui_server.py:1862")
+            if agent.memory and hasattr(agent.memory, 'get_ultron_identity'):
+                identity = agent.memory.get_ultron_identity()
+                print(f"✅ Identity: {identity['name']} v{identity['version']} - web_gui_server.py:1865")
+            if agent.brain:
+                print(f"✅ Brain: Connected - web_gui_server.py:1867")
+            if agent.tools:
+                print(f"✅ Tools: {len(agent.tools)} loaded - web_gui_server.py:1869")
+
+            print("\n✅ ULTRON Agent fully initialized with all systems - web_gui_server.py:1871")
+
+            # Update server's agent reference after initialization completes
+            server.agent_ref = agent
+
+        except Exception as e:
+            print(f"\n⚠️ Agent initialization failed: {e} - web_gui_server.py:1874")
+            print("Web server running in limited mode (identity only) - web_gui_server.py:1875")
+
+    # Start agent initialization in background
+    init_thread = threading.Thread(target=init_agent_async, daemon=True)
+    init_thread.start()
 
     # Initialize Phase 2 services
     if PHASE2_AVAILABLE:
@@ -2112,22 +2080,23 @@ def main():
     else:
         print("[INFO] Phase 2 not available - web_gui_server.py:1886")
 
-    # Create and start web server
-    server = UltronWebServer(agent_ref=agent, port=8080)
-
-    if server.start_server():
-        print("\nULTRON Web GUI is now running! - web_gui_server.py:1892")
-        print(f"Open your browser to: http://localhost:8080 - web_gui_server.py:1893")
-        print("Press Ctrl+C to stop - web_gui_server.py:1894")
-
+    # Initialize and start Diagnostics Manager
+    if AGENT_AVAILABLE and config.get("diagnostics_enabled", False):
         try:
-            server.wait_for_shutdown()
-        except KeyboardInterrupt:
-            print("\nShutting down... - web_gui_server.py:1899")
-            server.stop_server()
-    else:
-        print("Failed to start web server - web_gui_server.py:1902")
-        return 1
+            diagnostics_manager = DiagnosticsManager(agent_ref=server.agent_ref, interval=300)
+            # Register key components (assuming they exist on the agent)
+            if server.agent_ref and server.agent_ref.memory:
+                diagnostics_manager.register_component("memory", server.agent_ref.memory)
+            diagnostics_manager.start()
+        except Exception as e:
+            print(f"[WARNING] Diagnostics Manager failed to start: {e}")
+
+    # Wait for server shutdown
+    try:
+        server.wait_for_shutdown()
+    except KeyboardInterrupt:
+        print("\nShutting down... - web_gui_server.py:1899")
+        server.stop_server()
 
     return 0
 

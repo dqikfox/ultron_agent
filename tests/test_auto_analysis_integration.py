@@ -1,13 +1,13 @@
 import pytest
 import asyncio
 import json
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock, patch, AsyncMock, mock_open
 from pathlib import Path
 import tempfile
-from agent_core import AgentCore
+from agent_core import UltronAgent
 from utils.idle_monitor import IdleMonitor
 from utils.auto_patch_manager import AutoPatchManager
-from nvidia_nim_router import NvidiaNIMRouter
+from nvidia_nim_router import UltronNvidiaRouter
 
 class TestAutoAnalysisIntegration:
     """Integration tests for the complete auto-analysis workflow"""
@@ -29,15 +29,16 @@ class TestAutoAnalysisIntegration:
 
     @pytest.fixture
     def agent_core(self, config):
-        return AgentCore(config)
+        return UltronAgent(config)
 
     @pytest.fixture
     def idle_monitor(self, config):
         return IdleMonitor(config)
 
+
     @pytest.fixture
-    def patch_manager(self, config):
-        return AutoPatchManager(config)
+    def nvidia_router(self, config):
+        return UltronNvidiaRouter(config['nvidia_nim'])
 
     @pytest.fixture
     def nim_router(self, config):

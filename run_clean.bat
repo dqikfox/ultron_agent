@@ -36,7 +36,7 @@ set "API_SERVER_PORT=5000"
 :: AI MODEL CONFIGURATION
 :: PRIMARY: llava:7b (stable, fast, multimodal) - RECOMMENDED
 :: FALLBACK: deepseek-r1:14b (advanced reasoning, may timeout)
-set "OLLAMA_MODEL=llava:7b"
+set "OLLAMA_MODEL=dolphin3:latest"
 set "FALLBACK_MODEL=deepseek-r1:14b"
 
 :: ──────────────────────────────────────────────────────────────────────

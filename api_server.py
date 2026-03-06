@@ -10,7 +10,16 @@ from utils.error_handlers import (
 from utils.ultron_logger import log_info, log_error, log_ai_decision
 from utils.rate_limiter import rate_limit
 
+from flask_cors import CORS
 app: Flask = Flask("UltronAgentAPI")
+CORS(app)
+# ...existing code...
+
+# --- API STATUS ENDPOINT FOR WEB GUI ---
+@app.route("/api/status", methods=["GET"])
+def api_status():
+    """Health/status endpoint for Web GUI availability check."""
+    return {"status": "ok", "message": "ULTRON API backend online"}, 200
 AGENT_INSTANCE: Optional[Any] = None
 
 
@@ -128,34 +137,31 @@ def health_check() -> Tuple[Dict[str, Any], int]:
     Returns:
         JSON response with agent health status, version, and component status
     """
+    import asyncio
     try:
         with ErrorContext("health_check"):
             start_time: float = datetime.now().timestamp()
-
             status: Dict[str, Any] = {
                 "status": "healthy",
                 "agent_initialized": AGENT_INSTANCE is not None,
                 "version": "3.0.0",
                 "timestamp": str(datetime.now()),
             }
-
             # Get detailed component status if agent available
             if AGENT_INSTANCE:
                 try:
-                    status["agent_status"] = str(getattr(AGENT_INSTANCE, 'status', 'UNKNOWN'))
-                    status["is_running"] = getattr(AGENT_INSTANCE, 'is_running', False)
-                    status["tools_count"] = len(getattr(AGENT_INSTANCE, 'tools', {}))
-
-                    # Check critical components
-                    status["components"] = {
-                        "brain": AGENT_INSTANCE.brain is not None,
-                        "memory": AGENT_INSTANCE.memory is not None,
-                        "voice": AGENT_INSTANCE.voice is not None,
-                        "event_system": AGENT_INSTANCE.event_system is not None,
-                    }
+                    # Await get_ultron_status (async)
+                    loop = asyncio.get_event_loop()
+                    agent_status = loop.run_until_complete(AGENT_INSTANCE.get_ultron_status())
+                    status["ultron_status"] = agent_status
+                    status["is_healthy"] = AGENT_INSTANCE.is_healthy()
                 except Exception as status_err:
                     log_error("api_server", f"Error collecting component status: {status_err}")
-                    status["components"] = {"status_collection_error": str(status_err)}
+                    status["ultron_status"] = {"status_collection_error": str(status_err)}
+                    status["is_healthy"] = False
+            else:
+                status["ultron_status"] = {"error": "Agent not initialized"}
+                status["is_healthy"] = False
 
             response_time: float = datetime.now().timestamp() - start_time
             status["response_time_seconds"] = response_time
@@ -261,46 +267,29 @@ def command() -> Tuple[Dict[str, Any], int]:
                                confidence_score=1.0,
                                reasoning=f"Executed in {response_time:.3f}s")
 
-                return jsonify({
-                    "success": True,
-                    "result": str(result) if result else "",
-                    "command": command_text,
-                    "response_time_seconds": response_time,
-                    "timestamp": str(datetime.now())
-                }), 200
+                # Return only the plain text result for user-facing output
+                return (str(result) if result else ""), 200
 
             except ResourceError as res_err:
                 log_error("api_server", f"Resource error: {res_err.message}",
                          extra=res_err.to_dict())
-                return jsonify({
-                    "error": res_err.message,
-                    "error_type": "resource_error",
-                    "success": False,
-                    "timestamp": str(datetime.now())
-                }), 503
+                # Return only the error message as plain text
+                return (str(res_err.message)), 503
 
             except Exception as exec_err:
                 log_error("api_server",
                          f"Command execution failed: {str(exec_err)}",
                          exception=exec_err)
-                return jsonify({
-                    "error": str(exec_err),
-                    "error_type": type(exec_err).__name__,
-                    "success": False,
-                    "timestamp": str(datetime.now())
-                }), 500
+                # Return only the error message as plain text
+                return (str(exec_err)), 500
 
     except ErrorContext:
         raise
     except Exception as cmd_err:
         log_error("api_server", f"Command endpoint error: {str(cmd_err)}",
                  exception=cmd_err)
-        return jsonify({
-            "error": "Internal server error",
-            "error_type": type(cmd_err).__name__,
-            "success": False,
-            "timestamp": str(datetime.now())
-        }), 500
+        # Return only the error message as plain text
+        return ("Internal server error"), 500
 
 
 # Tools Integration API Endpoints
@@ -973,8 +962,8 @@ if __name__ == "__main__":
         print("Note: Some endpoints may not work without the agent")
 
     try:
-        print("🚀 Starting Flask API server on port 5001...")
-        app.run(host="0.0.0.0", port=5001, debug=False)
+            print("🚀 Starting Flask API server on port 5000...")
+            app.run(host="0.0.0.0", port=5000, debug=False)
     except Exception as e:
         print(f"❌ Flask server failed: {e}")
         print("Trying alternative port 5002...")

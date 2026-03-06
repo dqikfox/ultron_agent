@@ -48,10 +48,27 @@ class EventMetrics:
     failed_handlers: int = 0
 
 class EventSystem:
-    """
-    Centralized event system for ULTRON Agent
-    Handles event subscription, emission, and processing
-    """
+
+    def self_test(self) -> dict:
+        """
+        Run diagnostics on the event system: check subscriptions, emit a test event, and return stats.
+        Returns a dict with status and details.
+        """
+        result = {"status": "ok", "errors": [], "details": {}}
+        try:
+            stats = self.get_stats()
+            result["details"]["stats"] = stats
+            # Emit a test event and check for errors
+            try:
+                self.emit_sync("diagnostic_test_event", {"msg": "test"})
+                result["details"]["emit_test"] = "ok"
+            except Exception as emit_err:
+                result["status"] = "fail"
+                result["errors"].append(f"Emit test event failed: {emit_err}")
+        except Exception as e:
+            result["status"] = "fail"
+            result["errors"].append(str(e))
+        return result
 
     def __init__(self):
         self.logger = ultron_logger

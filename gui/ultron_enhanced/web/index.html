@@ -383,9 +383,6 @@
                                             <div id="voice-help" class="sr-only">Toggle voice input and output functionality</div>
                                         </div>
                                         <div class="setting-group">
-                                            <label for="sound-toggle">Sound</label>
-                                            <button id="sound-toggle" class="setting-btn" type="button" aria-pressed="true" aria-describedby="sound-help">🔊 On</button>
-                                            <div id="sound-help" class="sr-only">Toggle interface sound effects</div>
                                         </div>
                                         <div class="setting-group">
                                             <label for="api-key-input">API Key</label>
@@ -1128,18 +1125,7 @@
     </div>
 
     <!-- Audio Elements -->
-    <audio id="startup-sound" preload="auto"></audio>
-    <audio id="audio-wake" preload="auto">
-        <source src="assets/wake.wav" type="audio/wav">
-    </audio>
-    <audio id="audio-button" preload="auto">
-        <source src="assets/button_press.wav" type="audio/wav">
-    </audio>
-    <audio id="audio-confirm" preload="auto">
-        <source src="assets/confirm.wav" type="audio/wav">
-    </audio>
-
-    <script src="assets/sounds.js"></script>
+    <!-- Audio system removed -->
     <script src="app.js"></script>
     <script src="comprehensive_test.js"></script>
     <script src="manual_test.js"></script>

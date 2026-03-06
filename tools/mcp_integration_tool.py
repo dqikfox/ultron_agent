@@ -18,6 +18,41 @@ from utils.error_handlers import (
 
 
 class MCPIntegrationTool(ToolInterface):
+        def self_test(self) -> Dict[str, Any]:
+            """
+            Run diagnostics for MCPIntegrationTool: check config file, list servers, and catch errors.
+            Returns:
+                Dict: Diagnostic results (status, message, errors, details)
+            """
+            result = {
+                "tool": self.name,
+                "status": "ok",
+                "message": "Self-test passed",
+                "errors": [],
+                "details": {}
+            }
+            try:
+                # Check config file existence
+                config_path = self.mcp_config_path
+                if not config_path.exists():
+                    result["status"] = "fail"
+                    result["message"] = f"Config file not found: {config_path}"
+                    result["errors"].append("Missing MCP config file")
+                else:
+                    result["details"]["config_file"] = str(config_path)
+                # Try listing servers (simulate basic operation)
+                try:
+                    servers = self._list_servers()
+                    result["details"]["server_list"] = servers
+                except Exception as e:
+                    result["status"] = "fail"
+                    result["message"] = f"Server listing failed: {e}"
+                    result["errors"].append(str(e))
+            except Exception as e:
+                result["status"] = "fail"
+                result["message"] = f"Self-test exception: {e}"
+                result["errors"].append(str(e))
+            return result
     """
     Manages MCP (Model Context Protocol) servers for ULTRON Agent.
     Provides access to external tools like browser automation, GitHub, filesystem, and databases.

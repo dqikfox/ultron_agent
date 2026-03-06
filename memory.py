@@ -379,9 +379,30 @@ class LocalDriveMemory:
 
 
 class UltronMemory(Memory):
-    """
-    Enhanced memory system for ULTRON Agent with AI context awareness
-    """
+    def self_test(self) -> dict:
+        """Run a self-test of memory read/write, persistence, and recall."""
+        test_result = {"success": True, "errors": [], "details": {}}
+        try:
+            # Test add and recall
+            test_msg = "test_message"
+            test_resp = "test_response"
+            self.add_conversation_context(test_msg, test_resp, context_type="test")
+            recent = self.get_recent_context(limit=1)
+            if not recent or recent[-1]["message"] != test_msg:
+                test_result["success"] = False
+                test_result["errors"].append("Failed to recall recent context.")
+            # Test persistence
+            self.save_ultron_memory()
+            self._load_ultron_memory()
+            if not self.conversation_context or self.conversation_context[-1]["message"] != test_msg:
+                test_result["success"] = False
+                test_result["errors"].append("Persistence test failed.")
+            test_result["details"]["recent_context"] = recent
+            test_result["details"]["memory_stats"] = self.get_memory_stats()
+        except Exception as e:
+            test_result["success"] = False
+            test_result["errors"].append(str(e))
+        return test_result
 
     def __init__(self, config=None):
         """Initialize ULTRON memory with enhanced context tracking"""

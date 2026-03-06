@@ -7,7 +7,7 @@ class NotificationManager {
     constructor() {
         this.container = this.createContainer();
     }
-    
+
     createContainer() {
         const container = document.createElement('div');
         container.id = 'notification-container';
@@ -15,20 +15,20 @@ class NotificationManager {
         document.body.appendChild(container);
         return container;
     }
-    
+
     show(message, type = 'info', duration = 5000) {
         const notification = document.createElement('div');
         const colors = {success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6'};
         const icons = {success: '✓', error: '✕', warning: '⚠', info: 'ℹ'};
-        
+
         notification.style.cssText = `background:${colors[type]};color:white;padding:15px 20px;margin-bottom:10px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:slideIn 0.3s ease;cursor:pointer;display:flex;align-items:center;gap:10px;`;
         notification.innerHTML = `<span style="font-size:20px;">${icons[type]}</span><span style="flex:1;">${message}</span><span style="opacity:0.7;">✕</span>`;
-        
+
         notification.onclick = () => {
             notification.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => notification.remove(), 300);
         };
-        
+
         this.container.appendChild(notification);
         if (duration > 0) setTimeout(() => notification.click(), duration);
     }
@@ -39,17 +39,17 @@ class ScreenshotManager {
     constructor() {
         this.history = [];
     }
-    
+
     async capture(showCountdown = true) {
         if (showCountdown) await this.showCountdown();
-        
+
         try {
             const response = await fetch('/api/vision/capture', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'}
             });
             const data = await response.json();
-            
+
             if (data.success) {
                 this.history.unshift(data);
                 notifications.show('Screenshot captured!', 'success');
@@ -61,26 +61,26 @@ class ScreenshotManager {
             notifications.show('Error: ' + error.message, 'error');
         }
     }
-    
+
     async showCountdown() {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:40px 60px;border-radius:20px;font-size:72px;font-weight:bold;z-index:9999;text-align:center;';
         document.body.appendChild(overlay);
-        
+
         for (let i = 3; i > 0; i--) {
             overlay.textContent = i;
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
         overlay.remove();
     }
-    
+
     async analyze() {
         notifications.show('Analyzing...', 'info', 0);
-        
+
         try {
             const response = await fetch('/api/vision/analyze', {method: 'POST', headers: {'Content-Type': 'application/json'}});
             const data = await response.json();
-            
+
             if (data.success) {
                 notifications.show('Analysis complete!', 'success');
                 this.displayAnalysis(data);
@@ -91,11 +91,11 @@ class ScreenshotManager {
             notifications.show('Error: ' + error.message, 'error');
         }
     }
-    
+
     displayAnalysis(data) {
         const container = document.getElementById('analysis-results');
         if (!container) return;
-        
+
         container.innerHTML = `
             <div style="background:rgba(255,255,255,0.05);padding:15px;margin:10px 0;border-radius:8px;border-left:4px solid #0ea5e9;">
                 <h3>🤖 AI Description</h3>
@@ -120,14 +120,15 @@ class ScreenshotManager {
 class ShortcutManager {
     constructor() {
         document.addEventListener('keydown', (e) => {
+            if (!e.key) return; // Safety check for undefined key
             const key = (e.ctrlKey ? 'ctrl+' : '') + (e.altKey ? 'alt+' : '') + e.key.toLowerCase();
-            
+
             const actions = {
                 'ctrl+s': () => screenshot.capture(),
                 'ctrl+a': () => screenshot.analyze(),
                 'f1': () => alert('Shortcuts:\nCtrl+S: Screenshot\nCtrl+A: Analyze\nF1: Help')
             };
-            
+
             if (actions[key]) {
                 e.preventDefault();
                 actions[key]();
