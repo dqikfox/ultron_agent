@@ -2019,8 +2019,8 @@ class UltronWebServer:
 
 def main():
     """Main entry point for web GUI"""
-    print("ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:1848")
-    print("= - web_gui_server.py:1849" * 50)
+    print("ULTRON Agent 3.0 Web GUI Server")
+    print("=" * 60)
 
     # Create and start web server FIRST (so it's accessible immediately)
     server = UltronWebServer(agent_ref=None, port=8080)
