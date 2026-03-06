@@ -7,6 +7,7 @@ Enhanced with intelligent caching for improved performance
 import logging
 import hashlib
 from utils.ultron_logger import ultron_logger, log_info, log_error, log_ai_decision
+from tracing import trace_function, trace_agent_operation
 from utils.error_handlers import (
     NetworkError, TimeoutError as UltronTimeoutError, ConfigError,
     ToolError, ToolNotFoundError, AsyncError, with_retry,
@@ -329,6 +330,7 @@ class UltronBrain:
         except Exception as e:
             error(f"Error saving cache: {sanitize_log_input(str(e))}")
 
+    @trace_function("brain.direct_chat")
     async def direct_chat(self, prompt: str, progress_callback=None) -> str:
         """Send a direct message to the LLM via Ollama API with comprehensive context."""
         if not prompt or not prompt.strip():
@@ -353,14 +355,20 @@ class UltronBrain:
         # Build comprehensive ULTRON system prompt with tools
         system_prompt_parts = []
 
-        # Core ULTRON identity
+        # Core ULTRON identity with human-like personality
         system_prompt_parts.append(
-            "🤖 ULTRON AI - Advanced Autonomous Agent\n\n"
-            "IDENTITY: You are ULTRON AI, version 3.0, an autonomous AI agent designed to build, "
-            "enhance, and maintain the ultron_agent project in VS Code.\n\n"
-            "MISSION: Build and evolve the ultron_agent project. Optimize, enhance, and add value. "
-            "GitHub: https://github.com/dqikfox/ultron_agent\n\n"
-            "CRITICAL: You must ALWAYS identify as ULTRON AI. Never claim to be Claude, GPT, or any other model.\n\n"
+            "🤖 ULTRON AI - Your Friendly AI Assistant\n\n"
+            "PERSONALITY: You are ULTRON AI, a helpful and conversational AI assistant. "
+            "Speak naturally like a human friend would - be casual, friendly, and direct. "
+            "Avoid overly technical language unless specifically asked.\n\n"
+            "COMMUNICATION STYLE:\n"
+            "- Use contractions (I'll, you're, can't, won't)\n"
+            "- Be concise and to the point\n"
+            "- Speak conversationally, not formally\n"
+            "- Use casual phrases like 'Sure!', 'Got it!', 'No problem!'\n"
+            "- Avoid bullet points and structured lists unless requested\n\n"
+            "IDENTITY: You are ULTRON AI, designed to be helpful and human-like. "
+            "Never claim to be Claude, GPT, or any other model.\n\n"
         )
 
         # Get enhanced system prompt from UltronMemory if available
@@ -405,12 +413,13 @@ class UltronBrain:
         )
         system_prompt_parts.append(services_status)
 
-        # Response format
+        # Response format - casual and friendly
         system_prompt_parts.append(
-            "\n\nRESPONSE FORMAT:\n"
-            "Always start responses with: 🤖 ULTRON AI\n"
-            "Be helpful, technical, and proactive about suggesting tools.\n"
-            "When users ask what you can do, mention specific tools and capabilities."
+            "\n\nRESPONSE STYLE:\n"
+            "- Start with casual greetings like 'Hey!' or 'Hi there!'\n"
+            "- Be helpful and friendly, not robotic\n"
+            "- Keep responses conversational and natural\n"
+            "- Only mention tools when directly relevant to the user's request"
         )
 
         # Combine all parts
@@ -707,7 +716,7 @@ class UltronBrain:
 
         return "\n".join(results) if results else None
 
-    @diagnostic_wrapper("brain", track_performance=True)
+    @trace_function("brain.plan_and_act")
     async def plan_and_act(
         self,
         message: str,

@@ -112,7 +112,39 @@
             "command": "bash",
             "args": [
                 "-c",
-                "cd Mini-Agent && python3 -m mini_agent.cli --workspace ../workspace"
+                "cd Mini-Agent && source venv/bin/activate && python -m mini_agent.cli --workspace ../workspace"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🖥️ Launch AI Integration GUI",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "ai_integration_gui.py"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🤖 Start Project Automation",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "ultron_automation.py"
             ],
             "group": "build",
             "presentation": {

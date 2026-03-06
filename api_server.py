@@ -962,8 +962,8 @@ if __name__ == "__main__":
         print("Note: Some endpoints may not work without the agent")
 
     try:
-            print("🚀 Starting Flask API server on port 5000...")
-            app.run(host="0.0.0.0", port=5000, debug=False)
+            print("🚀 Starting Flask API server on port 5001...")
+            app.run(host="0.0.0.0", port=5001, debug=False)
     except Exception as e:
         print(f"❌ Flask server failed: {e}")
         print("Trying alternative port 5002...")

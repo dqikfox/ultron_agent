@@ -13,36 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class UltronVoiceManager:
-
-        def self_test(self) -> dict:
-            """
-            Run diagnostics on all available TTS engines and basic speak functionality.
-            Returns a dict with status and per-engine results.
-            """
-            results = {"status": "ok", "engines": {}, "errors": []}
-            available = self.get_available_engines()
-            if not available:
-                results["status"] = "fail"
-                results["errors"].append("No TTS engines available")
-                return results
-            for engine in available:
-                try:
-                    ok = self.test_engine(engine)
-                    results["engines"][engine] = "ok" if ok else "fail"
-                    if not ok:
-                        results["status"] = "fail"
-                        results["errors"].append(f"Engine {engine} failed test")
-                except Exception as e:
-                    results["engines"][engine] = f"error: {e}"
-                    results["status"] = "fail"
-                    results["errors"].append(f"Engine {engine} error: {e}")
-            # Optionally, test basic speak (mute or short text)
-            try:
-                self.speak("Test.", async_mode=False, engine=available[0])
-            except Exception as e:
-                results["status"] = "fail"
-                results["errors"].append(f"Basic speak failed: {e}")
-            return results
     """Voice manager with multiple TTS engine support"""
 
     def __init__(self, config=None, ultron_config=None):
@@ -161,27 +131,28 @@ class UltronVoiceManager:
     def _speak_elevenlabs(self, text: str, engine_config: Dict) -> bool:
         """Speak using ElevenLabs TTS"""
         try:
+            from elevenlabs import play
             client = engine_config['client']
             agent_id = engine_config.get('agent_id')
 
             if agent_id:
                 # Use conversational AI agent
-                client.generate(
+                audio = client.text_to_speech.convert(
                     text=text,
-                    voice="Agent",  # Use agent voice
-                    model="eleven_monolingual_v1"
+                    voice_id="Agent",  # Use agent voice
+                    model_id="eleven_monolingual_v1"
                 )
             else:
                 # Use standard TTS
-                client.generate(
+                audio = client.text_to_speech.convert(
                     text=text,
-                    voice="Adam",  # Default voice
-                    model="eleven_monolingual_v1"
+                    voice_id="Adam",  # Default voice
+                    model_id="eleven_monolingual_v1"
                 )
 
-            # Play the audio (this is a simplified implementation)
-            # In a real implementation, you'd save to file and play
-            logger.info(f"ElevenLabs TTS generated for text: {text[:50]}...")
+            # Play the generated audio
+            play(audio)
+            logger.info(f"ElevenLabs TTS played for text: {text[:50]}...")
             return True
 
         except Exception as e:
@@ -197,3 +168,43 @@ class UltronVoiceManager:
         """Test if a specific engine is working"""
         test_text = "Hello, this is a test of the voice system."
         return self._try_engine(engine_name, test_text)
+
+    def listen(self, timeout: int = 5) -> str:
+        """Listen for voice input using microphone with ALSA fallback"""
+        try:
+            import speech_recognition as sr
+            r = sr.Recognizer()
+
+            # Try specific ALSA device first (Raptor Lake fix)
+            try:
+                with sr.Microphone(device_index=1) as source:
+                    print("🎤 Listening (ALSA)...")
+                    r.adjust_for_ambient_noise(source, duration=0.5)
+                    audio = r.listen(source, timeout=timeout)
+                    text = r.recognize_google(audio)
+                    print(f"Heard: {text}")
+                    return text
+            except:
+                # Fallback to default microphone
+                with sr.Microphone() as source:
+                    print("🎤 Listening (default)...")
+                    r.adjust_for_ambient_noise(source, duration=0.5)
+                    audio = r.listen(source, timeout=timeout)
+                    text = r.recognize_google(audio)
+                    print(f"Heard: {text}")
+                    return text
+        except Exception as e:
+            print(f"Voice recognition failed: {e}")
+            return ""
+
+
+# Global instance
+_voice_manager = None
+
+
+def get_voice_manager(config=None, ultron_config=None):
+    """Get global voice manager instance"""
+    global _voice_manager
+    if _voice_manager is None:
+        _voice_manager = UltronVoiceManager(config, ultron_config)
+    return _voice_manager

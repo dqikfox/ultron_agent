@@ -29,7 +29,7 @@ LOG_FILE="ultron.log"
 # CRITICAL PORTS (must match API server configuration)
 OLLAMA_PORT=11434
 WEB_GUI_PORT=8080
-API_SERVER_PORT=5000
+API_SERVER_PORT=5001
 FRONTEND_PORT=5175
 NVIDIA_PORT=8000
 
@@ -46,6 +46,8 @@ ENABLE_FRONTEND_SERVER=yes
 ENABLE_NVIDIA_SERVER=yes
 # Consciousness Mode (Enable consciousness-driven NPC behavior)
 ENABLE_CONSCIOUSNESS=yes
+# OpenTelemetry Tracing (Enable tracing to http://localhost:4319)
+ENABLE_TRACING=yes
 
 # Process IDs for cleanup
 WEB_GUI_PID=""
@@ -61,6 +63,13 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
+
+# Set up tracing environment if enabled
+if [ "$ENABLE_TRACING" = "yes" ]; then
+    export OTEL_SERVICE_NAME="ultron-agent"
+    export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4319"
+    export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="http://localhost:4319/v1/traces"
+fi
 
 # ──────────────────────────────────────────────────────────────────────
 # HELPER FUNCTIONS
@@ -218,10 +227,10 @@ print_status "ok" "All critical files present"
 echo ""
 
 # ──────────────────────────────────────────────────────────────────────
-# STEP 3: PYTHON VERIFICATION
+# STEP 3: PYTHON VERIFICATION & TRACING SETUP
 # ──────────────────────────────────────────────────────────────────────
 
-echo -e "${BLUE}[3/6] 🐍 Python verification...${NC}"
+echo -e "${BLUE}[3/6] 🐍 Python verification & tracing setup...${NC}"
 if ! command -v $PYTHON_CMD &> /dev/null; then
     print_status "error" "Python3 not found in PATH"
     exit 1
@@ -250,6 +259,18 @@ elif [ -d "env" ] && [ -f "env/bin/activate" ]; then
 else
     print_status "warn" "No virtual environment found (venv/ or env/)"
 fi
+
+# Install tracing dependencies if needed
+if [ -f "install_tracing.sh" ]; then
+    if ! $PYTHON_CMD -c "import opentelemetry" 2>/dev/null; then
+        echo "   Installing OpenTelemetry tracing dependencies..."
+        bash install_tracing.sh > /dev/null 2>&1
+        print_status "ok" "Tracing dependencies installed"
+    else
+        print_status "ok" "Tracing dependencies already available"
+    fi
+fi
+
 echo ""
 
 # ──────────────────────────────────────────────────────────────────────
@@ -288,10 +309,10 @@ print_status "ok" "Ollama responsive at http://localhost:$OLLAMA_PORT"
 echo ""
 
 # ──────────────────────────────────────────────────────────────────────
-# STEP 5: MODEL VERIFICATION
+# STEP 5: MODEL VERIFICATION & MCP SETUP
 # ──────────────────────────────────────────────────────────────────────
 
-echo -e "${BLUE}[5/6] 🧠 AI model verification...${NC}"
+echo -e "${BLUE}[5/6] 🧠 AI model verification & MCP setup...${NC}"
 
 if $OLLAMA_CMD list 2>/dev/null | grep -q "$OLLAMA_MODEL"; then
     print_status "ok" "Model: $OLLAMA_MODEL"
@@ -301,6 +322,25 @@ elif $OLLAMA_CMD list 2>/dev/null | grep -q "$FALLBACK_MODEL"; then
 else
     print_status "warn" "No models available - please install: ollama pull llava:7b"
 fi
+
+# Initialize MCP servers if configuration exists
+if [ -f "mcp.json" ]; then
+    echo "   Validating MCP server configurations..."
+    if $PYTHON_CMD -c "import json; json.load(open('mcp.json'))" 2>/dev/null; then
+        print_status "ok" "MCP configuration valid"
+        # Check if browser MCP is available
+        if command -v npx &> /dev/null && [ -d "node_modules/@modelcontextprotocol/server-playwright" ]; then
+            print_status "ok" "Browser MCP server available"
+        else
+            print_status "warn" "Browser MCP server not installed (optional)"
+        fi
+    else
+        print_status "warn" "MCP configuration invalid - will skip MCP features"
+    fi
+else
+    print_status "warn" "No MCP configuration found (optional)"
+fi
+
 echo ""
 
 # ──────────────────────────────────────────────────────────────────────
@@ -529,6 +569,9 @@ echo " 🚀 STARTUP TIME: ${DURATION} seconds"
 echo " 🤖 AI MODEL: $OLLAMA_MODEL"
 if [ "$ENABLE_CONSCIOUSNESS" = "yes" ]; then
     echo " 🧠 CONSCIOUSNESS: ENABLED (NPC-ready)"
+fi
+if [ "$ENABLE_TRACING" = "yes" ]; then
+    echo " 📊 TRACING: ENABLED (http://localhost:4319)"
 fi
 echo ""
 echo " ${CYAN}════ CORE SERVICES ════${NC}"

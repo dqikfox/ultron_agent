@@ -1,10 +1,10 @@
-name: New MCP server
+name: Repomix
 version: 0.0.1
 schema: v1
 mcpServers:
-  - name: New MCP server
+  - name: Repomix
     command: npx
     args:
       - -y
-      - <your-mcp-server>
+      - @modelcontextprotocol/server-repomix
     env: {}

@@ -167,7 +167,15 @@ fi
 
 # Make run script executable
 chmod +x run.sh 2>/dev/null || true
+chmod +x setup_integrations.sh 2>/dev/null || true
 print_status "ok" "Scripts made executable"
+
+# Run integration setup
+if [ -f "setup_integrations.sh" ]; then
+    echo "   Setting up integrations (tracing, MCP)..."
+    ./setup_integrations.sh > /dev/null 2>&1
+    print_status "ok" "Integrations configured"
+fi
 
 # ──────────────────────────────────────────────────────────────────────
 # Setup Complete
