@@ -14,6 +14,9 @@ from utils.ultron_logger import log_info, log_error, log_ai_decision
 
 class ToolInterface(ABC):
     """Abstract base class for all ULTRON Agent tools"""
+    
+    # Class variable for optional memory system (set by tool_loader when available)
+    shared_memory = None
 
     @property
     @abstractmethod
@@ -26,6 +29,15 @@ class ToolInterface(ABC):
     def description(self) -> str:
         """Tool description"""
         pass
+    
+    @property
+    def memory(self):
+        """Get access to shared agent memory for context-aware tool execution.
+        
+        Returns:
+            Memory object if available, None otherwise
+        """
+        return self.__class__.shared_memory
 
     @abstractmethod
     def match(self, command: str) -> bool:
@@ -50,7 +62,7 @@ class ToolInterface(ABC):
 
         Args:
             command: Command to execute
-            **kwargs: Additional parameters
+            **kwargs: Additional parameters (may include 'memory' for context)
 
         Returns:
             str: Execution result or error message
@@ -62,6 +74,11 @@ class ToolInterface(ABC):
 
         NOTE: For automatic crash tracking, decorate with:
         @diagnostic_wrapper("tool_name", track_performance=True)
+        
+        NOTE: Tools can now access shared memory via:
+        - self.memory property
+        - kwargs.get('memory') parameter
+        - For context-aware execution that learns from past
         """
         pass
 

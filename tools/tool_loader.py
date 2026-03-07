@@ -222,12 +222,15 @@ class ToolLoader:
         # All attempts failed
         return None
 
-    def load_all_tools(self) -> Dict[str, ToolInterface]:
+    def load_all_tools(self, memory=None) -> Dict[str, ToolInterface]:
         """
         Load all discovered tools with error isolation.
 
         Each tool failure does not affect other tools. Failed tools
         are recorded for diagnostics.
+        
+        Args:
+            memory: Optional memory system to share with tools
 
         Returns:
             Dict[str, ToolInterface]: Successfully loaded tools
@@ -236,6 +239,15 @@ class ToolLoader:
             FileError: If tools directory not accessible
         """
         try:
+            # Set shared memory on ToolInterface base class
+            if memory:
+                ToolInterface.shared_memory = memory
+                log_info(
+                    "tool_loader",
+                    "Memory system shared with tools",
+                    memory_type=type(memory).__name__
+                )
+            
             tool_files: List[str] = self.discover_tools()
 
             for tool_file in tool_files:
@@ -262,7 +274,8 @@ class ToolLoader:
                 "tool_loader",
                 f"Loaded {len(self.loaded_tools)} tools total",
                 successful=len(self.loaded_tools),
-                failed=len(self.failed_tools)
+                failed=len(self.failed_tools),
+                memory_available=memory is not None
             )
 
             return self.loaded_tools
@@ -440,11 +453,14 @@ class ToolLoader:
 _tool_loader: Optional[ToolLoader] = None
 
 
-def get_tool_loader() -> ToolLoader:
+def get_tool_loader(memory=None) -> ToolLoader:
     """
     Get global tool loader instance (singleton).
 
     Creates and initializes loader on first call, then reuses instance.
+    
+    Args:
+        memory: Optional memory system to share with tools
 
     Returns:
         ToolLoader: Global tool loader instance
@@ -458,17 +474,22 @@ def get_tool_loader() -> ToolLoader:
     if _tool_loader is None:
         try:
             _tool_loader = ToolLoader()
-            _tool_loader.load_all_tools()
+            _tool_loader.load_all_tools(memory=memory)
 
             log_info(
                 "tool_loader",
                 "Global tool loader initialized",
                 tools_count=len(_tool_loader.loaded_tools),
-                failed_count=len(_tool_loader.failed_tools)
+                failed_count=len(_tool_loader.failed_tools),
+                memory_available=memory is not None
             )
 
         except Exception as e:
             log_error("tool_loader", f"Failed to initialize tool loader: {e}")
             raise
+    elif memory and not ToolInterface.shared_memory:
+        # Update memory if provided after initialization
+        ToolInterface.shared_memory = memory
+        log_info("tool_loader", "Memory shared with loaded tools")
 
     return _tool_loader
