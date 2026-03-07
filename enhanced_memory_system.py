@@ -7,17 +7,25 @@ import numpy as np
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from utils.ultron_logger import log_info, log_error
+from pathlib import Path
 
 class EnhancedMemorySystem:
     def __init__(self, db_path="memory/ultron_memory.db"):
-        self.db_path = db_path
+        # Ensure path is a string and handle it properly
+        if db_path == ":memory:":
+            self.db_path = ":memory:"
+        else:
+            self.db_path = str(db_path)
         self.init_database()
         
     def init_database(self):
         """Initialize SQLite database for memory storage"""
         try:
-            import os
-            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            if self.db_path != ":memory:":
+                import os
+                db_dir = os.path.dirname(self.db_path)
+                if db_dir:  # Only create if there's a directory component
+                    os.makedirs(db_dir, exist_ok=True)
             
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()

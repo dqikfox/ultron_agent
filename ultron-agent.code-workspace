@@ -119,7 +119,8 @@
     "amazonQ.allowFeatureDevelopmentToRunCodeAndTests": {
 
     },
-    "chat.agent.maxRequests": 250
+    "chat.agent.maxRequests": 250,
+    "markdown.validate.enabled": true
   },
   "extensions": {
     "recommendations": [

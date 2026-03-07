@@ -6,6 +6,7 @@ Enhanced with intelligent caching for improved performance
 
 import logging
 import hashlib
+from datetime import datetime
 from utils.ultron_logger import ultron_logger, log_info, log_error, log_ai_decision
 from tracing import trace_function, trace_agent_operation
 from utils.error_handlers import (
@@ -107,6 +108,15 @@ except ImportError as e:
     warning(f"Azure Cognitive Services not available: {sanitize_log_input(str(e))}")
     AzureCognitiveIntegration = None
     AZURE_AVAILABLE = False
+
+# Import semantic memory system
+try:
+    from enhanced_memory_system import EnhancedMemorySystem
+    SEMANTIC_MEMORY_AVAILABLE = True
+except ImportError as e:
+    warning(f"Semantic memory system not available: {sanitize_log_input(str(e))}")
+    EnhancedMemorySystem = None
+    SEMANTIC_MEMORY_AVAILABLE = False
 
 # Import intelligent cache manager
 try:
@@ -272,6 +282,17 @@ class UltronBrain:
                        f"{sanitize_log_input(str(e))}")
                 self.azure_cognitive = None
 
+        # Initialize semantic memory system for vector-based memory recall
+        self.semantic_memory = None
+        if SEMANTIC_MEMORY_AVAILABLE:
+            try:
+                self.semantic_memory = EnhancedMemorySystem(db_path="memory/ultron_memory.db")
+                info("Semantic memory system initialized for vector-based recall")
+            except Exception as e:
+                warning(f"Semantic memory initialization failed: "
+                       f"{sanitize_log_input(str(e))}")
+                self.semantic_memory = None
+
     async def initialize_mesh_integration_async(self) -> bool:
         """Asynchronously initialize mesh transformer integration"""
         if not self.mesh_integration:
@@ -329,6 +350,43 @@ class UltronBrain:
                 json_dump(self.cache, f, indent=2, ensure_ascii=False)
         except Exception as e:
             error(f"Error saving cache: {sanitize_log_input(str(e))}")
+
+    def get_semantic_memory_context(self, prompt: str, limit: int = 3) -> str:
+        """Retrieve similar past conversations to inform current decision-making.
+        
+        Args:
+            prompt: Current user prompt to find similar past interactions
+            limit: Maximum number of similar conversations to retrieve
+            
+        Returns:
+            String with relevant past conversation context, empty if none found
+        """
+        if not self.semantic_memory:
+            return ""
+        
+        try:
+            similar = self.semantic_memory.retrieve_similar_conversations(prompt, limit=limit)
+            if not similar:
+                return ""
+            
+            context_parts = ["SIMILAR PAST INTERACTIONS:"]
+            for i, conv in enumerate(similar, 1):
+                similarity = conv.get("similarity", 0)
+                user_input = conv.get("user_input", "")
+                agent_response = conv.get("agent_response", "")
+                
+                if similarity > 0.3:  # Only include reasonably similar conversations
+                    context_parts.append(
+                        f"\nPast #{i} (similarity: {similarity:.2f}):\n"
+                        f"Q: {user_input[:100]}\n"
+                        f"A: {agent_response[:100]}"
+                    )
+            
+            return "\n".join(context_parts) if len(context_parts) > 1 else ""
+        except Exception as e:
+            warning(f"Failed to retrieve semantic memory context: {e}")
+            return ""
+
 
     @trace_function("brain.direct_chat")
     async def direct_chat(self, prompt: str, progress_callback=None) -> str:
@@ -566,6 +624,24 @@ class UltronBrain:
                                 model,
                                 confidence_score=0.8
                             )
+                            
+                            # Store conversation in semantic memory for future recall
+                            if self.semantic_memory:
+                                try:
+                                    context = {
+                                        "model": model,
+                                        "response_length": len(reply),
+                                        "timestamp": str(datetime.now()),
+                                        "tool_count": len(self.tools) if self.tools else 0
+                                    }
+                                    self.semantic_memory.store_conversation(
+                                        ultron_prompt,
+                                        reply,
+                                        context
+                                    )
+                                except Exception as e:
+                                    warning(f"Failed to store conversation in semantic memory: {e}")
+                            
                             return reply
                         else:
                             error_msg: str = "No content received from LLM"
