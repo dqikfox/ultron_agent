@@ -1484,8 +1484,9 @@ class UltronAgent:
                 if self.supabase:
                     try:
                         proc_ms = int(processing_time * 1000)
-                        await self.supabase.persist_message("user", command)
+                        await self.supabase.persist_message(None, "user", command)
                         await self.supabase.persist_message(
+                            None,
                             "assistant",
                             str(response.get("response", "")),
                             processing_time_ms=proc_ms,

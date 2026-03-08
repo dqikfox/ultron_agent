@@ -35,17 +35,17 @@ async def _conversation_lifecycle():
     cid = await client.start_conversation("Integration Test Session")
     assert cid, "No conversation id returned"
 
-    mid = await client.persist_message("user", "Integration test message")
+    mid = await client.persist_message(cid, "user", "Integration test message")
     assert mid, "Message not persisted"
 
-    mid2 = await client.persist_message("assistant", "Integration test reply",
+    mid2 = await client.persist_message(cid, "assistant", "Integration test reply",
                                          processing_time_ms=100)
     assert mid2
 
     convs = await client.get_conversation_history(limit=5)
     assert any(c["id"] == cid for c in convs), "Conversation not in history"
 
-    msgs = await client.get_recent_messages(conversation_id=cid)
+    msgs = await client.get_recent_messages(cid)
     assert len(msgs) == 2, f"Expected 2 messages, got {len(msgs)}"
 
     await client.close()

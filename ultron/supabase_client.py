@@ -9,7 +9,7 @@ local stack is unavailable.
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import aiohttp
@@ -93,7 +93,7 @@ class SupabaseClient:
             return None
         try:
             async with self._session.post(self._url(table),
-                                          data=json.dumps(data)) as resp:
+                                          json=data) as resp:
                 if resp.status in (200, 201):
                     rows = await resp.json()
                     return rows[0] if rows else None
@@ -110,7 +110,7 @@ class SupabaseClient:
             return []
         try:
             async with self._session.patch(self._url(table, filters),
-                                           data=json.dumps(data)) as resp:
+                                           json=data) as resp:
                 if resp.status == 200:
                     return await resp.json()
                 logger.warning("update %s → %s", table, resp.status)
@@ -134,16 +134,19 @@ class SupabaseClient:
         """INSERT … ON CONFLICT DO UPDATE."""
         if not self.available or not self._session:
             return None
-        headers_extra = {"Prefer": f"return=representation,resolution=merge-duplicates"}
+        headers_extra = {"Prefer": "return=representation,resolution=merge-duplicates"}
+        url = self._url(table, f"on_conflict={on_conflict}")
         try:
             async with self._session.post(
-                self._url(table),
-                data=json.dumps(data),
+                url,
+                json=data,
                 headers=headers_extra,
             ) as resp:
                 if resp.status in (200, 201):
                     rows = await resp.json()
                     return rows[0] if rows else None
+                body = await resp.text()
+                logger.warning("upsert %s → %s: %s", table, resp.status, body)
         except Exception as exc:
             logger.warning("upsert %s failed: %s", table, exc)
         return None
@@ -168,10 +171,10 @@ class SupabaseClient:
                         self.current_conversation_id)
         return self.current_conversation_id
 
-    async def persist_message(self, role: str, content: str,
+    async def persist_message(self, conversation_id: Optional[str],
+                               role: str, content: str,
                                processing_time_ms: int = 0,
-                               tokens_used: int = 0,
-                               conversation_id: Optional[str] = None) -> Optional[str]:
+                               tokens_used: int = 0) -> Optional[str]:
         """Save a single message and increment conversation counter."""
         cid = conversation_id or self.current_conversation_id
         if not cid:
@@ -192,26 +195,27 @@ class SupabaseClient:
             new_count = (conv_rows[0].get("message_count") or 0) + 1
             await self.update("conversations", f"id=eq.{cid}",
                               {"message_count": new_count,
-                               "updated_at": datetime.now(datetime.UTC).isoformat()})
+                               "updated_at": datetime.now(timezone.utc).isoformat()})
 
         return row["id"] if row else None
 
     async def log_tool_execution(self, tool_name: str, input_text: str,
-                                  output_text: str, status: str = "success",
+                                  output_text: Any, status: str = "success",
                                   duration_ms: int = 0) -> None:
         """Write a tool_executions row (fire-and-forget)."""
+        # Coerce output to string in case caller passes a dict/object
+        out_str = output_text if isinstance(output_text, str) else json.dumps(output_text)
         await self.insert("tool_executions", {
             "tool_name": tool_name,
-            "input": input_text[:2000],    # guard against huge payloads
-            "output": output_text[:4000],
+            "input": str(input_text)[:2000],
+            "output": out_str[:4000],
             "status": status,
             "duration_ms": duration_ms,
             "session_id": self.current_conversation_id,
         })
 
-    async def get_recent_messages(self, limit: int = 20,
-                                   conversation_id: Optional[str] = None
-                                   ) -> List[Dict]:
+    async def get_recent_messages(self, conversation_id: Optional[str] = None,
+                                   limit: int = 20) -> List[Dict]:
         """Return recent messages, newest first."""
         cid = conversation_id or self.current_conversation_id
         if cid:
@@ -231,13 +235,14 @@ class SupabaseClient:
             f"&order=created_at.desc&limit={limit}",
         )
 
-    async def save_memory_entry(self, key: str, value: Any) -> None:
+    async def save_memory_entry(self, key: str, value: Any) -> bool:
         """Upsert a long-term memory entry by key into the agent_memory table."""
-        await self.upsert("agent_memory", {
+        row = await self.upsert("agent_memory", {
             "key": key,
             "value": value if isinstance(value, dict) else {"data": value},
-            "updated_at": datetime.now(datetime.UTC).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }, on_conflict="key")
+        return row is not None
 
     async def load_memory_entries(self) -> Dict:
         """Load all long-term memory entries as {key: value}."""
