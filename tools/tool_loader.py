@@ -222,7 +222,7 @@ class ToolLoader:
         # All attempts failed
         return None
 
-    def load_all_tools(self, memory=None) -> Dict[str, ToolInterface]:
+    def load_all_tools(self, memory=None, supabase=None) -> Dict[str, ToolInterface]:
         """
         Load all discovered tools with error isolation.
 
@@ -231,6 +231,7 @@ class ToolLoader:
         
         Args:
             memory: Optional memory system to share with tools
+            supabase: Optional SupabaseClient to share with tools
 
         Returns:
             Dict[str, ToolInterface]: Successfully loaded tools
@@ -246,6 +247,15 @@ class ToolLoader:
                     "tool_loader",
                     "Memory system shared with tools",
                     memory_type=type(memory).__name__
+                )
+
+            # Set shared Supabase client on ToolInterface base class
+            if supabase:
+                ToolInterface.shared_supabase = supabase
+                log_info(
+                    "tool_loader",
+                    "Supabase client shared with tools",
+                    available=supabase.available,
                 )
             
             tool_files: List[str] = self.discover_tools()

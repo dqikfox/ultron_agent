@@ -67,6 +67,13 @@ except ImportError:
     def get_performance_analytics():
         return None
 
+try:
+    from ultron.supabase_client import create_client_from_config
+    SUPABASE_AVAILABLE = True
+except ImportError:
+    SUPABASE_AVAILABLE = False
+    create_client_from_config = None
+
 # Import the correct UltronConfig from ultron_agent package
 try:
     from ultron_agent.config import UltronConfig, load_config
@@ -221,6 +228,7 @@ class UltronAgent:
         self.event_system = None
         self.performance_monitor = None
         self.task_scheduler = None
+        self.supabase = None  # SupabaseClient — wired in initialize()
 
         self.logger.info("ULTRON Agent core initialized")
 
@@ -502,6 +510,7 @@ class UltronAgent:
                 # Use function references instead of immediate coroutine creation
                 init_sequence: List[Tuple[str, Any]] = [
                     ("memory", self._initialize_memory),
+                    ("supabase", self._initialize_supabase),
                     ("voice", self._initialize_voice),
                     ("vision", self._initialize_vision),
                     ("brain", self._initialize_brain),
@@ -546,6 +555,14 @@ class UltronAgent:
                 except Exception as brain_update_err:
                     log_error("agent_core", f"Brain update failed: {brain_update_err}")
                     # Continue - non-critical
+
+                # Sync memory with Supabase (load remote, merge local)
+                if self.supabase and self.memory:
+                    try:
+                        await self.memory.load_from_supabase(self.supabase)
+                        log_info("agent_core", "Long-term memory loaded from Supabase")
+                    except Exception as mem_sync_err:
+                        log_error("agent_core", f"Memory Supabase sync failed: {mem_sync_err}")
 
                 # Update status and markers
                 self.status = AgentStatus.RUNNING
@@ -631,6 +648,32 @@ class UltronAgent:
         except Exception as e:
             self.logger.error(f"❌ Memory initialization failed: {e}")
             self.memory = None
+
+    async def _initialize_supabase(self) -> None:
+        """Initialize Supabase client and start a new conversation session."""
+        if not SUPABASE_AVAILABLE:
+            log_info("agent_core", "Supabase module not available, skipping")
+            return
+        try:
+            client = create_client_from_config()
+            if not client:
+                log_info("agent_core", "Supabase config missing, skipping persistence")
+                return
+            connected = await client.connect()
+            if not connected:
+                log_info("agent_core", "Supabase unreachable, running without persistence")
+                return
+            self.supabase = client
+            model = getattr(self.config, "llm_model", None) or "local"
+            await self.supabase.start_conversation(
+                title=f"ULTRON Session {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+                model_name=str(model),
+            )
+            log_info("agent_core", "Supabase persistence active",
+                     extra={"conversation_id": self.supabase.current_conversation_id})
+        except Exception as exc:
+            log_error("agent_core", f"Supabase init failed (non-critical): {exc}")
+            self.supabase = None
 
     async def _initialize_voice(self) -> None:
         """Initialize voice system with fallback chain per copilot instructions"""
@@ -1103,6 +1146,15 @@ class UltronAgent:
                     except Exception as ctx_err:
                         log_error("agent_core", f"Failed to update brain context: {ctx_err}")
 
+                # Share Supabase client with all tool instances
+                if self.supabase:
+                    try:
+                        from tools.tool_interface import ToolInterface as TI
+                        TI.shared_supabase = self.supabase
+                        log_info("agent_core", "Supabase client shared with all tools")
+                    except Exception as sb_tool_err:
+                        log_error("agent_core", f"Failed to share Supabase with tools: {sb_tool_err}")
+
         except ToolError as tool_err:
             log_error("agent_core", f"Tool loading error: {tool_err.message}",
                      extra=tool_err.to_dict())
@@ -1427,6 +1479,28 @@ class UltronAgent:
 
                 # Record in command history
                 self.command_history.add(command, response, success=response.get("success", True))
+
+                # Persist to Supabase (fire-and-forget, non-blocking)
+                if self.supabase:
+                    try:
+                        proc_ms = int(processing_time * 1000)
+                        await self.supabase.persist_message("user", command)
+                        await self.supabase.persist_message(
+                            "assistant",
+                            str(response.get("response", "")),
+                            processing_time_ms=proc_ms,
+                        )
+                        # Log any tool executions
+                        for tr in response.get("tools", []):
+                            await self.supabase.log_tool_execution(
+                                tool_name=tr.get("tool", "unknown"),
+                                input_text=command,
+                                output_text=str(tr.get("result", tr.get("error", ""))),
+                                status="success" if tr.get("success") else "failure",
+                                duration_ms=proc_ms,
+                            )
+                    except Exception as sb_err:
+                        log_error("agent_core", f"Supabase persist failed: {sb_err}")
 
                 return response
 

@@ -17,6 +17,8 @@ class ToolInterface(ABC):
     
     # Class variable for optional memory system (set by tool_loader when available)
     shared_memory = None
+    # Class variable for optional Supabase client (set by agent_core when available)
+    shared_supabase = None
 
     @property
     @abstractmethod
@@ -32,12 +34,13 @@ class ToolInterface(ABC):
     
     @property
     def memory(self):
-        """Get access to shared agent memory for context-aware tool execution.
-        
-        Returns:
-            Memory object if available, None otherwise
-        """
+        """Get access to shared agent memory for context-aware tool execution."""
         return self.__class__.shared_memory
+
+    @property
+    def supabase(self):
+        """Get access to shared Supabase client for persistence."""
+        return self.__class__.shared_supabase
 
     @abstractmethod
     def match(self, command: str) -> bool:

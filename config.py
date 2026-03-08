@@ -460,7 +460,7 @@ class Config:
                 "petshop": os.getenv("PETSHOP_APIKEY", ""),
                 "codegpt": os.getenv("CODEGTP_API_KEY", ""),
                 "github_token": os.getenv("GITHUB_TOKEN", ""),
-                "postgres_url": os.getenv("POSTGRES_URL", "postgresql://postgres:%RS@havikz11@db.nlljewgpwiktvxwlspnt.supabase.co:5432/postgres")
+                "postgres_url": os.getenv("POSTGRES_URL", "")
             }
         }
 

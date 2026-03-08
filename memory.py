@@ -138,6 +138,30 @@ class Memory:
         except Exception:
             logging.exception('Failed to persist long term memory after add')
 
+    async def sync_to_supabase(self, supabase_client) -> None:
+        """Push all long-term memory entries to Supabase agent_memory table."""
+        if not supabase_client or not supabase_client.available:
+            return
+        try:
+            for key, value in self.long_term_memory.items():
+                await supabase_client.save_memory_entry(key, value)
+            logging.info("Memory synced to Supabase (%d entries)", len(self.long_term_memory))
+        except Exception:
+            logging.exception("Failed to sync memory to Supabase")
+
+    async def load_from_supabase(self, supabase_client) -> None:
+        """Load long-term memory entries from Supabase, merging with local data."""
+        if not supabase_client or not supabase_client.available:
+            return
+        try:
+            remote = await supabase_client.load_memory_entries()
+            if remote:
+                # Remote takes precedence for shared/persisted keys
+                self.long_term_memory.update(remote)
+                logging.info("Loaded %d memory entries from Supabase", len(remote))
+        except Exception:
+            logging.exception("Failed to load memory from Supabase")
+
     def retrieve_short_term(self):
         return list(self.short_term_memory)
 
