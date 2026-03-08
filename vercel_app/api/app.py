@@ -224,5 +224,5 @@ async def save_memory(req: MemoryRequest):
 @app.get("/api/providers")
 async def providers():
     """Return configured AI providers from Supabase."""
-    rows = await _sb_get("ai_providers", qs="select=*&is_active=eq.true&order=name.asc")
+    rows = await _sb_get("ai_providers", qs="select=*&order=provider_name.asc")
     return JSONResponse({"providers": rows, "count": len(rows)})
