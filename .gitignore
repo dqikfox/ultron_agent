@@ -7,3 +7,8 @@ node_modules
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+.env*.local
+.env
+
+# Local config with secrets
+ultron_config.json
