@@ -23,6 +23,7 @@ Following copilot instructions architecture
 
 import asyncio
 import logging
+import signal
 import sys
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
@@ -598,6 +599,13 @@ class UltronAgent:
                                "duration_seconds": f"{init_duration:.2f}",
                                "components": initialized_components})
 
+                # Register OS signal handlers for graceful shutdown
+                try:
+                    self.register_shutdown_signals()
+                    log_info("agent_core", "Shutdown signal handlers registered (SIGTERM/SIGINT)")
+                except Exception as sig_err:
+                    log_error("agent_core", f"Signal handler registration failed: {sig_err}")
+
         except AsyncError as async_err:
             self.status = AgentStatus.ERROR
             error_msg = f"Async error during initialization: {async_err.message}"
@@ -618,6 +626,48 @@ class UltronAgent:
         except Exception as e:
             self.logger.error(f"Sync initialization failed: {e}")
             raise
+
+    # ------------------------------------------------------------------
+    # Graceful shutdown
+    # ------------------------------------------------------------------
+
+    async def shutdown(self) -> None:
+        """Persist memory/state and release all resources on exit."""
+        self.logger.info("ULTRON Agent shutting down — persisting state…")
+
+        # Flush memory to Supabase
+        if self.memory is not None:
+            try:
+                await self.memory.sync_to_supabase()
+                self.logger.info("Memory synced to Supabase on shutdown.")
+            except Exception as exc:
+                self.logger.warning("Memory sync on shutdown failed: %s", exc)
+
+        # Close Supabase HTTP session
+        if self.supabase is not None:
+            try:
+                await self.supabase.close()
+                self.logger.info("Supabase session closed.")
+            except Exception as exc:
+                self.logger.warning("Supabase close on shutdown failed: %s", exc)
+
+        self.status = AgentStatus.OFFLINE
+        self.logger.info("ULTRON Agent shutdown complete.")
+
+    def register_shutdown_signals(self) -> None:
+        """Register SIGTERM/SIGINT handlers so shutdown() runs on Ctrl-C or kill."""
+        loop = asyncio.get_event_loop()
+
+        def _handle(sig_name: str):
+            self.logger.info("Received %s — scheduling graceful shutdown.", sig_name)
+            loop.create_task(self.shutdown())
+
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            try:
+                loop.add_signal_handler(sig, lambda s=sig.name: _handle(s))
+            except (NotImplementedError, RuntimeError):
+                # Windows doesn't support add_signal_handler
+                pass
 
     async def _initialize_memory(self) -> None:
         """Initialize enhanced ULTRON memory system (REQUIRED for identity)"""
