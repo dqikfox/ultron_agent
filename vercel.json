@@ -1,26 +1,22 @@
 {
-  "buildCommand": "pip install -r requirements.txt",
-  "devCommand": "python app.py",
-  "installCommand": "pip install -r requirements.txt",
-  "framework": "fastapi",
-  "python": {
-    "version": "3.12"
-  },
-  "functions": {
-    "api/[...].py": {
-      "runtime": "python3.12"
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
     }
-  },
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "api/index.py"
     }
   ],
   "env": {
-    "PORT": "8000",
-    "HOST": "0.0.0.0",
     "LOG_LEVEL": "info",
     "ENV": "production"
-  }
+  },
+  "installCommand": "pip install -r requirements_vercel.txt"
 }

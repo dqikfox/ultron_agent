@@ -1,0 +1,70 @@
+# Python virtual environments
+venv/
+agent_env/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Node
+node_modules/
+.npm/
+agent-framework/
+ai-gateway-demo/
+Mini-Agent/
+scout-demo-service/
+bindmount-apps/
+
+# Test / dev artefacts
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.log
+logs/
+
+# Large media / models
+models/
+images/
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.mp3
+*.wav
+*.mp4
+
+# Local secrets / env
+.env
+.env.local
+.env.*
+
+# Supabase local stack (not needed on Vercel)
+supabase/.branches/
+supabase/.temp/
+
+# Misc large dirs
+cache/
+data/
+memory/
+Vector_Data/
+archive/
+backup_gui.bat
+agent_env/
+cp/
+workspace/
+oracle_jdk*/
+Oracle_JDK*/
+*.AppImage
+*.deb
+*.tar.gz
+*.vsix
+dotnet-runtime*/
+
+# Git
+.git/
