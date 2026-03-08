@@ -1,78 +1,17 @@
-# Python virtual environments
-venv/
-agent_env/
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-.eggs/
-dist/
-build/
-*.egg
+# ============================================================
+# Whitelist approach — exclude everything, then allow only
+# the minimal files needed by the Vercel Python function.
+# ============================================================
 
-# Node
-node_modules/
-.npm/
-agent-framework/
-ai-gateway-demo/
-Mini-Agent/
-scout-demo-service/
-bindmount-apps/
+# --- Block everything first ---
+*
+!.vercelignore
 
-# Test / dev artefacts
-.pytest_cache/
-.mypy_cache/
-htmlcov/
-.coverage
-coverage.xml
-*.log
-logs/
+# --- Re-allow the files Vercel actually needs ---
+!api/
+!api/**
+!app.py
 
-# Large media / models
-models/
-images/
-screenshots/
-*.png
-*.jpg
-*.jpeg
-*.mp3
-*.wav
-*.mp4
-
-# Local secrets / env
-.env
-.env.local
-.env.*
-
-# Supabase local stack (not needed on Vercel)
-supabase/.branches/
-supabase/.temp/
-
-# Misc large dirs
-cache/
-data/
-memory/
-Vector_Data/
-archive/
-backup_gui.bat
-agent_env/
-cp/
-workspace/
-oracle_jdk*/
-Oracle_JDK*/
-*.AppImage
-*.deb
-*.tar.gz
-*.vsix
-dotnet-runtime*/
-
-# Git
+# --- Keep Git metadata out ---
 .git/
-
-# Prevent uv from picking up heavy local deps
-pyproject.toml
-uv.lock
-requirements.txt
-requirements_*.txt
-
-# Keep only api/requirements.txt for Vercel
+.git/**
