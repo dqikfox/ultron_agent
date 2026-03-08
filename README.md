@@ -22,6 +22,7 @@ Ultron Agent 3.0 is a sophisticated AI agent platform that combines autonomous w
 - **[📋 Component Specifications](COMPONENT_SPECIFICATIONS.md)** - Detailed technical specifications
 - **[GUI Reference Guide](GUI_REFERENCE.md)** - Primary GUI interface and deprecated file information
 - **[🤖 Ollama Context System](docs/OLLAMA_CONTEXT_SYSTEM.md)** - Universal model access system (NEW!)
+- **[🚀 Launcher Guide](docs/LAUNCHER_GUIDE.md)** - Unified entry point with all modes (NEW in Phase A!)
 
 ## 🚀 New Features
 
@@ -91,6 +92,26 @@ See [docs/OLLAMA_CONTEXT_SYSTEM.md](docs/OLLAMA_CONTEXT_SYSTEM.md) for complete 
 - **Enhanced Context Awareness**: Complete understanding of ULTRON architecture and patterns
 
 ## Quick Start
+
+### 🚀 Unified Launcher (Phase A - NEW!)
+
+The **ULTRON Launcher** (`ultron_launch.py`) is the new recommended way to start the agent:
+
+```bash
+# Start API server (REST endpoint at http://localhost:5000)
+python ultron_launch.py --mode api
+
+# Start Web GUI (React interface at http://localhost:8080)
+python ultron_launch.py --mode web
+
+# Start CLI (Interactive terminal mode)
+python ultron_launch.py --mode cli
+
+# Start Full Stack (API + Web + all services)
+python ultron_launch.py --mode full
+```
+
+**Full documentation**: See **[📚 Launcher Guide](docs/LAUNCHER_GUIDE.md)** for detailed usage, configuration, deployment, and troubleshooting.
 
 ### Ubuntu/Linux Setup
 
