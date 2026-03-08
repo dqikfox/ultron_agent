@@ -480,6 +480,17 @@ class UltronBrain:
             "- Only mention tools when directly relevant to the user's request"
         )
 
+        # ✨ PHASE A: Inject semantic memory context into decision pipeline
+        # Retrieve and inject similar past conversations to inform current decision
+        semantic_context = self.get_semantic_memory_context(prompt, limit=3)
+        if semantic_context:
+            system_prompt_parts.append(
+                f"\n\n📚 MEMORY CONTEXT:\n"
+                f"Based on your similar past interactions, here's what we've learned:\n"
+                f"{semantic_context}\n"
+                f"Use this context to make informed decisions."
+            )
+
         # Combine all parts
         full_system_prompt = "\n".join(system_prompt_parts)
 
