@@ -68,3 +68,11 @@ dotnet-runtime*/
 
 # Git
 .git/
+
+# Prevent uv from picking up heavy local deps
+pyproject.toml
+uv.lock
+requirements.txt
+requirements_*.txt
+
+# Keep only api/requirements.txt for Vercel
