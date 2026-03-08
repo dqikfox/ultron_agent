@@ -32,15 +32,39 @@ class BrowserMCPEnhancedTool(ToolInterface):
         log_info("browser_mcp_enhanced", f"Processing: {command}")
 
         try:
+            # ✨ PHASE G: Check memory for recently visited pages
+            if self.memory:
+                try:
+                    recent = self.memory.retrieve_short_term()
+                    for item in recent[-5:]:
+                        if isinstance(item, dict):
+                            if item.get("operation") == "browser_navigate":
+                                log_info("browser_mcp_enhanced", f"Recent navigation in memory: {item.get('url')}")
+                except Exception as e:
+                    log_error("browser_mcp_enhanced", f"Memory check failed (continuing): {e}")
+
             cmd_lower: str = command.lower()
             if "navigate" in cmd_lower:
-                return self._navigate_page(command)
+                result = self._navigate_page(command)
             elif "click" in cmd_lower:
-                return self._click_element(command)
+                result = self._click_element(command)
             elif "scrape" in cmd_lower:
-                return self._scrape_content(command)
+                result = self._scrape_content(command)
             else:
-                return self._general_automation(command)
+                result = self._general_automation(command)
+            
+            # ✨ PHASE G: Store browser operation in memory
+            if self.memory:
+                try:
+                    self.memory.add_to_short_term({
+                        "operation": "browser_mcp",
+                        "command": command[:100],  # First 100 chars
+                        "timestamp": __import__("datetime").datetime.now().isoformat()
+                    })
+                except Exception as e:
+                    log_error("browser_mcp_enhanced", f"Failed to store in memory: {e}")
+            
+            return result
         except Exception as e:
             log_error("browser_mcp_enhanced", f"Error: {e}")
             return f"❌ Browser MCP error: {str(e)}"

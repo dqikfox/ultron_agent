@@ -104,6 +104,21 @@ class WebSearchTool(ToolInterface):
             if not query:
                 return "❌ Please provide a search query"
 
+            # ✨ PHASE G: Check memory for similar recent searches (avoid duplicates)
+            if self.memory:
+                try:
+                    # Look for similar searches in recent memory
+                    recent = self.memory.retrieve_short_term()
+                    for item in recent[-10:]:  # Check last 10 items
+                        if isinstance(item, dict):
+                            content = str(item.get("content", "")).lower()
+                            if "search" in content and query.lower() in content:
+                                # Found similar search recently
+                                log_info("web_search", f"Similar search detected in memory, avoiding duplicate: {query}")
+                                return {"status": "skipped", "reason": "duplicate_search", "previous_query": content}
+                except Exception as e:
+                    log_error("web_search", f"Memory check failed (continuing): {e}")
+
             # Extract search parameters
             max_results = kwargs.get("max_results", 10)
             engines = kwargs.get("engines") or ["duckduckgo", "brave"]
@@ -144,6 +159,19 @@ class WebSearchTool(ToolInterface):
             # Cache results
             if use_cache:
                 self._cache_results(query, final_results)
+
+            # ✨ PHASE G: Store search result in memory for future reference
+            if self.memory:
+                try:
+                    self.memory.add_to_short_term({
+                        "operation": "web_search",
+                        "query": query,
+                        "results_count": len(final_results),
+                        "timestamp": datetime.now().isoformat(),
+                        "urls": [r.get("url") for r in final_results[:3]]  # Top 3 URLs
+                    })
+                except Exception as e:
+                    log_error("web_search", f"Failed to store search in memory: {e}")
 
             # Track metrics
             track_metric("web_search", "results_found", len(final_results), "count")

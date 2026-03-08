@@ -47,6 +47,19 @@ class SmartScreenshotTool(ToolInterface):
             screenshot.save(screenshot_file)
             log_info("smart_screenshot", f"Screenshot saved: {screenshot_file}")
             
+            # ✨ PHASE G: Check if we've taken a similar screenshot recently
+            if self.memory:
+                try:
+                    recent = self.memory.retrieve_short_term()
+                    for item in recent[-5:]:  # Check last 5 operations
+                        if isinstance(item, dict):
+                            if item.get("operation") == "screenshot":
+                                # Found recent screenshot
+                                log_info("smart_screenshot", "Recent screenshot detected in memory")
+                                # Could skip if same region, but we'll track this one too
+                except Exception as e:
+                    log_error("smart_screenshot", f"Memory check failed (continuing): {e}")
+            
             # OCR analysis
             ocr_analysis = self._analyze_with_ocr(screenshot_file)
             
@@ -78,6 +91,19 @@ Technical Info:
                 f.write(full_description)
             
             log_info("smart_screenshot", f"Description saved: {description_file}")
+            
+            # ✨ PHASE G: Store screenshot metadata in memory for future reference
+            if self.memory:
+                try:
+                    self.memory.add_to_short_term({
+                        "operation": "screenshot",
+                        "timestamp": timestamp,
+                        "filename": screenshot_filename,
+                        "size": f"{width}x{height}",
+                        "file_path": screenshot_file
+                    })
+                except Exception as e:
+                    log_error("smart_screenshot", f"Failed to store screenshot in memory: {e}")
             
             return f"Smart screenshot with image analysis complete!\nImage: {screenshot_file}\nDescription: {description_file}\n\n{ocr_analysis}"
             
