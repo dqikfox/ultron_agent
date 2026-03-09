@@ -230,6 +230,7 @@ class UltronAgent:
         self.performance_monitor = None
         self.task_scheduler = None
         self.supabase = None  # SupabaseClient — wired in initialize()
+        self.llamaindex_bridge = None  # LlamaIndexBridge — wired in initialize()
 
         self.logger.info("ULTRON Agent core initialized")
 
@@ -564,6 +565,28 @@ class UltronAgent:
                         log_info("agent_core", "Long-term memory loaded from Supabase")
                     except Exception as mem_sync_err:
                         log_error("agent_core", f"Memory Supabase sync failed: {mem_sync_err}")
+
+                # Initialise LlamaIndex bridge (non-critical)
+                try:
+                    cfg_dict = (
+                        self.config.__dict__
+                        if hasattr(self.config, "__dict__")
+                        else dict(self.config)
+                    )
+                    from ultron.llamaindex_integration import init_bridge
+                    bridge = await asyncio.get_event_loop().run_in_executor(
+                        None, init_bridge, cfg_dict
+                    )
+                    self.llamaindex_bridge = bridge
+                    if bridge.ready:
+                        from tools.llamaindex_tool import LlamaIndexTool
+                        LlamaIndexTool.set_bridge(bridge)
+                        initialized_components.append("llamaindex")
+                        log_info("agent_core", "LlamaIndex bridge initialised and shared with tools")
+                    else:
+                        log_info("agent_core", "LlamaIndex bridge init returned not-ready (check logs)")
+                except Exception as llama_err:
+                    log_error("agent_core", f"LlamaIndex bridge init failed (non-critical): {llama_err}")
 
                 # Update status and markers
                 self.status = AgentStatus.RUNNING

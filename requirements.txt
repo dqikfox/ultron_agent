@@ -60,3 +60,13 @@ python-dotenv==1.0.0
 mistralai>=1.0.0
 psycopg2-binary==2.9.9
 sentence-transformers>=2.2.0
+
+# LlamaIndex integration (https://docs.llamaindex.ai)
+llama-index-core>=0.10.0
+llama-index-llms-ollama>=0.3.0
+llama-index-llms-openai>=0.2.0
+llama-index-llms-anthropic>=0.3.0
+llama-index-embeddings-openai>=0.2.0
+llama-index-embeddings-huggingface>=0.3.0
+llama-index-readers-file>=0.2.0
+llama-index-embeddings-ollama>=0.3.0
