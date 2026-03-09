@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ULTRON — Aether Nexus</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ─── Base ──────────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050a0f;--bg2:#080f18;--bg3:#0d1a26;
+  --cyan:#00e5ff;--cyan2:#00b8d4;--cyan-dim:#0097a7;
+  --red:#ff1744;--green:#00e676;--yellow:#ffd740;--purple:#aa00ff;
+  --text:#b0bec5;--text2:#eceff1;--border:#1a3a4a;
+  --card:#0a1929;--card2:#0d2035;
+  --glow:0 0 20px rgba(0,229,255,.25);
+  --glow-red:0 0 20px rgba(255,23,68,.25);
+}
+html,body{height:100%;background:var(--bg);color:var(--text2);font-family:'Share Tech Mono',monospace;overflow:hidden}
+
+/* ─── Loading screen ─────────────────────────────────────────── */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;z-index:1000}
+.spin{width:80px;height:80px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-title{font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;color:var(--cyan);text-shadow:var(--glow);letter-spacing:.3em}
+.load-sub{color:var(--cyan-dim);letter-spacing:.2em;font-size:.8rem}
+.load-bar{width:300px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.load-fill{height:100%;background:linear-gradient(90deg,var(--cyan2),var(--cyan));animation:load 1.8s ease-out forwards}
+@keyframes load{from{width:0}to{width:100%}}
+
+/* ─── App shell ──────────────────────────────────────────────── */
+#app{display:none;height:100vh;display:none;flex-direction:column}
+#app.ready{display:flex}
+
+/* ─── Header ─────────────────────────────────────────────────── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem 1.2rem;background:var(--bg2);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.1rem;color:var(--cyan);letter-spacing:.25em;text-shadow:var(--glow)}
+.logo span{color:var(--red)}
+.header-sub{font-size:.65rem;color:var(--cyan-dim);letter-spacing:.15em}
+.header-status{display:flex;gap:.8rem;align-items:center;font-size:.7rem}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:.3rem}
+.dot-on{background:var(--green);box-shadow:0 0 8px var(--green)}
+.dot-off{background:#455a64}
+.dot-warn{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+
+/* ─── Main layout ────────────────────────────────────────────── */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* ─── Sidebar ────────────────────────────────────────────────── */
+.sidebar{
+  width:180px;flex-shrink:0;background:var(--bg2);
+  border-right:1px solid var(--border);overflow-y:auto;
+  display:flex;flex-direction:column;padding:.5rem 0;
+}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border)}
+.nav-section{padding:.4rem .8rem .2rem;font-size:.55rem;color:var(--cyan-dim);letter-spacing:.15em;text-transform:uppercase}
+.nav-btn{
+  display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;
+  cursor:pointer;border:none;background:transparent;color:var(--text);
+  font-family:'Share Tech Mono',monospace;font-size:.72rem;width:100%;
+  text-align:left;transition:all .15s;border-left:2px solid transparent;
+}
+.nav-btn:hover{background:rgba(0,229,255,.06);color:var(--cyan)}
+.nav-btn.active{background:rgba(0,229,255,.1);color:var(--cyan);border-left-color:var(--cyan)}
+.nav-btn .icon{font-size:1rem;width:20px;text-align:center}
+
+/* ─── Content area ───────────────────────────────────────────── */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.section{display:none;flex:1;overflow:hidden;flex-direction:column;padding:1rem;gap:1rem}
+.section.active{display:flex}
+
+/* ─── Cards / Panels ─────────────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem}
+.card-title{font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--cyan-dim);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.card-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--cyan);border-radius:2px}
+.panel-grid{display:grid;gap:1rem}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+
+/* ─── Stat cards ─────────────────────────────────────────────── */
+.stat-card{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:.9rem;text-align:center;transition:border-color .2s}
+.stat-card:hover{border-color:var(--cyan-dim)}
+.stat-val{font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:700;color:var(--cyan);text-shadow:var(--glow)}
+.stat-label{font-size:.6rem;color:var(--text);letter-spacing:.1em;margin-top:.3rem;text-transform:uppercase}
+.stat-sub{font-size:.6rem;color:var(--cyan-dim);margin-top:.2rem}
+
+/* ─── Chat ───────────────────────────────────────────────────── */
+.chat-wrap{display:flex;flex:1;gap:1rem;overflow:hidden;min-height:0}
+.chat-sidebar{width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:.5rem;overflow:hidden}
+.chat-main{flex:1;display:flex;flex-direction:column;gap:.5rem;overflow:hidden}
+.conv-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem}
+.conv-list::-webkit-scrollbar{width:3px}
+.conv-list::-webkit-scrollbar-thumb{background:var(--border)}
+.conv-item{padding:.5rem .7rem;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--card);font-size:.7rem;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-item:hover{border-color:var(--cyan-dim);color:var(--cyan)}
+.conv-item.active{border-color:var(--cyan);background:rgba(0,229,255,.08);color:var(--cyan)}
+.conv-meta{font-size:.58rem;color:var(--text);margin-top:.2rem}
+.messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem;padding-right:.3rem}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:var(--border)}
+.msg{max-width:80%;padding:.6rem .9rem;border-radius:8px;font-size:.78rem;line-height:1.5;word-break:break-word}
+.msg.user{align-self:flex-end;background:rgba(0,229,255,.1);border:1px solid var(--cyan-dim);color:var(--text2)}
+.msg.assistant{align-self:flex-start;background:var(--card2);border:1px solid var(--border);color:var(--text2)}
+.msg.system{align-self:center;background:rgba(0,0,0,.3);border:1px solid #1a3a4a;color:var(--text);font-size:.68rem;font-style:italic}
+.msg-time{font-size:.58rem;color:var(--text);margin-top:.2rem;opacity:.6}
+.chat-input-row{display:flex;gap:.5rem;align-items:flex-end}
+.chat-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.6rem .9rem;color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:.78rem;resize:none;min-height:42px;max-height:120px;outline:none;transition:border-color .15s}
+.chat-input:focus{border-color:var(--cyan-dim)}
+.chat-model{background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:.3rem .5rem;outline:none}
+.chat-model:focus{border-color:var(--cyan-dim)}
+
+/* ─── Memory ─────────────────────────────────────────────────── */
+.mem-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.4rem}
+.mem-list::-webkit-scrollbar{width:3px}
+.mem-list::-webkit-scrollbar-thumb{background:var(--border)}
+.mem-row{display:grid;grid-template-columns:160px 1fr auto;gap:.5rem;align-items:start;padding:.6rem .8rem;background:var(--card2);border:1px solid var(--border);border-radius:4px;font-size:.72rem}
+.mem-key{color:var(--cyan);font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mem-val{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mem-type{font-size:.6rem;color:var(--cyan-dim);white-space:nowrap}
+.mem-add-row{display:flex;gap:.5rem}
+
+/* ─── Tools grid ─────────────────────────────────────────────── */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem;overflow-y:auto;padding-right:.3rem}
+.tools-grid::-webkit-scrollbar{width:3px}
+.tools-grid::-webkit-scrollbar-thumb{background:var(--border)}
+.tool-card{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:.8rem;cursor:default;transition:all .15s}
+.tool-card:hover{border-color:var(--cyan-dim);transform:translateY(-1px)}
+.tool-name{font-size:.75rem;color:var(--cyan);margin-bottom:.3rem;font-family:'Orbitron',sans-serif;font-size:.65rem}
+.tool-cat{font-size:.58rem;background:rgba(0,229,255,.1);color:var(--cyan-dim);padding:.1rem .4rem;border-radius:3px;display:inline-block;margin-bottom:.4rem}
+.tool-desc{font-size:.65rem;color:var(--text);line-height:1.4}
+
+/* ─── Providers ──────────────────────────────────────────────── */
+.prov-list{display:flex;flex-direction:column;gap:.6rem}
+.prov-card{display:grid;grid-template-columns:auto 1fr auto;gap:.8rem;align-items:center;padding:.8rem 1rem;background:var(--card2);border:1px solid var(--border);border-radius:6px}
+.prov-icon{font-size:1.5rem}
+.prov-name{font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--text2)}
+.prov-url{font-size:.65rem;color:var(--text);margin-top:.2rem}
+.prov-models{font-size:.6rem;color:var(--cyan-dim);margin-top:.15rem}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:3px;font-size:.6rem;font-family:'Share Tech Mono',monospace}
+.badge-on{background:rgba(0,230,118,.15);color:var(--green);border:1px solid rgba(0,230,118,.3)}
+.badge-off{background:rgba(69,90,100,.2);color:#78909c;border:1px solid #1a3a4a}
+
+/* ─── System ─────────────────────────────────────────────────── */
+.sys-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem}
+.sys-card{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1rem}
+.sys-icon{font-size:2rem;margin-bottom:.5rem}
+.sys-label{font-size:.65rem;color:var(--text);letter-spacing:.1em;text-transform:uppercase}
+.sys-val{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--cyan);margin:.3rem 0}
+.sys-sub{font-size:.62rem;color:var(--text)}
+
+/* ─── Executions ─────────────────────────────────────────────── */
+.exec-table{width:100%;border-collapse:collapse;font-size:.72rem}
+.exec-table th{text-align:left;color:var(--cyan-dim);font-size:.6rem;letter-spacing:.1em;padding:.4rem .6rem;border-bottom:1px solid var(--border)}
+.exec-table td{padding:.4rem .6rem;border-bottom:1px solid rgba(26,58,74,.4)}
+.exec-table tr:hover td{background:rgba(0,229,255,.03)}
+.badge-ok{background:rgba(0,230,118,.1);color:var(--green);padding:.1rem .4rem;border-radius:3px}
+.badge-err{background:rgba(255,23,68,.1);color:var(--red);padding:.1rem .4rem;border-radius:3px}
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.btn{padding:.45rem .9rem;border:1px solid var(--cyan-dim);background:rgba(0,229,255,.08);color:var(--cyan);border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.72rem;transition:all .15s;white-space:nowrap}
+.btn:hover{background:rgba(0,229,255,.18);border-color:var(--cyan)}
+.btn:active{transform:scale(.97)}
+.btn-sm{padding:.3rem .6rem;font-size:.65rem}
+.btn-red{border-color:rgba(255,23,68,.4);background:rgba(255,23,68,.07);color:var(--red)}
+.btn-red:hover{background:rgba(255,23,68,.18)}
+.btn-green{border-color:rgba(0,230,118,.4);background:rgba(0,230,118,.07);color:var(--green)}
+.btn-green:hover{background:rgba(0,230,118,.18)}
+.btn-send{width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ─── Inputs ─────────────────────────────────────────────────── */
+input[type=text],input[type=password]{
+  background:var(--card);border:1px solid var(--border);border-radius:4px;
+  color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:.75rem;
+  padding:.45rem .7rem;outline:none;transition:border-color .15s;width:100%;
+}
+input:focus{border-color:var(--cyan-dim)}
+
+/* ─── Section headers ────────────────────────────────────────── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sec-title{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;color:var(--cyan);letter-spacing:.2em;text-shadow:var(--glow)}
+.sec-subtitle{font-size:.65rem;color:var(--text);margin-top:.2rem;letter-spacing:.1em}
+
+/* ─── Scrollable containers ──────────────────────────────────── */
+.scroll{overflow-y:auto;flex:1;min-height:0}
+.scroll::-webkit-scrollbar{width:3px}
+.scroll::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* ─── Toast ──────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;padding:.6rem 1rem;background:var(--card);border:1px solid var(--cyan-dim);border-radius:6px;color:var(--cyan);font-size:.75rem;opacity:0;transition:opacity .3s;z-index:500;pointer-events:none}
+#toast.show{opacity:1}
+
+/* ─── Spinner inline ─────────────────────────────────────────── */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
+
+/* ─── Typing indicator ───────────────────────────────────────── */
+.typing-dots{display:flex;gap:4px;padding:.5rem .9rem;background:var(--card2);border:1px solid var(--border);border-radius:8px;align-self:flex-start;width:fit-content}
+.typing-dots span{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:bounce .8s infinite;opacity:.4}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px);opacity:1}}
+
+/* ─── Holographic header overlay ────────────────────────────── */
+.holo-bar{background:linear-gradient(90deg,transparent,rgba(0,229,255,.04),transparent);border-top:1px solid rgba(0,229,255,.08);border-bottom:1px solid rgba(0,229,255,.08);padding:.25rem 1rem;font-size:.6rem;color:var(--cyan-dim);letter-spacing:.2em;display:flex;gap:1.5rem;flex-shrink:0}
+.holo-item{display:flex;align-items:center;gap:.3rem}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media(max-width:700px){
+  .sidebar{width:48px}
+  .nav-btn .label{display:none}
+  .chat-sidebar{display:none}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <div class="spin"></div>
+  <div class="load-title">ULTRON</div>
+  <div class="load-sub">AETHER NEXUS INTERFACE</div>
+  <div class="load-bar"><div class="load-fill"></div></div>
+</div>
+
+<!-- App -->
+<div id="app">
+
+  <!-- Header -->
+  <header>
+    <div>
+      <div class="logo">ULTRON <span>▮</span> AETHER NEXUS</div>
+      <div class="header-sub">CLOUD INTELLIGENCE INTERFACE v3.0</div>
+    </div>
+    <div class="header-status" id="header-status">
+      <span><span class="status-dot dot-off" id="dot-sb"></span>SUPABASE</span>
+      <span><span class="status-dot dot-off" id="dot-ai"></span>AI ENGINE</span>
+      <span id="status-text" style="color:var(--text);font-size:.65rem">INITIALIZING...</span>
+    </div>
+  </header>
+
+  <!-- Holo bar -->
+  <div class="holo-bar" id="holo-bar">
+    <span class="holo-item">⚡ AETHER NODE STATUS</span>
+    <span class="holo-item" id="holo-mem">◈ MEMORY: —</span>
+    <span class="holo-item" id="holo-conv">◈ SESSIONS: —</span>
+    <span class="holo-item" id="holo-time">◈ <span id="clock">—</span></span>
+  </div>
+
+  <div class="main">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="nav-section">Core</div>
+      <button class="nav-btn active" data-section="dashboard"><span class="icon">⚡</span><span class="label">DASHBOARD</span></button>
+      <button class="nav-btn" data-section="chat"><span class="icon">💬</span><span class="label">CHAT</span></button>
+      <button class="nav-btn" data-section="memory"><span class="icon">🧠</span><span class="label">MEMORY</span></button>
+      <button class="nav-btn" data-section="conversations"><span class="icon">📜</span><span class="label">HISTORY</span></button>
+      <div class="nav-section">Systems</div>
+      <button class="nav-btn" data-section="tools"><span class="icon">🔧</span><span class="label">TOOLS</span></button>
+      <button class="nav-btn" data-section="providers"><span class="icon">🤖</span><span class="label">PROVIDERS</span></button>
+      <button class="nav-btn" data-section="executions"><span class="icon">📊</span><span class="label">EXECUTIONS</span></button>
+      <button class="nav-btn" data-section="system"><span class="icon">⚙️</span><span class="label">SYSTEM</span></button>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ── DASHBOARD ─────────────────────────────────────── -->
+      <div class="section active" id="section-dashboard">
+        <div class="sec-header">
+          <div>
+            <div class="sec-title">AETHER OPERATIONS MATRIX</div>
+            <div class="sec-subtitle">Real-time cloud intelligence status</div>
+          </div>
+          <button class="btn btn-sm" onclick="UI.refreshDashboard()">↻ REFRESH</button>
+        </div>
+        <div class="panel-grid grid-4">
+          <div class="stat-card"><div class="stat-val" id="dash-mem">—</div><div class="stat-label">Memory Entries</div><div class="stat-sub">Long-term storage</div></div>
+          <div class="stat-card"><div class="stat-val" id="dash-conv">—</div><div class="stat-label">Conversations</div><div class="stat-sub">Chat sessions</div></div>
+          <div class="stat-card"><div class="stat-val" id="dash-tools">25</div><div class="stat-label">Tools Active</div><div class="stat-sub">Integrated systems</div></div>
+          <div class="stat-card"><div class="stat-val" id="dash-prov">—</div><div class="stat-label">AI Providers</div><div class="stat-sub">Connected models</div></div>
+        </div>
+        <div class="panel-grid grid-2" style="flex:1;min-height:0">
+          <div class="card" style="overflow:hidden;display:flex;flex-direction:column">
+            <div class="card-title">Recent Conversations</div>
+            <div class="scroll" id="dash-conv-list"></div>
+          </div>
+          <div class="card" style="overflow:hidden;display:flex;flex-direction:column">
+            <div class="card-title">Recent Memory</div>
+            <div class="scroll" id="dash-mem-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CHAT ──────────────────────────────────────────── -->
+      <div class="section" id="section-chat">
+        <div class="sec-header" style="flex-shrink:0">
+          <div>
+            <div class="sec-title">COMMAND TERMINAL</div>
+            <div class="sec-subtitle">Aether core dialogue interface</div>
+          </div>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <select class="chat-model" id="chat-model">
+              <option value="gpt-4o-mini">GPT-4o-mini</option>
+              <option value="gpt-4o">GPT-4o</option>
+              <option value="gpt-4-turbo">GPT-4 Turbo</option>
+            </select>
+            <button class="btn btn-sm" onclick="Chat.newConversation()">+ NEW</button>
+          </div>
+        </div>
+        <div class="chat-wrap">
+          <div class="chat-sidebar">
+            <div class="card-title" style="padding:.4rem 0">SESSIONS</div>
+            <div class="conv-list" id="conv-list"></div>
+            <button class="btn btn-sm" onclick="Chat.newConversation()" style="flex-shrink:0">+ New Session</button>
+          </div>
+          <div class="chat-main">
+            <div class="card" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+              <div class="messages" id="messages"></div>
+            </div>
+            <div class="chat-input-row">
+              <textarea class="chat-input" id="chat-input" placeholder="Enter command... (Shift+Enter for newline)" rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();Chat.send()}"></textarea>
+              <button class="btn btn-send" id="send-btn" onclick="Chat.send()" title="Send">▶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MEMORY ─────────────────────────────────────────── -->
+      <div class="section" id="section-memory">
+        <div class="sec-header" style="flex-shrink:0">
+          <div>
+            <div class="sec-title">NEURAL MEMORY VAULT</div>
+            <div class="sec-subtitle">Long-term agent knowledge store</div>
+          </div>
+          <button class="btn btn-sm" onclick="Memory.load()">↻ REFRESH</button>
+        </div>
+        <div class="card" style="flex-shrink:0">
+          <div class="card-title">Add Memory Entry</div>
+          <div class="mem-add-row">
+            <input type="text" id="mem-key" placeholder="key" style="width:160px;flex-shrink:0">
+            <input type="text" id="mem-val" placeholder="value (text or JSON)">
+            <select class="chat-model" id="mem-type"><option value="long_term">long_term</option><option value="short_term">short_term</option><option value="episodic">episodic</option></select>
+            <button class="btn btn-sm btn-green" onclick="Memory.add()">STORE</button>
+          </div>
+        </div>
+        <div class="card" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+          <div class="card-title" id="mem-count-label">Memory Entries</div>
+          <div style="display:grid;grid-template-columns:160px 1fr 100px 60px;gap:.5rem;font-size:.6rem;color:var(--cyan-dim);letter-spacing:.1em;padding:.3rem .8rem;flex-shrink:0">
+            <span>KEY</span><span>VALUE</span><span>TYPE</span><span></span>
+          </div>
+          <div class="scroll" id="mem-list"></div>
+        </div>
+      </div>
+
+      <!-- ── CONVERSATIONS ──────────────────────────────────── -->
+      <div class="section" id="section-conversations">
+        <div class="sec-header" style="flex-shrink:0">
+          <div>
+            <div class="sec-title">SESSION ARCHIVE</div>
+            <div class="sec-subtitle">All conversation history</div>
+          </div>
+          <button class="btn btn-sm" onclick="Convs.load()">↻ REFRESH</button>
+        </div>
+        <div class="card" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+          <div style="display:grid;grid-template-columns:1fr 100px 80px 80px 80px;gap:.5rem;font-size:.6rem;color:var(--cyan-dim);letter-spacing:.1em;padding:.3rem .8rem;flex-shrink:0;border-bottom:1px solid var(--border)">
+            <span>TITLE</span><span>MODEL</span><span>MSGS</span><span>CREATED</span><span></span>
+          </div>
+          <div class="scroll" id="convs-list"></div>
+        </div>
+      </div>
+
+      <!-- ── TOOLS ──────────────────────────────────────────── -->
+      <div class="section" id="section-tools">
+        <div class="sec-header" style="flex-shrink:0">
+          <div>
+            <div class="sec-title">TOOL INTEGRATION HUB</div>
+            <div class="sec-subtitle">Active ULTRON capabilities</div>
+          </div>
+          <input type="text" id="tool-search" placeholder="Search tools..." style="width:180px" oninput="Tools.filter(this.value)">
+        </div>
+        <div class="scroll tools-grid" id="tools-grid"></div>
+      </div>
+
+      <!-- ── PROVIDERS ──────────────────────────────────────── -->
+      <div class="section" id="section-providers">
+        <div class="sec-header" style="flex-shrink:0">
+          <div>
+            <div class="sec-title">AI PROVIDER MATRIX</div>
+            <div class="sec-subtitle">Configured intelligence nodes</div>
+          </div>
+          <button class="btn btn-sm" onclick="Providers.load()">↻ REFRESH</button>
+        </div>
+        <div class="scroll" id="providers-list" style="display:flex;flex-direction:column;gap:.6rem;padding-right:.3rem"></div>
+      </div>
+
+      <!-- ── EXECUTIONS ─────────────────────────────────────── -->
+      <div class="section" id="section-executions">
+        <div class="sec-header" style="flex-shrink:0">
+          <div>
+            <div class="sec-title">EXECUTION LOG</div>
+            <div class="sec-subtitle">Tool invocation history</div>
+          </div>
+          <button class="btn btn-sm" onclick="Execs.load()">↻ REFRESH</button>
+        </div>
+        <div class="card" style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0">
+          <div class="scroll">
+            <table class="exec-table" id="exec-table">
+              <thead><tr><th>TOOL</th><th>STATUS</th><th>DURATION</th><th>TIME</th></tr></thead>
+              <tbody id="exec-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SYSTEM ─────────────────────────────────────────── -->
+      <div class="section" id="section-system">
+        <div class="sec-header" style="flex-shrink:0">
+          <div>
+            <div class="sec-title">SYSTEM STATUS</div>
+            <div class="sec-subtitle">Cloud infrastructure health</div>
+          </div>
+          <button class="btn btn-sm" onclick="System.load()">↻ REFRESH</button>
+        </div>
+        <div class="sys-grid" id="sys-grid"></div>
+        <div class="card" style="flex:1;min-height:0;overflow:hidden">
+          <div class="card-title">API Endpoints</div>
+          <div class="scroll" id="api-list" style="font-size:.72rem;line-height:2"></div>
+        </div>
+      </div>
+
+    </div><!-- /.content -->
+  </div><!-- /.main -->
+</div><!-- /#app -->
+
+<div id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────
+const API = '';  // relative — same origin
+
+// ── Utilities ───────────────────────────────────────────────────
+function toast(msg, ms=2500){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),ms);
+}
+function fmt(date){
+  if(!date)return'—';
+  const d=new Date(date);
+  return d.toLocaleDateString()+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+}
+function fmtShort(date){
+  if(!date)return'—';
+  const d=new Date(date);
+  return d.toLocaleDateString();
+}
+async function api(path,opts={}){
+  const r=await fetch(API+path,{headers:{'Content-Type':'application/json'},...opts});
+  if(!r.ok){const t=await r.text();throw new Error(t);}
+  return r.json();
+}
+
+// ── Navigation ──────────────────────────────────────────────────
+const NAV={
+  init(){
+    document.querySelectorAll('.nav-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const s=btn.dataset.section;
+        document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('section-'+s)?.classList.add('active');
+        NAV.onEnter(s);
+      });
+    });
+  },
+  onEnter(section){
+    if(section==='chat')Chat.loadConversations();
+    if(section==='memory')Memory.load();
+    if(section==='conversations')Convs.load();
+    if(section==='tools')Tools.load();
+    if(section==='providers')Providers.load();
+    if(section==='executions')Execs.load();
+    if(section==='system')System.load();
+  }
+};
+
+// ── Dashboard ───────────────────────────────────────────────────
+const UI={
+  async refreshDashboard(){
+    try{
+      const [sys,convs,mems]=await Promise.all([
+        api('/api/system'),
+        api('/api/conversations?limit=5'),
+        api('/api/memory?limit=5')
+      ]);
+      document.getElementById('dash-mem').textContent=sys.memory_entries??'—';
+      document.getElementById('dash-conv').textContent=sys.conversations??'—';
+      document.getElementById('dash-prov').textContent='4';
+      document.getElementById('holo-mem').textContent='◈ MEMORY: '+(sys.memory_entries??'—');
+      document.getElementById('holo-conv').textContent='◈ SESSIONS: '+(sys.conversations??'—');
+
+      // Status dots
+      const sbOk=sys.supabase?.status==='online';
+      const aiOk=sys.openai?.status==='available';
+      document.getElementById('dot-sb').className='status-dot '+(sbOk?'dot-on':'dot-off');
+      document.getElementById('dot-ai').className='status-dot '+(aiOk?'dot-on':'dot-warn');
+      document.getElementById('status-text').textContent=sbOk?'SYSTEMS NOMINAL':'DEGRADED';
+      document.getElementById('status-text').style.color=sbOk?'var(--green)':'var(--yellow)';
+
+      // Recent convs
+      const cl=document.getElementById('dash-conv-list');
+      cl.innerHTML=convs.conversations.length?convs.conversations.map(c=>`
+        <div style="padding:.45rem .6rem;border-bottom:1px solid var(--border);font-size:.72rem;cursor:pointer"
+             onclick="Chat.openConversation('${c.id}','${(c.title||'').replace(/'/g,"\\'")}')">
+          <div style="color:var(--text2)">${escHtml(c.title||'Untitled')}</div>
+          <div style="font-size:.6rem;color:var(--text)">${c.model_name||''} · ${fmtShort(c.created_at)}</div>
+        </div>`).join('')
+        :'<div style="padding:.6rem;color:var(--text);font-size:.72rem">No conversations yet</div>';
+
+      // Recent memory
+      const ml=document.getElementById('dash-mem-list');
+      ml.innerHTML=mems.entries.length?mems.entries.map(m=>`
+        <div style="padding:.45rem .6rem;border-bottom:1px solid var(--border);font-size:.72rem">
+          <div style="color:var(--cyan)">${escHtml(m.key)}</div>
+          <div style="font-size:.6rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(JSON.stringify(m.value))}</div>
+        </div>`).join('')
+        :'<div style="padding:.6rem;color:var(--text);font-size:.72rem">No memory entries</div>';
+    }catch(e){console.error(e);}
+  }
+};
+
+// ── Chat ────────────────────────────────────────────────────────
+const Chat={
+  currentConvId:null,
+  sending:false,
+
+  async loadConversations(){
+    try{
+      const data=await api('/api/conversations?limit=30');
+      const list=document.getElementById('conv-list');
+      list.innerHTML=data.conversations.map(c=>`
+        <div class="conv-item${c.id===Chat.currentConvId?' active':''}" data-id="${c.id}"
+             onclick="Chat.openConversation('${c.id}','${(c.title||'').replace(/'/g,"\\'")}')">
+          <div>${escHtml(c.title||'Untitled')}</div>
+          <div class="conv-meta">${c.message_count||0} msgs · ${fmtShort(c.created_at)}</div>
+        </div>`).join('')||'<div style="padding:.5rem;color:var(--text);font-size:.7rem">No sessions yet</div>';
+    }catch(e){console.error(e);}
+  },
+
+  async openConversation(id,title){
+    Chat.currentConvId=id;
+    document.querySelectorAll('.conv-item').forEach(el=>{
+      el.classList.toggle('active',el.dataset.id===id);
+    });
+    const msgs=document.getElementById('messages');
+    msgs.innerHTML='<div class="spinner"></div>';
+    try{
+      const data=await api('/api/history?conversation_id='+id+'&limit=50');
+      Chat.renderMessages(data.messages);
+    }catch(e){msgs.innerHTML='<div class="msg system">Error loading messages</div>';}
+  },
+
+  renderMessages(msgs){
+    const el=document.getElementById('messages');
+    if(!msgs.length){el.innerHTML='<div class="msg system">No messages yet — start the conversation!</div>';return;}
+    el.innerHTML=msgs.map(m=>`
+      <div class="msg ${m.role}">
+        ${m.role==='assistant'?'<span style="font-size:.6rem;color:var(--cyan-dim)">ULTRON ▮ </span>':''}${escHtml(m.content||'')}
+        <div class="msg-time">${fmt(m.created_at)}</div>
+      </div>`).join('');
+    el.scrollTop=el.scrollHeight;
+  },
+
+  async newConversation(){
+    const title='Session '+new Date().toLocaleTimeString();
+    try{
+      const conv=await api('/api/conversations',{method:'POST',body:JSON.stringify({title,model_name:document.getElementById('chat-model').value,ai_provider:'openai'})});
+      Chat.currentConvId=conv.id;
+      document.getElementById('messages').innerHTML='<div class="msg system">New session started. How can I assist?</div>';
+      await Chat.loadConversations();
+    }catch(e){toast('Error: '+e.message);}
+  },
+
+  async send(){
+    if(Chat.sending)return;
+    const input=document.getElementById('chat-input');
+    const msg=input.value.trim();
+    if(!msg)return;
+
+    if(!Chat.currentConvId){
+      await Chat.newConversation();
+    }
+
+    Chat.sending=true;
+    const btn=document.getElementById('send-btn');
+    btn.disabled=true;
+    input.value='';
+
+    const msgs=document.getElementById('messages');
+    // Append user msg
+    msgs.innerHTML+=`<div class="msg user">${escHtml(msg)}<div class="msg-time">${fmt(new Date())}</div></div>`;
+    // Typing indicator
+    const tid=Date.now();
+    msgs.innerHTML+=`<div class="typing-dots" id="typing-${tid}"><span></span><span></span><span></span></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+
+    try{
+      const data=await api('/api/chat',{method:'POST',body:JSON.stringify({
+        message:msg,
+        conversation_id:Chat.currentConvId,
+        model:document.getElementById('chat-model').value
+      })});
+      document.getElementById('typing-'+tid)?.remove();
+      msgs.innerHTML+=`<div class="msg assistant"><span style="font-size:.6rem;color:var(--cyan-dim)">ULTRON ▮ </span>${escHtml(data.reply||'')}<div class="msg-time">${fmt(new Date())}</div></div>`;
+      msgs.scrollTop=msgs.scrollHeight;
+      await Chat.loadConversations();
+    }catch(e){
+      document.getElementById('typing-'+tid)?.remove();
+      msgs.innerHTML+=`<div class="msg system">⚠️ Error: ${escHtml(e.message)}</div>`;
+      msgs.scrollTop=msgs.scrollHeight;
+    }finally{
+      Chat.sending=false;
+      btn.disabled=false;
+      input.focus();
+    }
+  }
+};
+
+// ── Memory ──────────────────────────────────────────────────────
+const Memory={
+  entries:[],
+  async load(){
+    const list=document.getElementById('mem-list');
+    list.innerHTML='<div class="spinner" style="margin:.5rem"></div>';
+    try{
+      const data=await api('/api/memory?limit=200');
+      Memory.entries=data.entries;
+      document.getElementById('mem-count-label').textContent=`Memory Entries (${data.count})`;
+      Memory.render(data.entries);
+    }catch(e){list.innerHTML='<div style="padding:.5rem;color:var(--red)">Error: '+escHtml(e.message)+'</div>';}
+  },
+  render(entries){
+    const list=document.getElementById('mem-list');
+    if(!entries.length){list.innerHTML='<div style="padding:.6rem;color:var(--text);font-size:.72rem">No memory entries yet</div>';return;}
+    list.innerHTML=entries.map(m=>`
+      <div class="mem-row">
+        <span class="mem-key" title="${escHtml(m.key)}">${escHtml(m.key)}</span>
+        <span class="mem-val" title="${escHtml(JSON.stringify(m.value))}">${escHtml(JSON.stringify(m.value))}</span>
+        <span class="mem-type">${escHtml(m.memory_type||'long_term')}</span>
+        <button class="btn btn-sm btn-red" onclick="Memory.del('${escHtml(m.key)}')">✕</button>
+      </div>`).join('');
+  },
+  async add(){
+    const key=document.getElementById('mem-key').value.trim();
+    const val=document.getElementById('mem-val').value.trim();
+    const type=document.getElementById('mem-type').value;
+    if(!key||!val){toast('Key and value are required');return;}
+    let parsed;try{parsed=JSON.parse(val)}catch{parsed=val}
+    try{
+      await api('/api/memory',{method:'POST',body:JSON.stringify({key,value:parsed,memory_type:type})});
+      document.getElementById('mem-key').value='';
+      document.getElementById('mem-val').value='';
+      toast('Memory stored: '+key);
+      await Memory.load();
+    }catch(e){toast('Error: '+e.message);}
+  },
+  async del(key){
+    if(!confirm('Delete memory key "'+key+'"?'))return;
+    try{
+      await api('/api/memory/'+encodeURIComponent(key),{method:'DELETE'});
+      toast('Deleted: '+key);
+      await Memory.load();
+    }catch(e){toast('Error: '+e.message);}
+  }
+};
+
+// ── Conversations list ───────────────────────────────────────────
+const Convs={
+  async load(){
+    const list=document.getElementById('convs-list');
+    list.innerHTML='<div class="spinner" style="margin:.5rem"></div>';
+    try{
+      const data=await api('/api/conversations?limit=50');
+      if(!data.conversations.length){list.innerHTML='<div style="padding:.6rem;color:var(--text);font-size:.72rem">No conversations yet</div>';return;}
+      list.innerHTML=data.conversations.map(c=>`
+        <div style="display:grid;grid-template-columns:1fr 100px 80px 80px 80px;gap:.5rem;align-items:center;padding:.5rem .8rem;border-bottom:1px solid rgba(26,58,74,.4);font-size:.72rem;cursor:pointer" onmouseenter="this.style.background='rgba(0,229,255,.03)'" onmouseleave="this.style.background=''">
+          <span style="color:var(--text2)">${escHtml(c.title||'Untitled')}</span>
+          <span style="color:var(--cyan-dim)">${escHtml(c.model_name||'—')}</span>
+          <span>${c.message_count||0}</span>
+          <span style="color:var(--text)">${fmtShort(c.created_at)}</span>
+          <div style="display:flex;gap:.3rem">
+            <button class="btn btn-sm" onclick="Chat.openConversation('${c.id}','${(c.title||'').replace(/'/g,"\\'")}');document.querySelector('[data-section=chat]').click()">Open</button>
+            <button class="btn btn-sm btn-red" onclick="Convs.del('${c.id}')">✕</button>
+          </div>
+        </div>`).join('');
+    }catch(e){list.innerHTML='<div style="padding:.5rem;color:var(--red)">Error: '+escHtml(e.message)+'</div>';}
+  },
+  async del(id){
+    if(!confirm('Delete this conversation and all its messages?'))return;
+    try{
+      await api('/api/conversations/'+id,{method:'DELETE'});
+      toast('Conversation deleted');
+      await Convs.load();
+    }catch(e){toast('Error: '+e.message);}
+  }
+};
+
+// ── Tools ────────────────────────────────────────────────────────
+const Tools={
+  all:[],
+  async load(){
+    const grid=document.getElementById('tools-grid');
+    grid.innerHTML='<div class="spinner" style="margin:.5rem"></div>';
+    try{
+      const data=await api('/api/tools');
+      Tools.all=data.tools;
+      Tools.render(data.tools);
+    }catch(e){grid.innerHTML='<div style="padding:.5rem;color:var(--red)">Error</div>';}
+  },
+  render(tools){
+    const grid=document.getElementById('tools-grid');
+    grid.innerHTML=tools.map(t=>`
+      <div class="tool-card">
+        <div class="tool-cat">${escHtml(t.category)}</div>
+        <div class="tool-name">${escHtml(t.name)}</div>
+        <div class="tool-desc">${escHtml(t.description)}</div>
+      </div>`).join('');
+  },
+  filter(q){
+    const lq=q.toLowerCase();
+    Tools.render(q?Tools.all.filter(t=>t.name.toLowerCase().includes(lq)||t.category.toLowerCase().includes(lq)||t.description.toLowerCase().includes(lq)):Tools.all);
+  }
+};
+
+// ── Providers ────────────────────────────────────────────────────
+const Providers={
+  async load(){
+    const list=document.getElementById('providers-list');
+    list.innerHTML='<div class="spinner" style="margin:.5rem"></div>';
+    try{
+      const data=await api('/api/providers');
+      const icons={ollama:'🦙',openai:'✨',anthropic:'🔮',nvidia:'⚡',bedrock:'☁️',azure:'🔷',google:'🔵'};
+      list.innerHTML=data.providers.map(p=>`
+        <div class="prov-card">
+          <div class="prov-icon">${icons[p.provider_name]||'🤖'}</div>
+          <div>
+            <div class="prov-name">${escHtml(p.provider_name.toUpperCase())}</div>
+            <div class="prov-url">${escHtml(p.base_url||'—')}</div>
+            <div class="prov-models">Models: ${escHtml(p.model_list||'—')}</div>
+          </div>
+          <span class="badge ${p.is_active?'badge-on':'badge-off'}">${p.is_active?'ACTIVE':'INACTIVE'}</span>
+        </div>`).join('');
+    }catch(e){list.innerHTML='<div style="padding:.5rem;color:var(--red)">Error: '+escHtml(e.message)+'</div>';}
+  }
+};
+
+// ── Executions ───────────────────────────────────────────────────
+const Execs={
+  async load(){
+    const tbody=document.getElementById('exec-body');
+    tbody.innerHTML='<tr><td colspan="4" style="padding:.5rem"><div class="spinner"></div></td></tr>';
+    try{
+      const data=await api('/api/tool-executions?limit=50');
+      if(!data.executions.length){tbody.innerHTML='<tr><td colspan="4" style="padding:.6rem;color:var(--text)">No tool executions logged yet</td></tr>';return;}
+      tbody.innerHTML=data.executions.map(e=>`
+        <tr>
+          <td style="color:var(--cyan)">${escHtml(e.tool_name)}</td>
+          <td><span class="badge ${e.status==='success'?'badge-ok':'badge-err'}">${escHtml(e.status)}</span></td>
+          <td>${e.duration_ms!=null?e.duration_ms+'ms':'—'}</td>
+          <td style="color:var(--text)">${fmt(e.created_at)}</td>
+        </tr>`).join('');
+    }catch(e){tbody.innerHTML='<tr><td colspan="4" style="color:var(--red)">Error: '+escHtml(e.message)+'</td></tr>';}
+  }
+};
+
+// ── System ───────────────────────────────────────────────────────
+const System={
+  async load(){
+    const grid=document.getElementById('sys-grid');
+    grid.innerHTML='<div class="spinner" style="margin:.5rem"></div>';
+    try{
+      const d=await api('/api/system');
+      const cards=[
+        {icon:'🗄️',label:'Supabase',val:d.supabase?.status==='online'?'ONLINE':'OFFLINE',sub:d.supabase?.url||'—',ok:d.supabase?.status==='online'},
+        {icon:'🤖',label:'OpenAI',val:d.openai?.status==='available'?'READY':'NOT SET',sub:'GPT-4o / mini',ok:d.openai?.status==='available'},
+        {icon:'🧠',label:'Memory Entries',val:d.memory_entries??'—',sub:'Long-term storage',ok:true},
+        {icon:'💬',label:'Conversations',val:d.conversations??'—',sub:'Chat sessions',ok:true},
+        {icon:'🚀',label:'Deployment',val:(d.deployment||'cloud').toUpperCase(),sub:'v'+d.version,ok:true},
+        {icon:'🔧',label:'Tools Available',val:'25',sub:'Integrated systems',ok:true},
+      ];
+      grid.innerHTML=cards.map(c=>`
+        <div class="sys-card">
+          <div class="sys-icon">${c.icon}</div>
+          <div class="sys-label">${c.label}</div>
+          <div class="sys-val" style="color:${c.ok?'var(--cyan)':'var(--red)'}">${c.val}</div>
+          <div class="sys-sub">${c.sub}</div>
+        </div>`).join('');
+
+      // API endpoint list
+      document.getElementById('api-list').innerHTML=[
+        'GET  /api/status','GET  /api/system','POST /api/chat',
+        'GET  /api/conversations','POST /api/conversations','DELETE /api/conversations/{id}',
+        'GET  /api/history','GET  /api/memory','POST /api/memory','DELETE /api/memory/{key}',
+        'GET  /api/providers','PATCH /api/providers/{id}','GET  /api/tools','GET  /api/tool-executions',
+      ].map(e=>`<div style="color:var(--text2);border-bottom:1px solid var(--border);padding:.2rem 0"><span style="color:${e.startsWith('GET')?'var(--green)':e.startsWith('POST')?'var(--cyan)':e.startsWith('DELETE')?'var(--red)':'var(--yellow)'}">${e.split(' ')[0].padEnd(8)}</span>${e.split(' ')[1]}</div>`).join('');
+    }catch(e){grid.innerHTML='<div style="padding:.5rem;color:var(--red)">Error: '+escHtml(e.message)+'</div>';}
+  }
+};
+
+// ── Helpers ──────────────────────────────────────────────────────
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Clock ────────────────────────────────────────────────────────
+function startClock(){
+  function tick(){document.getElementById('clock').textContent='◈ '+new Date().toLocaleTimeString();}
+  tick();setInterval(tick,1000);
+}
+
+// ── Bootstrap ────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',async()=>{
+  // Wait for load animation
+  await new Promise(r=>setTimeout(r,1800));
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').classList.add('ready');
+  NAV.init();
+  startClock();
+  // Initial data load
+  await UI.refreshDashboard();
+  setInterval(()=>UI.refreshDashboard(),60000);
+});
+</script>
+</body>
+</html>
