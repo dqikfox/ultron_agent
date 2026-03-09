@@ -1225,6 +1225,9 @@ class UltronAgent:
                         from tools.tool_interface import ToolInterface as TI
                         TI.shared_supabase = self.supabase
                         log_info("agent_core", "Supabase client shared with all tools")
+                        # Also inject into the dedicated Data API tool
+                        from tools.supabase_data_api_tool import SupabaseDataAPITool
+                        SupabaseDataAPITool.set_client(self.supabase)
                     except Exception as sb_tool_err:
                         log_error("agent_core", f"Failed to share Supabase with tools: {sb_tool_err}")
 
