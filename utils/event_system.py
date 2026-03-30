@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 from enum import Enum
 from utils.ultron_logger import ultron_logger
 
@@ -73,7 +73,7 @@ class EventSystem:
     def __init__(self):
         self.logger = ultron_logger
         self.subscribers: Dict[str, List[Subscriber]] = defaultdict(list)
-        self.event_history: List[Event] = []
+        self.event_history: deque = deque(maxlen=self.max_history)
         self.max_history = 1000
         self.executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="event-system")
         self._shutdown = False
@@ -176,10 +176,8 @@ class EventSystem:
             priority=priority
         )
 
-        # Add to history
+        # Add to history — deque auto-evicts oldest entry when maxlen is reached
         self.event_history.append(event)
-        if len(self.event_history) > self.max_history:
-            self.event_history = self.event_history[-self.max_history:]
 
         # Update metrics
         self.metrics.total_events += 1
@@ -243,7 +241,8 @@ class EventSystem:
         Returns:
             List of events
         """
-        events = self.event_history
+        # Convert deque to list once for filtering/slicing
+        events: List[Event] = list(self.event_history)
 
         if event_name:
             events = [e for e in events if e.name == event_name]
@@ -251,7 +250,7 @@ class EventSystem:
         if limit:
             events = events[-limit:]
 
-        return events.copy()
+        return events
 
     async def batch_events(self, batch_size: int = 10, timeout_ms: int = 1000) -> List[Event]:
         """
