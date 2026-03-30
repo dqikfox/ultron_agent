@@ -31,6 +31,9 @@ class PerformanceMonitor:
         self.metrics_history = []
         self.max_history_size = 1000
         self.monitor_thread = None
+        self._process = psutil.Process()
+        # Prime process CPU percent so subsequent calls are instantaneous
+        self._process.cpu_percent(interval=None)
         self.metrics_file = Path("logs/performance_metrics.json")
         self.metrics_file.parent.mkdir(exist_ok=True)
         self.load_metrics_history()
@@ -98,7 +101,7 @@ class PerformanceMonitor:
         """Get current system performance statistics"""
         try:
             # CPU stats
-            cpu_percent = psutil.cpu_percent(interval=1)
+            cpu_percent = psutil.cpu_percent(interval=0.1)
             cpu_count = psutil.cpu_count()
             cpu_freq = psutil.cpu_freq()
 
@@ -120,9 +123,8 @@ class PerformanceMonitor:
             bytes_recv = net.bytes_recv / (1024**2)  # MB
 
             # Process info
-            process = psutil.Process()
-            process_memory = process.memory_info().rss / (1024**2)  # MB
-            process_cpu = process.cpu_percent()
+            process_memory = self._process.memory_info().rss / (1024**2)  # MB
+            process_cpu = self._process.cpu_percent(interval=None)
 
             stats = f"""
 📊 **Current System Performance Statistics**
@@ -197,7 +199,7 @@ class PerformanceMonitor:
     def get_cpu_analysis(self) -> str:
         """Get detailed CPU usage analysis"""
         try:
-            cpu_times = psutil.cpu_times_percent(interval=1)
+            cpu_times = psutil.cpu_times_percent(interval=0.1)
 
             analysis = f"""
 ⚡ **CPU Usage Analysis**
@@ -210,18 +212,27 @@ class PerformanceMonitor:
 
 **Top CPU Processes:**
 """
-            # Get top 5 CPU-consuming processes
+            # Prime CPU counters once, then sample without per-process sleeps
             processes = []
-            for proc in psutil.process_iter(['pid', 'name', 'cpu_percent']):
+            for proc in psutil.process_iter(['pid', 'name']):
                 try:
-                    proc.cpu_percent()  # First call to get initial value
-                    time.sleep(0.1)
-                    cpu_percent = proc.cpu_percent()
-                    processes.append((proc.info['name'], cpu_percent))
+                    proc.cpu_percent(interval=None)
+                    processes.append(proc)
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     continue
 
-            top_processes = sorted(processes, key=lambda x: x[1], reverse=True)[:5]
+            time.sleep(0.1)
+
+            process_cpu = []
+            for proc in processes:
+                try:
+                    cpu_percent = proc.cpu_percent(interval=None)
+                    name = proc.info.get('name') or f"pid-{proc.pid}"
+                    process_cpu.append((name, cpu_percent))
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+
+            top_processes = sorted(process_cpu, key=lambda x: x[1], reverse=True)[:5]
             for name, cpu_percent in top_processes:
                 analysis += f"• {name}: {cpu_percent:.1f}%\n"
 
@@ -304,8 +315,8 @@ class PerformanceMonitor:
                     'memory_percent': psutil.virtual_memory().percent,
                     'memory_used': psutil.virtual_memory().used,
                     'disk_percent': psutil.disk_usage('/').percent,
-                    'process_memory': psutil.Process().memory_info().rss,
-                    'process_cpu': psutil.Process().cpu_percent()
+                    'process_memory': self._process.memory_info().rss,
+                    'process_cpu': self._process.cpu_percent(interval=None)
                 }
 
                 self.metrics_history.append(metrics)
