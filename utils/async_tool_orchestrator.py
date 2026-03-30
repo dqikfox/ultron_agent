@@ -78,22 +78,22 @@ class ResultCache:
 
 async def async_execute_tool(tool, args, timeout_s: float = 30.0):
     """Execute a tool with timeout handling"""
-    start = time.time()
+    start_time = time.time()
     try:
         if asyncio.iscoroutinefunction(tool.run):
             result = await asyncio.wait_for(tool.run(args), timeout=timeout_s)
         else:
             result = tool.run(args)
 
-        execution_time = (time.time() - start) * 1000
+        execution_time = (time.time() - start_time) * 1000
         return ToolResult(output=result, execution_time_ms=execution_time)
     except asyncio.TimeoutError:
-        execution_time = (time.time() - start) * 1000
+        execution_time = (time.time() - start_time) * 1000
         error = Exception(f"Tool execution timeout after {timeout_s}s")
         Logger.error(f"Tool {tool.name} timeout: {timeout_s}s")
         return ToolResult(output=None, exception=error, execution_time_ms=execution_time)
     except Exception as e:
-        execution_time = (time.time() - start) * 1000
+        execution_time = (time.time() - start_time) * 1000
         Logger.error(f"Tool execution failed: {tool.name} - {str(e)}")
         return ToolResult(output=None, exception=e, execution_time_ms=execution_time)
 

@@ -128,19 +128,19 @@ class RepoAutoMonitor:
         report += "=" * 60 + "\n\n"
 
         # Group issues by type
-        by_type = {}
+        issues_by_type = {}
         for issue in issues:
             issue_type = issue['type']
-            if issue_type not in by_type:
-                by_type[issue_type] = []
-            by_type[issue_type].append(issue)
+            if issue_type not in issues_by_type:
+                issues_by_type[issue_type] = []
+            issues_by_type[issue_type].append(issue)
 
-        for issue_type, type_issues in by_type.items():
-            report += f"⚠️  {issue_type.upper()} ({len(type_issues)}):\n"
-            for issue in type_issues[:3]:  # Show first 3 of each type
+        for issue_type, issues_of_type in issues_by_type.items():
+            report += f"⚠️  {issue_type.upper()} ({len(issues_of_type)}):\n"
+            for issue in issues_of_type[:3]:  # Show first 3 of each type
                 report += f"  • {issue['file']}:{issue['line']} - {issue['message']}\n"
-            if len(type_issues) > 3:
-                report += f"  ... and {len(type_issues) - 3} more\n"
+            if len(issues_of_type) > 3:
+                report += f"  ... and {len(issues_of_type) - 3} more\n"
             report += "\n"
 
         return report

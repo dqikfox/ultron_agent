@@ -12,10 +12,10 @@ def validate_config(config_path='ultron_config.json'):
         config = json.load(f)
     
     # Required fields (API key optional)
-    required = ['alert_mode', 'control_mode']
-    for key in required:
-        if key not in config:
-            config[key] = 'log_and_speak' if key == 'alert_mode' else 'voice_and_terminal'
+    required_fields = ['alert_mode', 'control_mode']
+    for field_name in required_fields:
+        if field_name not in config:
+            config[field_name] = 'log_and_speak' if field_name == 'alert_mode' else 'voice_and_terminal'
     
     # Validate API key format if present
     api_key = config.get('openai_api_key', '')

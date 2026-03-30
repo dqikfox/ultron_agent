@@ -12,18 +12,18 @@ class CommandHistory:
     
     def add(self, command, result, success=True):
         """Add command to history"""
-        entry = {
+        command_entry = {
             'command': command,
             'result': result,
             'success': success,
             'timestamp': time.time()
         }
-        self.history.append(entry)
+        self.history.append(command_entry)
         self.save()
     
-    def get_last(self, n=10):
-        """Get last n commands"""
-        return list(self.history)[-n:]
+    def get_last(self, count=10):
+        """Get last count commands"""
+        return list(self.history)[-count:]
     
     def save(self):
         """Persist history to disk"""

@@ -124,14 +124,14 @@ class Memory:
             except Exception:
                 logging.exception('Failed to upload long term memory to Google Drive')
 
-    def add_to_short_term(self, item):
-        self.short_term_memory.append(item)
-        logging.info(f"Added to shortterm memory: {item} - memory.py:80")
+    def add_to_short_term(self, memory_item):
+        self.short_term_memory.append(memory_item)
+        logging.info(f"Added to shortterm memory: {memory_item} - memory.py:80")
 
-    def add_to_long_term(self, item):
-        item_id = str(uuid.uuid4())
-        self.long_term_memory[item_id] = item
-        logging.info(f"Added to longterm memory: {item_id} > {item} - memory.py:85")
+    def add_to_long_term(self, memory_item):
+        memory_entry_id = str(uuid.uuid4())
+        self.long_term_memory[memory_entry_id] = memory_item
+        logging.info(f"Added to longterm memory: {memory_entry_id} > {memory_item} - memory.py:85")
         # Persist after adding
         try:
             self.save_long_term_memory(self.long_term_file)
