@@ -1,0 +1,14 @@
+[
+  {
+    "command": "test command",
+    "result": "success",
+    "success": true,
+    "timestamp": 1774882782.101897
+  },
+  {
+    "command": "test command",
+    "result": "success",
+    "success": true,
+    "timestamp": 1774882787.5779521
+  }
+]
