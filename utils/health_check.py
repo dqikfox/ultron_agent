@@ -14,8 +14,8 @@ def check_tesseract():
 
 def check_disk_space(min_gb=1):
     """Check available disk space"""
-    stat = shutil.disk_usage('.')
-    free_gb = stat.free / (1024**3)
+    disk_usage_stats = shutil.disk_usage('.')
+    free_gb = disk_usage_stats.free / (1024**3)
     return free_gb >= min_gb
 
 def check_logs_directory():

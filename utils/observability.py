@@ -14,13 +14,13 @@ class Tracer:
     def trace(self, operation: str, metadata: Optional[Dict] = None):
         """Trace an operation"""
         trace_id = f"{operation}_{int(time.time() * 1000)}"
-        start = time.time()
+        start_time = time.time()
         
         try:
             log_info("tracer", f"Starting: {operation}", extra=metadata or {})
             yield trace_id
         finally:
-            duration = time.time() - start
+            duration = time.time() - start_time
             self.traces.setdefault(operation, []).append({
                 "trace_id": trace_id,
                 "duration": duration,

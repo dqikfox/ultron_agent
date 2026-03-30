@@ -7,13 +7,13 @@ def track_performance(func):
     """Decorator to track function execution time"""
     @wraps(func)
     def wrapper(*args, **kwargs):
-        start = time.time()
+        start_time = time.time()
         result = func(*args, **kwargs)
-        duration = time.time() - start
-        
+        duration = time.time() - start_time
+
         if duration > 1.0:  # Only log slow operations
             log_info("performance", f"{func.__name__} took {duration:.2f}s")
-        
+
         return result
     return wrapper
 
@@ -21,21 +21,21 @@ class PerformanceMonitor:
     def __init__(self):
         self.metrics = {}
     
-    def record(self, operation, duration):
+    def record(self, operation_name, duration):
         """Record operation performance"""
-        if operation not in self.metrics:
-            self.metrics[operation] = []
-        self.metrics[operation].append(duration)
-    
-    def get_stats(self, operation):
+        if operation_name not in self.metrics:
+            self.metrics[operation_name] = []
+        self.metrics[operation_name].append(duration)
+
+    def get_stats(self, operation_name):
         """Get performance statistics"""
-        if operation not in self.metrics:
+        if operation_name not in self.metrics:
             return None
-        
-        times = self.metrics[operation]
+
+        recorded_durations = self.metrics[operation_name]
         return {
-            'count': len(times),
-            'avg': sum(times) / len(times),
-            'min': min(times),
-            'max': max(times)
+            'count': len(recorded_durations),
+            'avg': sum(recorded_durations) / len(recorded_durations),
+            'min': min(recorded_durations),
+            'max': max(recorded_durations)
         }
