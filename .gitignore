@@ -1,5 +1,4 @@
-node_modules
-node_modules
+node_modules/
 
 # Playwright
 /test-results/
@@ -7,8 +6,94 @@ node_modules
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Environment
 .env*.local
 .env
 
 # Local config with secrets
 ultron_config.json
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Logs and runtime state
+*.log
+logs/
+*.log5
+ultron.log*
+server.log
+startup.log
+ollama_server.log
+ultron_master_startup.log
+ultron_startup.logset
+ultron_bridge.log
+
+# Runtime data and memory
+memory/
+cache/
+*.json.bak
+system_health.json
+long_term_memory.json
+ultron_memory.json
+deployment_status.json
+performance_report.json
+task_queue.json
+scheduled_tasks.json
+server.pid
+chat_response.json
+chat_test*.json
+llm_status*.json
+
+# Screenshots and images generated at runtime
+screenshot_*.png
+ultron_screenshot_*.png
+*.wav
+*.mp3
+
+# Backup files
+*.backup
+*_backup_old.*
+*_backup.*
+
+# VS Code local overrides
+.vscode/settings_performance_optimized.json
+
+# Cursor local config
+.cursor/
+
+# AWS credentials (local only)
+ultron-project-*.json
+
+# Generated build artifacts
+dist/
+build/
+*.vsix
+
+# IDE and OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Coverage and test output
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
