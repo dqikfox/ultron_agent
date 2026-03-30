@@ -5,12 +5,10 @@ Takes screenshots, analyzes them with AI, and saves descriptions
 
 import os
 import time
-import requests
-import json
-import base64
 from PIL import Image
 import pyautogui
 from utils.ultron_logger import log_info, log_error
+from utils.ollama_vision import analyze_image_with_ollama
 
 class ScreenshotAnalyzerTool:
     """Tool for taking screenshots and AI analysis"""
@@ -77,45 +75,21 @@ class ScreenshotAnalyzerTool:
             log_error("screenshot_analyzer", f"Analysis failed: {e}")
             return f"Analysis failed: {str(e)}"
     
+    _SCREENSHOT_PROMPT = (
+        "Describe this screenshot in detail. What do you see on the screen? "
+        "What applications or windows are open? Be specific."
+    )
+    _SCREENSHOT_MODELS = ["qwen2.5vl:7b", "qwen2.5vl:3b", "llava:7b"]
+
     def _analyze_with_ollama(self, image_path: str) -> str:
-        """Analyze with Ollama vision model"""
-        try:
-            # First try with qwen2.5vl model (better for vision)
-            models_to_try = ["qwen2.5vl:7b", "qwen2.5vl:3b", "llava:7b"]
-            
-            for model in models_to_try:
-                try:
-                    # Encode image to base64
-                    with open(image_path, "rb") as image_file:
-                        image_data = base64.b64encode(image_file.read()).decode('utf-8')
-                    
-                    # Prepare request for Ollama vision model
-                    payload = {
-                        "model": model,
-                        "prompt": "Describe this screenshot in detail. What do you see on the screen? What applications or windows are open? Be specific.",
-                        "images": [image_data],
-                        "stream": False
-                    }
-                    
-                    response = requests.post("http://localhost:11434/api/generate", 
-                                           json=payload, timeout=30)
-                    
-                    if response.status_code == 200:
-                        result = response.json()
-                        description = result.get("response", "")
-                        if description.strip():
-                            log_info("screenshot_analyzer", f"AI vision analysis completed with {model}")
-                            return f"AI Vision Analysis ({model}):\n\n{description}"
-                    
-                except Exception as model_error:
-                    log_error("screenshot_analyzer", f"Model {model} failed: {model_error}")
-                    continue
-            
-            return None
-                
-        except Exception as e:
-            log_error("screenshot_analyzer", f"Ollama analysis error: {e}")
-            return None
+        """Analyze with Ollama vision model."""
+        return analyze_image_with_ollama(
+            image_path,
+            self._SCREENSHOT_PROMPT,
+            models=self._SCREENSHOT_MODELS,
+            timeout=30,
+            log_source="screenshot_analyzer",
+        )
     
     def _basic_description(self, image_path: str) -> str:
         """Basic description when AI analysis fails"""

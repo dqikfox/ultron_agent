@@ -4,11 +4,9 @@ Provides detailed visual analysis of images using AI vision models
 """
 
 import os
-import base64
-import requests
-import json
 from PIL import Image
 from utils.ultron_logger import log_info, log_error
+from utils.ollama_vision import analyze_image_with_ollama, DEFAULT_VISION_MODELS
 from .tool_interface import ToolInterface
 
 class ImageDescriptionTool(ToolInterface):
@@ -71,15 +69,7 @@ class ImageDescriptionTool(ToolInterface):
             log_error("image_description", f"Vision analysis failed: {e}")
             return f"Vision analysis failed: {str(e)}"
     
-    def _analyze_with_ollama(self, image_path: str) -> str:
-        """Analyze image with Ollama vision models"""
-        try:
-            # Encode image to base64
-            with open(image_path, "rb") as image_file:
-                image_data = base64.b64encode(image_file.read()).decode('utf-8')
-            
-            # Detailed prompt for comprehensive analysis
-            prompt = """Analyze this image in detail. Provide a comprehensive description covering:
+    _ANALYSIS_PROMPT = """Analyze this image in detail. Provide a comprehensive description covering:
 
 Visual Details:
 - Main subject and composition
@@ -101,38 +91,16 @@ Context:
 - Symbolic or metaphorical content
 
 Be specific, detailed, and descriptive. Focus on what you actually see in the image."""
-            
-            # Try different vision models
-            models_to_try = ["llava:7b", "qwen2.5vl:7b", "qwen2.5vl:3b"]
-            
-            for model in models_to_try:
-                try:
-                    payload = {
-                        "model": model,
-                        "prompt": prompt,
-                        "images": [image_data],
-                        "stream": False
-                    }
-                    
-                    response = requests.post("http://localhost:11434/api/generate", 
-                                           json=payload, timeout=60)
-                    
-                    if response.status_code == 200:
-                        result = response.json()
-                        description = result.get("response", "")
-                        if description.strip():
-                            log_info("image_description", f"Vision analysis completed with {model}")
-                            return f"AI Vision Analysis ({model}):\n\n{description}"
-                    
-                except Exception as model_error:
-                    log_error("image_description", f"Model {model} failed: {model_error}")
-                    continue
-            
-            return None
-            
-        except Exception as e:
-            log_error("image_description", f"Ollama vision analysis error: {e}")
-            return None
+
+    def _analyze_with_ollama(self, image_path: str) -> str:
+        """Analyze image with Ollama vision models."""
+        return analyze_image_with_ollama(
+            image_path,
+            self._ANALYSIS_PROMPT,
+            models=DEFAULT_VISION_MODELS,
+            timeout=60,
+            log_source="image_description",
+        )
     
     def _basic_image_analysis(self, image_path: str) -> str:
         """Basic image analysis when AI vision is unavailable"""
