@@ -7,9 +7,10 @@ semantic similarity matching and clustering.
 
 import json
 import sqlite3
+import threading
 import numpy as np
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from utils.ultron_logger import log_info, log_error
 from pathlib import Path
 
@@ -28,12 +29,14 @@ class EnhancedMemorySystem:
             self.db_path = ":memory:"
         else:
             self.db_path = str(db_path)
-        
+
         # ✨ PHASE B: Initialize transformer model for embeddings
         self.transformer_model = None
         self.embedding_dim = None
-        
-        if TRANSFORMERS_AVAILABLE:
+        # Track availability as an instance attribute to avoid module-level mutation
+        self._transformers_available = TRANSFORMERS_AVAILABLE
+
+        if self._transformers_available:
             try:
                 log_info("memory_system", f"Loading transformer model: {model_name}")
                 self.transformer_model = SentenceTransformer(model_name)
@@ -42,9 +45,33 @@ class EnhancedMemorySystem:
                 log_info("memory_system", f"Transformer model loaded, embedding dimension: {self.embedding_dim}")
             except Exception as e:
                 log_error("memory_system", f"Failed to load transformer model: {e}, falling back to hash-based")
-                TRANSFORMERS_AVAILABLE = False
-        
+                self._transformers_available = False
+
+        # Per-thread SQLite connection cache to avoid repeated connect/close overhead
+        self._local = threading.local()
+
+        # Small LRU-style embedding cache: maps text → (embedding_array, model_name)
+        self._embedding_cache: Dict[str, Tuple[np.ndarray, str]] = {}
+        self._embedding_cache_max = 256
+
         self.init_database()
+
+    # ------------------------------------------------------------------
+    # Database connection helpers
+    # ------------------------------------------------------------------
+
+    def _get_connection(self) -> sqlite3.Connection:
+        """Return a per-thread SQLite connection, creating it if needed.
+
+        Using a per-thread connection avoids the overhead of opening and
+        closing a new connection for every database operation while
+        remaining safe for multi-threaded use.
+        """
+        conn = getattr(self._local, "conn", None)
+        if conn is None:
+            conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self._local.conn = conn
+        return conn
         
     def init_database(self):
         """Initialize SQLite database for memory storage"""
@@ -54,8 +81,8 @@ class EnhancedMemorySystem:
                 db_dir = os.path.dirname(self.db_path)
                 if db_dir:  # Only create if there's a directory component
                     os.makedirs(db_dir, exist_ok=True)
-            
-            conn = sqlite3.connect(self.db_path)
+
+            conn = self._get_connection()
             cursor = conn.cursor()
             
             # Conversations table
@@ -95,88 +122,111 @@ class EnhancedMemorySystem:
             ''')
             
             conn.commit()
-            conn.close()
             log_info("memory_system", "Enhanced memory database initialized")
         except Exception as e:
             log_error("memory_system", f"Database initialization failed: {e}")
-    
+
     def store_conversation(self, user_input: str, agent_response: str, metadata: Dict = None, context: Dict = None):
         """Store conversation with transformer-based embedding"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self._get_connection()
             cursor = conn.cursor()
-            
+
             timestamp = datetime.now().isoformat()
             context_json = json.dumps(context or {})
-            
+
             # ✨ PHASE B: Use transformer embedding if available
             embedding, model_name = self._create_embedding(user_input + " " + agent_response)
-            
+
             cursor.execute('''
                 INSERT INTO conversations (timestamp, user_input, agent_response, context, embedding, embedding_model)
                 VALUES (?, ?, ?, ?, ?, ?)
             ''', (timestamp, user_input, agent_response, context_json, embedding.tobytes(), model_name))
-            
+
             conn.commit()
-            conn.close()
             log_info("memory_system", f"Conversation stored ({model_name}): {user_input[:50]}...")
         except Exception as e:
             log_error("memory_system", f"Failed to store conversation: {e}")
-    
-    
+
+
     def retrieve_similar_conversations(self, query: str, limit: int = 5) -> List[Dict]:
         """Retrieve similar conversations using transformer-based vector similarity"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self._get_connection()
             cursor = conn.cursor()
-            
-            # ✨ PHASE B: Use transformer embedding for query
+
+            # ✨ PHASE B: Use transformer embedding for query (cached to avoid re-encoding)
             query_embedding, model_used = self._create_embedding(query)
-            
+
             cursor.execute('SELECT * FROM conversations ORDER BY timestamp DESC LIMIT 100')
             conversations = cursor.fetchall()
-            
-            similarities = []
-            for conv in conversations:
-                stored_embedding = np.frombuffer(conv[5], dtype=np.float32)
-                similarity = self._cosine_similarity(query_embedding, stored_embedding)
-                similarities.append((similarity, conv))
-            
-            # Sort by similarity and return top results
-            similarities.sort(key=lambda x: x[0], reverse=True)
-            
+
+            if not conversations:
+                return []
+
+            # Vectorised batch cosine similarity – faster than a Python loop
+            stored_embeddings = np.array(
+                [np.frombuffer(conv[5], dtype=np.float32) for conv in conversations]
+            )
+            # query_embedding shape: (D,), stored shape: (N, D)
+            dot_products = stored_embeddings.dot(query_embedding)
+            norms = np.linalg.norm(stored_embeddings, axis=1) * np.linalg.norm(query_embedding)
+            # Avoid division by zero for zero-norm embeddings
+            similarities = np.where(norms > 0, dot_products / norms, 0.0)
+
+            # Partial sort – only need top `limit` results
+            top_indices = np.argpartition(similarities, -min(limit, len(similarities)))[-limit:]
+            top_indices = top_indices[np.argsort(similarities[top_indices])[::-1]]
+
             results = []
-            for similarity, conv in similarities[:limit]:
+            for idx in top_indices:
+                conv = conversations[idx]
                 results.append({
-                    'similarity': float(similarity),  # Convert numpy float to Python float
+                    'similarity': float(similarities[idx]),
                     'timestamp': conv[1],
                     'user_input': conv[2],
                     'agent_response': conv[3],
                     'context': json.loads(conv[4]),
                     'model': conv[6] if len(conv) > 6 else 'unknown'
                 })
-            
-            conn.close()
+
             return results
         except Exception as e:
             log_error("memory_system", f"Failed to retrieve conversations: {e}")
             return []
-    
-    def _create_embedding(self, text: str) -> tuple:
-        """Create transformer-based or hash-based embedding
-        
+
+    def _create_embedding(self, text: str) -> Tuple[np.ndarray, str]:
+        """Create transformer-based or hash-based embedding, with caching.
+
+        Results are cached in a bounded dict so identical queries (common
+        during search loops) avoid redundant encoding work.
+
         Returns: (embedding_vector, model_name)
         """
+        cached = self._embedding_cache.get(text)
+        if cached is not None:
+            return cached
+
         # ✨ PHASE B: Try transformer-based embedding first
         if self.transformer_model is not None:
             try:
                 embedding = self.transformer_model.encode(text, convert_to_numpy=True).astype(np.float32)
-                return embedding, "sentence-transformers"
+                result: Tuple[np.ndarray, str] = (embedding, "sentence-transformers")
             except Exception as e:
                 log_error("memory_system", f"Transformer embedding failed: {e}, falling back to hash-based")
-        
-        # Fallback to hash-based embedding
-        return self._create_simple_embedding(text), "hash-based"
+                result = (self._create_simple_embedding(text), "hash-based")
+        else:
+            # Fallback to hash-based embedding
+            result = (self._create_simple_embedding(text), "hash-based")
+
+        # Evict oldest entry when cache is full (simple FIFO eviction)
+        if len(self._embedding_cache) >= self._embedding_cache_max:
+            try:
+                self._embedding_cache.pop(next(iter(self._embedding_cache)))
+            except StopIteration:
+                pass
+        self._embedding_cache[text] = result
+        return result
     
     def _create_simple_embedding(self, text: str) -> np.ndarray:
         """Create hash-based embedding (fallback when transformers unavailable)"""
