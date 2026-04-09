@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import asyncio
 import functools
+import threading
 import time
 from dataclasses import dataclass, field
 from enum import Enum
@@ -113,7 +114,7 @@ class CircuitBreaker:
         self._half_open_successes: int = 0
         self._opened_at: Optional[float] = None
         self._lock = asyncio.Lock()
-        self._sync_lock = __import__("threading").Lock()
+        self._sync_lock = threading.Lock()
         self.stats = CircuitStats()
 
     # ------------------------------------------------------------------
@@ -273,7 +274,7 @@ class CircuitBreaker:
 # ---------------------------------------------------------------------------
 
 _registry: Dict[str, CircuitBreaker] = {}
-_registry_lock = __import__("threading").Lock()
+_registry_lock = threading.Lock()
 
 
 def get_circuit_breaker(

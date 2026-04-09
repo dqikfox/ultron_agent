@@ -164,8 +164,9 @@ class Memory:
                 live.append(entry)
         # Rebuild deque without stale entries
         if stale_indices:
+            stale_set = set(stale_indices)
             self.short_term_memory = deque(
-                (e for e in items if e not in [items[i] for i in stale_indices]),
+                (e for idx, e in enumerate(items) if idx not in stale_set),
                 maxlen=self.short_term_memory.maxlen,
             )
         return live
@@ -419,11 +420,11 @@ class GoogleDriveMemory:
 
 
 class LocalDriveMemory:
-    """Simple helper that copies files into a local Google Drive-mounted
+    r"""Simple helper that copies files into a local Google Drive-mounted
     folder (for systems using Drive for Desktop or other mounts).
 
     This provides a low-friction alternative to the API when the Drive is
-    available as a filesystem path (e.g. G:\My Drive\... on Windows).
+    available as a filesystem path (e.g. ``G:\My Drive\...`` on Windows).
     """
 
     def __init__(self, folder_path: str):
