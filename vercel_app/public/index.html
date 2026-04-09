@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ULTRON — Aether Nexus</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 <style>
 /* ─── Base ──────────────────────────────────────────────────── */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -111,6 +113,27 @@ header{
 .msg.system{align-self:center;background:rgba(0,0,0,.3);border:1px solid #1a3a4a;color:var(--text);font-size:.68rem;font-style:italic}
 .msg-time{font-size:.58rem;color:var(--text);margin-top:.2rem;opacity:.6}
 .chat-input-row{display:flex;gap:.5rem;align-items:flex-end}
+
+/* ─── Markdown content inside assistant messages ────────────── */
+.md-body{font-size:.78rem;line-height:1.6;word-break:break-word}
+.md-body p{margin:.4rem 0}
+.md-body p:first-child{margin-top:0}
+.md-body p:last-child{margin-bottom:0}
+.md-body code{background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.15);border-radius:3px;padding:.1em .35em;font-family:'Share Tech Mono',monospace;font-size:.85em;color:var(--cyan)}
+.md-body pre{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:6px;padding:.7rem .9rem;overflow-x:auto;margin:.5rem 0}
+.md-body pre code{background:none;border:none;padding:0;font-size:.78rem;color:#cfd8dc}
+.md-body ul,.md-body ol{padding-left:1.4em;margin:.3rem 0}
+.md-body li{margin:.15rem 0}
+.md-body strong{color:var(--text2)}
+.md-body a{color:var(--cyan);text-decoration:underline}
+.md-body h1,.md-body h2,.md-body h3{font-family:'Orbitron',sans-serif;color:var(--cyan);margin:.6rem 0 .3rem;font-size:.8rem}
+.md-body blockquote{border-left:2px solid var(--cyan-dim);margin:.4rem 0;padding:.2rem .7rem;color:var(--text)}
+
+/* ─── Copy button on assistant messages ──────────────────────── */
+.msg-copy-btn{position:absolute;top:.4rem;right:.4rem;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2);border-radius:3px;color:var(--cyan-dim);cursor:pointer;font-size:.65rem;padding:.15rem .4rem;opacity:0;transition:opacity .15s;font-family:'Share Tech Mono',monospace}
+.msg.assistant{position:relative}
+.msg.assistant:hover .msg-copy-btn{opacity:1}
+.msg-copy-btn:hover{background:rgba(0,229,255,.18);color:var(--cyan)}
 .chat-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.6rem .9rem;color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:.78rem;resize:none;min-height:42px;max-height:120px;outline:none;transition:border-color .15s}
 .chat-input:focus{border-color:var(--cyan-dim)}
 .chat-model{background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:.3rem .5rem;outline:none}
@@ -237,7 +260,7 @@ input:focus{border-color:var(--cyan-dim)}
   <header>
     <div>
       <div class="logo">ULTRON <span>▮</span> AETHER NEXUS</div>
-      <div class="header-sub">CLOUD INTELLIGENCE INTERFACE v3.0</div>
+      <div class="header-sub">CLOUD INTELLIGENCE INTERFACE v3.1</div>
     </div>
     <div class="header-status" id="header-status">
       <span><span class="status-dot dot-off" id="dot-sb"></span>SUPABASE</span>
@@ -371,7 +394,7 @@ input:focus{border-color:var(--cyan-dim)}
           <button class="btn btn-sm" onclick="Convs.load()">↻ REFRESH</button>
         </div>
         <div class="card" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
-          <div style="display:grid;grid-template-columns:1fr 100px 80px 80px 80px;gap:.5rem;font-size:.6rem;color:var(--cyan-dim);letter-spacing:.1em;padding:.3rem .8rem;flex-shrink:0;border-bottom:1px solid var(--border)">
+          <div style="display:grid;grid-template-columns:1fr 100px 80px 80px 120px;gap:.5rem;font-size:.6rem;color:var(--cyan-dim);letter-spacing:.1em;padding:.3rem .8rem;flex-shrink:0;border-bottom:1px solid var(--border)">
             <span>TITLE</span><span>MODEL</span><span>MSGS</span><span>CREATED</span><span></span>
           </div>
           <div class="scroll" id="convs-list"></div>
@@ -446,6 +469,7 @@ input:focus{border-color:var(--cyan-dim)}
 <script>
 // ── Config ──────────────────────────────────────────────────────
 const API = '';  // relative — same origin
+const BUILTIN_TOOLS_COUNT = 25;
 
 // ── Utilities ───────────────────────────────────────────────────
 function toast(msg, ms=2500){
@@ -505,7 +529,7 @@ const UI={
       ]);
       document.getElementById('dash-mem').textContent=sys.memory_entries??'—';
       document.getElementById('dash-conv').textContent=sys.conversations??'—';
-      document.getElementById('dash-prov').textContent='4';
+      document.getElementById('dash-prov').textContent=sys.provider_count??'—';
       document.getElementById('holo-mem').textContent='◈ MEMORY: '+(sys.memory_entries??'—');
       document.getElementById('holo-conv').textContent='◈ SESSIONS: '+(sys.conversations??'—');
 
@@ -573,11 +597,18 @@ const Chat={
   renderMessages(msgs){
     const el=document.getElementById('messages');
     if(!msgs.length){el.innerHTML='<div class="msg system">No messages yet — start the conversation!</div>';return;}
-    el.innerHTML=msgs.map(m=>`
-      <div class="msg ${m.role}">
-        ${m.role==='assistant'?'<span style="font-size:.6rem;color:var(--cyan-dim)">ULTRON ▮ </span>':''}${escHtml(m.content||'')}
-        <div class="msg-time">${fmt(m.created_at)}</div>
-      </div>`).join('');
+    el.innerHTML=msgs.map(m=>{
+      if(m.role==='assistant'){
+        const safeHtml=DOMPurify.sanitize(marked.parse(m.content||''));
+        return `<div class="msg assistant">
+          <span style="font-size:.6rem;color:var(--cyan-dim)">ULTRON ▮ </span>
+          <div class="md-body">${safeHtml}</div>
+          <button class="msg-copy-btn" data-copy="${escHtml(m.content||'')}">⧉ COPY</button>
+          <div class="msg-time">${fmt(m.created_at)}</div>
+        </div>`;
+      }
+      return `<div class="msg ${m.role}">${escHtml(m.content||'')}<div class="msg-time">${fmt(m.created_at)}</div></div>`;
+    }).join('');
     el.scrollTop=el.scrollHeight;
   },
 
@@ -621,7 +652,8 @@ const Chat={
         model:document.getElementById('chat-model').value
       })});
       document.getElementById('typing-'+tid)?.remove();
-      msgs.innerHTML+=`<div class="msg assistant"><span style="font-size:.6rem;color:var(--cyan-dim)">ULTRON ▮ </span>${escHtml(data.reply||'')}<div class="msg-time">${fmt(new Date())}</div></div>`;
+      const safeReply=DOMPurify.sanitize(marked.parse(data.reply||''));
+      msgs.innerHTML+=`<div class="msg assistant"><span style="font-size:.6rem;color:var(--cyan-dim)">ULTRON ▮ </span><div class="md-body">${safeReply}</div><button class="msg-copy-btn" data-copy="${escHtml(data.reply||'')}">⧉ COPY</button><div class="msg-time">${fmt(new Date())}</div></div>`;
       msgs.scrollTop=msgs.scrollHeight;
       await Chat.loadConversations();
     }catch(e){
@@ -633,6 +665,15 @@ const Chat={
       btn.disabled=false;
       input.focus();
     }
+  },
+
+  copy(btn){
+    const text=btn.dataset.copy||'';
+    navigator.clipboard.writeText(text).then(()=>{
+      const orig=btn.textContent;
+      btn.textContent='✓ COPIED';
+      setTimeout(()=>{btn.textContent=orig;},1500);
+    }).catch(()=>toast('Copy failed'));
   }
 };
 
@@ -693,16 +734,26 @@ const Convs={
       const data=await api('/api/conversations?limit=50');
       if(!data.conversations.length){list.innerHTML='<div style="padding:.6rem;color:var(--text);font-size:.72rem">No conversations yet</div>';return;}
       list.innerHTML=data.conversations.map(c=>`
-        <div style="display:grid;grid-template-columns:1fr 100px 80px 80px 80px;gap:.5rem;align-items:center;padding:.5rem .8rem;border-bottom:1px solid rgba(26,58,74,.4);font-size:.72rem;cursor:pointer" onmouseenter="this.style.background='rgba(0,229,255,.03)'" onmouseleave="this.style.background=''">
+        <div style="display:grid;grid-template-columns:1fr 100px 80px 80px 120px;gap:.5rem;align-items:center;padding:.5rem .8rem;border-bottom:1px solid rgba(26,58,74,.4);font-size:.72rem;cursor:pointer" onmouseenter="this.style.background='rgba(0,229,255,.03)'" onmouseleave="this.style.background=''">
           <span style="color:var(--text2)">${escHtml(c.title||'Untitled')}</span>
           <span style="color:var(--cyan-dim)">${escHtml(c.model_name||'—')}</span>
           <span>${c.message_count||0}</span>
           <span style="color:var(--text)">${fmtShort(c.created_at)}</span>
           <div style="display:flex;gap:.3rem">
-            <button class="btn btn-sm" onclick="Chat.openConversation('${c.id}','${(c.title||'').replace(/'/g,"\\'")}');document.querySelector('[data-section=chat]').click()">Open</button>
-            <button class="btn btn-sm btn-red" onclick="Convs.del('${c.id}')">✕</button>
+            <button class="btn btn-sm conv-open-btn" data-id="${escHtml(c.id)}">Open</button>
+            <button class="btn btn-sm conv-rename-btn" data-id="${escHtml(c.id)}" data-title="${escHtml(c.title||'')}">✎</button>
+            <button class="btn btn-sm btn-red conv-del-btn" data-id="${escHtml(c.id)}">✕</button>
           </div>
         </div>`).join('');
+      // Event delegation for action buttons
+      list.onclick=function(e){
+        const open=e.target.closest('.conv-open-btn');
+        const rename=e.target.closest('.conv-rename-btn');
+        const del=e.target.closest('.conv-del-btn');
+        if(open){Chat.openConversation(open.dataset.id,'');document.querySelector('[data-section=chat]').click();}
+        if(rename){Convs.rename(rename.dataset.id,rename.dataset.title);}
+        if(del){Convs.del(del.dataset.id);}
+      };
     }catch(e){list.innerHTML='<div style="padding:.5rem;color:var(--red)">Error: '+escHtml(e.message)+'</div>';}
   },
   async del(id){
@@ -710,6 +761,15 @@ const Convs={
     try{
       await api('/api/conversations/'+id,{method:'DELETE'});
       toast('Conversation deleted');
+      await Convs.load();
+    }catch(e){toast('Error: '+e.message);}
+  },
+  async rename(id, current){
+    const title=prompt('Rename conversation:',current);
+    if(!title||title===current)return;
+    try{
+      await api('/api/conversations/'+id,{method:'PATCH',body:JSON.stringify({title:title.trim()})});
+      toast('Renamed: '+title.trim());
       await Convs.load();
     }catch(e){toast('Error: '+e.message);}
   }
@@ -796,7 +856,8 @@ const System={
         {icon:'🧠',label:'Memory Entries',val:d.memory_entries??'—',sub:'Long-term storage',ok:true},
         {icon:'💬',label:'Conversations',val:d.conversations??'—',sub:'Chat sessions',ok:true},
         {icon:'🚀',label:'Deployment',val:(d.deployment||'cloud').toUpperCase(),sub:'v'+d.version,ok:true},
-        {icon:'🔧',label:'Tools Available',val:'25',sub:'Integrated systems',ok:true},
+        {icon:'🤖',label:'AI Providers',val:String(d.provider_count??'—'),sub:'Configured models',ok:true},
+        {icon:'🔧',label:'Tools Available',val:String(BUILTIN_TOOLS_COUNT),sub:'Integrated systems',ok:true},
       ];
       grid.innerHTML=cards.map(c=>`
         <div class="sys-card">
@@ -809,7 +870,7 @@ const System={
       // API endpoint list
       document.getElementById('api-list').innerHTML=[
         'GET  /api/status','GET  /api/system','POST /api/chat',
-        'GET  /api/conversations','POST /api/conversations','DELETE /api/conversations/{id}',
+        'GET  /api/conversations','POST /api/conversations','PATCH /api/conversations/{id}','DELETE /api/conversations/{id}',
         'GET  /api/history','GET  /api/memory','POST /api/memory','DELETE /api/memory/{key}',
         'GET  /api/providers','PATCH /api/providers/{id}','GET  /api/tools','GET  /api/tool-executions',
       ].map(e=>`<div style="color:var(--text2);border-bottom:1px solid var(--border);padding:.2rem 0"><span style="color:${e.startsWith('GET')?'var(--green)':e.startsWith('POST')?'var(--cyan)':e.startsWith('DELETE')?'var(--red)':'var(--yellow)'}">${e.split(' ')[0].padEnd(8)}</span>${e.split(' ')[1]}</div>`).join('');
@@ -836,6 +897,17 @@ window.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('app').classList.add('ready');
   NAV.init();
   startClock();
+  // Event delegation for copy buttons
+  document.getElementById('messages').addEventListener('click',function(e){
+    const btn=e.target.closest('.msg-copy-btn');
+    if(btn)Chat.copy(btn);
+  });
+  // Auto-resize chat textarea
+  const ta=document.getElementById('chat-input');
+  ta.addEventListener('input',function(){
+    this.style.height='auto';
+    this.style.height=Math.min(this.scrollHeight,120)+'px';
+  });
   // Initial data load
   await UI.refreshDashboard();
   setInterval(()=>UI.refreshDashboard(),60000);

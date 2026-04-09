@@ -12,6 +12,8 @@ Required environment variables:
 """
 
 import os
+import re
+import time
 import uuid
 import logging
 import datetime
@@ -21,7 +23,7 @@ import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO").upper())
 logger = logging.getLogger(__name__)
@@ -35,9 +37,17 @@ SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
 SUPABASE_SVC_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 SUPABASE_KEY = SUPABASE_SVC_KEY or SUPABASE_ANON_KEY
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+ULTRON_SYSTEM_PROMPT = os.getenv(
+    "ULTRON_SYSTEM_PROMPT",
+    "You are ULTRON, an advanced AI assistant. Be helpful, concise, and slightly futuristic in tone.",
+)
 
 _SUPABASE_AVAILABLE = bool(SUPABASE_URL and SUPABASE_KEY)
 _OPENAI_AVAILABLE = bool(OPENAI_API_KEY)
+
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I
+)
 
 # ---------------------------------------------------------------------------
 # Supabase helpers
@@ -119,14 +129,24 @@ async def _sb_upsert(table: str, data: Dict, on_conflict: str = "key") -> Option
 # ---------------------------------------------------------------------------
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., min_length=1, max_length=4000)
     conversation_id: Optional[str] = None
     model: str = "gpt-4o-mini"
 
+    @field_validator("conversation_id")
+    @classmethod
+    def validate_uuid(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and not _UUID_RE.match(v):
+            raise ValueError("conversation_id must be a valid UUID")
+        return v
+
 class ConversationCreateRequest(BaseModel):
-    title: str = "New Chat"
+    title: str = Field("New Chat", min_length=1, max_length=200)
     model_name: str = "gpt-4o-mini"
     ai_provider: str = "openai"
+
+class ConversationUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=200)
 
 class MemoryRequest(BaseModel):
     key: str
@@ -145,7 +165,7 @@ class ProviderUpdateRequest(BaseModel):
 app = FastAPI(
     title="ULTRON Agent API",
     description="Cloud REST API for ULTRON Agent — Supabase + OpenAI backend",
-    version="3.0.0",
+    version="3.1.0",
 )
 
 app.add_middleware(
@@ -186,7 +206,7 @@ async def api_status():
         "supabase_connected": _SUPABASE_AVAILABLE,
         "openai_available": _OPENAI_AVAILABLE,
         "features": ["chat", "memory", "conversations", "providers", "tools", "history"],
-        "version": "3.0.0",
+        "version": "3.1.0",
     })
 
 # ---------------------------------------------------------------------------
@@ -225,17 +245,15 @@ async def chat(req: ChatRequest):
 
     # Call OpenAI
     ai_reply = ""
+    _ai_error = False
+    duration_ms = 0
     if _OPENAI_AVAILABLE:
         try:
-            messages = [
-                {"role": "system", "content": (
-                    "You are ULTRON, an advanced AI assistant. "
-                    "Be helpful, concise, and slightly futuristic in tone."
-                )}
-            ]
+            messages = [{"role": "system", "content": ULTRON_SYSTEM_PROMPT}]
             for row in history_rows[-9:]:
                 messages.append({"role": row["role"], "content": row["content"]})
 
+            t0 = time.monotonic()
             async with httpx.AsyncClient(timeout=30) as c:
                 r = await c.post(
                     "https://api.openai.com/v1/chat/completions",
@@ -243,22 +261,34 @@ async def chat(req: ChatRequest):
                              "Content-Type": "application/json"},
                     json={"model": req.model, "messages": messages, "max_tokens": 1024},
                 )
+            duration_ms = int((time.monotonic() - t0) * 1000)
             if r.status_code == 200:
                 ai_reply = r.json()["choices"][0]["message"]["content"]
             else:
                 logger.warning("OpenAI → %s %s", r.status_code, r.text[:200])
                 ai_reply = "⚠️ AI service temporarily unavailable."
+                _ai_error = True
         except Exception as exc:
             logger.error("OpenAI error: %s", exc)
             ai_reply = f"⚠️ Error reaching AI: {exc}"
+            _ai_error = True
     else:
         ai_reply = "⚠️ OPENAI_API_KEY not configured. Set it in Vercel environment variables."
+        _ai_error = True
 
     # Persist assistant reply
     await _sb_post("messages", {
         "conversation_id": conv_id,
         "role": "assistant",
         "content": ai_reply,
+    })
+
+    # Log tool execution
+    status = "error" if _ai_error else "success"
+    await _sb_post("tool_executions", {
+        "tool_name": "openai_chat",
+        "status": status,
+        "duration_ms": duration_ms,
     })
 
     # Update conversation message_count
@@ -271,6 +301,7 @@ async def chat(req: ChatRequest):
         "conversation_id": conv_id,
         "reply": ai_reply,
         "model": req.model,
+        "duration_ms": duration_ms,
     })
 
 # ---------------------------------------------------------------------------
@@ -306,6 +337,19 @@ async def delete_conversation(conv_id: str):
     await _sb_delete("messages", f"conversation_id=eq.{conv_id}")
     ok = await _sb_delete("conversations", f"id=eq.{conv_id}")
     return JSONResponse({"deleted": ok, "id": conv_id})
+
+
+@app.patch("/api/conversations/{conv_id}")
+async def update_conversation(conv_id: str, req: ConversationUpdateRequest):
+    """Rename or update a conversation."""
+    if not _UUID_RE.match(conv_id):
+        raise HTTPException(400, "Invalid conversation ID")
+    data = {k: v for k, v in req.model_dump().items() if v is not None}
+    if not data:
+        raise HTTPException(400, "No fields to update")
+    data["updated_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    rows = await _sb_patch("conversations", f"id=eq.{conv_id}", data)
+    return JSONResponse({"updated": bool(rows), "conversation": rows[0] if rows else None})
 
 # ---------------------------------------------------------------------------
 # Messages
@@ -433,12 +477,15 @@ async def system_status():
     # Count rows in key tables as a health signal
     mem_count = 0
     conv_count = 0
+    prov_count = 0
     if sb_ok:
         try:
             rows = await _sb_get("agent_memory", qs="select=id", limit=1000)
             mem_count = len(rows)
             rows2 = await _sb_get("conversations", qs="select=id", limit=1000)
             conv_count = len(rows2)
+            rows3 = await _sb_get("ai_providers", qs="select=id", limit=100)
+            prov_count = len(rows3)
         except Exception:
             pass
 
@@ -447,7 +494,8 @@ async def system_status():
         "openai": {"status": "available" if oai_ok else "not_configured"},
         "memory_entries": mem_count,
         "conversations": conv_count,
-        "version": "3.0.0",
+        "provider_count": prov_count,
+        "version": "3.1.0",
         "deployment": "vercel",
     })
 
