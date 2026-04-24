@@ -1,9 +1,11 @@
 import json
 import logging
 import os
+import time
 import uuid
 from collections import deque
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # Optional Google Drive integration imports are performed lazily inside the helper
 
@@ -124,9 +126,50 @@ class Memory:
             except Exception:
                 logging.exception('Failed to upload long term memory to Google Drive')
 
-    def add_to_short_term(self, item):
-        self.short_term_memory.append(item)
+    def add_to_short_term(self, item: Any, ttl_seconds: Optional[float] = None) -> None:
+        """
+        Add *item* to short-term memory with an optional TTL.
+
+        When *ttl_seconds* is provided the entry is automatically skipped
+        (and later pruned) once the TTL has elapsed.
+
+        Args:
+            item: Any serialisable value.
+            ttl_seconds: Optional lifetime in seconds.  ``None`` means no expiry.
+        """
+        expires_at = time.monotonic() + ttl_seconds if ttl_seconds is not None else None
+        self.short_term_memory.append({"_data": item, "_expires_at": expires_at})
         logging.info(f"Added to shortterm memory: {item} - memory.py:80")
+
+    def _unwrap_short_term(self) -> List[Any]:
+        """
+        Return live (non-expired) short-term items, pruning stale entries.
+
+        Entries added *before* the TTL API was introduced (plain values
+        without ``_data`` / ``_expires_at`` keys) are treated as permanent.
+        """
+        now = time.monotonic()
+        live = []
+        stale_indices = []
+        items = list(self.short_term_memory)
+        for idx, entry in enumerate(items):
+            if isinstance(entry, dict) and "_data" in entry:
+                exp = entry.get("_expires_at")
+                if exp is not None and now > exp:
+                    stale_indices.append(idx)
+                    continue
+                live.append(entry["_data"])
+            else:
+                # Legacy plain entry — keep forever
+                live.append(entry)
+        # Rebuild deque without stale entries
+        if stale_indices:
+            stale_set = set(stale_indices)
+            self.short_term_memory = deque(
+                (e for idx, e in enumerate(items) if idx not in stale_set),
+                maxlen=self.short_term_memory.maxlen,
+            )
+        return live
 
     def add_to_long_term(self, item):
         item_id = str(uuid.uuid4())
@@ -162,8 +205,9 @@ class Memory:
         except Exception:
             logging.exception("Failed to load memory from Supabase")
 
-    def retrieve_short_term(self):
-        return list(self.short_term_memory)
+    def retrieve_short_term(self) -> List[Any]:
+        """Return live (non-expired) short-term memory entries."""
+        return self._unwrap_short_term()
 
     def retrieve_long_term(self):
         return self.long_term_memory
@@ -176,12 +220,12 @@ class Memory:
         self.long_term_memory.clear()
         logging.info("Cleared longterm memory. - memory.py:104")
 
-    def get_recent_memory(self, limit=5):
-        """Get recent memory items for agent network queries"""
-        recent_items = []
+    def get_recent_memory(self, limit: int = 5) -> List[Any]:
+        """Get recent live memory items for agent network queries."""
+        recent_items: List[Any] = []
 
-        # Get recent short-term memory
-        short_term_items = list(self.short_term_memory)
+        # Get recent short-term memory (respects TTL)
+        short_term_items = self._unwrap_short_term()
         recent_items.extend(short_term_items[-limit:])
 
         # Get recent long-term memory if needed
@@ -192,23 +236,46 @@ class Memory:
 
         return recent_items[:limit]
 
-    def search_memory(self, query):
-        """Search memory for relevant items"""
-        results = []
+    def search_memory(self, query: str, fuzzy: bool = False) -> List[Any]:
+        """
+        Search memory for relevant items.
+
+        Args:
+            query: Search term.
+            fuzzy: When ``True``, each whitespace-separated token in *query*
+                   is matched independently (all tokens must appear, order
+                   doesn't matter).  Useful for natural-language queries.
+
+        Returns:
+            List of matching items from short- and long-term memory.
+        """
+        results: List[Any] = []
         query_lower = query.lower()
 
-        # Search short-term memory
-        for item in self.short_term_memory:
-            if isinstance(item, str) and query_lower in item.lower():
-                results.append(item)
-            elif isinstance(item, dict) and any(query_lower in str(v).lower() for v in item.values()):
+        if fuzzy:
+            tokens = [t for t in query_lower.split() if t]
+        else:
+            tokens = [query_lower]
+
+        def _matches(text: str) -> bool:
+            t = text.lower()
+            return all(tok in t for tok in tokens)
+
+        def _item_matches(item: Any) -> bool:
+            if isinstance(item, str):
+                return _matches(item)
+            if isinstance(item, dict):
+                return any(_matches(str(v)) for v in item.values())
+            return _matches(str(item))
+
+        # Search short-term memory (TTL-aware)
+        for item in self._unwrap_short_term():
+            if _item_matches(item):
                 results.append(item)
 
         # Search long-term memory
         for item in self.long_term_memory.values():
-            if isinstance(item, str) and query_lower in item.lower():
-                results.append(item)
-            elif isinstance(item, dict) and any(query_lower in str(v).lower() for v in item.values()):
+            if _item_matches(item):
                 results.append(item)
 
         return results
@@ -353,11 +420,11 @@ class GoogleDriveMemory:
 
 
 class LocalDriveMemory:
-    """Simple helper that copies files into a local Google Drive-mounted
+    r"""Simple helper that copies files into a local Google Drive-mounted
     folder (for systems using Drive for Desktop or other mounts).
 
     This provides a low-friction alternative to the API when the Drive is
-    available as a filesystem path (e.g. G:\My Drive\... on Windows).
+    available as a filesystem path (e.g. ``G:\My Drive\...`` on Windows).
     """
 
     def __init__(self, folder_path: str):

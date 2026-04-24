@@ -10,6 +10,7 @@ from utils.error_handlers import (
     ToolError, ValidationError, ResourceError, ErrorContext
 )
 from utils.ultron_logger import log_info, log_error, log_ai_decision
+from utils.circuit_breaker import get_circuit_breaker, CircuitOpenError
 
 
 class ToolInterface(ABC):
@@ -200,3 +201,102 @@ class ToolInterface(ABC):
 
         finally:
             context.end()
+
+    def execute_safe(
+        self,
+        command: str,
+        failure_threshold: int = 5,
+        recovery_timeout: float = 60.0,
+        **kwargs,
+    ) -> str:
+        """
+        Execute the tool with automatic circuit-breaker protection.
+
+        The circuit breaker is keyed on the tool name, so repeated failures
+        cause the circuit to OPEN and prevent further calls until the
+        recovery window elapses — protecting the rest of the system from a
+        malfunctioning or unreachable tool.
+
+        Args:
+            command: Command string passed to ``execute()``.
+            failure_threshold: Failures before the circuit opens (default 5).
+            recovery_timeout: Seconds to wait before attempting recovery (default 60).
+            **kwargs: Extra keyword arguments forwarded to ``execute()``.
+
+        Returns:
+            str: Result from ``execute()``.
+
+        Raises:
+            CircuitOpenError: When the circuit is open and recovery has not started.
+            ToolError / any exception: Propagated from ``execute()`` on failure.
+        """
+        cb = get_circuit_breaker(
+            name=f"tool:{self.name}",
+            failure_threshold=failure_threshold,
+            recovery_timeout=recovery_timeout,
+        )
+        try:
+            return cb.call_sync(self.execute, command, **kwargs)
+        except CircuitOpenError:
+            log_error(
+                "tool_interface",
+                f"Circuit open for tool '{self.name}' — call rejected",
+                tool=self.name,
+            )
+            raise
+        except Exception as exc:
+            log_error(
+                "tool_interface",
+                f"execute_safe caught exception from '{self.name}': {exc}",
+                tool=self.name,
+            )
+            raise
+
+    async def execute_safe_async(
+        self,
+        command: str,
+        failure_threshold: int = 5,
+        recovery_timeout: float = 60.0,
+        **kwargs,
+    ) -> str:
+        """
+        Async version of ``execute_safe``.
+
+        Use this when the tool's ``execute`` implementation is a coroutine
+        or when the caller is already in an async context.
+        """
+        import asyncio
+
+        cb = get_circuit_breaker(
+            name=f"tool:{self.name}",
+            failure_threshold=failure_threshold,
+            recovery_timeout=recovery_timeout,
+        )
+
+        async def _run():
+            if asyncio.iscoroutinefunction(self.execute):
+                return await self.execute(command, **kwargs)
+            return self.execute(command, **kwargs)
+
+        try:
+            return await cb.call(_run)
+        except CircuitOpenError:
+            log_error(
+                "tool_interface",
+                f"Circuit open for tool '{self.name}' — async call rejected",
+                tool=self.name,
+            )
+            raise
+        except Exception as exc:
+            log_error(
+                "tool_interface",
+                f"execute_safe_async caught exception from '{self.name}': {exc}",
+                tool=self.name,
+            )
+            raise
+
+    def get_circuit_stats(self) -> Dict[str, Any]:
+        """Return circuit-breaker statistics for this tool."""
+        cb = get_circuit_breaker(name=f"tool:{self.name}")
+        return cb.get_stats()
+

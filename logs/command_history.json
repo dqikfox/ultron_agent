@@ -1,0 +1,32 @@
+[
+  {
+    "command": "test command",
+    "result": "success",
+    "success": true,
+    "timestamp": 1775773583.4859014
+  },
+  {
+    "command": "test command",
+    "result": "success",
+    "success": true,
+    "timestamp": 1775774073.963481
+  },
+  {
+    "command": "test command",
+    "result": "success",
+    "success": true,
+    "timestamp": 1775774127.2738333
+  },
+  {
+    "command": "test command",
+    "result": "success",
+    "success": true,
+    "timestamp": 1775774268.7101035
+  },
+  {
+    "command": "test command",
+    "result": "success",
+    "success": true,
+    "timestamp": 1775774285.2324395
+  }
+]
