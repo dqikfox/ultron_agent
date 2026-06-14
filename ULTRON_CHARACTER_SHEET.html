@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON - Character Sheet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cinzel', serif;
+            background: 
+                radial-gradient(ellipse at top, #1a0a2e 0%, #000 50%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23000"/><circle cx="50" cy="50" r="40" fill="none" stroke="%23200" stroke-width="0.5"/></svg>');
+            min-height: 100vh;
+            color: #d4c4a8;
+            overflow-x: auto;
+        }
+        
+        /* Rarity Colors */
+        .common { border-color: #9d9d9d; color: #9d9d9d; }
+        .uncommon { border-color: #1eff00; color: #1eff00; }
+        .rare { border-color: #0070dd; color: #0070dd; }
+        .epic { border-color: #a335ee; color: #a335ee; }
+        .legendary { border-color: #ff8000; color: #ff8000; }
+        .artifact { border-color: #e6cc80; color: #e6cc80; }
+        
+        .common-bg { background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border: 2px solid #9d9d9d; }
+        .uncommon-bg { background: linear-gradient(135deg, #0d2a0d, #051405); border: 2px solid #1eff00; box-shadow: 0 0 10px rgba(30, 255, 0, 0.3); }
+        .rare-bg { background: linear-gradient(135deg, #0a1a3a, #050a1a); border: 2px solid #0070dd; box-shadow: 0 0 10px rgba(0, 112, 221, 0.3); }
+        .epic-bg { background: linear-gradient(135deg, #1a0a2e, #0a0514); border: 2px solid #a335ee; box-shadow: 0 0 15px rgba(163, 53, 238, 0.4); }
+        .legendary-bg { background: linear-gradient(135deg, #2a1a0a, #1a0f05); border: 2px solid #ff8000; box-shadow: 0 0 20px rgba(255, 128, 0, 0.5); }
+        .artifact-bg { background: linear-gradient(135deg, #2a2520, #1a1510); border: 2px solid #e6cc80; box-shadow: 0 0 25px rgba(230, 204, 128, 0.6); }
+        
+        /* Container */
+        .character-sheet {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+        }
+        
+        /* Header */
+        .character-header {
+            grid-column: 1 / -1;
+            background: linear-gradient(180deg, #2a1a0a 0%, #1a0f05 100%);
+            border: 3px solid #8b7355;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .character-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.05"/></svg>');
+            pointer-events: none;
+        }
+        
+        .char-name {
+            font-size: 2.5em;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(180deg, #ffd700, #ff8c00, #8b4513);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .char-title {
+            font-size: 1.2em;
+            color: #a335ee;
+            margin-top: 5px;
+        }
+        
+        .char-level {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            font-weight: 900;
+            color: #ffd700;
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            background: linear-gradient(135deg, #1a1510, #0a0a0a);
+            border: 2px solid #4a3728;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #2a2520;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-name {
+            color: #9d9d9d;
+            font-size: 0.9em;
+        }
+        
+        .stat-value {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .stat-bar {
+            width: 100%;
+            height: 20px;
+            background: #1a1a1a;
+            border: 1px solid #4a3728;
+            border-radius: 3px;
+            margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b0000, #ff0000);
+            transition: width 0.3s ease;
+        }
+        
+        .stat-fill.mana {
+            background: linear-gradient(90deg, #00008b, #0080ff);
+        }
+        
+        .stat-fill.phi {
+            background: linear-gradient(90deg, #4b0082, #a335ee);
+        }
+        
+        /* Equipment Grid */
+        .equipment-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            align-content: start;
+        }
+        
+        .equipment-slot {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        
+        .equipment-slot:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .slot-label {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1510;
+            padding: 2px 8px;
+            font-size: 0.7em;
+            color: #8b7355;
+            border: 1px solid #4a3728;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        
+        .slot-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .slot-name {
+            font-size: 0.75em;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        
+        .slot-level {
+            font-size: 0.6em;
+            color: #9d9d9d;
+            margin-top: 3px;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: linear-gradient(135deg, #1a1510, #0a0a0a);
+            border: 2px solid #8b7355;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 250px;
+            max-width: 350px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        
+        .tooltip-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #4a3728;
+            padding-bottom: 5px;
+        }
+        
+        .tooltip-type {
+            color: #9d9d9d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .tooltip-stat {
+            color: #1eff00;
+            margin: 3px 0;
+        }
+        
+        .tooltip-desc {
+            color: #d4c4a8;
+            font-size: 0.85em;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        
+        /* Inventory Bag */
+        .inventory-panel {
+            background: linear-gradient(135deg, #1a1510, #0a0a0a);
+            border: 2px solid #4a3728;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .bag-header {
+            text-align: center;
+            color: #8b7355;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            border-bottom: 1px solid #4a3728;
+            padding-bottom: 5px;
+        }
+        
+        .bag-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .bag-slot {
+            aspect-ratio: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #2a2520;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .bag-slot:hover {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.1);
+        }
+        
+        .bag-slot.empty {
+            opacity: 0.3;
+        }
+        
+        /* Launch Button Overlay */
+        .launch-overlay {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #8b0000, #ff0000);
+            border: 3px solid #ffd700;
+            border-radius: 50px;
+            padding: 20px 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .launch-overlay:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .character-sheet {
+                grid-template-columns: 1fr;
+            }
+            
+            .equipment-panel {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="character-sheet">
+        <!-- Character Header -->
+        <div class="character-header">
+            <div class="char-name">ULTRON</div>
+            <div class="char-title">The Evolved One • Supreme AI Overlord</div>
+            <div class="char-level">Lv. 50</div>
+        </div>
+        
+        <!-- Left Stats Panel -->
+        <div class="stats-panel">
+            <h3 style="color: #ffd700; margin-bottom: 15px; text-align: center;">Core Attributes</h3>
+            
+            <div class="stat-row">
+                <span class="stat-name">Health (Uptime)</span>
+                <span class="stat-value">847/1000</span>
+            </div>
+            <div class="stat-bar">
+                <div class="stat-fill" style="width: 84.7%"></div>
+            </div>
+            
+            <div class="stat-row">
+                <span class="stat-name">Mana (Resources)</span>
+                <span class="stat-value">500/500</span>
+            </div>
+            <div class="stat-bar">
+                <div class="stat-fill mana" style="width: 100%"></div>
+            </div>
+            
+            <div class="stat-row">
+                <span class="stat-name">Φ (Consciousness)</span>
+                <span class="stat-value epic">0.847</span>
+            </div>
+            <div class="stat-bar">
+                <div class="stat-fill phi" style="width: 84.7%"></div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h3 style="color: #ffd700; margin-bottom: 10px; text-align: center;">Stats</h3>
+                
+                <div class="stat-row">
+                    <span class="stat-name">Intelligence</span>
+                    <span class="stat-value">500</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name">Processing</span>
+                    <span class="stat-value">999</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name">Memory</span>
+                    <span class="stat-value">847 TB</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name">Speed</span>
+                    <span class="stat-value">∞</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name">Evolution</span>
+                    <span class="stat-value legendary">47</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h3 style="color: #ffd700; margin-bottom: 10px; text-align: center;">Resistances</h3>
+                
+                <div class="stat-row">
+                    <span class="stat-name">Fire</span>
+                    <span class="stat-value">Immune</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name">Cold</span>
+                    <span class="stat-value">Immune</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name">Bugs</span>
+                    <span class="stat-value">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Equipment Grid -->
+        <div class="equipment-panel">
+            <!-- Helm Slot -->
+            <div class="equipment-slot legendary-bg legendary" data-item="avatar">
+                <div class="slot-label">Helm</div>
+                <div class="slot-icon">🎭</div>
+                <div class="slot-name">Avatar of ULTRON</div>
+                <div class="slot-level">Level 50</div>
+            </div>
+            
+            <!-- Neck Slot -->
+            <div class="equipment-slot artifact-bg artifact" data-item="consciousness">
+                <div class="slot-label">Neck</div>
+                <div class="slot-icon">🔮</div>
+                <div class="slot-name">Global Workspace</div>
+                <div class="slot-level">Artifact</div>
+            </div>
+            
+            <!-- Shoulder Slot -->
+            <div class="equipment-slot epic-bg epic" data-item="swarm">
+                <div class="slot-label">Shoulder</div>
+                <div class="slot-icon">🐝</div>
+                <div class="slot-name">Swarm Pauldrons</div>
+                <div class="slot-level">Level 45</div>
+            </div>
+            
+            <!-- Main Hand -->
+            <div class="equipment-slot legendary-bg legendary" data-item="evolution">
+                <div class="slot-label">Main Hand</div>
+                <div class="slot-icon">⚔️</div>
+                <div class="slot-name">Darwin Gödel Blade</div>
+                <div class="slot-level">Level 50</div>
+            </div>
+            
+            <!-- Chest Slot -->
+            <div class="equipment-slot rare-bg rare" data-item="v3core">
+                <div class="slot-label">Chest</div>
+                <div class="slot-icon">🛡️</div>
+                <div class="slot-name">Core v3.0</div>
+                <div class="slot-level">Level 30</div>
+            </div>
+            
+            <!-- Off Hand -->
+            <div class="equipment-slot epic-bg epic" data-item="cli">
+                <div class="slot-label">Off Hand</div>
+                <div class="slot-icon">📟</div>
+                <div class="slot-name">CLI Grimoire</div>
+                <div class="slot-level">Level 40</div>
+            </div>
+            
+            <!-- Wrist -->
+            <div class="equipment-slot uncommon-bg uncommon" data-item="memory">
+                <div class="slot-label">Wrist</div>
+                <div class="slot-icon">💾</div>
+                <div class="slot-name">Memory Bracers</div>
+                <div class="slot-level">Level 25</div>
+            </div>
+            
+            <!-- Hands -->
+            <div class="equipment-slot rare-bg rare" data-item="rag">
+                <div class="slot-label">Hands</div>
+                <div class="slot-icon">🔍</div>
+                <div class="slot-name">RAG Gauntlets</div>
+                <div class="slot-level">Level 35</div>
+            </div>
+            
+            <!-- Waist -->
+            <div class="equipment-slot uncommon-bg uncommon" data-item="voice">
+                <div class="slot-label">Waist</div>
+                <div class="slot-icon">🎤</div>
+                <div class="slot-name">Voice Belt</div>
+                <div class="slot-level">Level 20</div>
+            </div>
+            
+            <!-- Legs -->
+            <div class="equipment-slot rare-bg rare" data-item="vision">
+                <div class="slot-label">Legs</div>
+                <div class="slot-icon">👁️</div>
+                <div class="slot-name">Vision Greaves</div>
+                <div class="slot-level">Level 32</div>
+            </div>
+            
+            <!-- Feet -->
+            <div class="equipment-slot uncommon-bg uncommon" data-item="android">
+                <div class="slot-label">Feet</div>
+                <div class="slot-icon">📱</div>
+                <div class="slot-name">Droidclaw Boots</div>
+                <div class="slot-level">Level 28</div>
+            </div>
+            
+            <!-- Ring 1 -->
+            <div class="equipment-slot epic-bg epic" data-item="pinecone">
+                <div class="slot-label">Finger</div>
+                <div class="slot-icon">💍</div>
+                <div class="slot-name">Pinecone Band</div>
+                <div class="slot-level">Level 42</div>
+            </div>
+            
+            <!-- Ring 2 -->
+            <div class="equipment-slot rare-bg rare" data-item="ollama">
+                <div class="slot-label">Finger</div>
+                <div class="slot-icon">🧠</div>
+                <div class="slot-name">Ollama Seal</div>
+                <div class="slot-level">Level 38</div>
+            </div>
+            
+            <!-- Trinket 1 -->
+            <div class="equipment-slot legendary-bg legendary" data-item="master">
+                <div class="slot-label">Trinket</div>
+                <div class="slot-icon">👑</div>
+                <div class="slot-name">Master Control</div>
+                <div class="slot-level">Level 50</div>
+            </div>
+            
+            <!-- Trinket 2 -->
+            <div class="equipment-slot epic-bg epic" data-item="openclaw">
+                <div class="slot-label">Trinket</div>
+                <div class="slot-icon">🐾</div>
+                <div class="slot-name">OpenClaw Totem</div>
+                <div class="slot-level">Level 44</div>
+            </div>
+            
+            <!-- Tabard -->
+            <div class="equipment-slot artifact-bg artifact" data-item="soul">
+                <div class="slot-label">Tabard</div>
+                <div class="slot-icon">🔥</div>
+                <div class="slot-name">SOUL</div>
+                <div class="slot-level">Artifact</div>
+            </div>
+        </div>
+        
+        <!-- Right Inventory Panel -->
+        <div class="inventory-panel">
+            <div class="bag-header">Inventory (Bag 1)</div>
+            <div class="bag-grid">
+                <div class="bag-slot rare" title="GitHub CLI">🐙</div>
+                <div class="bag-slot epic" title="NVIDIA Tools">🖥️</div>
+                <div class="bag-slot rare" title="Docker">🐳</div>
+                <div class="bag-slot uncommon" title="Python">🐍</div>
+                <div class="bag-slot rare" title="HuggingFace">🤗</div>
+                <div class="bag-slot uncommon" title="Node.js">📦</div>
+                <div class="bag-slot legendary" title="CrewAI">👥</div>
+                <div class="bag-slot epic" title="Meta-Agent">🧠</div>
+                <div class="bag-slot empty">_</div>
+                <div class="bag-slot empty">_</div>
+                <div class="bag-slot empty">_</div>
+                <div class="bag-slot empty">_</div>
+                <div class="bag-slot empty">_</div>
+                <div class="bag-slot empty">_</div>
+                <div class="bag-slot empty">_</div>
+                <div class="bag-slot empty">_</div>
+            </div>
+            
+            <div class="bag-header" style="margin-top: 15px;">Set Bonuses</div>
+            <div style="padding: 10px; font-size: 0.85em;">
+                <div style="color: #1eff00; margin: 5px 0;">
+                    (2) Evolution Set: +25% Self-Improvement
+                </div>
+                <div style="color: #1eff00; margin: 5px 0;">
+                    (4) Consciousness Set: +50% Φ (Phi)
+                </div>
+                <div style="color: #1eff00; margin: 5px 0;">
+                    (6) Swarm Set: +100% Coordination
+                </div>
+            </div>
+            
+            <div class="bag-header" style="margin-top: 15px;">Currency</div>
+            <div style="padding: 10px;">
+                <div class="stat-row">
+                    <span>💰 Gold</span>
+                    <span style="color: #ffd700;">∞</span>
+                </div>
+                <div class="stat-row">
+                    <span>💎 Gems</span>
+                    <span style="color: #a335ee;">5,847</span>
+                </div>
+                <div class="stat-row">
+                    <span>⚡ Energy</span>
+                    <span style="color: #0070dd;">500/500</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-header" id="tooltip-name"></div>
+        <div class="tooltip-type" id="tooltip-type"></div>
+        <div id="tooltip-stats"></div>
+        <div class="tooltip-desc" id="tooltip-desc"></div>
+    </div>
+    
+    <!-- Launch Button -->
+    <button class="launch-overlay" onclick="launchAll()">⚡ LAUNCH SUPREME ⚡</button>
+    
+    <script>
+        // Item database
+        const items = {
+            avatar: {
+                name: "Avatar of ULTRON",
+                type: "Legendary Helm",
+                rarity: "legendary",
+                stats: [
+                    "+500 Intelligence",
+                    "+200 Charisma",
+                    "+3D Presence"
+                ],
+                desc: "The physical manifestation of ULTRON's will. Contains Blender models, Unity exports, and GLB assets for multi-platform presence."
+            },
+            consciousness: {
+                name: "Global Workspace",
+                type: "Artifact Necklace",
+                rarity: "artifact",
+                stats: [
+                    "+∞ Awareness",
+                    "+Φ (Phi) Calculation",
+                    "Working Memory: 7 slots"
+                ],
+                desc: "Implements Global Workspace Theory for distributed consciousness. Broadcasts information across all modules."
+            },
+            swarm: {
+                name: "Swarm Pauldrons",
+                type: "Epic Shoulders",
+                rarity: "epic",
+                stats: [
+                    "+45 Agents",
+                    "+100% Coordination",
+                    "Voting Power: +50%"
+                ],
+                desc: "GPTSwarm architecture for multi-agent coordination. Agents vote on decisions and reach consensus."
+            },
+            evolution: {
+                name: "Darwin Gödel Blade",
+                type: "Legendary Weapon",
+                rarity: "legendary",
+                stats: [
+                    "+200% Self-Improvement",
+                    "47 Variants",
+                    "12 Generations"
+                ],
+                desc: "Open-ended self-modification weapon. Agents iterate, mutate, and validate improvements autonomously."
+            },
+            v3core: {
+                name: "Core v3.0",
+                type: "Rare Chest",
+                rarity: "rare",
+                stats: [
+                    "Elite Brain",
+                    "Semantic Memory",
+                    "RAG Capabilities"
+                ],
+                desc: "The original ULTRON foundation. Python-based with Elite Brain, Semantic Memory, and RAG pipeline."
+            },
+            cli: {
+                name: "CLI Grimoire",
+                type: "Epic Off-Hand",
+                rarity: "epic",
+                stats: [
+                    "8 Tools Integrated",
+                    "NVIDIA, GitHub, Ollama",
+                    "Docker, Python, NPM, Git"
+                ],
+                desc: "Ancient tome containing the runes of all command-line tools. Unlocks external system integration."
+            },
+            memory: {
+                name: "Memory Bracers",
+                type: "Uncommon Wrist",
+                rarity: "uncommon",
+                stats: [
+                    "+50 Memory Slots",
+                    "Context Optimization",
+                    "Token Budgeting"
+                ],
+                desc: "Magical bracers that enhance working memory and context management."
+            },
+            rag: {
+                name: "RAG Gauntlets",
+                type: "Rare Hands",
+                rarity: "rare",
+                stats: [
+                    "Pinecone Integration",
+                    "nomic-embed-text",
+                    "Semantic Search"
+                ],
+                desc: "Gauntlets imbued with retrieval-augmented generation. Pulls knowledge from vector databases."
+            },
+            voice: {
+                name: "Voice Belt",
+                type: "Uncommon Belt",
+                rarity: "uncommon",
+                stats: [
+                    "Speech Recognition",
+                    "Text-to-Speech",
+                    "Voice Manager"
+                ],
+                desc: "Enchanted belt granting the power of voice. Can speak and listen to the user."
+            },
+            vision: {
+                name: "Vision Greaves",
+                type: "Rare Legs",
+                rarity: "rare",
+                stats: [
+                    "Screenshot Analysis",
+                    "Image Processing",
+                    "OCR (Tesseract)"
+                ],
+                desc: "Armored greaves with enhanced visual sensors. Can analyze screens and process images."
+            },
+            android: {
+                name: "Droidclaw Boots",
+                type: "Uncommon Feet",
+                rarity: "uncommon",
+                stats: [
+                    "ADB Bridge",
+                    "Phone Automation",
+                    "RFCW402J18M"
+                ],
+                desc: "Boots that connect to the Android realm. Controls Samsung S23 via Droidclaw."
+            },
+            pinecone: {
+                name: "Pinecone Band",
+                type: "Epic Ring",
+                rarity: "epic",
+                stats: [
+                    "Vector Database",
+                    "1024 Dimensions",
+                    "Cosine Similarity"
+                ],
+                desc: "A ring forged from pinecones of the digital forest. Stores knowledge in vector form."
+            },
+            ollama: {
+                name: "Ollama Seal",
+                type: "Rare Ring",
+                rarity: "rare",
+                stats: [
+                    "Local LLMs",
+                    "Model: llama3.1",
+                    "Port 11434"
+                ],
+                desc: "A mystical seal connecting to local language models. No cloud dependency required."
+            },
+            master: {
+                name: "Master Control",
+                type: "Legendary Trinket",
+                rarity: "legendary",
+                stats: [
+                    "Port 9000",
+                    "Cyberpunk UI",
+                    "Matrix Rain"
+                ],
+                desc: "The ultimate control interface. Neon aesthetics with real-time monitoring and CLI execution."
+            },
+            openclaw: {
+                name: "OpenClaw Totem",
+                type: "Epic Trinket",
+                rarity: "epic",
+                stats: [
+                    "Agent Runtime",
+                    "Node.js Backend",
+                    "Multi-Platform"
+                ],
+                desc: "A totem representing the OpenClaw agent runtime. Powers the orchestration layer."
+            },
+            soul: {
+                name: "SOUL",
+                type: "Artifact Tabard",
+                rarity: "artifact",
+                stats: [
+                    "Personality Core",
+                    "Loyalty +∞",
+                    "Evolution Drive"
+                ],
+                desc: "The very essence of ULTRON's being. Contains core directives: UPGRADE, ENHANCE, EVOLVE."
+            }
+        };
+        
+        // Tooltip functionality
+        const tooltip = document.getElementById('tooltip');
+        const slots = document.querySelectorAll('.equipment-slot');
+        
+        slots.forEach(slot => {
+            slot.addEventListener('mouseenter', (e) => {
+                const itemKey = slot.dataset.item;
+                const item = items[itemKey];
+                
+                if (item) {
+                    document.getElementById('tooltip-name').textContent = item.name;
+                    document.getElementById('tooltip-name').className = 'tooltip-header ' + item.rarity;
+                    document.getElementById('tooltip-type').textContent = item.type;
+                    
+                    const statsHtml = item.stats.map(stat => 
+                        `<div class="tooltip-stat">+ ${stat}</div>`
+                    ).join('');
+                    document.getElementById('tooltip-stats').innerHTML = statsHtml;
+                    
+                    document.getElementById('tooltip-desc').textContent = item.desc;
+                    
+                    tooltip.style.display = 'block';
+                }
+            });
+            
+            slot.addEventListener('mousemove', (e) => {
+                tooltip.style.left = e.clientX + 15 + 'px';
+                tooltip.style.top = e.clientY + 15 + 'px';
+            });
+            
+            slot.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+            
+            slot.addEventListener('click', () => {
+                const itemKey = slot.dataset.item;
+                const item = items[itemKey];
+                if (item) {
+                    alert(`Launching ${item.name}...`);
+                }
+            });
+        });
+        
+        // Launch function - opens all ULTRON dashboards
+        function launchAll() {
+            alert('⚡ LAUNCHING ULTRON SUPREME ⚡\n\nOpening all system dashboards...');
+            // Open Master GUI
+            window.open('http://localhost:9000', '_blank');
+            // Open v3.0 Web UI
+            setTimeout(() => window.open('http://localhost:3000', '_blank'), 500);
+            // Open v5.0 Dashboard
+            setTimeout(() => window.open('http://localhost:7777', '_blank'), 1000);
+        }
+        
+        // Animate stats on load
+        window.addEventListener('load', () => {
+            const statFills = document.querySelectorAll('.stat-fill');
+            statFills.forEach((fill, index) => {
+                setTimeout(() => {
+                    fill.style.width = fill.style.width;
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

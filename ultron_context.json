@@ -1,5 +1,41 @@
 {
-  "conversation_context": [],
+  "conversation_context": [
+    {
+      "timestamp": "374244ec-9dd7-415d-883e-df7763982e8d",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-25 07:36:53.930896\"}"
+    },
+    {
+      "timestamp": "922d1ffa-e4a2-43d7-ae6a-54a5d6c8f3e7",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-25 08:01:42.625253\"}"
+    },
+    {
+      "timestamp": "94134e59-164d-4ba3-b85c-34315b3375e5",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-29 01:56:54.075703\"}"
+    },
+    {
+      "timestamp": "98385d38-baca-4830-af28-fc7f21218d7b",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-30 00:06:24.573728\"}"
+    },
+    {
+      "timestamp": "c8712747-5484-4120-9a7b-e740bfadb9ab",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-02 10:02:44.505407\"}"
+    }
+  ],
   "task_history": [],
   "learning_insights": [],
   "self_reflection_log": [

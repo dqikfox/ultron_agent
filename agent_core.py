@@ -236,66 +236,15 @@ class UltronAgent:
 
     def _load_config(self, config_path: str = "ultron_config.json"):
         """Load configuration following project patterns"""
-    def __init__(self, config_path: str = "ultron_config.json") -> None:
-        """Initialize ULTRON Agent following project architecture
-
-        Args:
-            config_path: Path to configuration file (default: ultron_config.json)
-
-        Raises:
-            ConfigError: If configuration loading fails
-            ResourceError: If system resources cannot be initialized
-            ValidationError: If component initialization fails validation
-        """
         try:
-            # Load configuration with error context
-            with ErrorContext("config_loading"):
-                self.config = self._load_config(config_path)
-                if not self.config:
-                    raise ConfigError("Configuration is None after loading", {"config_path": config_path})
-                log_info("agent_core", f"Configuration loaded successfully from {config_path}")
-
-            # Setup logging with error context
-            with ErrorContext("logging_setup"):
-                self.logger = self._setup_logging()
-                if not self.logger:
-                    raise ValidationError("Logger setup failed", {"config_path": config_path})
-
-            # Initialize diagnostics system with fallback
-            try:
-                config_dict: Dict[str, Any] = (self.config.__dict__ if hasattr(self.config, '__dict__')
-                                               else {})
-                self.diagnostics = get_diagnostics(config_dict)
-            except Exception as diag_error:
-                log_error("agent_core", f"Diagnostics initialization failed: {diag_error}")
-                self.diagnostics = None  # Fallback to None
-
-            # Initialize performance profiler with safe fallback
-            try:
-                self.performance_profiler = get_performance_profiler(config_dict)
-            except Exception as perf_error:
-                log_error("agent_core", f"Performance profiler initialization failed: {perf_error}")
-                self.performance_profiler = None  # Fallback to None
-
-            # Core components per copilot instructions
-            self.tools: Dict[str, Any] = {}
-            self.is_running: bool = False
-            self.current_task: Optional[Any] = None
-
-            # Enhancement systems
-            self.command_history = CommandHistory()
-            self.performance_monitor = PerformanceMonitor() if hasattr(self, 'performance_profiler') else None
-
-            # Initialize state with proper types
-            self.status: AgentStatus = AgentStatus.INITIALIZING
-            self.brain: Optional[Any] = None
-            self.voice: Optional[Any] = None
-            self.memory: Optional[Any] = None
-            self.vision: Optional[Any] = None
-            self.event_system: Optional[Any] = None
-            self.performance_monitor: Optional[Any] = None
-            self.task_scheduler: Optional[Any] = None
-            self.platform_manager: Optional[Any] = None
+            if ULTRON_CONFIG_AVAILABLE:
+                return load_config(config_path)
+            else:
+                # Fallback config
+                return UltronConfig()
+        except Exception as e:
+            log_error("agent_core", f"Config loading failed: {e}")
+            return UltronConfig()
 
             # Initialize consciousness system for personality & self-awareness
             self.conscious_mode: bool = False

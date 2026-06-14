@@ -1,0 +1,4 @@
+2025-12-29 13:49:13,332 - INFO - {"timestamp": "2025-12-29T13:49:13.332850", "component": "autonomous_startup", "level": "INFO", "message": "Initializing ULTRON Agent with autonomous capabilities"}
+2025-12-29 13:49:13,333 - INFO - {"timestamp": "2025-12-29T13:49:13.333156", "component": "autonomous_startup", "level": "INFO", "message": "Autonomous brain initialized"}
+2025-12-29 13:49:13,333 - INFO - {"timestamp": "2025-12-29T13:49:13.333292", "component": "autonomous_startup", "level": "INFO", "message": "Proactive manager initialized"}
+2025-12-29 13:49:13,712 - INFO - {"timestamp": "2025-12-29T13:49:13.712914", "component": "autonomous_startup", "level": "INFO", "message": "Startup error: object int can't be used in 'await' expression"}

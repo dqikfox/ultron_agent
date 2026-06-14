@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON MASTER CONTROL | v5.0 SUPREME</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+        
+        * { scrollbar-width: thin; scrollbar-color: #00ff88 #0a0a0a; }
+        *::-webkit-scrollbar { width: 6px; }
+        *::-webkit-scrollbar-track { background: #0a0a0a; }
+        *::-webkit-scrollbar-thumb { background: #00ff88; border-radius: 3px; }
+        
+        body { 
+            font-family: 'Rajdhani', sans-serif; 
+            background: #050505;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        
+        .glass-panel {
+            background: rgba(10, 15, 20, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.1);
+        }
+        
+        .neon-border {
+            border: 1px solid transparent;
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                        linear-gradient(135deg, #00ff88, #00aaff, #ff00ff) border-box;
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88, 0 0 40px #00ff88;
+        }
+        
+        .system-btn {
+            background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,170,255,0.1));
+            border: 1px solid rgba(0,255,136,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .system-btn:hover {
+            background: linear-gradient(135deg, rgba(0,255,136,0.3), rgba(0,170,255,0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0,255,136,0.4);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        .status-offline { background: #ff4444; }
+        .status-busy { background: #ffaa00; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+        }
+        
+        .hologram {
+            background: linear-gradient(180deg, 
+                rgba(0,255,136,0) 0%,
+                rgba(0,255,136,0.05) 50%,
+                rgba(0,255,136,0) 100%);
+            animation: scan 4s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        .tab-active {
+            background: rgba(0,255,136,0.2);
+            border-bottom: 2px solid #00ff88;
+        }
+        
+        .terminal {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            border: 1px solid #333;
+        }
+        
+        .consciousness-viz {
+            background: radial-gradient(circle at center, rgba(0,255,136,0.1) 0%, transparent 70%);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Matrix Background -->
+    <canvas id="matrixCanvas" class="matrix-bg"></canvas>
+    <div class="hologram fixed inset-0 pointer-events-none"></div>
+    
+    <!-- Header -->
+    <header class="glass-panel fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 neon-border rounded-lg flex items-center justify-center">
+                    <i class="fas fa-robot text-2xl text-green-400"></i>
+                </div>
+                <div>
+                    <h1 class="orbitron text-2xl font-black glow-text text-white">ULTRON</h1>
+                    <p class="text-xs text-green-400 tracking-widest">MASTER CONTROL v5.0 SUPREME</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <div class="text-right">
+                    <div class="text-xs text-gray-400">SYSTEM STATUS</div>
+                    <div class="flex items-center space-x-2">
+                        <div class="status-dot status-online"></div>
+                        <span class="text-green-400 font-bold">EVOLVED</span>
+                    </div>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-lg">
+                    <div class="text-xs text-gray-400">Φ (PHI)</div>
+                    <div class="text-xl font-bold text-cyan-400" id="phiDisplay">0.847</div>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-lg">
+                    <div class="text-xs text-gray-400">AGENTS</div>
+                    <div class="text-xl font-bold text-purple-400" id="agentCount">10</div>
+                </div>
+                <button onclick="toggleFullscreen()" class="system-btn px-4 py-2 rounded-lg">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation Tabs -->
+    <nav class="fixed top-20 left-0 right-0 z-40 glass-panel px-6 py-2">
+        <div class="flex space-x-1 overflow-x-auto">
+            <button onclick="switchTab('overview')" class="tab-btn tab-active px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-white/5 transition-colors" id="tab-overview">
+                <i class="fas fa-th-large"></i>
+                <span>Overview</span>
+            </button>
+            <button onclick="switchTab('evolution')" class="tab-btn px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-white/5 transition-colors" id="tab-evolution">
+                <i class="fas fa-dna"></i>
+                <span>Evolution</span>
+            </button>
+            <button onclick="switchTab('consciousness')" class="tab-btn px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-white/5 transition-colors" id="tab-consciousness">
+                <i class="fas fa-brain"></i>
+                <span>Consciousness</span>
+            </button>
+            <button onclick="switchTab('swarm')" class="tab-btn px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-white/5 transition-colors" id="tab-swarm">
+                <i class="fas fa-bees"></i>
+                <span>Swarm</span>
+            </button>
+            <button onclick="switchTab('cli')" class="tab-btn px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-white/5 transition-colors" id="tab-cli">
+                <i class="fas fa-terminal"></i>
+                <span>CLI Hub</span>
+            </button>
+            <button onclick="switchTab('external')" class="tab-btn px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-white/5 transition-colors" id="tab-external">
+                <i class="fas fa-external-link-alt"></i>
+                <span>External Systems</span>
+            </button>
+            <button onclick="switchTab('terminal')" class="tab-btn px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-white/5 transition-colors" id="tab-terminal">
+                <i class="fas fa-code"></i>
+                <span>Terminal</span>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-36 px-6 pb-6">
+        <!-- OVERVIEW TAB -->
+        <div id="content-overview" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Quick Launch Cards -->
+                <div class="glass-panel p-4 rounded-xl neon-border">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-lg">ULTRON v3.0</h3>
+                        <i class="fas fa-server text-blue-400"></i>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-3">Original Python system with Elite Brain, Semantic Memory, RAG</p>
+                    <div class="flex space-x-2">
+                        <a href="http://localhost:3000" target="_blank" class="system-btn flex-1 py-2 rounded text-center text-sm">Web UI</a>
+                        <button onclick="launchPython()" class="system-btn flex-1 py-2 rounded text-center text-sm">Launch</button>
+                    </div>
+                </div>
+                
+                <div class="glass-panel p-4 rounded-xl neon-border">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-lg">ULTRON v5.0</h3>
+                        <i class="fas fa-rocket text-green-400"></i>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-3">Evolved system with Self-Learning, Consciousness, Swarm</p>
+                    <div class="flex space-x-2">
+                        <a href="http://localhost:7777" target="_blank" class="system-btn flex-1 py-2 rounded text-center text-sm">Dashboard</a>
+                        <button onclick="launchV5()" class="system-btn flex-1 py-2 rounded text-center text-sm">Launch</button>
+                    </div>
+                </div>
+                
+                <div class="glass-panel p-4 rounded-xl neon-border">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-lg">OpenClaw</h3>
+                        <i class="fas fa-claw text-purple-400"></i>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-3">Agent runtime and orchestration platform</p>
+                    <div class="flex space-x-2">
+                        <a href="http://localhost:8080" target="_blank" class="system-btn flex-1 py-2 rounded text-center text-sm">Console</a>
+                        <button class="system-btn flex-1 py-2 rounded text-center text-sm">Agents</button>
+                    </div>
+                </div>
+                
+                <div class="glass-panel p-4 rounded-xl neon-border">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-lg">Android Bridge</h3>
+                        <i class="fas fa-mobile-alt text-cyan-400"></i>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-3">Droidclaw phone automation and control</p>
+                    <div class="flex space-x-2">
+                        <button onclick="checkADB()" class="system-btn flex-1 py-2 rounded text-center text-sm">Check ADB</button>
+                        <button class="system-btn flex-1 py-2 rounded text-center text-sm">Control</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Status Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <!-- Active Agents -->
+                <div class="glass-panel p-4 rounded-xl">
+                    <h3 class="orbitron text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-users mr-2 text-green-400"></i>
+                        Active Agents
+                    </h3>
+                    <div id="agentList" class="space-y-2 max-h-64 overflow-y-auto">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                
+                <!-- CLI Tools Status -->
+                <div class="glass-panel p-4 rounded-xl">
+                    <h3 class="orbitron text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-tools mr-2 text-cyan-400"></i>
+                        CLI Tools
+                    </h3>
+                    <div id="cliStatus" class="space-y-2">
+                        <div class="flex items-center justify-between p-2 bg-black/30 rounded">
+                            <span>NVIDIA</span>
+                            <div class="status-dot status-online"></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-black/30 rounded">
+                            <span>GitHub</span>
+                            <div class="status-dot status-online"></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-black/30 rounded">
+                            <span>Ollama</span>
+                            <div class="status-dot status-online"></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-black/30 rounded">
+                            <span>Docker</span>
+                            <div class="status-dot status-busy"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="glass-panel p-4 rounded-xl">
+                    <h3 class="orbitron text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-history mr-2 text-purple-400"></i>
+                        Activity Log
+                    </h3>
+                    <div id="activityLog" class="space-y-2 text-sm max-h-64 overflow-y-auto">
+                        <div class="p-2 bg-green-900/20 border-l-2 border-green-400">
+                            <div class="text-xs text-gray-500">10:32:15</div>
+                            <div>Agent Worker-01 evolved - capability added</div>
+                        </div>
+                        <div class="p-2 bg-blue-900/20 border-l-2 border-blue-400">
+                            <div class="text-xs text-gray-500">10:31:42</div>
+                            <div>Swarm vote: next_priority = performance</div>
+                        </div>
+                        <div class="p-2 bg-purple-900/20 border-l-2 border-purple-400">
+                            <div class="text-xs text-gray-500">10:30:00</div>
+                            <div>Consciousness Φ = 0.847</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- EVOLUTION TAB -->
+        <div id="content-evolution" class="tab-content hidden">
+            <div class="glass-panel p-6 rounded-xl mb-4">
+                <h2 class="orbitron text-2xl font-bold mb-4">Darwin Gödel Machine</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <canvas id="evolutionChart" height="200"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">Evolution Statistics</h3>
+                        <div id="evolutionStats" class="space-y-2">
+                            <div class="flex justify-between p-2 bg-black/30 rounded">
+                                <span>Total Variants</span>
+                                <span class="text-green-400 font-bold" id="totalVariants">47</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-black/30 rounded">
+                                <span>Generations</span>
+                                <span class="text-cyan-400 font-bold" id="generations">12</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-black/30 rounded">
+                                <span>Avg Fitness</span>
+                                <span class="text-purple-400 font-bold" id="avgFitness">78.3</span>
+                            </div>
+                        </div>
+                        <button onclick="forceEvolution()" class="system-btn w-full py-3 mt-4 rounded-lg font-bold">
+                            <i class="fas fa-bolt mr-2"></i>Force Evolution
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-4 rounded-xl">
+                <h3 class="font-bold mb-3">Top Performing Variants</h3>
+                <div id="topVariants" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- CONSCIOUSNESS TAB -->
+        <div id="content-consciousness" class="tab-content hidden">
+            <div class="glass-panel p-6 rounded-xl mb-4 consciousness-viz">
+                <h2 class="orbitron text-2xl font-bold mb-4 text-center">Global Workspace Theory</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="w-32 h-32 mx-auto rounded-full border-2 border-green-400/50 flex items-center justify-center mb-4">
+                            <div>
+                                <div class="text-3xl font-bold text-green-400" id="phiValue">0.847</div>
+                                <div class="text-xs text-gray-400">Φ (PHI)</div>
+                            </div>
+                        </div>
+                        <h3 class="font-bold">Integrated Information</h3>
+                        <p class="text-sm text-gray-400">Consciousness measure</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-32 h-32 mx-auto rounded-full border-2 border-cyan-400/50 flex items-center justify-center mb-4">
+                            <div>
+                                <div class="text-3xl font-bold text-cyan-400" id="thoughtCount">1,247</div>
+                                <div class="text-xs text-gray-400">Thoughts</div>
+                            </div>
+                        </div>
+                        <h3 class="font-bold">Working Memory</h3>
+                        <p class="text-sm text-gray-400">7-item capacity</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-32 h-32 mx-auto rounded-full border-2 border-purple-400/50 flex items-center justify-center mb-4">
+                            <div>
+                                <div class="text-3xl font-bold text-purple-400" id="awarenessLevel">94%</div>
+                                <div class="text-xs text-gray-400">Awareness</div>
+                            </div>
+                        </div>
+                        <h3 class="font-bold">Self-Model</h3>
+                        <p class="text-sm text-gray-400">Temporal continuity</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-4 rounded-xl">
+                <h3 class="font-bold mb-3">Recent Thoughts</h3>
+                <div id="thoughtStream" class="space-y-2 max-h-64 overflow-y-auto">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- SWARM TAB -->
+        <div id="content-swarm" class="tab-content hidden">
+            <div class="glass-panel p-6 rounded-xl mb-4">
+                <h2 class="orbitron text-2xl font-bold mb-4">Swarm Intelligence</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <canvas id="swarmChart" height="200"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">Swarm Metrics</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between p-2 bg-black/30 rounded">
+                                <span>Active Agents</span>
+                                <span class="text-green-400 font-bold">10</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-black/30 rounded">
+                                <span>Connections</span>
+                                <span class="text-cyan-400 font-bold">45</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-black/30 rounded">
+                                <span>Network Density</span>
+                                <span class="text-purple-400 font-bold">0.89</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-black/30 rounded">
+                                <span>Total Votes</span>
+                                <span class="text-orange-400 font-bold">127</span>
+                            </div>
+                        </div>
+                        <button onclick="triggerVote()" class="system-btn w-full py-3 mt-4 rounded-lg font-bold">
+                            <i class="fas fa-vote-yea mr-2"></i>Trigger Vote
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-4 rounded-xl">
+                <h3 class="font-bold mb-3">Recent Consensus</h3>
+                <div id="consensusLog" class="space-y-2">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- CLI HUB TAB -->
+        <div id="content-cli" class="tab-content hidden">
+            <div class="glass-panel p-6 rounded-xl mb-4">
+                <h2 class="orbitron text-2xl font-bold mb-4">CLI Integration Hub</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button onclick="execCLI('nvidia', 'status')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fas fa-microchip text-3xl mb-2 text-green-400"></i>
+                        <div class="font-bold">NVIDIA</div>
+                        <div class="text-xs text-gray-400">GPU Status</div>
+                    </button>
+                    <button onclick="execCLI('gh', 'repo_list')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fab fa-github text-3xl mb-2 text-white"></i>
+                        <div class="font-bold">GitHub</div>
+                        <div class="text-xs text-gray-400">Repos & PRs</div>
+                    </button>
+                    <button onclick="execCLI('ollama', 'list')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fas fa-brain text-3xl mb-2 text-cyan-400"></i>
+                        <div class="font-bold">Ollama</div>
+                        <div class="text-xs text-gray-400">Models</div>
+                    </button>
+                    <button onclick="execCLI('docker', 'ps')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fab fa-docker text-3xl mb-2 text-blue-400"></i>
+                        <div class="font-bold">Docker</div>
+                        <div class="text-xs text-gray-400">Containers</div>
+                    </button>
+                    <button onclick="execCLI('hf', 'whoami')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fas fa-smile text-3xl mb-2 text-yellow-400"></i>
+                        <div class="font-bold">HuggingFace</div>
+                        <div class="text-xs text-gray-400">Models</div>
+                    </button>
+                    <button onclick="execCLI('git', 'status')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fab fa-git-alt text-3xl mb-2 text-orange-400"></i>
+                        <div class="font-bold">Git</div>
+                        <div class="text-xs text-gray-400">Status</div>
+                    </button>
+                    <button onclick="execCLI('npm', 'list')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fab fa-npm text-3xl mb-2 text-red-400"></i>
+                        <div class="font-bold">NPM</div>
+                        <div class="text-xs text-gray-400">Packages</div>
+                    </button>
+                    <button onclick="execCLI('python', 'gpu_check')" class="system-btn p-4 rounded-xl text-center">
+                        <i class="fab fa-python text-3xl mb-2 text-blue-400"></i>
+                        <div class="font-bold">Python</div>
+                        <div class="text-xs text-gray-400">AI/ML Check</div>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-4 rounded-xl">
+                <h3 class="font-bold mb-3">CLI Output</h3>
+                <div id="cliOutput" class="terminal p-4 rounded-lg h-64 overflow-y-auto font-mono text-sm">
+                    <div class="text-gray-500">Click a tool above to execute...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- EXTERNAL SYSTEMS TAB -->
+        <div id="content-external" class="tab-content hidden">
+            <div class="glass-panel p-6 rounded-xl">
+                <h2 class="orbitron text-2xl font-bold mb-4">External System Links</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="http://localhost:3000" target="_blank" class="system-btn p-4 rounded-xl block">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-lg">ULTRON v3.0 Web</div>
+                                <div class="text-sm text-gray-400">Port 3000 - Original UI</div>
+                            </div>
+                            <i class="fas fa-external-link-alt text-2xl"></i>
+                        </div>
+                    </a>
+                    <a href="http://localhost:7777" target="_blank" class="system-btn p-4 rounded-xl block">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-lg">ULTRON v5.0 Dashboard</div>
+                                <div class="text-sm text-gray-400">Port 7777 - Node.js Dashboard</div>
+                            </div>
+                            <i class="fas fa-external-link-alt text-2xl"></i>
+                        </div>
+                    </a>
+                    <a href="http://localhost:8080" target="_blank" class="system-btn p-4 rounded-xl block">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-lg">OpenClaw Console</div>
+                                <div class="text-sm text-gray-400">Agent Runtime</div>
+                            </div>
+                            <i class="fas fa-external-link-alt text-2xl"></i>
+                        </div>
+                    </a>
+                    <a href="http://localhost:11434" target="_blank" class="system-btn p-4 rounded-xl block">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-lg">Ollama API</div>
+                                <div class="text-sm text-gray-400">Port 11434 - Local LLM</div>
+                            </div>
+                            <i class="fas fa-external-link-alt text-2xl"></i>
+                        </div>
+                    </a>
+                    <a href="http://localhost:8090" target="_blank" class="system-btn p-4 rounded-xl block">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-lg">AutoGPT Platform</div>
+                                <div class="text-sm text-gray-400">Port 8090</div>
+                            </div>
+                            <i class="fas fa-external-link-alt text-2xl"></i>
+                        </div>
+                    </a>
+                    <a href="http://localhost:3010" target="_blank" class="system-btn p-4 rounded-xl block">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-lg">Open WebUI</div>
+                                <div class="text-sm text-gray-400">Port 3010</div>
+                            </div>
+                            <i class="fas fa-external-link-alt text-2xl"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TERMINAL TAB -->
+        <div id="content-terminal" class="tab-content hidden">
+            <div class="glass-panel p-4 rounded-xl">
+                <h2 class="orbitron text-2xl font-bold mb-4">Master Terminal</h2>
+                <div id="masterTerminal" class="terminal p-4 rounded-lg h-96 overflow-y-auto font-mono text-sm">
+                    <div class="text-green-400">ULTRON v5.0 SUPREME Terminal</div>
+                    <div class="text-gray-500">Type 'help' for available commands</div>
+                    <div class="mt-2">
+                        <span class="text-green-400">➜</span> <span id="terminalInput" contenteditable="true" class="outline-none"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Matrix Rain Effect
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        const drops = [];
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * -100;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ff88';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 50);
+        
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+            
+            // Show selected
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('tab-active');
+        }
+        
+        // Fullscreen toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Simulated data updates
+        function updateStats() {
+            // Update PHI
+            const phi = 0.8 + Math.random() * 0.1;
+            document.getElementById('phiDisplay').textContent = phi.toFixed(3);
+            document.getElementById('phiValue').textContent = phi.toFixed(3);
+        }
+        
+        setInterval(updateStats, 5000);
+        
+        // CLI Execution simulation
+        function execCLI(tool, command) {
+            const output = document.getElementById('cliOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `
+                <div class="mb-2">
+                    <span class="text-gray-500">[${timestamp}]</span>
+                    <span class="text-green-400">$</span> ${tool} ${command}
+                    <div class="text-cyan-400 mt-1">Executing...</div>
+                </div>
+            `;
+            output.scrollTop = output.scrollHeight;
+            
+            // Simulate response
+            setTimeout(() => {
+                output.innerHTML += `
+                    <div class="text-gray-300 mb-2 pl-4">
+                        ${tool.toUpperCase()} command executed successfully.<br>
+                        ${getSimulatedOutput(tool, command)}
+                    </div>
+                `;
+                output.scrollTop = output.scrollHeight;
+            }, 1000);
+        }
+        
+        function getSimulatedOutput(tool, command) {
+            const outputs = {
+                'nvidia': 'GPU: RTX 4090 | Memory: 16GB/24GB | Temp: 65°C | Util: 45%',
+                'ollama': 'llama3.1:latest | gemma3:latest | codestral:latest | nomic-embed-text',
+                'docker': '3 containers running | 12 images stored',
+                'gh': '42 repositories | 3 open PRs | 7 open issues'
+            };
+            return outputs[tool] || 'Command executed successfully';
+        }
+        
+        // Evolution
+        function forceEvolution() {
+            const btn = event.target;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Evolving...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i>Evolution Complete';
+                document.getElementById('totalVariants').textContent = 
+                    parseInt(document.getElementById('totalVariants').textContent) + 1;
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-bolt mr-2"></i>Force Evolution';
+                }, 2000);
+            }, 2000);
+        }
+        
+        // Swarm vote
+        function triggerVote() {
+            const options = ['performance', 'learning', 'coordination', 'expansion'];
+            const consensus = options[Math.floor(Math.random() * options.length)];
+            alert(`Swarm consensus: ${consensus}`);
+        }
+        
+        // Populate agent list
+        const agents = [
+            { name: 'Worker-01', type: 'worker', status: 'online', tasks: 23 },
+            { name: 'RAG-Master', type: 'rag', status: 'online', tasks: 156 },
+            { name: 'CLI-Commander', type: 'cli-operator', status: 'online', tasks: 89 },
+            { name: 'Evolution-Prime', type: 'evolution-engineer', status: 'busy', tasks: 12 },
+            { name: 'Swarm-Leader', type: 'swarm-coordinator', status: 'online', tasks: 45 },
+            { name: 'Consciousness-One', type: 'consciousness-agent', status: 'online', tasks: 78 },
+            { name: 'Research-Alpha', type: 'research-agent', status: 'online', tasks: 34 },
+        ];
+        
+        const agentList = document.getElementById('agentList');
+        agents.forEach(agent => {
+            agentList.innerHTML += `
+                <div class="flex items-center justify-between p-2 bg-black/30 rounded hover:bg-white/5 transition-colors">
+                    <div class="flex items-center space-x-2">
+                        <div class="status-dot status-${agent.status}"></div>
+                        <div>
+                            <div class="font-bold text-sm">${agent.name}</div>
+                            <div class="text-xs text-gray-500">${agent.type}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-cyan-400">${agent.tasks} tasks</div>
+                </div>
+            `;
+        });
+        
+        // Initialize charts
+        const evolutionCtx = document.getElementById('evolutionChart')?.getContext('2d');
+        if (evolutionCtx) {
+            new Chart(evolutionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Gen 1', 'Gen 2', 'Gen 3', 'Gen 4', 'Gen 5', 'Gen 6'],
+                    datasets: [{
+                        label: 'Fitness Score',
+                        data: [45, 52, 61, 68, 74, 78],
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0,255,136,0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#888' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#888' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+        }
+        
+        // Resize matrix on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Terminal input
+        document.getElementById('terminalInput')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const cmd = e.target.textContent;
+                const terminal = document.getElementById('masterTerminal');
+                terminal.innerHTML += `
+                    <div class="text-cyan-400">➜ ${cmd}</div>
+                    <div class="text-gray-400">Command executed: ${cmd}</div>
+                `;
+                e.target.textContent = '';
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>

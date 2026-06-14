@@ -1,11 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "L2rWfQq9l8U=",
+  "dgSpecHash": "08Bf+mfb5FY=",
   "success": true,
-  "projectFilePath": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
+  "projectFilePath": "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
   "expectedPackageFiles": [
-    "/home/ultro/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
-    "/home/ultro/.nuget/packages/netstandard.library.ref/2.1.0/netstandard.library.ref.2.1.0.nupkg.sha512"
+    "C:\\Users\\CHANN0$\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
   ],
   "logs": []
 }

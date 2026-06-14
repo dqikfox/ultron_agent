@@ -169,7 +169,7 @@ class TestAutoPatchManager:
         assert not patch_manager._validate_suggestion(invalid_suggestion)
 
     @patch('utils.auto_patch_manager.should_modify_file')
-    @patch('builtins.open', new_callable=mock_open, read_data="original content")
+    @patch('builtins.open', new_callable=mock_open, read_data="# Original content\n")
     def test_apply_single_suggestion_success(self, mock_file, mock_should_modify, patch_manager):
         """Test successfully applying a single suggestion"""
         mock_should_modify.return_value = (True, "OK", {})
@@ -186,7 +186,7 @@ class TestAutoPatchManager:
         }
 
         success, message = patch_manager._apply_single_suggestion(suggestion)
-
+        
         assert success
         assert "Successfully applied" in message
         mock_file.assert_called()

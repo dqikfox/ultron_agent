@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Chat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d0d0d;
+            color: #e0e0e0;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #171717;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+        
+        .sidebar-header {
+            padding: 8px 0;
+            margin-bottom: 12px;
+        }
+        
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .new-chat-btn:hover { opacity: 0.9; }
+        
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+        
+        .chat-item:hover { background: #262626; }
+        .chat-item.active { background: #262626; }
+        
+        /* Main Chat Area */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            height: 60px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: #171717;
+        }
+        
+        .model-selector {
+            padding: 8px 16px;
+            background: #262626;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 0.9em;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        
+        /* Messages */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 16px 20px;
+            border-radius: 12px;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .message.assistant {
+            align-self: flex-start;
+            background: #262626;
+            border: 1px solid #333;
+        }
+        
+        .message-header {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        
+        /* Input Area */
+        .input-area {
+            padding: 24px;
+            border-top: 1px solid #333;
+            background: #171717;
+        }
+        
+        .input-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 56px;
+            max-height: 200px;
+            padding: 16px 60px 16px 20px;
+            background: #262626;
+            border: 1px solid #444;
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 1em;
+            resize: none;
+            font-family: inherit;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        
+        .send-btn {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            width: 40px;
+            height: 40px;
+            background: #00ff88;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+        
+        /* System Prompt Panel */
+        .system-prompt-panel {
+            display: none;
+            position: fixed;
+            right: 0;
+            top: 60px;
+            width: 300px;
+            height: calc(100vh - 60px);
+            background: #171717;
+            border-left: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .system-prompt-panel.open { display: block; }
+        
+        .system-prompt-panel h3 {
+            margin-bottom: 12px;
+            color: #00ff88;
+        }
+        
+        .system-prompt-panel textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 12px;
+        }
+        
+        /* Loading indicator */
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 12px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #171717;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <button class="new-chat-btn" onclick="newChat()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                New Chat
+            </button>
+        </div>
+        <div class="chat-list" id="chatList">
+            <!-- Chats populated by JS -->
+        </div>
+    </div>
+    
+    <!-- Main Chat Area -->
+    <div class="main">
+        <div class="header">
+            <select class="model-selector" id="modelSelector">
+                <option value="" disabled selected>Loading models...</option>
+            </select>
+            
+            <button onclick="toggleSystemPrompt()" style="background: transparent; border: 1px solid #444; color: #e0e0e0; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                System Prompt
+            </button>
+        </div>
+        
+        <div class="messages" id="messages">
+            <div class="message assistant">
+                <div class="message-header">ULTRON</div>
+                <div>Hello. I'm ULTRON, your evolved AI assistant. Select a model and start chatting.</div>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <div class="input-container">
+                <textarea id="userInput" placeholder="Message ULTRON..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Prompt Panel -->
+    <div class="system-prompt-panel" id="systemPromptPanel">
+        <h3>System Prompt</h3>
+        <textarea id="systemPrompt" placeholder="Enter system prompt to control ULTRON's behavior...">You are ULTRON, an evolved AI assistant with self-improvement capabilities. Be helpful, precise, and proactive.</textarea>
+        <button onclick="saveSystemPrompt()" style="width: 100%; padding: 12px; background: #00ff88; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save</button>
+    </div>
+    
+    <script>
+        let currentModel = '';
+        let chatHistory = [];
+        let currentChatId = Date.now().toString();
+        let isLoading = false;
+        
+        // Load models on startup
+        async function loadModels() {
+            try {
+                const response = await fetch('http://127.0.0.1:11434/api/tags');
+                const data = await response.json();
+                
+                const selector = document.getElementById('modelSelector');
+                selector.innerHTML = '<option value="" disabled>Select a model...</option>';
+                
+                if (data.models) {
+                    data.models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.name;
+                        option.textContent = model.name;
+                        selector.appendChild(option);
+                    });
+                    
+                    // Select first model
+                    if (data.models.length > 0) {
+                        currentModel = data.models[0].name;
+                        selector.value = currentModel;
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load models:', e);
+                document.getElementById('modelSelector').innerHTML = 
+                    '<option>Ollama not running</option>';
+            }
+        }
+        
+        // Handle model selection
+        document.getElementById('modelSelector').addEventListener('change', (e) => {
+            currentModel = e.target.value;
+        });
+        
+        // Send message
+        async function sendMessage() {
+            if (isLoading) return;
+            
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentModel) return;
+            
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Show typing indicator
+            isLoading = true;
+            document.getElementById('sendBtn').disabled = true;
+            showTyping();
+            
+            try {
+                const systemPrompt = document.getElementById('systemPrompt').value;
+                
+                const response = await fetch('http://127.0.0.1:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: currentModel,
+                        prompt: message,
+                        system: systemPrompt,
+                        stream: false
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing, add response
+                removeTyping();
+                addMessage('assistant', data.response);
+                
+                // Save to history
+                chatHistory.push({ role: 'user', content: message });
+                chatHistory.push({ role: 'assistant', content: data.response });
+                
+            } catch (e) {
+                removeTyping();
+                addMessage('assistant', 'Error: ' + e.message);
+            } finally {
+                isLoading = false;
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+        
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const header = role === 'user' ? 'You' : 'ULTRON';
+            messageDiv.innerHTML = `
+                <div class="message-header">${header}</div>
+                <div>${escapeHtml(content)}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function showTyping() {
+            const messagesDiv = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = '
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            ';
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function removeTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        // Auto-resize textarea
+        document.getElementById('userInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+        
+        // System prompt panel
+        function toggleSystemPrompt() {
+            document.getElementById('systemPromptPanel').classList.toggle('open');
+        }
+        
+        function saveSystemPrompt() {
+            toggleSystemPrompt();
+        }
+        
+        function newChat() {
+            document.getElementById('messages').innerHTML = `
+                <div class="message assistant">
+                    <div class="message-header">ULTRON</div>
+                    <div>New conversation started. How can I help you?</div>
+                </div>
+            `;
+            chatHistory = [];
+            currentChatId = Date.now().toString();
+        }
+        
+        // Initialize
+        loadModels();
+    </script>
+</body>
+</html>

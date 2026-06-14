@@ -1,0 +1,346 @@
+2025-12-18 10:23:26,192 - INFO - {"timestamp": "2025-12-18T10:23:26.191939", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-18 10:23:26,192 - INFO - {"timestamp": "2025-12-18T10:23:26.192912", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-18 10:23:26,193 - INFO - {"timestamp": "2025-12-18T10:23:26.193423", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-18 10:23:26,194 - INFO - {"timestamp": "2025-12-18T10:23:26.193927", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-18 10:23:26,194 - INFO - {"timestamp": "2025-12-18T10:23:26.194643", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-18 10:23:30,554 - INFO - {"timestamp": "2025-12-18T10:23:30.554159", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-18 10:23:30,557 - INFO - {"timestamp": "2025-12-18T10:23:30.557150", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-18 17:38:29,353 - INFO - {"timestamp": "2025-12-18T17:38:29.353807", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-18 17:38:29,354 - INFO - {"timestamp": "2025-12-18T17:38:29.354932", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-18 17:38:29,355 - INFO - {"timestamp": "2025-12-18T17:38:29.355417", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-18 17:38:29,355 - INFO - {"timestamp": "2025-12-18T17:38:29.355867", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-18 17:38:29,356 - INFO - {"timestamp": "2025-12-18T17:38:29.356402", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-18 17:38:35,331 - INFO - {"timestamp": "2025-12-18T17:38:35.330921", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-18 17:38:35,332 - INFO - {"timestamp": "2025-12-18T17:38:35.332514", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-20 05:13:19,838 - INFO - {"timestamp": "2025-12-20T05:13:19.838366", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-20 05:13:19,838 - INFO - {"timestamp": "2025-12-20T05:13:19.838801", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-20 05:13:19,839 - INFO - {"timestamp": "2025-12-20T05:13:19.839073", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-20 05:13:19,839 - INFO - {"timestamp": "2025-12-20T05:13:19.839339", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-20 05:13:19,839 - INFO - {"timestamp": "2025-12-20T05:13:19.839569", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-20 05:13:36,258 - INFO - {"timestamp": "2025-12-20T05:13:36.258715", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-20 05:13:36,260 - INFO - {"timestamp": "2025-12-20T05:13:36.260011", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-20 05:23:57,817 - INFO - {"timestamp": "2025-12-20T05:23:57.817733", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-20 05:23:57,818 - INFO - {"timestamp": "2025-12-20T05:23:57.818395", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-20 05:23:57,818 - INFO - {"timestamp": "2025-12-20T05:23:57.818762", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-20 05:23:57,819 - INFO - {"timestamp": "2025-12-20T05:23:57.819056", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-20 05:23:57,819 - INFO - {"timestamp": "2025-12-20T05:23:57.819358", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-20 05:24:13,436 - INFO - {"timestamp": "2025-12-20T05:24:13.436142", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-20 05:24:13,437 - INFO - {"timestamp": "2025-12-20T05:24:13.436979", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-20 05:26:38,010 - INFO - {"timestamp": "2025-12-20T05:26:38.009950", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-20 05:26:38,010 - INFO - {"timestamp": "2025-12-20T05:26:38.010420", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-20 05:26:38,010 - INFO - {"timestamp": "2025-12-20T05:26:38.010687", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-20 05:26:38,010 - INFO - {"timestamp": "2025-12-20T05:26:38.010960", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-20 05:26:38,011 - INFO - {"timestamp": "2025-12-20T05:26:38.011202", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-20 05:26:47,226 - INFO - {"timestamp": "2025-12-20T05:26:47.226219", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-20 05:26:47,227 - INFO - {"timestamp": "2025-12-20T05:26:47.227596", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-22 10:18:48,505 - INFO - {"timestamp": "2025-12-22T10:18:48.505127", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 10:19:09,739 - INFO - {"timestamp": "2025-12-22T10:19:09.739084", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 10:19:09,739 - INFO - {"timestamp": "2025-12-22T10:19:09.739619", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-22 10:19:09,739 - INFO - {"timestamp": "2025-12-22T10:19:09.739863", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-22 10:19:09,740 - INFO - {"timestamp": "2025-12-22T10:19:09.740069", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-22 10:19:09,740 - INFO - {"timestamp": "2025-12-22T10:19:09.740277", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-22 10:19:23,094 - INFO - {"timestamp": "2025-12-22T10:19:23.094349", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-22 10:19:23,095 - INFO - {"timestamp": "2025-12-22T10:19:23.095375", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-22 11:45:24,556 - INFO - {"timestamp": "2025-12-22T11:45:24.556722", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 12:00:06,620 - INFO - {"timestamp": "2025-12-22T12:00:06.620557", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 13:23:02,543 - INFO - {"timestamp": "2025-12-22T13:23:02.543329", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 13:23:46,586 - INFO - {"timestamp": "2025-12-22T13:23:46.586724", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 13:24:02,347 - INFO - {"timestamp": "2025-12-22T13:24:02.347492", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 13:24:02,349 - INFO - {"timestamp": "2025-12-22T13:24:02.348867", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-22 13:24:02,350 - INFO - {"timestamp": "2025-12-22T13:24:02.349989", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-22 13:24:02,350 - INFO - {"timestamp": "2025-12-22T13:24:02.350781", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-22 13:24:02,352 - INFO - {"timestamp": "2025-12-22T13:24:02.352263", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-22 13:24:13,757 - INFO - {"timestamp": "2025-12-22T13:24:13.757863", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-22 13:24:13,761 - INFO - {"timestamp": "2025-12-22T13:24:13.761058", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-22 17:29:32,575 - INFO - {"timestamp": "2025-12-22T17:29:32.575236", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 17:29:32,575 - INFO - {"timestamp": "2025-12-22T17:29:32.575593", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-22 17:29:32,575 - INFO - {"timestamp": "2025-12-22T17:29:32.575791", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-22 17:29:32,575 - INFO - {"timestamp": "2025-12-22T17:29:32.575970", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-22 17:29:32,576 - INFO - {"timestamp": "2025-12-22T17:29:32.576146", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-22 17:29:38,224 - INFO - {"timestamp": "2025-12-22T17:29:38.224717", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 17:29:40,920 - INFO - {"timestamp": "2025-12-22T17:29:40.920413", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-22 17:29:40,921 - INFO - {"timestamp": "2025-12-22T17:29:40.921237", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-22 18:16:39,854 - INFO - {"timestamp": "2025-12-22T18:16:39.854185", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 18:16:39,854 - INFO - {"timestamp": "2025-12-22T18:16:39.854595", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-22 18:16:39,854 - INFO - {"timestamp": "2025-12-22T18:16:39.854841", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-22 18:16:39,855 - INFO - {"timestamp": "2025-12-22T18:16:39.855039", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-22 18:16:39,855 - INFO - {"timestamp": "2025-12-22T18:16:39.855299", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-22 18:16:47,949 - INFO - {"timestamp": "2025-12-22T18:16:47.949180", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-22 18:16:47,950 - INFO - {"timestamp": "2025-12-22T18:16:47.950100", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-22 18:24:16,504 - INFO - {"timestamp": "2025-12-22T18:24:16.504691", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 18:24:16,505 - INFO - {"timestamp": "2025-12-22T18:24:16.505563", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-22 18:24:16,506 - INFO - {"timestamp": "2025-12-22T18:24:16.506070", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-22 18:24:16,506 - INFO - {"timestamp": "2025-12-22T18:24:16.506524", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-22 18:24:16,506 - INFO - {"timestamp": "2025-12-22T18:24:16.506939", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-22 18:24:25,970 - INFO - {"timestamp": "2025-12-22T18:24:25.970164", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-22 18:24:25,971 - INFO - {"timestamp": "2025-12-22T18:24:25.971102", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-22 18:33:10,249 - INFO - {"timestamp": "2025-12-22T18:33:10.249135", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-22 18:33:10,249 - INFO - {"timestamp": "2025-12-22T18:33:10.249534", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-22 18:33:10,249 - INFO - {"timestamp": "2025-12-22T18:33:10.249752", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-22 18:33:10,249 - INFO - {"timestamp": "2025-12-22T18:33:10.249943", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-22 18:33:10,250 - INFO - {"timestamp": "2025-12-22T18:33:10.250118", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-22 18:33:17,778 - INFO - {"timestamp": "2025-12-22T18:33:17.778077", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-22 18:33:17,778 - INFO - {"timestamp": "2025-12-22T18:33:17.778917", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-22 18:50:15,072 - INFO - {"timestamp": "2025-12-22T18:50:15.072775", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-25 06:53:38,782 - INFO - {"timestamp": "2025-12-25T06:53:38.782147", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-25 06:53:38,785 - INFO - {"timestamp": "2025-12-25T06:53:38.785314", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-25 06:53:38,785 - INFO - {"timestamp": "2025-12-25T06:53:38.785561", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-25 06:53:38,785 - INFO - {"timestamp": "2025-12-25T06:53:38.785750", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-25 06:53:38,785 - INFO - {"timestamp": "2025-12-25T06:53:38.785926", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-25 06:53:38,786 - INFO - {"timestamp": "2025-12-25T06:53:38.786252", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-25 06:53:38,787 - INFO - {"timestamp": "2025-12-25T06:53:38.787205", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-25 06:55:49,067 - INFO - {"timestamp": "2025-12-25T06:55:49.067322", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-25 06:55:49,067 - INFO - {"timestamp": "2025-12-25T06:55:49.067747", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-25 06:55:49,068 - INFO - {"timestamp": "2025-12-25T06:55:49.068013", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-25 06:55:49,068 - INFO - {"timestamp": "2025-12-25T06:55:49.068241", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-25 06:55:49,068 - INFO - {"timestamp": "2025-12-25T06:55:49.068535", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-25 06:55:49,069 - INFO - {"timestamp": "2025-12-25T06:55:49.069031", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-25 06:55:49,070 - INFO - {"timestamp": "2025-12-25T06:55:49.070836", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-25 07:02:04,145 - INFO - {"timestamp": "2025-12-25T07:02:04.145344", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-25 07:02:04,146 - INFO - {"timestamp": "2025-12-25T07:02:04.146413", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-25 07:02:04,147 - INFO - {"timestamp": "2025-12-25T07:02:04.147116", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-25 07:02:04,147 - INFO - {"timestamp": "2025-12-25T07:02:04.147919", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-25 07:02:04,148 - INFO - {"timestamp": "2025-12-25T07:02:04.148330", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-25 07:02:04,148 - INFO - {"timestamp": "2025-12-25T07:02:04.148837", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-25 07:02:04,150 - INFO - {"timestamp": "2025-12-25T07:02:04.150060", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-25 07:05:31,882 - INFO - {"timestamp": "2025-12-25T07:05:31.882839", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-25 07:05:31,886 - INFO - {"timestamp": "2025-12-25T07:05:31.886061", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-25 07:05:31,886 - INFO - {"timestamp": "2025-12-25T07:05:31.886519", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-25 07:05:31,887 - INFO - {"timestamp": "2025-12-25T07:05:31.886978", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-25 07:05:31,887 - INFO - {"timestamp": "2025-12-25T07:05:31.887464", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-25 07:05:31,888 - INFO - {"timestamp": "2025-12-25T07:05:31.888275", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-25 07:05:31,890 - INFO - {"timestamp": "2025-12-25T07:05:31.890415", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-26 02:06:43,310 - INFO - {"timestamp": "2025-12-26T02:06:43.310291", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-26 02:06:43,314 - INFO - {"timestamp": "2025-12-26T02:06:43.314493", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-26 02:06:43,314 - INFO - {"timestamp": "2025-12-26T02:06:43.314720", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-26 02:06:43,314 - INFO - {"timestamp": "2025-12-26T02:06:43.314915", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-26 02:06:43,315 - INFO - {"timestamp": "2025-12-26T02:06:43.315093", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-26 02:06:43,315 - INFO - {"timestamp": "2025-12-26T02:06:43.315474", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-26 02:06:43,316 - INFO - {"timestamp": "2025-12-26T02:06:43.316367", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-26 23:19:00,455 - INFO - {"timestamp": "2025-12-26T23:19:00.455870", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-26 23:19:00,482 - INFO - {"timestamp": "2025-12-26T23:19:00.482250", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-26 23:19:00,482 - INFO - {"timestamp": "2025-12-26T23:19:00.482742", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-26 23:19:00,483 - INFO - {"timestamp": "2025-12-26T23:19:00.483170", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-26 23:19:00,483 - INFO - {"timestamp": "2025-12-26T23:19:00.483660", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-26 23:19:00,484 - INFO - {"timestamp": "2025-12-26T23:19:00.484413", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-26 23:19:00,486 - INFO - {"timestamp": "2025-12-26T23:19:00.486328", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-27 03:00:41,034 - INFO - {"timestamp": "2025-12-27T03:00:41.034677", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-27 03:00:41,035 - INFO - {"timestamp": "2025-12-27T03:00:41.035328", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-27 03:00:41,035 - INFO - {"timestamp": "2025-12-27T03:00:41.035893", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-27 03:00:41,036 - INFO - {"timestamp": "2025-12-27T03:00:41.036262", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-27 03:00:41,036 - INFO - {"timestamp": "2025-12-27T03:00:41.036709", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-27 03:00:41,037 - INFO - {"timestamp": "2025-12-27T03:00:41.037442", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-27 03:00:41,038 - INFO - {"timestamp": "2025-12-27T03:00:41.038816", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-27 03:46:23,803 - INFO - {"timestamp": "2025-12-27T03:46:23.803650", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-27 03:46:23,804 - INFO - {"timestamp": "2025-12-27T03:46:23.803971", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-27 03:46:23,804 - INFO - {"timestamp": "2025-12-27T03:46:23.804175", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-27 03:46:23,804 - INFO - {"timestamp": "2025-12-27T03:46:23.804374", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-27 03:46:23,804 - INFO - {"timestamp": "2025-12-27T03:46:23.804561", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-27 03:46:23,805 - INFO - {"timestamp": "2025-12-27T03:46:23.805054", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-27 03:46:23,806 - INFO - {"timestamp": "2025-12-27T03:46:23.806079", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-27 04:28:38,447 - INFO - {"timestamp": "2025-12-27T04:28:38.447771", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - INFO - {"timestamp": "2025-12-27T04:28:38.448142", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - INFO - {"timestamp": "2025-12-27T04:28:38.448436", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - INFO - {"timestamp": "2025-12-27T04:28:38.448630", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - INFO - {"timestamp": "2025-12-27T04:28:38.448807", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-27 04:28:38,449 - INFO - {"timestamp": "2025-12-27T04:28:38.449123", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-27 04:28:38,450 - INFO - {"timestamp": "2025-12-27T04:28:38.450001", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-28 03:05:13,882 - INFO - {"timestamp": "2025-12-28T03:05:13.882486", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-28 03:05:13,882 - INFO - {"timestamp": "2025-12-28T03:05:13.882934", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-28 03:05:13,883 - INFO - {"timestamp": "2025-12-28T03:05:13.883203", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-28 03:05:13,883 - INFO - {"timestamp": "2025-12-28T03:05:13.883430", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-28 03:05:13,883 - INFO - {"timestamp": "2025-12-28T03:05:13.883631", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-28 03:05:13,884 - INFO - {"timestamp": "2025-12-28T03:05:13.883999", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-28 03:05:13,884 - INFO - {"timestamp": "2025-12-28T03:05:13.884800", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-28 03:05:37,318 - INFO - {"timestamp": "2025-12-28T03:05:37.318894", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-28 03:05:37,319 - INFO - {"timestamp": "2025-12-28T03:05:37.319645", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-28 03:05:37,320 - INFO - {"timestamp": "2025-12-28T03:05:37.320187", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-28 03:05:37,320 - INFO - {"timestamp": "2025-12-28T03:05:37.320641", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-28 03:05:37,321 - INFO - {"timestamp": "2025-12-28T03:05:37.321106", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-28 03:05:37,321 - INFO - {"timestamp": "2025-12-28T03:05:37.321788", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-28 03:05:37,323 - INFO - {"timestamp": "2025-12-28T03:05:37.323639", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-28 03:10:18,438 - INFO - {"timestamp": "2025-12-28T03:10:18.438670", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-28 03:10:18,439 - INFO - {"timestamp": "2025-12-28T03:10:18.439014", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-28 03:10:18,439 - INFO - {"timestamp": "2025-12-28T03:10:18.439244", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-28 03:10:18,439 - INFO - {"timestamp": "2025-12-28T03:10:18.439441", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-28 03:10:18,439 - INFO - {"timestamp": "2025-12-28T03:10:18.439632", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-28 03:10:18,440 - INFO - {"timestamp": "2025-12-28T03:10:18.440010", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-28 03:10:18,441 - INFO - {"timestamp": "2025-12-28T03:10:18.440961", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-28 03:12:17,079 - INFO - {"timestamp": "2025-12-28T03:12:17.079883", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-28 03:12:17,080 - INFO - {"timestamp": "2025-12-28T03:12:17.080224", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-28 03:12:17,080 - INFO - {"timestamp": "2025-12-28T03:12:17.080439", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-28 03:12:17,080 - INFO - {"timestamp": "2025-12-28T03:12:17.080632", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-28 03:12:17,080 - INFO - {"timestamp": "2025-12-28T03:12:17.080825", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-28 03:12:17,081 - INFO - {"timestamp": "2025-12-28T03:12:17.081220", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-28 03:12:17,082 - INFO - {"timestamp": "2025-12-28T03:12:17.082082", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-28 11:18:01,012 - INFO - {"timestamp": "2025-12-28T11:18:01.012025", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-28 11:18:01,012 - INFO - {"timestamp": "2025-12-28T11:18:01.012491", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-28 11:18:01,012 - INFO - {"timestamp": "2025-12-28T11:18:01.012759", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-28 11:18:01,012 - INFO - {"timestamp": "2025-12-28T11:18:01.012955", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-28 11:18:01,013 - INFO - {"timestamp": "2025-12-28T11:18:01.013150", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-28 11:18:01,013 - INFO - {"timestamp": "2025-12-28T11:18:01.013550", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-28 11:18:01,014 - INFO - {"timestamp": "2025-12-28T11:18:01.014455", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-29 13:49:01,988 - INFO - {"timestamp": "2025-12-29T13:49:01.988161", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-29 13:49:01,991 - INFO - {"timestamp": "2025-12-29T13:49:01.991671", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-29 13:49:01,992 - INFO - {"timestamp": "2025-12-29T13:49:01.992062", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-29 13:49:01,992 - INFO - {"timestamp": "2025-12-29T13:49:01.992384", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-29 13:49:01,992 - INFO - {"timestamp": "2025-12-29T13:49:01.992704", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-29 13:49:01,993 - INFO - {"timestamp": "2025-12-29T13:49:01.993252", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-29 13:49:01,994 - INFO - {"timestamp": "2025-12-29T13:49:01.994752", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-29 14:35:27,262 - INFO - {"timestamp": "2025-12-29T14:35:27.262012", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-29 14:35:27,262 - INFO - {"timestamp": "2025-12-29T14:35:27.262499", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-29 14:35:27,262 - INFO - {"timestamp": "2025-12-29T14:35:27.262827", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-29 14:35:27,263 - INFO - {"timestamp": "2025-12-29T14:35:27.263171", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-29 14:35:27,263 - INFO - {"timestamp": "2025-12-29T14:35:27.263445", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-29 14:35:27,264 - INFO - {"timestamp": "2025-12-29T14:35:27.264019", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-29 14:35:27,265 - INFO - {"timestamp": "2025-12-29T14:35:27.265675", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-29 14:35:53,607 - INFO - {"timestamp": "2025-12-29T14:35:53.607709", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-29 14:35:54,784 - INFO - {"timestamp": "2025-12-29T14:35:54.784487", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2025-12-29 14:35:54,786 - INFO - {"timestamp": "2025-12-29T14:35:54.786484", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_error"}
+2025-12-30 03:03:14,182 - INFO - {"timestamp": "2025-12-30T03:03:14.182098", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-30 03:03:18,846 - INFO - {"timestamp": "2025-12-30T03:03:18.846478", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-30 03:03:18,846 - INFO - {"timestamp": "2025-12-30T03:03:18.846795", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-30 03:03:18,847 - INFO - {"timestamp": "2025-12-30T03:03:18.847022", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-30 03:03:18,847 - INFO - {"timestamp": "2025-12-30T03:03:18.847228", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-30 03:03:18,847 - INFO - {"timestamp": "2025-12-30T03:03:18.847441", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-30 03:03:18,847 - INFO - {"timestamp": "2025-12-30T03:03:18.847785", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-30 03:03:18,849 - INFO - {"timestamp": "2025-12-30T03:03:18.849177", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-31 12:28:10,975 - INFO - {"timestamp": "2025-12-31T12:28:10.975096", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-31 12:28:20,475 - INFO - {"timestamp": "2025-12-31T12:28:20.475792", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-31 12:28:20,476 - INFO - {"timestamp": "2025-12-31T12:28:20.476086", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-31 12:28:20,476 - INFO - {"timestamp": "2025-12-31T12:28:20.476278", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-31 12:28:20,476 - INFO - {"timestamp": "2025-12-31T12:28:20.476466", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-31 12:28:20,476 - INFO - {"timestamp": "2025-12-31T12:28:20.476638", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-31 12:28:20,476 - INFO - {"timestamp": "2025-12-31T12:28:20.476953", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-31 12:28:20,477 - INFO - {"timestamp": "2025-12-31T12:28:20.477723", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 04:04:23,655 - INFO - {"timestamp": "2026-01-01T04:04:23.655216", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 04:04:30,728 - INFO - {"timestamp": "2026-01-01T04:04:30.728607", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 04:04:30,730 - INFO - {"timestamp": "2026-01-01T04:04:30.730288", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 04:04:30,731 - INFO - {"timestamp": "2026-01-01T04:04:30.731259", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 04:04:30,732 - INFO - {"timestamp": "2026-01-01T04:04:30.732750", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 04:04:30,733 - INFO - {"timestamp": "2026-01-01T04:04:30.733482", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 04:04:30,734 - INFO - {"timestamp": "2026-01-01T04:04:30.734902", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 04:04:30,736 - INFO - {"timestamp": "2026-01-01T04:04:30.736491", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:07:44,142 - INFO - {"timestamp": "2026-01-01T07:07:44.142557", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:07:44,142 - INFO - {"timestamp": "2026-01-01T07:07:44.142883", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 07:07:44,143 - INFO - {"timestamp": "2026-01-01T07:07:44.143094", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 07:07:44,143 - INFO - {"timestamp": "2026-01-01T07:07:44.143330", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 07:07:44,143 - INFO - {"timestamp": "2026-01-01T07:07:44.143537", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 07:07:44,143 - INFO - {"timestamp": "2026-01-01T07:07:44.143900", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 07:07:44,144 - INFO - {"timestamp": "2026-01-01T07:07:44.144771", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:23:47,526 - INFO - {"timestamp": "2026-01-01T07:23:47.526649", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:23:57,206 - INFO - {"timestamp": "2026-01-01T07:23:57.206584", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:23:57,207 - INFO - {"timestamp": "2026-01-01T07:23:57.207601", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 07:23:57,208 - INFO - {"timestamp": "2026-01-01T07:23:57.208228", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 07:23:57,208 - INFO - {"timestamp": "2026-01-01T07:23:57.208604", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 07:23:57,209 - INFO - {"timestamp": "2026-01-01T07:23:57.208958", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 07:23:57,209 - INFO - {"timestamp": "2026-01-01T07:23:57.209475", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 07:23:57,210 - INFO - {"timestamp": "2026-01-01T07:23:57.210717", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:24:54,394 - INFO - {"timestamp": "2026-01-01T07:24:54.394116", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:25:04,491 - INFO - {"timestamp": "2026-01-01T07:25:04.491784", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:25:04,492 - INFO - {"timestamp": "2026-01-01T07:25:04.492150", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 07:25:04,492 - INFO - {"timestamp": "2026-01-01T07:25:04.492398", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 07:25:04,492 - INFO - {"timestamp": "2026-01-01T07:25:04.492628", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 07:25:04,492 - INFO - {"timestamp": "2026-01-01T07:25:04.492835", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 07:25:04,493 - INFO - {"timestamp": "2026-01-01T07:25:04.493196", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 07:25:04,494 - INFO - {"timestamp": "2026-01-01T07:25:04.493999", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:30:50,634 - INFO - {"timestamp": "2026-01-01T07:30:50.634008", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:30:50,634 - INFO - {"timestamp": "2026-01-01T07:30:50.634508", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 07:30:50,634 - INFO - {"timestamp": "2026-01-01T07:30:50.634817", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 07:30:50,635 - INFO - {"timestamp": "2026-01-01T07:30:50.635141", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 07:30:50,635 - INFO - {"timestamp": "2026-01-01T07:30:50.635520", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 07:30:50,636 - INFO - {"timestamp": "2026-01-01T07:30:50.636168", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 07:30:50,637 - INFO - {"timestamp": "2026-01-01T07:30:50.637653", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:35:19,933 - INFO - {"timestamp": "2026-01-01T07:35:19.932899", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:35:56,281 - INFO - {"timestamp": "2026-01-01T07:35:56.281256", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 07:35:56,282 - INFO - {"timestamp": "2026-01-01T07:35:56.282089", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 07:35:56,282 - INFO - {"timestamp": "2026-01-01T07:35:56.282609", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 07:35:56,283 - INFO - {"timestamp": "2026-01-01T07:35:56.283096", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 07:35:56,283 - INFO - {"timestamp": "2026-01-01T07:35:56.283624", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 07:35:56,284 - INFO - {"timestamp": "2026-01-01T07:35:56.284588", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 07:36:05,903 - INFO - {"timestamp": "2026-01-01T07:36:05.903880", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:36:05,904 - INFO - {"timestamp": "2026-01-01T07:36:05.904837", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:36:05,906 - INFO - {"timestamp": "2026-01-01T07:36:05.906057", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 07:36:05,906 - INFO - {"timestamp": "2026-01-01T07:36:05.906686", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_failed"}
+2026-01-01 08:16:25,635 - INFO - {"timestamp": "2026-01-01T08:16:25.635490", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 08:16:59,619 - INFO - {"timestamp": "2026-01-01T08:16:59.619068", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 08:16:59,619 - INFO - {"timestamp": "2026-01-01T08:16:59.619761", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 08:16:59,620 - INFO - {"timestamp": "2026-01-01T08:16:59.620211", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 08:16:59,620 - INFO - {"timestamp": "2026-01-01T08:16:59.620651", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 08:16:59,621 - INFO - {"timestamp": "2026-01-01T08:16:59.621054", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 08:16:59,621 - INFO - {"timestamp": "2026-01-01T08:16:59.621650", "component": "ultron", "level": "INFO", "message": "Emitted event: diagnostic_test_event"}
+2026-01-01 08:17:13,392 - INFO - {"timestamp": "2026-01-01T08:17:13.392104", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 08:17:17,749 - INFO - {"timestamp": "2026-01-01T08:17:17.749529", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 08:17:17,750 - INFO - {"timestamp": "2026-01-01T08:17:17.750559", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 08:17:17,751 - INFO - {"timestamp": "2026-01-01T08:17:17.751849", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-01 08:17:17,752 - INFO - {"timestamp": "2026-01-01T08:17:17.752187", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_failed"}
+2026-01-01 14:59:23,581 - INFO - {"timestamp": "2026-01-01T14:59:23.581290", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 14:59:28,947 - INFO - {"timestamp": "2026-01-01T14:59:28.947775", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-01 14:59:28,948 - INFO - {"timestamp": "2026-01-01T14:59:28.948440", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-01 14:59:28,948 - INFO - {"timestamp": "2026-01-01T14:59:28.948932", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-01 14:59:28,949 - INFO - {"timestamp": "2026-01-01T14:59:28.949313", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-01 14:59:28,949 - INFO - {"timestamp": "2026-01-01T14:59:28.949666", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-01 14:59:28,950 - INFO - {"timestamp": "2026-01-01T14:59:28.950178", "component": "ultron", "level": "INFO", "message": "Emitted event: diagnostic_test_event"}
+2026-01-01 14:59:38,033 - INFO - {"timestamp": "2026-01-01T14:59:38.033485", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-01 14:59:38,034 - INFO - {"timestamp": "2026-01-01T14:59:38.034749", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-02 00:03:10,917 - INFO - {"timestamp": "2026-01-02T00:03:10.917086", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-02 00:03:15,914 - INFO - {"timestamp": "2026-01-02T00:03:15.914622", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-02 00:03:15,915 - INFO - {"timestamp": "2026-01-02T00:03:15.915538", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-02 00:03:15,916 - INFO - {"timestamp": "2026-01-02T00:03:15.916156", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-02 00:03:15,916 - INFO - {"timestamp": "2026-01-02T00:03:15.916674", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-02 00:03:15,917 - INFO - {"timestamp": "2026-01-02T00:03:15.917118", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-02 00:03:15,917 - INFO - {"timestamp": "2026-01-02T00:03:15.917859", "component": "ultron", "level": "INFO", "message": "Emitted event: diagnostic_test_event"}
+2026-01-02 00:03:25,094 - INFO - {"timestamp": "2026-01-02T00:03:25.094599", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-02 00:03:25,098 - INFO - {"timestamp": "2026-01-02T00:03:25.098045", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-02 00:06:59,958 - INFO - {"timestamp": "2026-01-02T00:06:59.958151", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-02 00:07:10,821 - INFO - {"timestamp": "2026-01-02T00:07:10.820907", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 00:07:11,301 - INFO - {"timestamp": "2026-01-02T00:07:11.301530", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_error"}
+2026-01-02 00:07:11,628 - INFO - {"timestamp": "2026-01-02T00:07:11.628893", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 00:07:15,305 - INFO - {"timestamp": "2026-01-02T00:07:15.305931", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-02 00:07:15,306 - INFO - {"timestamp": "2026-01-02T00:07:15.306231", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-02 00:07:15,306 - INFO - {"timestamp": "2026-01-02T00:07:15.306522", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-02 00:07:15,306 - INFO - {"timestamp": "2026-01-02T00:07:15.306727", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-02 00:07:15,307 - INFO - {"timestamp": "2026-01-02T00:07:15.306981", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-02 00:07:15,307 - INFO - {"timestamp": "2026-01-02T00:07:15.307451", "component": "ultron", "level": "INFO", "message": "Emitted event: diagnostic_test_event"}
+2026-01-02 00:07:23,368 - INFO - {"timestamp": "2026-01-02T00:07:23.368766", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-02 00:07:23,370 - INFO - {"timestamp": "2026-01-02T00:07:23.370870", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-02 00:08:36,811 - INFO - {"timestamp": "2026-01-02T00:08:36.811205", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 00:08:37,112 - INFO - {"timestamp": "2026-01-02T00:08:37.112244", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_error"}
+2026-01-02 00:12:31,081 - INFO - {"timestamp": "2026-01-02T00:12:31.080922", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 00:22:11,982 - INFO - {"timestamp": "2026-01-02T00:22:11.981925", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 00:22:12,227 - INFO - {"timestamp": "2026-01-02T00:22:12.227552", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_error"}
+2026-01-02 00:24:08,639 - INFO - {"timestamp": "2026-01-02T00:24:08.639840", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 17:07:10,926 - INFO - {"timestamp": "2026-01-02T17:07:10.926480", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-02 17:07:34,787 - INFO - {"timestamp": "2026-01-02T17:07:34.787645", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2026-01-02 17:07:34,788 - INFO - {"timestamp": "2026-01-02T17:07:34.787990", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2026-01-02 17:07:34,788 - INFO - {"timestamp": "2026-01-02T17:07:34.788191", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2026-01-02 17:07:34,788 - INFO - {"timestamp": "2026-01-02T17:07:34.788372", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2026-01-02 17:07:34,788 - INFO - {"timestamp": "2026-01-02T17:07:34.788565", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2026-01-02 17:07:34,788 - INFO - {"timestamp": "2026-01-02T17:07:34.788876", "component": "ultron", "level": "INFO", "message": "Emitted event: diagnostic_test_event"}
+2026-01-02 17:07:47,172 - INFO - {"timestamp": "2026-01-02T17:07:47.172550", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2026-01-02 17:07:51,004 - INFO - {"timestamp": "2026-01-02T17:07:51.004192", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-02 17:07:51,005 - INFO - {"timestamp": "2026-01-02T17:07:51.005113", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-02 17:07:51,006 - INFO - {"timestamp": "2026-01-02T17:07:51.006034", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2026-01-02 17:07:51,006 - INFO - {"timestamp": "2026-01-02T17:07:51.006354", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_failed"}
+2026-01-02 17:26:18,144 - INFO - {"timestamp": "2026-01-02T17:26:18.144746", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 17:26:18,475 - INFO - {"timestamp": "2026-01-02T17:26:18.475566", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 17:30:20,183 - INFO - {"timestamp": "2026-01-02T17:30:20.183073", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 17:33:33,912 - INFO - {"timestamp": "2026-01-02T17:33:33.912236", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 17:34:11,505 - INFO - {"timestamp": "2026-01-02T17:34:11.505775", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 17:34:20,835 - INFO - {"timestamp": "2026-01-02T17:34:20.835021", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:02:51,980 - INFO - {"timestamp": "2026-01-02T18:02:51.980298", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:04:50,189 - INFO - {"timestamp": "2026-01-02T18:04:50.189744", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:09:26,198 - INFO - {"timestamp": "2026-01-02T18:09:26.198434", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:09:26,844 - INFO - {"timestamp": "2026-01-02T18:09:26.844022", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:10:12,043 - INFO - {"timestamp": "2026-01-02T18:10:12.043433", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:10:12,431 - INFO - {"timestamp": "2026-01-02T18:10:12.431303", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:11:56,951 - INFO - {"timestamp": "2026-01-02T18:11:56.951262", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:11:57,508 - INFO - {"timestamp": "2026-01-02T18:11:57.508246", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:12:15,452 - INFO - {"timestamp": "2026-01-02T18:12:15.452456", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:12:15,964 - INFO - {"timestamp": "2026-01-02T18:12:15.964136", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:12:28,343 - INFO - {"timestamp": "2026-01-02T18:12:28.343041", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:12:28,877 - INFO - {"timestamp": "2026-01-02T18:12:28.877418", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:14:46,322 - INFO - {"timestamp": "2026-01-02T18:14:46.322225", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:14:46,984 - INFO - {"timestamp": "2026-01-02T18:14:46.984261", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}
+2026-01-02 18:29:16,879 - INFO - {"timestamp": "2026-01-02T18:29:16.878976", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_start"}
+2026-01-02 18:29:17,252 - INFO - {"timestamp": "2026-01-02T18:29:17.252278", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_speak_success"}

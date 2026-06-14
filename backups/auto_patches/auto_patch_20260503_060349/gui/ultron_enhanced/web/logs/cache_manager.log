@@ -1,0 +1,138 @@
+2025-12-18 10:23:12,114 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-18 10:23:12,127 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-18 10:23:12,127 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-18 17:38:16,460 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-18 17:38:16,462 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-18 17:38:16,462 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-19 23:45:09,905 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-19 23:45:09,906 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-19 23:45:09,906 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-20 05:13:14,220 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-20 05:13:14,222 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-20 05:13:14,222 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-20 05:23:20,689 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-20 05:23:20,690 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-20 05:23:20,690 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-20 05:23:52,684 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-20 05:23:52,685 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-20 05:23:52,685 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-20 05:26:28,071 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-20 05:26:28,071 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-20 05:26:28,072 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-20 05:45:04,886 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-20 05:45:04,888 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-20 05:45:04,888 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-22 10:19:00,813 - INFO - Redis not available, using SQLite cache only
+2025-12-22 10:19:00,814 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-22 10:19:00,814 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-22 13:23:58,426 - INFO - Redis not available, using SQLite cache only
+2025-12-22 13:23:58,427 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-22 13:23:58,427 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-22 17:29:23,684 - INFO - Redis not available, using SQLite cache only
+2025-12-22 17:29:23,685 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-22 17:29:23,685 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-22 18:16:35,460 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-22 18:16:35,460 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-22 18:16:35,460 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-22 18:24:07,739 - INFO - Redis not available, using SQLite cache only
+2025-12-22 18:24:07,740 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-22 18:24:07,740 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-22 18:33:05,540 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-22 18:33:05,541 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-22 18:33:05,541 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-25 06:53:25,009 - INFO - Redis not available, using SQLite cache only
+2025-12-25 06:53:25,010 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-25 06:53:25,011 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-25 06:55:35,621 - INFO - Redis not available, using SQLite cache only
+2025-12-25 06:55:35,621 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-25 06:55:35,622 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-25 07:01:50,514 - INFO - Redis not available, using SQLite cache only
+2025-12-25 07:01:50,514 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-25 07:01:50,514 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-25 07:05:28,192 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-25 07:05:28,192 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-25 07:05:28,192 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-26 02:06:39,465 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-26 02:06:39,465 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-26 02:06:39,466 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-26 23:18:56,477 - INFO - Redis not available, using SQLite cache only
+2025-12-26 23:18:56,478 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-26 23:18:56,478 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-27 03:00:37,290 - INFO - Redis not available, using SQLite cache only
+2025-12-27 03:00:37,290 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-27 03:00:37,290 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-27 03:46:20,287 - INFO - Redis not available, using SQLite cache only
+2025-12-27 03:46:20,287 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-27 03:46:20,288 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-27 04:28:35,022 - INFO - Redis not available, using SQLite cache only
+2025-12-27 04:28:35,023 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-27 04:28:35,023 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-28 03:05:10,266 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-28 03:05:10,267 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-28 03:05:10,267 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-28 03:05:33,737 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-28 03:05:33,738 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-28 03:05:33,738 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-28 03:10:14,821 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-28 03:10:14,822 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-28 03:10:14,822 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-28 03:12:13,369 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-28 03:12:13,369 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-28 03:12:13,370 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-28 11:17:57,666 - INFO - Redis not available, using SQLite cache only
+2025-12-28 11:17:57,667 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-28 11:17:57,667 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-29 13:24:46,327 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-29 13:24:46,330 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-29 13:24:46,330 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-29 13:48:56,037 - INFO - Redis not available, using SQLite cache only
+2025-12-29 13:48:56,038 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-29 13:48:56,038 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-29 14:35:13,062 - INFO - Redis not available, using SQLite cache only
+2025-12-29 14:35:13,063 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-29 14:35:13,063 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-30 03:03:14,874 - INFO - Redis not available, using SQLite cache only
+2025-12-30 03:03:14,875 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-30 03:03:14,875 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-31 12:28:16,539 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2025-12-31 12:28:16,540 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-31 12:28:16,540 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 04:04:26,130 - INFO - Redis not available, using SQLite cache only
+2026-01-01 04:04:26,131 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 04:04:26,131 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 07:07:39,913 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-01 07:07:39,914 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 07:07:39,914 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 07:23:53,011 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-01 07:23:53,011 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 07:23:53,012 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 07:25:00,187 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-01 07:25:00,188 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 07:25:00,189 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 07:30:36,823 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-01 07:30:36,824 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 07:30:36,824 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 07:35:28,751 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-01 07:35:28,751 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 07:35:28,751 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 08:16:25,125 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-01 08:16:25,126 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 08:16:25,126 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-01 14:59:21,456 - INFO - Redis not available, using SQLite cache only
+2026-01-01 14:59:21,457 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-01 14:59:21,457 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-02 00:03:09,121 - INFO - Redis not available, using SQLite cache only
+2026-01-02 00:03:09,123 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-02 00:03:09,123 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-02 00:06:58,172 - INFO - Redis not available, using SQLite cache only
+2026-01-02 00:06:58,174 - INFO - Redis not available, using SQLite cache only
+2026-01-02 00:06:58,174 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-02 00:06:58,174 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-02 00:06:58,174 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-02 00:06:58,175 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-02 17:07:10,288 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-02 17:07:10,290 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-02 17:07:10,290 - WARNING - Redis connection failed: Error 111 connecting to localhost:6379. Connection refused., using SQLite only
+2026-01-02 17:07:10,291 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-01-02 17:07:10,291 - INFO - SQLite cache initialized at cache/ultron_cache.db
+2026-01-02 17:07:10,292 - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)

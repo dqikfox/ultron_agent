@@ -1,0 +1,88 @@
+2025-12-18 10:23:13,685 - INFO - {"timestamp": "2025-12-18T10:23:13.685016", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-18 10:23:13,685 - INFO - {"timestamp": "2025-12-18T10:23:13.685779", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-18 17:38:16,612 - INFO - {"timestamp": "2025-12-18T17:38:16.612817", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-18 17:38:16,613 - INFO - {"timestamp": "2025-12-18T17:38:16.613596", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-19 23:45:09,969 - INFO - {"timestamp": "2025-12-19T23:45:09.969635", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-19 23:45:09,970 - INFO - {"timestamp": "2025-12-19T23:45:09.970175", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-20 05:13:14,312 - INFO - {"timestamp": "2025-12-20T05:13:14.312570", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-20 05:13:14,313 - INFO - {"timestamp": "2025-12-20T05:13:14.313318", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-20 05:23:20,773 - INFO - {"timestamp": "2025-12-20T05:23:20.773923", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-20 05:23:20,774 - INFO - {"timestamp": "2025-12-20T05:23:20.774289", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-20 05:23:52,763 - INFO - {"timestamp": "2025-12-20T05:23:52.763428", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-20 05:23:52,764 - INFO - {"timestamp": "2025-12-20T05:23:52.764135", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-20 05:26:28,147 - INFO - {"timestamp": "2025-12-20T05:26:28.147671", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-20 05:26:28,149 - INFO - {"timestamp": "2025-12-20T05:26:28.149298", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-20 05:45:05,032 - INFO - {"timestamp": "2025-12-20T05:45:05.032366", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-20 05:45:05,033 - INFO - {"timestamp": "2025-12-20T05:45:05.033034", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-22 10:19:01,047 - INFO - {"timestamp": "2025-12-22T10:19:01.047752", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-22 10:19:01,048 - INFO - {"timestamp": "2025-12-22T10:19:01.048565", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-22 13:23:58,644 - INFO - {"timestamp": "2025-12-22T13:23:58.644121", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-22 13:23:58,644 - INFO - {"timestamp": "2025-12-22T13:23:58.644647", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-22 17:29:23,855 - INFO - {"timestamp": "2025-12-22T17:29:23.855044", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-22 17:29:23,855 - INFO - {"timestamp": "2025-12-22T17:29:23.855587", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-22 18:16:35,516 - INFO - {"timestamp": "2025-12-22T18:16:35.516279", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-22 18:16:35,516 - INFO - {"timestamp": "2025-12-22T18:16:35.516546", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-22 18:24:07,902 - INFO - {"timestamp": "2025-12-22T18:24:07.902433", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-22 18:24:07,903 - INFO - {"timestamp": "2025-12-22T18:24:07.902969", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-22 18:33:05,608 - INFO - {"timestamp": "2025-12-22T18:33:05.608091", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-22 18:33:05,608 - INFO - {"timestamp": "2025-12-22T18:33:05.608664", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-25 06:53:22,395 - INFO - {"timestamp": "2025-12-25T06:53:22.395853", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-25 06:53:22,396 - INFO - {"timestamp": "2025-12-25T06:53:22.396543", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-25 06:55:33,077 - INFO - {"timestamp": "2025-12-25T06:55:33.076964", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-25 06:55:33,077 - INFO - {"timestamp": "2025-12-25T06:55:33.077539", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-25 07:01:47,932 - INFO - {"timestamp": "2025-12-25T07:01:47.932408", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-25 07:01:47,933 - INFO - {"timestamp": "2025-12-25T07:01:47.933101", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-25 07:05:24,831 - INFO - {"timestamp": "2025-12-25T07:05:24.830979", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-25 07:05:24,831 - INFO - {"timestamp": "2025-12-25T07:05:24.831576", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-26 02:06:36,053 - INFO - {"timestamp": "2025-12-26T02:06:36.053899", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-26 02:06:36,055 - INFO - {"timestamp": "2025-12-26T02:06:36.055027", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-26 23:18:53,700 - INFO - {"timestamp": "2025-12-26T23:18:53.700400", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-26 23:18:53,701 - INFO - {"timestamp": "2025-12-26T23:18:53.701249", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-27 03:00:34,635 - INFO - {"timestamp": "2025-12-27T03:00:34.635552", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-27 03:00:34,636 - INFO - {"timestamp": "2025-12-27T03:00:34.636126", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-27 03:46:17,602 - INFO - {"timestamp": "2025-12-27T03:46:17.602364", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-27 03:46:17,602 - INFO - {"timestamp": "2025-12-27T03:46:17.602654", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-27 04:28:32,441 - INFO - {"timestamp": "2025-12-27T04:28:32.441100", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-27 04:28:32,441 - INFO - {"timestamp": "2025-12-27T04:28:32.441359", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-28 03:05:06,918 - INFO - {"timestamp": "2025-12-28T03:05:06.918277", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-28 03:05:06,919 - INFO - {"timestamp": "2025-12-28T03:05:06.919412", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-28 03:05:30,122 - INFO - {"timestamp": "2025-12-28T03:05:30.122662", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-28 03:05:30,123 - INFO - {"timestamp": "2025-12-28T03:05:30.123370", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-28 03:10:11,603 - INFO - {"timestamp": "2025-12-28T03:10:11.603321", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-28 03:10:11,603 - INFO - {"timestamp": "2025-12-28T03:10:11.603884", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-28 03:12:10,197 - INFO - {"timestamp": "2025-12-28T03:12:10.197799", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-28 03:12:10,198 - INFO - {"timestamp": "2025-12-28T03:12:10.198282", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-28 11:17:55,137 - INFO - {"timestamp": "2025-12-28T11:17:55.137825", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-28 11:17:55,138 - INFO - {"timestamp": "2025-12-28T11:17:55.138364", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-29 13:24:41,571 - INFO - {"timestamp": "2025-12-29T13:24:41.571565", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-29 13:24:41,572 - INFO - {"timestamp": "2025-12-29T13:24:41.572399", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-29 13:48:52,833 - INFO - {"timestamp": "2025-12-29T13:48:52.833049", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-29 13:48:52,833 - INFO - {"timestamp": "2025-12-29T13:48:52.833849", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-29 14:35:10,264 - INFO - {"timestamp": "2025-12-29T14:35:10.264887", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-29 14:35:10,265 - INFO - {"timestamp": "2025-12-29T14:35:10.265297", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-30 03:03:12,109 - INFO - {"timestamp": "2025-12-30T03:03:12.109737", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-30 03:03:12,110 - INFO - {"timestamp": "2025-12-30T03:03:12.110207", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-31 12:28:12,819 - INFO - {"timestamp": "2025-12-31T12:28:12.819769", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-31 12:28:12,820 - INFO - {"timestamp": "2025-12-31T12:28:12.820436", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 04:04:22,762 - INFO - {"timestamp": "2026-01-01T04:04:22.762593", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 04:04:22,763 - INFO - {"timestamp": "2026-01-01T04:04:22.763172", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 07:07:36,013 - INFO - {"timestamp": "2026-01-01T07:07:36.013451", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 07:07:36,014 - INFO - {"timestamp": "2026-01-01T07:07:36.014273", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 07:23:49,303 - INFO - {"timestamp": "2026-01-01T07:23:49.303190", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 07:23:49,304 - INFO - {"timestamp": "2026-01-01T07:23:49.304024", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 07:24:56,127 - INFO - {"timestamp": "2026-01-01T07:24:56.127687", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 07:24:56,128 - INFO - {"timestamp": "2026-01-01T07:24:56.128194", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 07:30:32,954 - INFO - {"timestamp": "2026-01-01T07:30:32.954262", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 07:30:32,955 - INFO - {"timestamp": "2026-01-01T07:30:32.955171", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 07:35:21,347 - INFO - {"timestamp": "2026-01-01T07:35:21.347703", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 07:35:21,348 - INFO - {"timestamp": "2026-01-01T07:35:21.348415", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 08:16:25,207 - INFO - {"timestamp": "2026-01-01T08:16:25.207484", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 08:16:25,207 - INFO - {"timestamp": "2026-01-01T08:16:25.207864", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-01 14:59:21,694 - INFO - {"timestamp": "2026-01-01T14:59:21.694526", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-01 14:59:21,698 - INFO - {"timestamp": "2026-01-01T14:59:21.698160", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-02 00:03:09,376 - INFO - {"timestamp": "2026-01-02T00:03:09.376544", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-02 00:03:09,376 - INFO - {"timestamp": "2026-01-02T00:03:09.376853", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-02 00:06:58,433 - INFO - {"timestamp": "2026-01-02T00:06:58.433031", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-02 00:06:58,435 - INFO - {"timestamp": "2026-01-02T00:06:58.435069", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2026-01-02 17:07:10,425 - INFO - {"timestamp": "2026-01-02T17:07:10.425245", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2026-01-02 17:07:10,426 - INFO - {"timestamp": "2026-01-02T17:07:10.426049", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
