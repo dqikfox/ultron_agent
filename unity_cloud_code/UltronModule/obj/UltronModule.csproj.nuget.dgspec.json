@@ -1,31 +1,38 @@
 {
   "format": 1,
   "restore": {
-    "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj": {}
+    "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj": {}
   },
   "projects": {
-    "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj": {
+    "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
+        "projectUniqueName": "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
         "projectName": "UltronModule",
-        "projectPath": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
-        "packagesPath": "/home/ultro/.nuget/packages/",
-        "outputPath": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/",
+        "projectPath": "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
+        "packagesPath": "C:\\Users\\CHANN0$\\.nuget\\packages\\",
+        "outputPath": "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/nuget.config",
-          "/home/ultro/.nuget/NuGet/NuGet.Config"
+          "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\NuGet.Config",
+          "C:\\Users\\CHANN0$\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.1"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://packages.unity.com/nuget/registry": {}
         },
         "frameworks": {
           "netstandard2.1": {
+            "framework": "netstandard2.1",
             "targetAlias": "netstandard2.1",
             "projectReferences": {}
           }
@@ -40,10 +47,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "netstandard2.1": {
+          "framework": "netstandard2.1",
           "targetAlias": "netstandard2.1",
           "dependencies": {
             "Newtonsoft.Json": {
@@ -62,18 +70,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "NETStandard.Library.Ref",
-              "version": "[2.1.0, 2.1.0]"
-            }
-          ],
           "frameworkReferences": {
             "NETStandard.Library": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/ultro/.dotnet/sdk/10.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300-preview.0.26177.108\\RuntimeIdentifierGraph.json"
         }
       }
     }

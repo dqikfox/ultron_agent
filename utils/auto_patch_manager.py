@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from dataclasses import dataclass
 import git
-from utils.ultron_logger import ultron_logger
+from utils.ultron_logger import log_info, log_error, log_file_operation
 from utils.model_awareness import should_modify_file, check_file_context
 
 
@@ -53,9 +53,7 @@ class AutoPatchManager:
         self.allowed_modules = config.get('modules_allowed_for_auto_patch', ['tools', 'utils', 'docs'])
         self.rollback_enabled = config.get('rollback_enabled', True)
 
-        ultron_logger.log_info("auto_patch_manager", "AutoPatchManager initialized",
-                              auto_apply=self.auto_apply_enabled,
-                              max_patch_size=self.max_patch_size)
+        log_info("auto_patch_manager", "AutoPatchManager initialized")
 
     def parse_suggestions(self, suggestions_json: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         """Parse JSON suggestions and validate structure"""
@@ -77,13 +75,13 @@ class AutoPatchManager:
                 if self._validate_suggestion(suggestion):
                     validated_suggestions.append(suggestion)
                 else:
-                    ultron_logger.log_error("auto_patch_manager",
+                    log_error("auto_patch_manager",
                                            f"Invalid suggestion skipped: {suggestion.get('id', 'unknown')}")
 
             return validated_suggestions, metadata
 
         except json.JSONDecodeError as e:
-            ultron_logger.log_error("auto_patch_manager", f"Failed to parse suggestions JSON: {str(e)}")
+            log_error("auto_patch_manager", f"Failed to parse suggestions JSON: {str(e)}")
             raise ValueError(f"Invalid JSON format: {str(e)}")
 
     def _validate_suggestion(self, suggestion: Dict[str, Any]) -> bool:
@@ -94,7 +92,7 @@ class AutoPatchManager:
         # Check required fields
         for field in required_fields:
             if field not in suggestion:
-                ultron_logger.log_error("auto_patch_manager", f"Missing required field: {field}")
+                log_error("auto_patch_manager", f"Missing required field: {field}")
                 return False
 
         # Validate confidence score
@@ -110,13 +108,13 @@ class AutoPatchManager:
         # Check if module is allowed
         module = suggestion.get('module', '')
         if not any(allowed in module for allowed in self.allowed_modules):
-            ultron_logger.log_info("auto_patch_manager", f"Module not allowed for auto-patch: {module}")
+            log_info("auto_patch_manager", f"Module not allowed for auto-patch: {module}")
             return False
 
         # Check patch size
         code_snippet = suggestion.get('code_snippet', '')
         if len(code_snippet) > self.max_patch_size:
-            ultron_logger.log_error("auto_patch_manager",
+            log_error("auto_patch_manager",
                                    f"Code snippet too large: {len(code_snippet)} > {self.max_patch_size}")
             return False
 
@@ -141,13 +139,13 @@ class AutoPatchManager:
                 success, message = self._apply_single_suggestion(suggestion)
                 if success:
                     results['applied'] += 1
-                    ultron_logger.log_ai_decision("auto_patch_manager",
-                                                 f"Successfully applied suggestion: {suggestion['id']}",
-                                                 ai_model=metadata.get('model_used', 'unknown'),
-                                                 confidence_score=suggestion['confidence_score'])
+                    log_ai_decision("auto_patch_manager",
+                                   f"Successfully applied suggestion: {suggestion['id']}",
+                                   ai_model=metadata.get('model_used', 'unknown'),
+                                   confidence_score=suggestion['confidence_score'])
                 else:
                     results['failed'] += 1
-                    ultron_logger.log_error("auto_patch_manager",
+                    log_error("auto_patch_manager",
                                            f"Failed to apply suggestion {suggestion['id']}: {message}")
 
                 results['details'].append({
@@ -158,7 +156,7 @@ class AutoPatchManager:
 
             except Exception as e:
                 results['failed'] += 1
-                ultron_logger.log_error("auto_patch_manager",
+                log_error("auto_patch_manager",
                                        f"Exception applying suggestion {suggestion['id']}: {str(e)}")
                 results['details'].append({
                     'id': suggestion['id'],
@@ -175,10 +173,6 @@ class AutoPatchManager:
     def _apply_single_suggestion(self, suggestion: Dict[str, Any]) -> Tuple[bool, str]:
         """Apply a single suggestion with validation"""
         file_path = self.project_root / suggestion['file_path']
-
-        # Check if file exists
-        if not file_path.exists():
-            return False, f"File does not exist: {file_path}"
 
         # Use model awareness to check if modification should proceed
         should_proceed, reason, context = should_modify_file(str(file_path), "auto_patch", "auto_patch_manager")
@@ -207,10 +201,10 @@ class AutoPatchManager:
             return False, f"Failed to write file: {str(e)}"
 
         # Log the file operation
-        ultron_logger.log_file_operation("auto_patch_manager",
-                                        f"Applied auto-patch: {suggestion['id']}",
-                                        str(file_path),
-                                        "auto_patch")
+        log_file_operation("auto_patch_manager",
+                          f"Applied auto-patch: {suggestion['id']}",
+                          str(file_path),
+                          "auto_patch")
 
         return True, "Successfully applied"
 
@@ -256,9 +250,9 @@ class AutoPatchManager:
             repo.git.add('.')
             commit_msg = f"Auto-patch backup: {backup_id}"
             repo.index.commit(commit_msg)
-            ultron_logger.log_info("auto_patch_manager", f"Git backup created: {backup_id}")
+            log_info("auto_patch_manager", f"Git backup created: {backup_id}")
         except Exception as e:
-            ultron_logger.log_error("auto_patch_manager", f"Git backup failed: {str(e)}")
+            log_error("auto_patch_manager", f"Git backup failed: {str(e)}")
             # Fallback: manual copy of key files
             self._manual_backup(backup_path)
 
@@ -294,7 +288,7 @@ class AutoPatchManager:
 
         metadata_file = self.backup_dir / f"{backup_id}_metadata.json"
         if not metadata_file.exists():
-            ultron_logger.log_error("auto_patch_manager", f"Backup metadata not found: {backup_id}")
+            log_error("auto_patch_manager", f"Backup metadata not found: {backup_id}")
             return False
 
         try:
@@ -304,11 +298,11 @@ class AutoPatchManager:
             # Use git to rollback if available
             repo = git.Repo(self.project_root)
             repo.git.reset('--hard', f"HEAD~1")
-            ultron_logger.log_info("auto_patch_manager", f"Rolled back to backup: {backup_id}")
+            log_info("auto_patch_manager", f"Rolled back to backup: {backup_id}")
             return True
 
         except Exception as e:
-            ultron_logger.log_error("auto_patch_manager", f"Rollback failed: {str(e)}")
+            log_error("auto_patch_manager", f"Rollback failed: {str(e)}")
             return False
 
     def get_backup_history(self) -> List[Dict[str, Any]]:
@@ -320,7 +314,7 @@ class AutoPatchManager:
                     metadata = json.load(f)
                 backups.append(metadata)
             except Exception as e:
-                ultron_logger.log_error("auto_patch_manager", f"Failed to read backup metadata: {str(e)}")
+                log_error("auto_patch_manager", f"Failed to read backup metadata: {str(e)}")
 
         return sorted(backups, key=lambda x: x['timestamp'], reverse=True)
 
@@ -403,7 +397,7 @@ class AutoPatchManager:
                     # Extract line number from diff header
                     pass
         except Exception as e:
-            ultron_logger.log_error("auto_patch_manager", f"Error detecting conflicts: {str(e)}")
+            log_error("auto_patch_manager", f"Error detecting conflicts: {str(e)}")
 
         return conflicts
 
