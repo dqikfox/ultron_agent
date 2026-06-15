@@ -511,6 +511,18 @@ Before asking for help, verify:
 
 ---
 
+## 🔄 PORT CHANGE LOG
+
+### 2026-05-03
+- Changed WEB_GUI_PORT from 8080 to 8888 to avoid conflict with OpenWeb UI
+- Updated web_gui_server.py to use port 8888
+- Updated run.bat to use port 8888
+
+### 2026-05-03
+- Changed API_SERVER_PORT from 5001 to 8889 to avoid conflicts
+- Updated api_server.py to use port 8889
+- Updated run.bat to use port 8889
+
 **Last Updated**: October 29, 2025
 **Criticality**: 🔴 CRITICAL - Core system operation
 **Modification**: ⚠️ EXTREMELY DANGEROUS - High risk of complete failure

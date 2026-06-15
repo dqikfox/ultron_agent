@@ -190,3 +190,299 @@ TypeError: <lambda>() takes 1 positional argument but 2 were given
 2026-05-02 10:05:15,634 - agent_core - WARNING - Brain not available for identity maintenance
 2026-05-02 10:05:24,681 - agent_core - INFO - Starting voice listening...
 2026-05-02 10:05:24,682 - voice_manager - ERROR - All TTS engines failed
+2026-05-03 07:28:51,341 - performance_analytics - INFO - Performance Analytics initialized
+2026-05-03 07:28:51,342 - agent_core - INFO - Performance analytics initialized
+2026-05-03 07:28:51,342 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-03 07:28:51,344 - agent_core - INFO - Performance analytics initialized
+2026-05-03 07:28:51,346 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-03 07:36:04,249 - performance_analytics - INFO - Performance Analytics initialized
+2026-05-03 07:36:04,250 - agent_core - INFO - Performance analytics initialized
+2026-05-03 07:36:04,250 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-03 07:36:04,252 - ultron_agent.config - INFO - Loaded configuration from ultron_config.json
+2026-05-03 07:36:04,253 - ultron_agent.config - INFO - Configuration validated successfully
+2026-05-03 07:36:04,254 - agent_core - INFO - Performance analytics initialized
+2026-05-03 07:36:04,254 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-03 07:37:19,401 - performance_analytics - INFO - Performance Analytics initialized
+2026-05-03 07:37:19,402 - agent_core - INFO - Performance analytics initialized
+2026-05-03 07:37:19,402 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-03 07:37:19,405 - ultron_agent.config - INFO - Loaded configuration from ultron_config.json
+2026-05-03 07:37:19,407 - ultron_agent.config - INFO - Configuration validated successfully
+2026-05-03 07:37:19,409 - agent_core - INFO - Performance analytics initialized
+2026-05-03 07:37:19,410 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-03 18:22:30,756 - performance_analytics - INFO - Performance Analytics initialized
+2026-05-03 18:22:30,758 - agent_core - INFO - Performance analytics initialized
+2026-05-03 18:22:30,759 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-03 18:22:30,873 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.159:5001
+2026-05-03 18:22:30,906 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-04 08:53:12,081 - performance_analytics - INFO - Performance Analytics initialized
+2026-05-04 08:53:12,082 - agent_core - INFO - Performance analytics initialized
+2026-05-04 08:53:12,082 - agent_core - INFO - ULTRON Agent core initialized
+2026-05-04 08:53:12,086 - agent_core - INFO - Periodic self-diagnosis loop started.
+2026-05-04 08:53:12,114 - agent_core - INFO - Initializing ULTRON memory system...
+2026-05-04 08:53:12,150 - root - INFO - Memory initialized with shortterm and longterm storage. - memory.py:34
+2026-05-04 08:53:12,200 - ultron.supabase_client - WARNING - SupabaseClient: supabase_url/key missing in config
+2026-05-04 08:53:12,201 - agent_core - INFO - Initializing voice system (Enhanced -> pyttsx3 -> OpenAI -> Console)...
+2026-05-04 08:53:12,211 - agent_core - WARNING - Full voice system not available: No module named 'speech_recognition'
+2026-05-04 08:53:12,481 - comtypes.client._code_cache - INFO - Imported existing <module 'comtypes.gen' from 'C:\\Users\\CHANN0$\\.openharness-venv\\Lib\\site-packages\\comtypes\\gen\\__init__.py'>
+2026-05-04 08:53:12,485 - comtypes.client._code_cache - INFO - Using writeable comtypes cache directory: 'C:\Users\CHANN0$\.openharness-venv\Lib\site-packages\comtypes\gen'
+2026-05-04 08:53:13,763 - voice_manager - INFO - pyttsx3 engine initialized
+2026-05-04 08:53:15,778 - voice_manager - INFO - ElevenLabs engine initialized
+2026-05-04 08:53:15,779 - agent_core - INFO - Fallback voice system initialized
+2026-05-04 08:53:15,780 - agent_core - INFO - Initializing vision system...
+2026-05-04 08:53:22,442 - agent_core - INFO - Vision system initialized successfully
+2026-05-04 08:53:22,442 - agent_core - INFO - Initializing brain system...
+2026-05-04 08:55:34,950 - cache_manager - INFO - Redis not available, using SQLite cache only
+2026-05-04 08:55:34,952 - cache_manager - INFO - SQLite cache initialized at cache\ultron_cache.db
+2026-05-04 08:55:34,953 - cache_manager - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-05-04 08:55:34,959 - nvidia_nim_router - INFO - NVIDIA NIM Router initialized with 3 models and caching enabled
+2026-05-04 08:55:36,498 - azure_cognitive_integration - WARNING - Azure SDK not available. Install azure-cognitiveservices-* packages
+2026-05-04 08:55:36,499 - azure_cognitive_integration - INFO - Azure Cognitive Services integration initialized
+2026-05-04 08:55:36,500 - agent_core - INFO - Brain system initialized successfully (tools will be updated after loading)
+2026-05-04 08:55:36,501 - agent_core - INFO - Initializing OpenAI Computer Use...
+2026-05-04 08:55:37,179 - agent_core - INFO - OpenAI Computer Use initialized successfully
+2026-05-04 08:55:37,180 - agent_core - INFO - Initializing event system...
+2026-05-04 08:55:37,180 - agent_core - INFO - Event system initialized successfully
+2026-05-04 08:55:37,181 - agent_core - INFO - Initializing platform manager...
+2026-05-04 08:55:37,615 - agent_core - INFO - Platform manager initialized successfully
+2026-05-04 08:55:37,616 - agent_core - INFO - Initializing idle monitor...
+2026-05-04 08:55:37,619 - agent_core - INFO - Idle monitor initialized and started
+2026-05-04 08:55:37,619 - agent_core - INFO - Initializing Print Screen key listener...
+2026-05-04 08:55:38,292 - agent_core - ERROR - Failed to register Print Screen hotkey: ("Key 'printscreen' is not mapped to any known key.", ValueError("Key name 'printscreen' is not mapped to any known key."))
+2026-05-04 08:55:40,214 - dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2026-05-04 08:55:41,524 - evolution_engine - INFO - Evolution engine initialized (Cycle #0)
+2026-05-04 08:55:41,525 - evolution_tool - INFO - Evolution Monitor Tool initialized
+2026-05-04 08:55:47,029 - performance_dashboard - INFO - Performance Dashboard Tool initialized
+2026-05-04 08:58:13,844 - agent_core - INFO - Brain context provider updated with current agent state
+2026-05-04 08:58:13,844 - agent_core - INFO - Starting web interface...
+2026-05-04 08:58:13,845 - agent_core - INFO - Brain context provider updated with current agent state
+2026-05-04 08:58:13,852 - agent_core - INFO - Starting periodic self-diagnosis and auto-repair loop...
+2026-05-04 08:58:13,860 - ultron.llamaindex_integration - WARNING - LlamaIndex: initialisation failed — No module named 'llama_index'
+2026-05-04 08:58:13,866 - agent_core - INFO - Self-diagnosis results: {'memory': {'success': True, 'errors': [], 'details': {'recent_context': [{'timestamp': 'fbfd6919-aa75-41ee-8594-7cca31179a13', 'message': 'test_message', 'response': 'test_response', 'context_type': 'test', 'time': '{"timestamp": "2026-05-04 08:58:13.853186"}'}], 'memory_stats': {'short_term_memory': 0, 'long_term_memory_entries': 1, 'conversation_context': 6, 'task_history': 0, 'learning_insights': 0, 'self_reflections': 20, 'drive_enabled': False}}}, 'brain': {'success': True, 'errors': [], 'details': {'memory_self_test': {'success': True, 'errors': [], 'details': {'recent_context': [{'timestamp': 'dafba87b-e31a-4e90-801a-c0f0d4ec9d27', 'message': 'test_message', 'response': 'test_response', 'context_type': 'test', 'time': '{"timestamp": "2026-05-04 08:58:13.859724"}'}], 'memory_stats': {'short_term_memory': 0, 'long_term_memory_entries': 1, 'conversation_context': 7, 'task_history': 0, 'learning_insights': 0, 'self_reflections': 20, 'drive_enabled': False}}}, 'tool_count': 88, 'prompt_sample': 'You are ULTRON, an advanced AI assistant with the following capabilities:\n- Advanced reasoning and problem-solving\n- File and system operations\n- Voice and vision processing\n- Web research and automat'}}, 'tools': {'success': False}, 'event_system': {'status': 'ok', 'errors': [], 'details': {'stats': {'total_events': 0, 'events_by_type': {}, 'active_subscriptions': 0, 'subscribed_events': [], 'max_history': 1000, 'shutdown': False, 'failed_handlers': 0, 'subscriber_count': 0}, 'emit_test': 'ok'}}}
+2026-05-04 08:58:13,866 - agent_core - WARNING - Component 'tools' failed self-test. Attempting auto-repair...
+2026-05-04 08:58:14,306 - dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2026-05-04 08:58:15,349 - evolution_tool - INFO - Evolution Monitor Tool initialized
+2026-05-04 08:58:15,731 - performance_dashboard - INFO - Performance Dashboard Tool initialized
+2026-05-04 08:58:49,442 - agent_core - INFO - Brain context provider updated with current agent state
+2026-05-04 08:58:49,443 - agent_core - INFO - Tools reloaded.
+2026-05-04 08:58:49,443 - agent_core - WARNING - Component 'event_system' failed self-test. Attempting auto-repair...
+2026-05-04 08:58:49,443 - agent_core - INFO - Initializing event system...
+2026-05-04 08:58:49,444 - agent_core - INFO - Event system initialized successfully
+2026-05-04 08:58:49,444 - agent_core - INFO - Event system reinitialized.
+2026-05-04 08:58:49,444 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-3' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-05-04 08:58:49,447 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-4' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-05-04 08:58:49,449 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-5' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-05-04 08:58:49,451 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-6' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-05-04 08:58:49,454 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-8' coro=<EventSystem.emit() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:150> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 188, in emit
+    self.logger.info(f"Emitted event: {event_name}")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-05-04 08:58:49,459 - agent_core - INFO - Performing ULTRON identity maintenance...
+2026-05-04 08:58:59,425 - opentelemetry.exporter.otlp.proto.http.trace_exporter - WARNING - Transient error HTTPConnectionPool(host='localhost', port=4319): Max retries exceeded with url: /v1/traces (Caused by NewConnectionError("HTTPConnection(host='localhost', port=4319): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it")) encountered while exporting span batch, retrying in 1.06s.
+2026-05-04 08:59:03,301 - opentelemetry.exporter.otlp.proto.http.trace_exporter - ERROR - Failed to export span batch due to timeout, max retries or shutdown.
+2026-05-04 08:59:37,823 - agent_core - INFO - ULTRON identity maintenance successful
+2026-05-04 08:59:37,939 - agent_core - INFO - Starting voice listening...
+2026-05-04 08:59:37,943 - voice_manager - ERROR - ElevenLabs TTS failed: 'module' object is not callable
+2026-06-13 07:42:46,526 - performance_analytics - INFO - Performance Analytics initialized
+2026-06-13 07:42:46,527 - agent_core - INFO - Performance analytics initialized
+2026-06-13 07:42:46,528 - agent_core - INFO - ULTRON Agent core initialized
+2026-06-13 07:42:46,531 - agent_core - INFO - Periodic self-diagnosis loop started.
+2026-06-13 07:42:46,558 - agent_core - INFO - Initializing ULTRON memory system...
+2026-06-13 07:42:46,597 - root - INFO - Memory initialized with shortterm and longterm storage. - memory.py:34
+2026-06-13 07:42:46,727 - ultron.supabase_client - WARNING - SupabaseClient: supabase_url/key missing in config
+2026-06-13 07:42:46,728 - agent_core - INFO - Initializing voice system (Enhanced -> pyttsx3 -> OpenAI -> Console)...
+2026-06-13 07:42:46,735 - agent_core - WARNING - Full voice system not available: No module named 'speech_recognition'
+2026-06-13 07:42:46,743 - voice_manager - ERROR - Failed to initialize pyttsx3: No module named 'pyttsx3'
+2026-06-13 07:42:50,555 - voice_manager - INFO - ElevenLabs engine initialized
+2026-06-13 07:42:50,555 - agent_core - INFO - Fallback voice system initialized
+2026-06-13 07:42:50,558 - agent_core - INFO - Initializing vision system...
+2026-06-13 07:42:50,566 - agent_core - ERROR - Vision system initialization failed: No module named 'pytesseract'
+2026-06-13 07:42:50,567 - agent_core - INFO - Initializing brain system...
+2026-06-13 07:42:50,588 - agent_core - ERROR - Brain system initialization failed: No module named 'opentelemetry'
+2026-06-13 07:42:50,604 - agent_core - INFO - Initializing OpenAI Computer Use...
+2026-06-13 07:42:51,174 - agent_core - INFO - OpenAI Computer Use initialized successfully
+2026-06-13 07:42:51,193 - agent_core - INFO - Initializing event system...
+2026-06-13 07:42:51,267 - agent_core - INFO - Event system initialized successfully
+2026-06-13 07:42:51,277 - agent_core - INFO - Initializing platform manager...
+2026-06-13 07:42:53,186 - agent_core - INFO - Platform manager initialized successfully
+2026-06-13 07:42:53,194 - agent_core - INFO - Initializing idle monitor...
+2026-06-13 07:42:53,203 - agent_core - INFO - Idle monitor initialized and started
+2026-06-13 07:42:53,214 - agent_core - WARNING - Keyboard library not available, Print Screen functionality disabled
+2026-06-13 07:42:54,421 - dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2026-06-13 07:42:55,057 - evolution_engine - INFO - Evolution engine initialized (Cycle #0)
+2026-06-13 07:43:42,825 - cache_manager - WARNING - Redis connection failed: Timeout connecting to server, using SQLite only
+2026-06-13 07:43:42,843 - cache_manager - INFO - SQLite cache initialized at cache\ultron_cache.db
+2026-06-13 07:43:42,854 - cache_manager - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-06-13 07:43:42,862 - evolution_tool - INFO - Evolution Monitor Tool initialized
+2026-06-13 07:43:57,648 - performance_dashboard - INFO - Performance Dashboard Tool initialized
+2026-06-13 07:47:44,687 - agent_core - INFO - Starting web interface...
+2026-06-13 07:47:44,720 - agent_core - INFO - Starting periodic self-diagnosis and auto-repair loop...
+2026-06-13 07:47:44,723 - ultron.llamaindex_integration - WARNING - LlamaIndex: initialisation failed — No module named 'llama_index'
+2026-06-13 07:47:44,736 - agent_core - INFO - Self-diagnosis results: {'memory': {'success': True, 'errors': [], 'details': {'recent_context': [{'timestamp': '29240592-cf2e-4dcb-8800-f114acbfe810', 'message': 'test_message', 'response': 'test_response', 'context_type': 'test', 'time': '{"timestamp": "2026-06-13 07:47:44.727932"}'}], 'memory_stats': {'short_term_memory': 0, 'long_term_memory_entries': 1, 'conversation_context': 9, 'task_history': 0, 'learning_insights': 0, 'self_reflections': 20, 'drive_enabled': False}}}, 'brain': {'success': False, 'error': 'No brain or self_test method'}, 'tools': {'success': False}, 'event_system': {'status': 'ok', 'errors': [], 'details': {'stats': {'total_events': 0, 'events_by_type': {}, 'active_subscriptions': 0, 'subscribed_events': [], 'max_history': 1000, 'shutdown': False, 'failed_handlers': 0, 'subscriber_count': 0}, 'emit_test': 'ok'}}}
+2026-06-13 07:47:44,744 - agent_core - WARNING - Component 'brain' failed self-test. Attempting auto-repair...
+2026-06-13 07:47:44,751 - agent_core - INFO - Initializing brain system...
+2026-06-13 07:47:44,775 - agent_core - ERROR - Brain system initialization failed: No module named 'opentelemetry'
+2026-06-13 07:47:44,780 - agent_core - INFO - Brain system reinitialized.
+2026-06-13 07:47:44,786 - agent_core - WARNING - Component 'tools' failed self-test. Attempting auto-repair...
+2026-06-13 07:47:45,390 - dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2026-06-13 07:47:45,569 - evolution_tool - INFO - Evolution Monitor Tool initialized
+2026-06-13 07:47:46,618 - performance_dashboard - INFO - Performance Dashboard Tool initialized
+2026-06-13 07:50:02,812 - agent_core - INFO - Tools reloaded.
+2026-06-13 07:50:02,812 - agent_core - WARNING - Component 'event_system' failed self-test. Attempting auto-repair...
+2026-06-13 07:50:02,813 - agent_core - INFO - Initializing event system...
+2026-06-13 07:50:02,813 - agent_core - INFO - Event system initialized successfully
+2026-06-13 07:50:02,814 - agent_core - INFO - Event system reinitialized.
+2026-06-13 07:50:02,815 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-3' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-13 07:50:02,818 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-4' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-13 07:50:02,820 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-5' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-13 07:50:02,821 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-6' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-13 07:50:02,822 - agent_core - INFO - Triggering auto-analysis due to idle timeout
+2026-06-13 07:50:02,827 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-8' coro=<EventSystem.emit() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:150> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 188, in emit
+    self.logger.info(f"Emitted event: {event_name}")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-13 07:50:02,829 - agent_core - INFO - Performing ULTRON identity maintenance...
+2026-06-13 07:50:02,829 - agent_core - WARNING - Brain not available for identity maintenance
+2026-06-13 07:50:02,924 - voice_manager - ERROR - ElevenLabs TTS failed: 'module' object is not callable
+2026-06-13 07:50:02,938 - voice_manager - ERROR - All TTS engines failed
+2026-06-13 07:50:04,253 - agent_core - INFO - Starting voice listening...
+2026-06-13 07:50:04,255 - voice_manager - ERROR - ElevenLabs TTS failed: 'module' object is not callable
+2026-06-13 07:50:04,256 - voice_manager - ERROR - All TTS engines failed
+2026-06-14 20:15:04,999 - performance_analytics - INFO - Performance Analytics initialized
+2026-06-14 20:15:05,003 - agent_core - INFO - Performance analytics initialized
+2026-06-14 20:15:05,005 - agent_core - INFO - ULTRON Agent core initialized
+2026-06-14 20:15:05,006 - agent_core - INFO - Periodic self-diagnosis loop started.
+2026-06-14 20:15:05,040 - agent_core - INFO - Initializing ULTRON memory system...
+2026-06-14 20:15:05,067 - root - INFO - Memory initialized with shortterm and longterm storage. - memory.py:34
+2026-06-14 20:15:05,157 - ultron.supabase_client - WARNING - SupabaseClient: supabase_url/key missing in config
+2026-06-14 20:15:05,158 - agent_core - INFO - Initializing voice system (Enhanced -> pyttsx3 -> OpenAI -> Console)...
+2026-06-14 20:15:05,169 - agent_core - WARNING - Full voice system not available: No module named 'speech_recognition'
+2026-06-14 20:15:05,184 - voice_manager - ERROR - Failed to initialize pyttsx3: No module named 'pyttsx3'
+2026-06-14 20:15:09,615 - voice_manager - INFO - ElevenLabs engine initialized
+2026-06-14 20:15:09,617 - agent_core - INFO - Fallback voice system initialized
+2026-06-14 20:15:09,619 - agent_core - INFO - Initializing vision system...
+2026-06-14 20:15:09,626 - agent_core - ERROR - Vision system initialization failed: No module named 'pytesseract'
+2026-06-14 20:15:09,628 - agent_core - INFO - Initializing brain system...
+2026-06-14 20:15:09,638 - agent_core - ERROR - Brain system initialization failed: No module named 'opentelemetry'
+2026-06-14 20:15:09,654 - agent_core - INFO - Initializing OpenAI Computer Use...
+2026-06-14 20:15:10,919 - agent_core - INFO - OpenAI Computer Use initialized successfully
+2026-06-14 20:15:10,920 - agent_core - INFO - Initializing event system...
+2026-06-14 20:15:10,934 - agent_core - INFO - Event system initialized successfully
+2026-06-14 20:15:10,934 - agent_core - INFO - Initializing platform manager...
+2026-06-14 20:15:11,294 - agent_core - INFO - Platform manager initialized successfully
+2026-06-14 20:15:11,294 - agent_core - INFO - Initializing idle monitor...
+2026-06-14 20:15:11,297 - agent_core - INFO - Idle monitor initialized and started
+2026-06-14 20:15:11,297 - agent_core - WARNING - Keyboard library not available, Print Screen functionality disabled
+2026-06-14 20:15:12,150 - dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2026-06-14 20:15:12,666 - evolution_engine - INFO - Evolution engine initialized (Cycle #0)
+2026-06-14 20:16:02,498 - cache_manager - WARNING - Redis connection failed: Timeout connecting to server, using SQLite only
+2026-06-14 20:16:02,504 - cache_manager - INFO - SQLite cache initialized at cache\ultron_cache.db
+2026-06-14 20:16:02,504 - cache_manager - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2026-06-14 20:16:02,504 - evolution_tool - INFO - Evolution Monitor Tool initialized
+2026-06-14 20:16:11,050 - performance_dashboard - INFO - Performance Dashboard Tool initialized
+2026-06-14 20:21:41,280 - agent_core - INFO - Starting web interface...
+2026-06-14 20:21:41,294 - agent_core - INFO - Starting periodic self-diagnosis and auto-repair loop...
+2026-06-14 20:21:41,303 - ultron.llamaindex_integration - WARNING - LlamaIndex: initialisation failed — No module named 'llama_index'
+2026-06-14 20:21:41,306 - agent_core - INFO - Self-diagnosis results: {'memory': {'success': True, 'errors': [], 'details': {'recent_context': [{'timestamp': '2ba690ab-d867-47e8-b02c-d4580dd024ac', 'message': 'test_message', 'response': 'test_response', 'context_type': 'test', 'time': '{"timestamp": "2026-06-14 20:21:41.295160"}'}], 'memory_stats': {'short_term_memory': 0, 'long_term_memory_entries': 1, 'conversation_context': 10, 'task_history': 0, 'learning_insights': 0, 'self_reflections': 20, 'drive_enabled': False}}}, 'brain': {'success': False, 'error': 'No brain or self_test method'}, 'tools': {'success': False}, 'event_system': {'status': 'ok', 'errors': [], 'details': {'stats': {'total_events': 0, 'events_by_type': {}, 'active_subscriptions': 0, 'subscribed_events': [], 'max_history': 1000, 'shutdown': False, 'failed_handlers': 0, 'subscriber_count': 0}, 'emit_test': 'ok'}}}
+2026-06-14 20:21:41,307 - agent_core - WARNING - Component 'brain' failed self-test. Attempting auto-repair...
+2026-06-14 20:21:41,308 - agent_core - INFO - Initializing brain system...
+2026-06-14 20:21:41,316 - agent_core - ERROR - Brain system initialization failed: No module named 'opentelemetry'
+2026-06-14 20:21:41,316 - agent_core - INFO - Brain system reinitialized.
+2026-06-14 20:21:41,317 - agent_core - WARNING - Component 'tools' failed self-test. Attempting auto-repair...
+2026-06-14 20:21:41,533 - dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2026-06-14 20:21:41,651 - evolution_tool - INFO - Evolution Monitor Tool initialized
+2026-06-14 20:21:43,209 - performance_dashboard - INFO - Performance Dashboard Tool initialized
+2026-06-14 20:22:57,665 - agent_core - INFO - Tools reloaded.
+2026-06-14 20:22:57,666 - agent_core - WARNING - Component 'event_system' failed self-test. Attempting auto-repair...
+2026-06-14 20:22:57,666 - agent_core - INFO - Initializing event system...
+2026-06-14 20:22:57,666 - agent_core - INFO - Event system initialized successfully
+2026-06-14 20:22:57,666 - agent_core - INFO - Event system reinitialized.
+2026-06-14 20:22:57,666 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-3' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-14 20:22:57,669 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-4' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-14 20:22:57,669 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-5' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-14 20:22:57,672 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-6' coro=<EventSystem.subscribe() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:84> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 102, in subscribe
+    self.logger.info(f"Subscribed to event: {event_name} (priority: {priority.name})")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-14 20:22:57,672 - agent_core - INFO - Triggering auto-analysis due to idle timeout
+2026-06-14 20:22:57,675 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-8' coro=<EventSystem.emit() done, defined at C:\project\ultron_agent\ultron_agent\utils\event_system.py:150> exception=TypeError('<lambda>() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "C:\project\ultron_agent\ultron_agent\utils\event_system.py", line 188, in emit
+    self.logger.info(f"Emitted event: {event_name}")
+TypeError: <lambda>() takes 1 positional argument but 2 were given
+2026-06-14 20:22:57,677 - agent_core - INFO - Performing ULTRON identity maintenance...
+2026-06-14 20:22:57,677 - agent_core - WARNING - Brain not available for identity maintenance
+2026-06-14 20:22:57,906 - voice_manager - ERROR - ElevenLabs TTS failed: 'module' object is not callable
+2026-06-14 20:22:57,966 - voice_manager - ERROR - All TTS engines failed
+2026-06-14 20:22:58,504 - agent_core - INFO - Starting voice listening...
+2026-06-14 20:22:58,504 - voice_manager - ERROR - ElevenLabs TTS failed: 'module' object is not callable
+2026-06-14 20:22:58,505 - voice_manager - ERROR - All TTS engines failed

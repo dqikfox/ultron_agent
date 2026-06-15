@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from dataclasses import dataclass
 import git
-from utils.ultron_logger import log_info, log_error, log_file_operation
+from utils.ultron_logger import log_info, log_error, log_file_operation, log_ai_decision
 from utils.model_awareness import should_modify_file, check_file_context
 
 

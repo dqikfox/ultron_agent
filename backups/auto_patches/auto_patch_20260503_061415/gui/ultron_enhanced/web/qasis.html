@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QASIS: LLM Playground</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: #181c2a; color: #f3f3f3; font-family: 'Segoe UI', Arial, sans-serif; }
+    .qasis-container { max-width: 900px; margin: 40px auto; background: #23284a; border-radius: 18px; box-shadow: 0 4px 32px #0008; padding: 32px; }
+    .qasis-header { display: flex; align-items: center; justify-content: space-between; }
+    .qasis-title { font-size: 2.2em; font-weight: bold; letter-spacing: 2px; }
+    .model-select { background: #23284a; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 8px 16px; font-size: 1em; }
+    .chat-area { margin-top: 32px; background: #1a1e33; border-radius: 12px; padding: 24px; min-height: 320px; max-height: 480px; overflow-y: auto; }
+    .chat-message { margin-bottom: 18px; }
+    .chat-message.user { text-align: right; }
+    .chat-message.llm { text-align: left; }
+    .chat-input-row { display: flex; margin-top: 24px; }
+    .chat-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #23284a; color: #fff; font-size: 1em; }
+    .send-btn { margin-left: 12px; padding: 12px 24px; border-radius: 8px; border: none; background: #4e7fff; color: #fff; font-weight: bold; font-size: 1em; cursor: pointer; transition: background 0.2s; }
+    .send-btn:hover { background: #345fd7; }
+    .model-info { margin-top: 18px; font-size: 0.95em; color: #b3c6ff; }
+    .diagnostics-bar { margin-top: 18px; background: #2a2e4a; border-radius: 8px; padding: 10px 16px; color: #ffb347; font-size: 0.95em; display: none; }
+    .qasis-avatar { width: 64px; height: 64px; border-radius: 50%; background: #4e7fff; display: inline-block; margin-right: 18px; vertical-align: middle; }
+    .qasis-nav { margin-bottom: 18px; }
+    .qasis-nav a { color: #b3c6ff; margin-right: 18px; text-decoration: none; font-weight: bold; }
+    .qasis-nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="qasis-container">
+    <div class="qasis-nav">
+      <a href="index.htm">Home</a>
+      <a href="ultron_avatar_game.html">Avatar Game</a>
+      <a href="qasis.html" style="color:#4e7fff;">QASIS Playground</a>
+    </div>
+    <div class="qasis-header">
+      <div><span class="qasis-avatar"></span><span class="qasis-title">QASIS Playground</span></div>
+      <select class="model-select" id="modelSelect"></select>
+    </div>
+    <div class="model-info" id="modelInfo">Select a model to begin.</div>
+    <div class="diagnostics-bar" id="diagnosticsBar"></div>
+    <div class="chat-area" id="chatArea"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Type your prompt..." />
+      <button class="send-btn" id="sendBtn">Send</button>
+    </div>
+  </div>
+  <script src="qasis.js"></script>
+</body>
+</html>

@@ -186,7 +186,7 @@ class TestAutoPatchManager:
         }
 
         success, message = patch_manager._apply_single_suggestion(suggestion)
-        
+
         assert success
         assert "Successfully applied" in message
         mock_file.assert_called()
