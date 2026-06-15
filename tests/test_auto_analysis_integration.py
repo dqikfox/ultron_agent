@@ -97,14 +97,14 @@ class TestAutoAnalysisIntegration:
 
         # Mock the is_idle property to return True
         idle_monitor.is_idle.return_value = True
-        
+
         # Mock the on_idle_callback to simulate it being called
         callback_called = False
         async def mock_callback():
             nonlocal callback_called
             callback_called = True
             return None
-            
+
         idle_monitor.on_idle_callback = mock_callback
 
         # Simulate idle detection by calling the callback directly
