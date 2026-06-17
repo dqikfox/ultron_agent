@@ -5270,3 +5270,32 @@ body.high-contrast .model-badge {
         padding: 15px;
     }
 }
+
+/* Quick-links bar (replaces inline styles on lines 16-19 of index.htm) */
+.quick-links {
+    position: fixed;
+    top: 12px;
+    right: 24px;
+    z-index: 1000;
+}
+
+.quick-link {
+    display: inline-block;
+    background: #23284a;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 8px;
+    margin-right: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 2px 8px #0006;
+}
+
+.quick-link--green {
+    color: #0f0;
+}
+
+.quick-link--gold {
+    color: #ffd700;
+    margin-right: 0;
+}

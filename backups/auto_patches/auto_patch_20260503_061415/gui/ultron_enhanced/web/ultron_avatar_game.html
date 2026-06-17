@@ -1,13 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ULTRON Avatar Game</title>
     <style>
         body { margin: 0; background: linear-gradient(135deg, #000 0%, #001100 100%); color: #0f0; font-family: 'Courier New', monospace; }
         #game { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
         #ui { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.9); padding: 10px; border-radius: 8px; border: 1px solid #0f0; }
         #chat { position: absolute; bottom: 10px; left: 10px; right: 10px; height: 180px; background: rgba(0,0,0,0.95); border: 2px solid #0f0; padding: 15px; border-radius: 10px; box-shadow: 0 0 20px #0f0; }
-        #messages { height: 120px; overflow-y: auto; margin-bottom: 10px; scrollbar-width: thin; scrollbar-color: #0f0 #000; }
+        #messages { height: 120px; overflow-y: auto; margin-bottom: 10px; /* scrollbar-width and scrollbar-color have limited browser support */ }
+        @supports (scrollbar-width: thin) {
+            #messages { scrollbar-width: thin; scrollbar-color: #0f0 #000; }
+        }
         #input { width: 100%; background: #001100; color: #0f0; border: 2px solid #0f0; padding: 8px; border-radius: 5px; font-size: 14px; }
         .avatar { position: absolute; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; transition: all 0.4s ease; border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 0 15px currentColor; }
         .avatar::before { content: attr(data-name); position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 10px; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
@@ -27,14 +32,17 @@
         option { background: #000; color: #0f0; }
         .tool-indicator { font-size: 8px; color: #888; margin-top: 2px; }
         .role-badge { display: inline-block; padding: 2px 6px; background: rgba(0,255,0,0.2); border: 1px solid #0f0; border-radius: 3px; font-size: 8px; margin: 1px; }
-        #screenView { border: 2px solid #0f0; border-radius: 8px; box-shadow: 0 0 15px #0f0; }
+        .ui-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .screen-view { display: none; border: 1px solid #0f0; margin: 5px; max-width: 300px; }
+        .screen-view img { width: 100%; height: auto; }
+        .ui-info { font-size: 10px; margin-top: 5px; }
     </style>
 </head>
 <body>
     <div id="game">
         <div id="ui">
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <select id="roleSelect">
+        <div class="ui-controls">
+                <select id="roleSelect" title="Select avatar role" aria-label="Avatar role">
                     <option value="random">Random Role</option>
                     <option value="coder">💻 CODER (Programming Expert)</option>
                     <option value="writer">📝 WRITER (Content Creator)</option>
@@ -43,7 +51,7 @@
                     <option value="admin">🛡️ ADMIN (System Administrator)</option>
                     <option value="pyautogui_agent">🖱️ PYAUTOGUI_AGENT (Screen Control)</option>
                 </select>
-                <select id="modelSelect">
+                <select id="modelSelect" title="Select AI model" aria-label="AI model">
                     <option value="auto">Auto-Select Model</option>
                     <option value="llava:7b">LLAVA 7B (Vision)</option>
                     <option value="mistral-nemo:12b">Mistral Nemo 12B</option>
@@ -61,12 +69,13 @@
             <button onclick="showToolsPanel()">Tools Panel (T)</button>
             <button onclick="testAllTools()">Test Tools</button>
             <div>Avatars: <span id="count">0</span>/6 | Memory: <span id="memoryCount">0</span></div>
-            <div style="font-size: 10px; margin-top: 5px;">
+            <div class="ui-info">
                 <div>🔧 Tools: OCR, PyAutoGUI, File Ops, Web Search, System Control</div>
                 <div>🎯 Roles: Coder, Writer, Tool User, Assistant, Admin, PyAutoGUI Agent</div>
             </div>
-            <div id="screenView" style="display:none; border:1px solid #0f0; margin:5px; max-width:300px;">
-                <img id="liveScreen" style="width:100%; height:auto;" />
+            <div id="screenView" class="screen-view">
+                <img id="liveScreen" alt="Live screen capture" />
+            </div>
             </div>
         </div>
         <div id="chat">
