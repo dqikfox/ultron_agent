@@ -139,7 +139,8 @@ class SelfImprovementEngine:
         active_services = 0
         for port in [5000, 8080, 11434, 5175, 8002]:
             for conn in psutil.net_connections():
-                if conn.laddr.port == port and conn.status == 'LISTEN':
+                local_port = getattr(conn.laddr, "port", None)
+                if local_port == port and conn.status == 'LISTEN':
                     active_services += 1
                     break
 
