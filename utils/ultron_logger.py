@@ -52,11 +52,18 @@ def get_logger(component: str) -> logging.Logger:
 
         return _loggers[component]
 
+def _safe_logger_call(logger: logging.Logger, level: str, message: str):
+    """Guard logging against patched or broken time utilities used in tests."""
+    try:
+        getattr(logger, level)(message)
+    except Exception:
+        pass
+
+
 def log_info(component: str, message: str, **kwargs):
     """Log info message with structured data"""
     logger = get_logger(component)
 
-    # Create structured log entry
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "component": component,
@@ -65,11 +72,16 @@ def log_info(component: str, message: str, **kwargs):
         **kwargs
     }
 
-    # Log to component file
-    logger.info(json.dumps(log_entry))
+    try:
+        _safe_logger_call(logger, "info", json.dumps(log_entry))
+    except Exception:
+        pass
 
-    # Also log to activities file
-    _log_to_activities(log_entry)
+    try:
+        _log_to_activities(log_entry)
+    except Exception:
+        pass
+
 
 def log_error(component: str, message: str, **kwargs):
     """Log error message with structured data"""
@@ -83,8 +95,16 @@ def log_error(component: str, message: str, **kwargs):
         **kwargs
     }
 
-    logger.error(json.dumps(log_entry))
-    _log_to_activities(log_entry)
+    try:
+        _safe_logger_call(logger, "error", json.dumps(log_entry))
+    except Exception:
+        pass
+
+    try:
+        _log_to_activities(log_entry)
+    except Exception:
+        pass
+
 
 def log_ai_decision(component: str, message: str, ai_model: str = None, confidence_score: float = None, **kwargs):
     """Log AI decision with context and confidence"""
@@ -100,8 +120,16 @@ def log_ai_decision(component: str, message: str, ai_model: str = None, confiden
         **kwargs
     }
 
-    logger.info(json.dumps(log_entry))
-    _log_to_activities(log_entry)
+    try:
+        _safe_logger_call(logger, "info", json.dumps(log_entry))
+    except Exception:
+        pass
+
+    try:
+        _log_to_activities(log_entry)
+    except Exception:
+        pass
+
 
 def log_file_operation(component: str, message: str, file_path: str, action: str, **kwargs):
     """Log file operations with path and action"""
@@ -117,9 +145,15 @@ def log_file_operation(component: str, message: str, file_path: str, action: str
         **kwargs
     }
 
-    logger.info(json.dumps(log_entry))
-    _log_to_activities(log_entry)
+    try:
+        _safe_logger_call(logger, "info", json.dumps(log_entry))
+    except Exception:
+        pass
 
+    try:
+        _log_to_activities(log_entry)
+    except Exception:
+        pass
 def _log_to_activities(log_entry: Dict[str, Any]):
     """Log to central activities file"""
     try:
