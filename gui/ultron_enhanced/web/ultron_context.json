@@ -1,0 +1,361 @@
+{
+  "conversation_context": [
+    {
+      "timestamp": "45088f22-3be2-4291-8ac8-db820fe4e78a",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2025-12-29 13:24:49.089111\"}"
+    },
+    {
+      "timestamp": "abcccbfb-cd62-4589-aab0-778097ab9b3a",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2025-12-29 13:48:59.656462\"}"
+    },
+    {
+      "timestamp": "b077867c-b316-4fe4-9632-5f7d85dd29a1",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2025-12-29 14:35:19.815901\"}"
+    },
+    {
+      "timestamp": "b5bccbfc-01a4-4654-b6c5-752ef180a4f0",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2025-12-30 03:03:16.491197\"}"
+    },
+    {
+      "timestamp": "2aec2bd1-5a6d-433c-87a5-13bbe555ba7f",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2025-12-31 12:28:18.188093\"}"
+    },
+    {
+      "timestamp": "5c5abad3-4954-479d-b9c7-a5e8fb3fabf4",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 04:04:28.297032\"}"
+    },
+    {
+      "timestamp": "9b2d51c5-d39a-4c84-b5a6-ff4c31817fba",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 07:07:41.811592\"}"
+    },
+    {
+      "timestamp": "727ea89c-3801-4149-a3e4-952019f30f2f",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 07:23:54.720085\"}"
+    },
+    {
+      "timestamp": "81c12e36-99a8-4272-91c1-8e2f6b13f624",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 07:25:02.157161\"}"
+    },
+    {
+      "timestamp": "02e77972-45c7-4a6c-be51-38a63ce7fd7a",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 07:30:43.296739\"}"
+    },
+    {
+      "timestamp": "67697843-3d0d-4587-a7de-50fbd0c2bb4a",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 07:35:42.541494\"}"
+    },
+    {
+      "timestamp": "afb2b086-0f95-43f2-ab79-b76d886c141f",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 08:16:45.898220\"}"
+    },
+    {
+      "timestamp": "b9df7822-3749-4251-95d3-15f9d7e8c034",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 08:16:45.905173\"}"
+    },
+    {
+      "timestamp": "d3386f56-a216-45f5-b85f-ed7640cb3bb9",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 14:59:26.559104\"}"
+    },
+    {
+      "timestamp": "86df3041-4c1a-4932-966d-79d55bcf7206",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-01 14:59:26.577302\"}"
+    },
+    {
+      "timestamp": "d19c5196-02e9-4320-bd24-39cd2331e6a9",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-02 00:03:13.550659\"}"
+    },
+    {
+      "timestamp": "dea1b2b6-d4e3-472a-acec-b05c1c5b7b17",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-02 00:03:13.555933\"}"
+    },
+    {
+      "timestamp": "12694460-968e-4edd-a800-9f37e313592a",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-02 00:07:07.975802\"}"
+    },
+    {
+      "timestamp": "e57b70d0-c6f4-40da-a5fb-649ef8259cfa",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-02 00:07:07.981059\"}"
+    },
+    {
+      "timestamp": "7e9dbabf-9293-4617-b7ad-0754423c88ad",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-02 17:07:26.103762\"}"
+    },
+    {
+      "timestamp": "70d15b8e-672f-4556-a3cc-a9feeb426410",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-01-02 17:07:26.106113\"}"
+    },
+    {
+      "timestamp": "b9043da3-2b53-40c3-841a-7011138ab209",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-07 08:41:00.878815\"}"
+    },
+    {
+      "timestamp": "9e233a0d-317d-4bd1-8f2a-01f562402db5",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-07 08:41:00.895501\"}"
+    },
+    {
+      "timestamp": "9ec1b395-dca0-44aa-b049-ed1040d21b29",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-07 09:15:06.123641\"}"
+    },
+    {
+      "timestamp": "c31cac35-7168-4a78-80cb-b614c5dd94fc",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-07 09:15:06.182131\"}"
+    },
+    {
+      "timestamp": "9c3cecb8-3261-4300-953b-5e6b5a4d60ef",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-07 10:55:32.579697\"}"
+    },
+    {
+      "timestamp": "67da467c-4997-464e-8a5f-bf609f094ee9",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-07 10:55:32.586780\"}"
+    },
+    {
+      "timestamp": "5c15d775-c166-4728-b634-3db6be15fba6",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-08 04:33:43.500832\"}"
+    },
+    {
+      "timestamp": "6ad3078d-459e-4222-8d36-95de945219de",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-08 04:33:43.511196\"}"
+    },
+    {
+      "timestamp": "10eee589-ce24-49ac-b6e2-0867d5b71689",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-08 04:58:16.704712\"}"
+    },
+    {
+      "timestamp": "060f2ea3-abad-4e4a-964c-a539290c69a2",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-03-08 04:58:16.713937\"}"
+    },
+    {
+      "timestamp": "a74157b4-6e0a-4822-b1b8-fcf58323557e",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 17:59:13.180366\"}"
+    },
+    {
+      "timestamp": "0326ba16-3e02-4b21-b3a4-94120ad26cea",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 17:59:13.197199\"}"
+    },
+    {
+      "timestamp": "133b9bb1-96ff-474b-9622-cfa7ea2d4c07",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 18:02:40.158933\"}"
+    },
+    {
+      "timestamp": "bc8ddf77-abeb-40c6-b881-517b9d6bcf88",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 18:02:40.166296\"}"
+    },
+    {
+      "timestamp": "b8f19ce7-e447-4500-b548-6b0554c1a8bd",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 18:25:02.445180\"}"
+    },
+    {
+      "timestamp": "096b2a7a-dace-4e7f-9c32-4e342bd81e53",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 18:25:02.471595\"}"
+    },
+    {
+      "timestamp": "2eda423e-5652-4157-887c-f7f52b66dd8a",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 18:32:50.030512\"}"
+    },
+    {
+      "timestamp": "837a55d0-2c71-4176-b4bb-b02f32b616db",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-03 18:32:50.124710\"}"
+    }
+  ],
+  "task_history": [],
+  "learning_insights": [],
+  "self_reflection_log": [
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-18 10:23:30.548094"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-18 17:38:35.325866"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-20 05:13:36.255304"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-20 05:24:13.434295"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-20 05:26:47.222805"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-22 10:19:23.090627"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-22 13:24:13.755021"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-22 17:29:40.918751"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-22 18:16:47.947656"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-22 18:24:25.968071"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-22 18:33:17.776433"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-01-01 08:17:13.389113"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-01-01 14:59:38.029050"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-01-02 00:03:25.088893"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-01-02 00:07:23.364033"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-01-02 17:07:47.162669"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2026-05-03 18:04:25.949641"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-05-03 18:04:51.494734"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2026-05-03 18:42:58.701239"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-05-03 18:43:44.578417"
+    }
+  ]
+}

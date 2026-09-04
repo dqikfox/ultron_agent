@@ -1,0 +1,216 @@
+2025-12-18 10:22:33,614 - INFO - {"timestamp": "2025-12-18T10:22:33.614307", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-18 10:22:33,621 - INFO - {"timestamp": "2025-12-18T10:22:33.621880", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-18 10:22:33,622 - INFO - {"timestamp": "2025-12-18T10:22:33.622269", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-18 10:22:33,622 - INFO - {"timestamp": "2025-12-18T10:22:33.622646", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-18 17:37:38,145 - INFO - {"timestamp": "2025-12-18T17:37:38.145325", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-18 17:37:38,185 - INFO - {"timestamp": "2025-12-18T17:37:38.185383", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-18 17:37:38,186 - INFO - {"timestamp": "2025-12-18T17:37:38.186348", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-18 17:37:38,187 - INFO - {"timestamp": "2025-12-18T17:37:38.187854", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-19 23:44:45,577 - INFO - {"timestamp": "2025-12-19T23:44:45.577385", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-19 23:44:45,587 - INFO - {"timestamp": "2025-12-19T23:44:45.587576", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-19 23:44:45,588 - INFO - {"timestamp": "2025-12-19T23:44:45.588037", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-19 23:44:45,588 - INFO - {"timestamp": "2025-12-19T23:44:45.588462", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-19 23:53:05,343 - INFO - {"timestamp": "2025-12-19T23:53:05.343258", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-19 23:53:05,350 - INFO - {"timestamp": "2025-12-19T23:53:05.350793", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-19 23:53:05,351 - INFO - {"timestamp": "2025-12-19T23:53:05.351305", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-19 23:53:05,351 - INFO - {"timestamp": "2025-12-19T23:53:05.351838", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:12:02,029 - INFO - {"timestamp": "2025-12-20T05:12:02.029220", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:12:02,031 - INFO - {"timestamp": "2025-12-20T05:12:02.031636", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:12:02,031 - INFO - {"timestamp": "2025-12-20T05:12:02.031824", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:12:02,032 - INFO - {"timestamp": "2025-12-20T05:12:02.032015", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:12:26,242 - INFO - {"timestamp": "2025-12-20T05:12:26.242915", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:12:26,248 - INFO - {"timestamp": "2025-12-20T05:12:26.248363", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:12:26,248 - INFO - {"timestamp": "2025-12-20T05:12:26.248802", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:12:26,249 - INFO - {"timestamp": "2025-12-20T05:12:26.249109", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:12:53,239 - INFO - {"timestamp": "2025-12-20T05:12:53.239527", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:12:53,242 - INFO - {"timestamp": "2025-12-20T05:12:53.242242", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:12:53,242 - INFO - {"timestamp": "2025-12-20T05:12:53.242416", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:12:53,242 - INFO - {"timestamp": "2025-12-20T05:12:53.242598", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:22:57,209 - INFO - {"timestamp": "2025-12-20T05:22:57.209838", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:22:57,214 - INFO - {"timestamp": "2025-12-20T05:22:57.214313", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:22:57,214 - INFO - {"timestamp": "2025-12-20T05:22:57.214701", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:22:57,215 - INFO - {"timestamp": "2025-12-20T05:22:57.215068", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:23:30,439 - INFO - {"timestamp": "2025-12-20T05:23:30.439565", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:23:30,444 - INFO - {"timestamp": "2025-12-20T05:23:30.444222", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:23:30,444 - INFO - {"timestamp": "2025-12-20T05:23:30.444479", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:23:30,444 - INFO - {"timestamp": "2025-12-20T05:23:30.444715", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:25:35,531 - INFO - {"timestamp": "2025-12-20T05:25:35.531392", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:25:35,536 - INFO - {"timestamp": "2025-12-20T05:25:35.536364", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:25:35,536 - INFO - {"timestamp": "2025-12-20T05:25:35.536689", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:25:35,537 - INFO - {"timestamp": "2025-12-20T05:25:35.537004", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:26:05,967 - INFO - {"timestamp": "2025-12-20T05:26:05.967615", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:26:05,983 - INFO - {"timestamp": "2025-12-20T05:26:05.983393", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:26:05,984 - INFO - {"timestamp": "2025-12-20T05:26:05.984911", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:26:05,987 - INFO - {"timestamp": "2025-12-20T05:26:05.987311", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-20 05:44:41,854 - INFO - {"timestamp": "2025-12-20T05:44:41.853831", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-20 05:44:41,869 - INFO - {"timestamp": "2025-12-20T05:44:41.869700", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-20 05:44:41,870 - INFO - {"timestamp": "2025-12-20T05:44:41.870663", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-20 05:44:41,871 - INFO - {"timestamp": "2025-12-20T05:44:41.871404", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 10:18:46,582 - INFO - {"timestamp": "2025-12-22T10:18:46.582246", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 10:18:46,593 - INFO - {"timestamp": "2025-12-22T10:18:46.593410", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 10:18:46,593 - INFO - {"timestamp": "2025-12-22T10:18:46.593614", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 10:18:46,593 - INFO - {"timestamp": "2025-12-22T10:18:46.593867", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 11:45:28,249 - INFO - {"timestamp": "2025-12-22T11:45:28.249893", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 11:45:28,254 - INFO - {"timestamp": "2025-12-22T11:45:28.254337", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 11:45:28,254 - INFO - {"timestamp": "2025-12-22T11:45:28.254563", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 11:45:28,254 - INFO - {"timestamp": "2025-12-22T11:45:28.254762", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 12:00:10,191 - INFO - {"timestamp": "2025-12-22T12:00:10.191683", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 12:00:10,194 - INFO - {"timestamp": "2025-12-22T12:00:10.194316", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 12:00:10,194 - INFO - {"timestamp": "2025-12-22T12:00:10.194521", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 12:00:10,194 - INFO - {"timestamp": "2025-12-22T12:00:10.194712", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 13:23:01,941 - INFO - {"timestamp": "2025-12-22T13:23:01.941242", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 13:23:01,945 - INFO - {"timestamp": "2025-12-22T13:23:01.945280", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 13:23:01,945 - INFO - {"timestamp": "2025-12-22T13:23:01.945611", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 13:23:01,945 - INFO - {"timestamp": "2025-12-22T13:23:01.945917", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 13:23:45,075 - INFO - {"timestamp": "2025-12-22T13:23:45.075371", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 13:23:45,084 - INFO - {"timestamp": "2025-12-22T13:23:45.084439", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 13:23:45,086 - INFO - {"timestamp": "2025-12-22T13:23:45.086345", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 13:23:45,087 - INFO - {"timestamp": "2025-12-22T13:23:45.087084", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 17:29:11,142 - INFO - {"timestamp": "2025-12-22T17:29:11.142902", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 17:29:11,144 - INFO - {"timestamp": "2025-12-22T17:29:11.144969", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 17:29:11,145 - INFO - {"timestamp": "2025-12-22T17:29:11.145141", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 17:29:11,145 - INFO - {"timestamp": "2025-12-22T17:29:11.145309", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 17:39:12,274 - INFO - {"timestamp": "2025-12-22T17:39:12.274830", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 17:39:12,279 - INFO - {"timestamp": "2025-12-22T17:39:12.279197", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 17:39:12,279 - INFO - {"timestamp": "2025-12-22T17:39:12.279598", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 17:39:12,279 - INFO - {"timestamp": "2025-12-22T17:39:12.279904", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 17:40:59,685 - INFO - {"timestamp": "2025-12-22T17:40:59.685074", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 17:40:59,690 - INFO - {"timestamp": "2025-12-22T17:40:59.690627", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 17:40:59,691 - INFO - {"timestamp": "2025-12-22T17:40:59.691031", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 17:40:59,693 - INFO - {"timestamp": "2025-12-22T17:40:59.692976", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 18:16:17,206 - INFO - {"timestamp": "2025-12-22T18:16:17.206822", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 18:16:17,211 - INFO - {"timestamp": "2025-12-22T18:16:17.211316", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 18:16:17,211 - INFO - {"timestamp": "2025-12-22T18:16:17.211616", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 18:16:17,211 - INFO - {"timestamp": "2025-12-22T18:16:17.211849", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 18:23:55,259 - INFO - {"timestamp": "2025-12-22T18:23:55.259752", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 18:23:55,262 - INFO - {"timestamp": "2025-12-22T18:23:55.262684", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 18:23:55,263 - INFO - {"timestamp": "2025-12-22T18:23:55.263027", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 18:23:55,263 - INFO - {"timestamp": "2025-12-22T18:23:55.263384", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-22 18:32:49,107 - INFO - {"timestamp": "2025-12-22T18:32:49.107639", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-22 18:32:49,110 - INFO - {"timestamp": "2025-12-22T18:32:49.110078", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-22 18:32:49,110 - INFO - {"timestamp": "2025-12-22T18:32:49.110350", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-22 18:32:49,110 - INFO - {"timestamp": "2025-12-22T18:32:49.110626", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-25 06:53:21,327 - INFO - {"timestamp": "2025-12-25T06:53:21.327860", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-25 06:53:21,342 - INFO - {"timestamp": "2025-12-25T06:53:21.342729", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-25 06:53:21,345 - INFO - {"timestamp": "2025-12-25T06:53:21.345295", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-25 06:53:21,345 - INFO - {"timestamp": "2025-12-25T06:53:21.345742", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-25 06:55:32,205 - INFO - {"timestamp": "2025-12-25T06:55:32.205348", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-25 06:55:32,212 - INFO - {"timestamp": "2025-12-25T06:55:32.212091", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-25 06:55:32,212 - INFO - {"timestamp": "2025-12-25T06:55:32.212499", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-25 06:55:32,212 - INFO - {"timestamp": "2025-12-25T06:55:32.212868", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-25 07:01:47,062 - INFO - {"timestamp": "2025-12-25T07:01:47.062125", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-25 07:01:47,067 - INFO - {"timestamp": "2025-12-25T07:01:47.067490", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-25 07:01:47,067 - INFO - {"timestamp": "2025-12-25T07:01:47.067878", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-25 07:01:47,068 - INFO - {"timestamp": "2025-12-25T07:01:47.068283", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-25 07:05:23,018 - INFO - {"timestamp": "2025-12-25T07:05:23.018662", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-25 07:05:23,024 - INFO - {"timestamp": "2025-12-25T07:05:23.024362", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-25 07:05:23,024 - INFO - {"timestamp": "2025-12-25T07:05:23.024856", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-25 07:05:23,025 - INFO - {"timestamp": "2025-12-25T07:05:23.025195", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-26 02:06:34,401 - INFO - {"timestamp": "2025-12-26T02:06:34.401136", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-26 02:06:34,409 - INFO - {"timestamp": "2025-12-26T02:06:34.409752", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-26 02:06:34,410 - INFO - {"timestamp": "2025-12-26T02:06:34.410448", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-26 02:06:34,411 - INFO - {"timestamp": "2025-12-26T02:06:34.411078", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-26 23:18:52,593 - INFO - {"timestamp": "2025-12-26T23:18:52.593373", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-26 23:18:52,611 - INFO - {"timestamp": "2025-12-26T23:18:52.611480", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-26 23:18:52,611 - INFO - {"timestamp": "2025-12-26T23:18:52.611914", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-26 23:18:52,612 - INFO - {"timestamp": "2025-12-26T23:18:52.612331", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-27 03:00:33,699 - INFO - {"timestamp": "2025-12-27T03:00:33.699683", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-27 03:00:33,708 - INFO - {"timestamp": "2025-12-27T03:00:33.708012", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-27 03:00:33,708 - INFO - {"timestamp": "2025-12-27T03:00:33.708344", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-27 03:00:33,708 - INFO - {"timestamp": "2025-12-27T03:00:33.708669", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-27 03:46:16,714 - INFO - {"timestamp": "2025-12-27T03:46:16.713961", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-27 03:46:16,723 - INFO - {"timestamp": "2025-12-27T03:46:16.723780", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-27 03:46:16,724 - INFO - {"timestamp": "2025-12-27T03:46:16.724059", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-27 03:46:16,724 - INFO - {"timestamp": "2025-12-27T03:46:16.724360", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-27 04:28:31,554 - INFO - {"timestamp": "2025-12-27T04:28:31.554402", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-27 04:28:31,567 - INFO - {"timestamp": "2025-12-27T04:28:31.566948", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-27 04:28:31,569 - INFO - {"timestamp": "2025-12-27T04:28:31.569139", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-27 04:28:31,571 - INFO - {"timestamp": "2025-12-27T04:28:31.571036", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-28 03:05:04,920 - INFO - {"timestamp": "2025-12-28T03:05:04.920660", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-28 03:05:04,926 - INFO - {"timestamp": "2025-12-28T03:05:04.926798", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-28 03:05:04,931 - INFO - {"timestamp": "2025-12-28T03:05:04.930985", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-28 03:05:04,931 - INFO - {"timestamp": "2025-12-28T03:05:04.931526", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-28 03:05:28,176 - INFO - {"timestamp": "2025-12-28T03:05:28.176114", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-28 03:05:28,181 - INFO - {"timestamp": "2025-12-28T03:05:28.181811", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-28 03:05:28,182 - INFO - {"timestamp": "2025-12-28T03:05:28.182297", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-28 03:05:28,182 - INFO - {"timestamp": "2025-12-28T03:05:28.182728", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-28 03:10:09,903 - INFO - {"timestamp": "2025-12-28T03:10:09.903124", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-28 03:10:09,906 - INFO - {"timestamp": "2025-12-28T03:10:09.906219", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-28 03:10:09,906 - INFO - {"timestamp": "2025-12-28T03:10:09.906631", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-28 03:10:09,906 - INFO - {"timestamp": "2025-12-28T03:10:09.906917", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-28 03:12:08,601 - INFO - {"timestamp": "2025-12-28T03:12:08.601287", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-28 03:12:08,605 - INFO - {"timestamp": "2025-12-28T03:12:08.605245", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-28 03:12:08,605 - INFO - {"timestamp": "2025-12-28T03:12:08.605507", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-28 03:12:08,605 - INFO - {"timestamp": "2025-12-28T03:12:08.605779", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-28 11:17:54,261 - INFO - {"timestamp": "2025-12-28T11:17:54.261778", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-28 11:17:54,266 - INFO - {"timestamp": "2025-12-28T11:17:54.266051", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-28 11:17:54,266 - INFO - {"timestamp": "2025-12-28T11:17:54.266422", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-28 11:17:54,266 - INFO - {"timestamp": "2025-12-28T11:17:54.266772", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-29 13:24:38,379 - INFO - {"timestamp": "2025-12-29T13:24:38.379068", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-29 13:24:38,435 - INFO - {"timestamp": "2025-12-29T13:24:38.435794", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-29 13:24:38,437 - INFO - {"timestamp": "2025-12-29T13:24:38.437283", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-29 13:24:38,440 - INFO - {"timestamp": "2025-12-29T13:24:38.440222", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-29 13:48:51,508 - INFO - {"timestamp": "2025-12-29T13:48:51.508660", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-29 13:48:51,516 - INFO - {"timestamp": "2025-12-29T13:48:51.516354", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-29 13:48:51,517 - INFO - {"timestamp": "2025-12-29T13:48:51.517115", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-29 13:48:51,517 - INFO - {"timestamp": "2025-12-29T13:48:51.517885", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-29 13:49:13,703 - INFO - {"timestamp": "2025-12-29T13:49:13.703468", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-29 13:49:13,707 - INFO - {"timestamp": "2025-12-29T13:49:13.707738", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-29 13:49:13,708 - INFO - {"timestamp": "2025-12-29T13:49:13.708029", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-29 13:49:13,708 - INFO - {"timestamp": "2025-12-29T13:49:13.708308", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-29 14:35:09,202 - INFO - {"timestamp": "2025-12-29T14:35:09.202244", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-29 14:35:09,221 - INFO - {"timestamp": "2025-12-29T14:35:09.221057", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-29 14:35:09,221 - INFO - {"timestamp": "2025-12-29T14:35:09.221748", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-29 14:35:09,222 - INFO - {"timestamp": "2025-12-29T14:35:09.222397", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-30 03:03:11,044 - INFO - {"timestamp": "2025-12-30T03:03:11.044250", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-30 03:03:11,055 - INFO - {"timestamp": "2025-12-30T03:03:11.055660", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-30 03:03:11,056 - INFO - {"timestamp": "2025-12-30T03:03:11.056610", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-30 03:03:11,057 - INFO - {"timestamp": "2025-12-30T03:03:11.057330", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-31 12:28:10,363 - INFO - {"timestamp": "2025-12-31T12:28:10.363018", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-31 12:28:10,382 - INFO - {"timestamp": "2025-12-31T12:28:10.382200", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-31 12:28:10,382 - INFO - {"timestamp": "2025-12-31T12:28:10.382655", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-31 12:28:10,383 - INFO - {"timestamp": "2025-12-31T12:28:10.383099", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 04:04:21,374 - INFO - {"timestamp": "2026-01-01T04:04:21.374497", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 04:04:21,382 - INFO - {"timestamp": "2026-01-01T04:04:21.382506", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 04:04:21,383 - INFO - {"timestamp": "2026-01-01T04:04:21.383066", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 04:04:21,383 - INFO - {"timestamp": "2026-01-01T04:04:21.383650", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 07:07:33,933 - INFO - {"timestamp": "2026-01-01T07:07:33.933202", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 07:07:33,941 - INFO - {"timestamp": "2026-01-01T07:07:33.941362", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 07:07:33,941 - INFO - {"timestamp": "2026-01-01T07:07:33.941802", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 07:07:33,942 - INFO - {"timestamp": "2026-01-01T07:07:33.942195", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 07:23:46,960 - INFO - {"timestamp": "2026-01-01T07:23:46.959909", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 07:23:46,979 - INFO - {"timestamp": "2026-01-01T07:23:46.979356", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 07:23:46,979 - INFO - {"timestamp": "2026-01-01T07:23:46.979845", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 07:23:46,980 - INFO - {"timestamp": "2026-01-01T07:23:46.980327", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 07:24:53,833 - INFO - {"timestamp": "2026-01-01T07:24:53.832945", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 07:24:53,863 - INFO - {"timestamp": "2026-01-01T07:24:53.863227", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 07:24:53,863 - INFO - {"timestamp": "2026-01-01T07:24:53.863755", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 07:24:53,864 - INFO - {"timestamp": "2026-01-01T07:24:53.864222", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 07:30:30,861 - INFO - {"timestamp": "2026-01-01T07:30:30.861157", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 07:30:30,873 - INFO - {"timestamp": "2026-01-01T07:30:30.873466", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 07:30:30,874 - INFO - {"timestamp": "2026-01-01T07:30:30.874202", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 07:30:30,876 - INFO - {"timestamp": "2026-01-01T07:30:30.876499", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 07:35:19,365 - INFO - {"timestamp": "2026-01-01T07:35:19.365896", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 07:35:19,384 - INFO - {"timestamp": "2026-01-01T07:35:19.384589", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 07:35:19,385 - INFO - {"timestamp": "2026-01-01T07:35:19.385156", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 07:35:19,385 - INFO - {"timestamp": "2026-01-01T07:35:19.385815", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 08:16:02,969 - INFO - {"timestamp": "2026-01-01T08:16:02.969334", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 08:16:03,054 - INFO - {"timestamp": "2026-01-01T08:16:03.054569", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 08:16:03,055 - INFO - {"timestamp": "2026-01-01T08:16:03.054982", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 08:16:03,055 - INFO - {"timestamp": "2026-01-01T08:16:03.055364", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-01 14:59:02,029 - INFO - {"timestamp": "2026-01-01T14:59:02.027441", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-01 14:59:02,058 - INFO - {"timestamp": "2026-01-01T14:59:02.058738", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-01 14:59:02,062 - INFO - {"timestamp": "2026-01-01T14:59:02.062820", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-01 14:59:02,065 - INFO - {"timestamp": "2026-01-01T14:59:02.065227", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-02 00:02:54,385 - INFO - {"timestamp": "2026-01-02T00:02:54.385573", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-02 00:02:54,390 - INFO - {"timestamp": "2026-01-02T00:02:54.390321", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-02 00:02:54,390 - INFO - {"timestamp": "2026-01-02T00:02:54.390721", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-02 00:02:54,391 - INFO - {"timestamp": "2026-01-02T00:02:54.391066", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-02 00:06:42,648 - INFO - {"timestamp": "2026-01-02T00:06:42.648828", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-02 00:06:42,655 - INFO - {"timestamp": "2026-01-02T00:06:42.655049", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-02 00:06:42,655 - INFO - {"timestamp": "2026-01-02T00:06:42.655526", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-02 00:06:42,656 - INFO - {"timestamp": "2026-01-02T00:06:42.655984", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2026-01-02 17:06:50,591 - INFO - {"timestamp": "2026-01-02T17:06:50.591072", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2026-01-02 17:06:50,598 - INFO - {"timestamp": "2026-01-02T17:06:50.598928", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2026-01-02 17:06:50,599 - INFO - {"timestamp": "2026-01-02T17:06:50.599403", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2026-01-02 17:06:50,599 - INFO - {"timestamp": "2026-01-02T17:06:50.599862", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}

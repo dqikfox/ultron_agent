@@ -1,0 +1,37 @@
+2025-12-29 13:49:13,332 - ultron.autonomous_startup - INFO - {"timestamp": "2025-12-29T13:49:13.332850", "component": "autonomous_startup", "level": "INFO", "message": "Initializing ULTRON Agent with autonomous capabilities"}
+2025-12-29 13:49:13,333 - ultron.autonomous_startup - INFO - {"timestamp": "2025-12-29T13:49:13.333156", "component": "autonomous_startup", "level": "INFO", "message": "Autonomous brain initialized"}
+2025-12-29 13:49:13,333 - ultron.autonomous_startup - INFO - {"timestamp": "2025-12-29T13:49:13.333292", "component": "autonomous_startup", "level": "INFO", "message": "Proactive manager initialized"}
+2025-12-29 13:49:13,667 - ultron_agent.config - WARNING - Secrets manager not available: No module named 'utils.secrets_manager'. Using fallback methods.
+2025-12-29 13:49:13,701 - ultron.ai_activities - INFO - {"timestamp": "2025-12-29T13:49:13.701802", "component": "autonomous_startup", "level": "AI_DECISION", "message": "ULTRON Agent autonomous mode activated", "ai_model": "autonomous_brain", "confidence_score": 1.0}
+2025-12-29 13:49:13,702 - main - INFO - Starting ULTRON Agent 3.0...
+2025-12-29 13:49:13,702 - ultron.agent_core - INFO - {"timestamp": "2025-12-29T13:49:13.702259", "component": "agent_core", "level": "INFO", "message": "Loading configuration from ultron_config.json"}
+2025-12-29 13:49:13,702 - ultron.agent_core - ERROR - {"timestamp": "2025-12-29T13:49:13.702385", "component": "agent_core", "level": "ERROR", "message": "ULTRON_CONFIG not available, using UltronConfig fallback"}
+2025-12-29 13:49:13,702 - ultron.agent_core - INFO - {"timestamp": "2025-12-29T13:49:13.702492", "component": "agent_core", "level": "INFO", "message": "Configuration loaded successfully", "extra": {"config_path": "ultron_config.json"}}
+2025-12-29 13:49:13,702 - ultron.agent_core - INFO - {"timestamp": "2025-12-29T13:49:13.702615", "component": "agent_core", "level": "INFO", "message": "Configuration loaded successfully from ultron_config.json"}
+2025-12-29 13:49:13,702 - ultron.agent_core - INFO - {"timestamp": "2025-12-29T13:49:13.702757", "component": "agent_core", "level": "INFO", "message": "Logging system initialized", "extra": {"log_level": "INFO", "handlers": 2}}
+2025-12-29 13:49:13,703 - ultron.diagnostics_core - INFO - {"timestamp": "2025-12-29T13:49:13.703000", "component": "diagnostics_core", "level": "INFO", "message": "Diagnostics system initialized"}
+2025-12-29 13:49:13,703 - ultron.global_workspace - INFO - {"timestamp": "2025-12-29T13:49:13.703468", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-29 13:49:13,704 - ultron.self_model - INFO - {"timestamp": "2025-12-29T13:49:13.704050", "component": "self_model", "level": "INFO", "message": "Initialized self-model for ULTRON"}
+2025-12-29 13:49:13,704 - ultron.meta_representation - INFO - {"timestamp": "2025-12-29T13:49:13.704590", "component": "meta_representation", "level": "INFO", "message": "Initialized meta-level monitoring"}
+2025-12-29 13:49:13,705 - ultron.confidence - INFO - {"timestamp": "2025-12-29T13:49:13.705346", "component": "confidence", "level": "INFO", "message": "Initialized confidence estimator"}
+2025-12-29 13:49:13,705 - ultron.metacognition - INFO - {"timestamp": "2025-12-29T13:49:13.705932", "component": "metacognition", "level": "INFO", "message": "Initialized meta-cognitive monitoring"}
+2025-12-29 13:49:13,706 - ultron.cognition - INFO - {"timestamp": "2025-12-29T13:49:13.706507", "component": "cognition", "level": "INFO", "message": "StateIntrospector initialized for ULTRON"}
+2025-12-29 13:49:13,707 - ultron.cognition - INFO - {"timestamp": "2025-12-29T13:49:13.707111", "component": "cognition", "level": "INFO", "message": "PersonalityModel created for ULTRON"}
+2025-12-29 13:49:13,707 - ultron.cognition - INFO - {"timestamp": "2025-12-29T13:49:13.707417", "component": "cognition", "level": "INFO", "message": "Created NPC: ULTRON (balanced)"}
+2025-12-29 13:49:13,707 - ultron.global_workspace - INFO - {"timestamp": "2025-12-29T13:49:13.707738", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-29 13:49:13,708 - ultron.global_workspace - INFO - {"timestamp": "2025-12-29T13:49:13.708029", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-29 13:49:13,708 - ultron.global_workspace - INFO - {"timestamp": "2025-12-29T13:49:13.708308", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-29 13:49:13,708 - ultron.conscious_agent - INFO - {"timestamp": "2025-12-29T13:49:13.708791", "component": "conscious_agent", "level": "INFO", "message": "Initialized ULTRON as AI Assistant"}
+2025-12-29 13:49:13,709 - ultron.conscious_agent - INFO - {"timestamp": "2025-12-29T13:49:13.709093", "component": "conscious_agent", "level": "INFO", "message": "Personality: balanced"}
+2025-12-29 13:49:13,709 - ultron.ollama_conscious_agent - INFO - {"timestamp": "2025-12-29T13:49:13.709526", "component": "ollama_conscious_agent", "level": "INFO", "message": "Initialized ULTRON (AI Assistant) with model llama3.2:latest"}
+2025-12-29 13:49:13,709 - ultron.agent_core - INFO - {"timestamp": "2025-12-29T13:49:13.709828", "component": "agent_core", "level": "INFO", "message": "Consciousness system initialized (personality-driven mode)"}
+2025-12-29 13:49:13,710 - ultron.agent_core - INFO - {"timestamp": "2025-12-29T13:49:13.710119", "component": "agent_core", "level": "INFO", "message": "ULTRON Agent core initialized successfully", "extra": {"config_path": "ultron_config.json", "components_initialized": 10, "consciousness_enabled": true}}
+2025-12-29 13:49:13,710 - main - INFO - Agent initialized with status: AgentStatus.INITIALIZING
+2025-12-29 13:49:13,710 - root - ERROR - ULTRON Agent startup failed: asyncio.run() cannot be called from a running event loop
+Traceback (most recent call last):
+  File "/home/ultro/projects/ultron_agent/main.py", line 52, in main
+    asyncio.run(agent.initialize())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 190, in run
+    raise RuntimeError(
+RuntimeError: asyncio.run() cannot be called from a running event loop
+2025-12-29 13:49:13,712 - ultron.autonomous_startup - INFO - {"timestamp": "2025-12-29T13:49:13.712914", "component": "autonomous_startup", "level": "INFO", "message": "Startup error: object int can't be used in 'await' expression"}

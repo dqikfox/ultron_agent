@@ -1,0 +1,284 @@
+2025-12-18 10:23:20,921 - ERROR - {"timestamp": "2025-12-18T10:23:20.921450", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-18 10:23:20,922 - ERROR - {"timestamp": "2025-12-18T10:23:20.922106", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-18 10:23:20,923 - INFO - {"timestamp": "2025-12-18T10:23:20.923237", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-18 10:23:20,924 - INFO - {"timestamp": "2025-12-18T10:23:20.924025", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-18 17:38:24,034 - ERROR - {"timestamp": "2025-12-18T17:38:24.034548", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-18 17:38:24,037 - ERROR - {"timestamp": "2025-12-18T17:38:24.037648", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-18 17:38:24,039 - INFO - {"timestamp": "2025-12-18T17:38:24.039217", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-18 17:38:24,040 - INFO - {"timestamp": "2025-12-18T17:38:24.040372", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-20 05:13:19,616 - ERROR - {"timestamp": "2025-12-20T05:13:19.616300", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-20 05:13:19,616 - ERROR - {"timestamp": "2025-12-20T05:13:19.616628", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-20 05:13:19,617 - INFO - {"timestamp": "2025-12-20T05:13:19.617139", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-20 05:13:19,617 - INFO - {"timestamp": "2025-12-20T05:13:19.617424", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-20 05:23:57,553 - ERROR - {"timestamp": "2025-12-20T05:23:57.553479", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-20 05:23:57,554 - ERROR - {"timestamp": "2025-12-20T05:23:57.554029", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-20 05:23:57,554 - INFO - {"timestamp": "2025-12-20T05:23:57.554888", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-20 05:23:57,555 - INFO - {"timestamp": "2025-12-20T05:23:57.555259", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-20 05:26:32,847 - ERROR - {"timestamp": "2025-12-20T05:26:32.847371", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-20 05:26:32,848 - ERROR - {"timestamp": "2025-12-20T05:26:32.848096", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-20 05:26:32,848 - INFO - {"timestamp": "2025-12-20T05:26:32.848919", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-20 05:26:32,849 - INFO - {"timestamp": "2025-12-20T05:26:32.849595", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-20 05:45:10,245 - ERROR - {"timestamp": "2025-12-20T05:45:10.245340", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-20 05:45:10,245 - ERROR - {"timestamp": "2025-12-20T05:45:10.245715", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-20 05:45:10,246 - INFO - {"timestamp": "2025-12-20T05:45:10.246212", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-20 05:45:10,246 - INFO - {"timestamp": "2025-12-20T05:45:10.246465", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-22 10:19:04,579 - ERROR - {"timestamp": "2025-12-22T10:19:04.579690", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-22 10:19:04,580 - ERROR - {"timestamp": "2025-12-22T10:19:04.580434", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-22 10:19:04,581 - INFO - {"timestamp": "2025-12-22T10:19:04.581228", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-22 10:19:04,581 - INFO - {"timestamp": "2025-12-22T10:19:04.581576", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-22 13:24:02,151 - ERROR - {"timestamp": "2025-12-22T13:24:02.151421", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-22 13:24:02,151 - ERROR - {"timestamp": "2025-12-22T13:24:02.151740", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-22 13:24:02,152 - INFO - {"timestamp": "2025-12-22T13:24:02.152230", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-22 13:24:02,152 - INFO - {"timestamp": "2025-12-22T13:24:02.152569", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-22 17:29:27,424 - ERROR - {"timestamp": "2025-12-22T17:29:27.424838", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-22 17:29:27,425 - ERROR - {"timestamp": "2025-12-22T17:29:27.425385", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-22 17:29:27,426 - INFO - {"timestamp": "2025-12-22T17:29:27.426182", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-22 17:29:27,426 - INFO - {"timestamp": "2025-12-22T17:29:27.426521", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-22 18:16:39,637 - ERROR - {"timestamp": "2025-12-22T18:16:39.637259", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-22 18:16:39,637 - ERROR - {"timestamp": "2025-12-22T18:16:39.637771", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-22 18:16:39,638 - INFO - {"timestamp": "2025-12-22T18:16:39.638838", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-22 18:16:39,639 - INFO - {"timestamp": "2025-12-22T18:16:39.639312", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-22 18:24:11,350 - ERROR - {"timestamp": "2025-12-22T18:24:11.350568", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-22 18:24:11,350 - ERROR - {"timestamp": "2025-12-22T18:24:11.350873", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-22 18:24:11,351 - INFO - {"timestamp": "2025-12-22T18:24:11.351517", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-22 18:24:11,351 - INFO - {"timestamp": "2025-12-22T18:24:11.351838", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-22 18:33:10,030 - ERROR - {"timestamp": "2025-12-22T18:33:10.030156", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-22 18:33:10,031 - ERROR - {"timestamp": "2025-12-22T18:33:10.031621", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-22 18:33:10,034 - INFO - {"timestamp": "2025-12-22T18:33:10.034815", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-22 18:33:10,035 - INFO - {"timestamp": "2025-12-22T18:33:10.035542", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 06:53:26,347 - ERROR - {"timestamp": "2025-12-25T06:53:26.347365", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 06:53:26,347 - ERROR - {"timestamp": "2025-12-25T06:53:26.347830", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 06:53:26,348 - INFO - {"timestamp": "2025-12-25T06:53:26.348449", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 06:53:26,348 - INFO - {"timestamp": "2025-12-25T06:53:26.348677", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 06:53:33,676 - ERROR - {"timestamp": "2025-12-25T06:53:33.676648", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 06:53:33,677 - ERROR - {"timestamp": "2025-12-25T06:53:33.677010", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 06:53:33,677 - INFO - {"timestamp": "2025-12-25T06:53:33.677737", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 06:53:33,678 - INFO - {"timestamp": "2025-12-25T06:53:33.678204", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 06:55:36,724 - ERROR - {"timestamp": "2025-12-25T06:55:36.724184", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 06:55:36,724 - ERROR - {"timestamp": "2025-12-25T06:55:36.724592", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 06:55:36,725 - INFO - {"timestamp": "2025-12-25T06:55:36.725193", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 06:55:36,725 - INFO - {"timestamp": "2025-12-25T06:55:36.725497", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 06:55:43,979 - ERROR - {"timestamp": "2025-12-25T06:55:43.979652", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 06:55:43,979 - ERROR - {"timestamp": "2025-12-25T06:55:43.979868", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 06:55:43,980 - INFO - {"timestamp": "2025-12-25T06:55:43.980282", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 06:55:43,980 - INFO - {"timestamp": "2025-12-25T06:55:43.980559", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 07:01:51,602 - ERROR - {"timestamp": "2025-12-25T07:01:51.602766", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 07:01:51,603 - ERROR - {"timestamp": "2025-12-25T07:01:51.603217", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 07:01:51,604 - INFO - {"timestamp": "2025-12-25T07:01:51.604205", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 07:01:51,604 - INFO - {"timestamp": "2025-12-25T07:01:51.604570", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 07:01:58,990 - ERROR - {"timestamp": "2025-12-25T07:01:58.990377", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 07:01:58,990 - ERROR - {"timestamp": "2025-12-25T07:01:58.990607", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 07:01:58,991 - INFO - {"timestamp": "2025-12-25T07:01:58.991016", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 07:01:58,991 - INFO - {"timestamp": "2025-12-25T07:01:58.991314", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 07:05:29,332 - ERROR - {"timestamp": "2025-12-25T07:05:29.332621", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 07:05:29,333 - ERROR - {"timestamp": "2025-12-25T07:05:29.333015", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 07:05:29,333 - INFO - {"timestamp": "2025-12-25T07:05:29.333434", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 07:05:29,333 - INFO - {"timestamp": "2025-12-25T07:05:29.333687", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-25 07:05:31,710 - ERROR - {"timestamp": "2025-12-25T07:05:31.710747", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-25 07:05:31,711 - ERROR - {"timestamp": "2025-12-25T07:05:31.711003", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-25 07:05:31,711 - INFO - {"timestamp": "2025-12-25T07:05:31.711489", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-25 07:05:31,711 - INFO - {"timestamp": "2025-12-25T07:05:31.711731", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-26 02:06:40,807 - ERROR - {"timestamp": "2025-12-26T02:06:40.807048", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-26 02:06:40,807 - ERROR - {"timestamp": "2025-12-26T02:06:40.807522", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-26 02:06:40,808 - INFO - {"timestamp": "2025-12-26T02:06:40.808185", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-26 02:06:40,808 - INFO - {"timestamp": "2025-12-26T02:06:40.808464", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-26 02:06:43,165 - ERROR - {"timestamp": "2025-12-26T02:06:43.165746", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-26 02:06:43,166 - ERROR - {"timestamp": "2025-12-26T02:06:43.165976", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-26 02:06:43,166 - INFO - {"timestamp": "2025-12-26T02:06:43.166375", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-26 02:06:43,166 - INFO - {"timestamp": "2025-12-26T02:06:43.166640", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-26 23:18:57,931 - ERROR - {"timestamp": "2025-12-26T23:18:57.931136", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-26 23:18:57,931 - ERROR - {"timestamp": "2025-12-26T23:18:57.931587", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-26 23:18:57,932 - INFO - {"timestamp": "2025-12-26T23:18:57.932049", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-26 23:18:57,932 - INFO - {"timestamp": "2025-12-26T23:18:57.932317", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-26 23:19:00,322 - ERROR - {"timestamp": "2025-12-26T23:19:00.322610", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-26 23:19:00,323 - ERROR - {"timestamp": "2025-12-26T23:19:00.323225", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-26 23:19:00,324 - INFO - {"timestamp": "2025-12-26T23:19:00.324060", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-26 23:19:00,324 - INFO - {"timestamp": "2025-12-26T23:19:00.324588", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 03:00:38,500 - ERROR - {"timestamp": "2025-12-27T03:00:38.500742", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 03:00:38,501 - ERROR - {"timestamp": "2025-12-27T03:00:38.501166", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 03:00:38,501 - INFO - {"timestamp": "2025-12-27T03:00:38.501886", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 03:00:38,502 - INFO - {"timestamp": "2025-12-27T03:00:38.502412", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 03:00:40,902 - ERROR - {"timestamp": "2025-12-27T03:00:40.902474", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 03:00:40,902 - ERROR - {"timestamp": "2025-12-27T03:00:40.902866", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 03:00:40,907 - INFO - {"timestamp": "2025-12-27T03:00:40.907254", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 03:00:40,907 - INFO - {"timestamp": "2025-12-27T03:00:40.907851", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 03:46:21,443 - ERROR - {"timestamp": "2025-12-27T03:46:21.443490", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 03:46:21,443 - ERROR - {"timestamp": "2025-12-27T03:46:21.443783", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 03:46:21,444 - INFO - {"timestamp": "2025-12-27T03:46:21.444185", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 03:46:21,444 - INFO - {"timestamp": "2025-12-27T03:46:21.444442", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 03:46:23,716 - ERROR - {"timestamp": "2025-12-27T03:46:23.716422", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 03:46:23,716 - ERROR - {"timestamp": "2025-12-27T03:46:23.716667", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 03:46:23,717 - INFO - {"timestamp": "2025-12-27T03:46:23.717100", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 03:46:23,717 - INFO - {"timestamp": "2025-12-27T03:46:23.717348", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 04:28:36,141 - ERROR - {"timestamp": "2025-12-27T04:28:36.141810", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 04:28:36,142 - ERROR - {"timestamp": "2025-12-27T04:28:36.142151", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 04:28:36,143 - INFO - {"timestamp": "2025-12-27T04:28:36.143099", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 04:28:36,143 - INFO - {"timestamp": "2025-12-27T04:28:36.143629", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 04:28:38,373 - ERROR - {"timestamp": "2025-12-27T04:28:38.373910", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 04:28:38,374 - ERROR - {"timestamp": "2025-12-27T04:28:38.374237", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 04:28:38,374 - INFO - {"timestamp": "2025-12-27T04:28:38.374874", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 04:28:38,375 - INFO - {"timestamp": "2025-12-27T04:28:38.375131", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:05:11,376 - ERROR - {"timestamp": "2025-12-28T03:05:11.376383", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:05:11,377 - ERROR - {"timestamp": "2025-12-28T03:05:11.377468", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:05:11,380 - INFO - {"timestamp": "2025-12-28T03:05:11.380221", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:05:11,381 - INFO - {"timestamp": "2025-12-28T03:05:11.380978", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:05:13,714 - ERROR - {"timestamp": "2025-12-28T03:05:13.714160", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:05:13,714 - ERROR - {"timestamp": "2025-12-28T03:05:13.714374", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:05:13,714 - INFO - {"timestamp": "2025-12-28T03:05:13.714775", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:05:13,715 - INFO - {"timestamp": "2025-12-28T03:05:13.715001", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:05:34,842 - ERROR - {"timestamp": "2025-12-28T03:05:34.842489", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:05:34,842 - ERROR - {"timestamp": "2025-12-28T03:05:34.842825", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:05:34,843 - INFO - {"timestamp": "2025-12-28T03:05:34.843582", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:05:34,844 - INFO - {"timestamp": "2025-12-28T03:05:34.844047", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:05:37,174 - ERROR - {"timestamp": "2025-12-28T03:05:37.174745", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:05:37,174 - ERROR - {"timestamp": "2025-12-28T03:05:37.174968", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:05:37,175 - INFO - {"timestamp": "2025-12-28T03:05:37.175389", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:05:37,175 - INFO - {"timestamp": "2025-12-28T03:05:37.175632", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:10:15,955 - ERROR - {"timestamp": "2025-12-28T03:10:15.955213", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:10:15,955 - ERROR - {"timestamp": "2025-12-28T03:10:15.955677", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:10:15,956 - INFO - {"timestamp": "2025-12-28T03:10:15.956423", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:10:15,956 - INFO - {"timestamp": "2025-12-28T03:10:15.956791", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:10:18,284 - ERROR - {"timestamp": "2025-12-28T03:10:18.284677", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:10:18,284 - ERROR - {"timestamp": "2025-12-28T03:10:18.284915", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:10:18,285 - INFO - {"timestamp": "2025-12-28T03:10:18.285348", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:10:18,285 - INFO - {"timestamp": "2025-12-28T03:10:18.285599", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:12:14,525 - ERROR - {"timestamp": "2025-12-28T03:12:14.525061", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:12:14,525 - ERROR - {"timestamp": "2025-12-28T03:12:14.525442", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:12:14,526 - INFO - {"timestamp": "2025-12-28T03:12:14.526232", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:12:14,526 - INFO - {"timestamp": "2025-12-28T03:12:14.526494", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 03:12:16,926 - ERROR - {"timestamp": "2025-12-28T03:12:16.926422", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 03:12:16,926 - ERROR - {"timestamp": "2025-12-28T03:12:16.926676", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 03:12:16,927 - INFO - {"timestamp": "2025-12-28T03:12:16.927107", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 03:12:16,927 - INFO - {"timestamp": "2025-12-28T03:12:16.927352", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 11:17:58,703 - ERROR - {"timestamp": "2025-12-28T11:17:58.702944", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 11:17:58,703 - ERROR - {"timestamp": "2025-12-28T11:17:58.703274", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 11:17:58,703 - INFO - {"timestamp": "2025-12-28T11:17:58.703824", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 11:17:58,704 - INFO - {"timestamp": "2025-12-28T11:17:58.704247", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-28 11:18:00,933 - ERROR - {"timestamp": "2025-12-28T11:18:00.933633", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-28 11:18:00,933 - ERROR - {"timestamp": "2025-12-28T11:18:00.933864", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-28 11:18:00,934 - INFO - {"timestamp": "2025-12-28T11:18:00.934277", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-28 11:18:00,934 - INFO - {"timestamp": "2025-12-28T11:18:00.934509", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-29 13:24:48,677 - ERROR - {"timestamp": "2025-12-29T13:24:48.677185", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-29 13:24:48,679 - ERROR - {"timestamp": "2025-12-29T13:24:48.679006", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-29 13:24:48,681 - INFO - {"timestamp": "2025-12-29T13:24:48.681433", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-29 13:24:48,683 - INFO - {"timestamp": "2025-12-29T13:24:48.683657", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-29 13:48:59,449 - ERROR - {"timestamp": "2025-12-29T13:48:59.449088", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-29 13:48:59,449 - ERROR - {"timestamp": "2025-12-29T13:48:59.449852", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-29 13:48:59,451 - INFO - {"timestamp": "2025-12-29T13:48:59.451216", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-29 13:48:59,452 - INFO - {"timestamp": "2025-12-29T13:48:59.451969", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-29 13:49:01,872 - ERROR - {"timestamp": "2025-12-29T13:49:01.872271", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-29 13:49:01,872 - ERROR - {"timestamp": "2025-12-29T13:49:01.872645", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-29 13:49:01,873 - INFO - {"timestamp": "2025-12-29T13:49:01.873329", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-29 13:49:01,873 - INFO - {"timestamp": "2025-12-29T13:49:01.873781", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-29 14:35:14,570 - ERROR - {"timestamp": "2025-12-29T14:35:14.570898", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-29 14:35:14,571 - ERROR - {"timestamp": "2025-12-29T14:35:14.571442", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-29 14:35:14,572 - INFO - {"timestamp": "2025-12-29T14:35:14.572537", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-29 14:35:14,573 - INFO - {"timestamp": "2025-12-29T14:35:14.573058", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-29 14:35:22,104 - ERROR - {"timestamp": "2025-12-29T14:35:22.104521", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-29 14:35:22,105 - ERROR - {"timestamp": "2025-12-29T14:35:22.105248", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-29 14:35:22,106 - INFO - {"timestamp": "2025-12-29T14:35:22.106383", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-29 14:35:22,107 - INFO - {"timestamp": "2025-12-29T14:35:22.107045", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-30 03:03:16,312 - ERROR - {"timestamp": "2025-12-30T03:03:16.312860", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-30 03:03:16,313 - ERROR - {"timestamp": "2025-12-30T03:03:16.313698", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-30 03:03:16,314 - INFO - {"timestamp": "2025-12-30T03:03:16.314671", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-30 03:03:16,315 - INFO - {"timestamp": "2025-12-30T03:03:16.315131", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-30 03:03:18,681 - ERROR - {"timestamp": "2025-12-30T03:03:18.681557", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-30 03:03:18,681 - ERROR - {"timestamp": "2025-12-30T03:03:18.681940", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-30 03:03:18,683 - INFO - {"timestamp": "2025-12-30T03:03:18.683079", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-30 03:03:18,683 - INFO - {"timestamp": "2025-12-30T03:03:18.683544", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-31 12:28:17,951 - ERROR - {"timestamp": "2025-12-31T12:28:17.951482", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-31 12:28:17,952 - ERROR - {"timestamp": "2025-12-31T12:28:17.952273", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-31 12:28:17,953 - INFO - {"timestamp": "2025-12-31T12:28:17.953202", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-31 12:28:17,953 - INFO - {"timestamp": "2025-12-31T12:28:17.953659", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-31 12:28:20,330 - ERROR - {"timestamp": "2025-12-31T12:28:20.329968", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-31 12:28:20,330 - ERROR - {"timestamp": "2025-12-31T12:28:20.330182", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-31 12:28:20,330 - INFO - {"timestamp": "2025-12-31T12:28:20.330601", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-31 12:28:20,330 - INFO - {"timestamp": "2025-12-31T12:28:20.330828", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 04:04:27,973 - ERROR - {"timestamp": "2026-01-01T04:04:27.972926", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 04:04:27,973 - ERROR - {"timestamp": "2026-01-01T04:04:27.973707", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 04:04:27,975 - INFO - {"timestamp": "2026-01-01T04:04:27.975647", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 04:04:27,976 - INFO - {"timestamp": "2026-01-01T04:04:27.976357", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 04:04:30,566 - ERROR - {"timestamp": "2026-01-01T04:04:30.566501", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 04:04:30,567 - ERROR - {"timestamp": "2026-01-01T04:04:30.567176", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 04:04:30,568 - INFO - {"timestamp": "2026-01-01T04:04:30.568109", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 04:04:30,568 - INFO - {"timestamp": "2026-01-01T04:04:30.568687", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:07:41,558 - ERROR - {"timestamp": "2026-01-01T07:07:41.558442", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:07:41,558 - ERROR - {"timestamp": "2026-01-01T07:07:41.558804", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:07:41,559 - INFO - {"timestamp": "2026-01-01T07:07:41.559365", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:07:41,559 - INFO - {"timestamp": "2026-01-01T07:07:41.559798", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:07:43,969 - ERROR - {"timestamp": "2026-01-01T07:07:43.969094", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:07:43,969 - ERROR - {"timestamp": "2026-01-01T07:07:43.969369", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:07:43,969 - INFO - {"timestamp": "2026-01-01T07:07:43.969835", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:07:43,970 - INFO - {"timestamp": "2026-01-01T07:07:43.970117", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:23:54,487 - ERROR - {"timestamp": "2026-01-01T07:23:54.486966", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:23:54,487 - ERROR - {"timestamp": "2026-01-01T07:23:54.487590", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:23:54,489 - INFO - {"timestamp": "2026-01-01T07:23:54.489175", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:23:54,489 - INFO - {"timestamp": "2026-01-01T07:23:54.489639", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:23:56,938 - ERROR - {"timestamp": "2026-01-01T07:23:56.938359", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:23:56,938 - ERROR - {"timestamp": "2026-01-01T07:23:56.938614", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:23:56,939 - INFO - {"timestamp": "2026-01-01T07:23:56.939041", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:23:56,939 - INFO - {"timestamp": "2026-01-01T07:23:56.939282", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:25:01,922 - ERROR - {"timestamp": "2026-01-01T07:25:01.922766", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:25:01,923 - ERROR - {"timestamp": "2026-01-01T07:25:01.923179", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:25:01,924 - INFO - {"timestamp": "2026-01-01T07:25:01.923907", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:25:01,924 - INFO - {"timestamp": "2026-01-01T07:25:01.924655", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:25:04,295 - ERROR - {"timestamp": "2026-01-01T07:25:04.295198", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:25:04,295 - ERROR - {"timestamp": "2026-01-01T07:25:04.295662", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:25:04,296 - INFO - {"timestamp": "2026-01-01T07:25:04.296414", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:25:04,296 - INFO - {"timestamp": "2026-01-01T07:25:04.296741", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:30:38,144 - ERROR - {"timestamp": "2026-01-01T07:30:38.144605", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:30:38,145 - ERROR - {"timestamp": "2026-01-01T07:30:38.145044", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:30:38,147 - INFO - {"timestamp": "2026-01-01T07:30:38.147121", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:30:38,147 - INFO - {"timestamp": "2026-01-01T07:30:38.147787", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:30:45,498 - ERROR - {"timestamp": "2026-01-01T07:30:45.498386", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:30:45,498 - ERROR - {"timestamp": "2026-01-01T07:30:45.498729", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:30:45,499 - INFO - {"timestamp": "2026-01-01T07:30:45.499266", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:30:45,499 - INFO - {"timestamp": "2026-01-01T07:30:45.499577", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:35:30,260 - ERROR - {"timestamp": "2026-01-01T07:35:30.260616", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:35:30,261 - ERROR - {"timestamp": "2026-01-01T07:35:30.260977", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:35:30,261 - INFO - {"timestamp": "2026-01-01T07:35:30.261606", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:35:30,261 - INFO - {"timestamp": "2026-01-01T07:35:30.261919", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 07:35:44,752 - ERROR - {"timestamp": "2026-01-01T07:35:44.752841", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 07:35:44,753 - ERROR - {"timestamp": "2026-01-01T07:35:44.753087", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 07:35:44,753 - INFO - {"timestamp": "2026-01-01T07:35:44.753514", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 07:35:44,753 - INFO - {"timestamp": "2026-01-01T07:35:44.753795", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 08:16:33,394 - ERROR - {"timestamp": "2026-01-01T08:16:33.394833", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 08:16:33,395 - ERROR - {"timestamp": "2026-01-01T08:16:33.395330", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 08:16:33,397 - INFO - {"timestamp": "2026-01-01T08:16:33.397357", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 08:16:33,398 - INFO - {"timestamp": "2026-01-01T08:16:33.398214", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 08:16:48,093 - ERROR - {"timestamp": "2026-01-01T08:16:48.093102", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 08:16:48,093 - ERROR - {"timestamp": "2026-01-01T08:16:48.093361", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 08:16:48,093 - INFO - {"timestamp": "2026-01-01T08:16:48.093800", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 08:16:48,094 - INFO - {"timestamp": "2026-01-01T08:16:48.094045", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 14:59:26,287 - ERROR - {"timestamp": "2026-01-01T14:59:26.287393", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 14:59:26,288 - ERROR - {"timestamp": "2026-01-01T14:59:26.288295", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 14:59:26,289 - INFO - {"timestamp": "2026-01-01T14:59:26.289613", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 14:59:26,290 - INFO - {"timestamp": "2026-01-01T14:59:26.290825", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-01 14:59:28,803 - ERROR - {"timestamp": "2026-01-01T14:59:28.803399", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-01 14:59:28,803 - ERROR - {"timestamp": "2026-01-01T14:59:28.803840", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-01 14:59:28,804 - INFO - {"timestamp": "2026-01-01T14:59:28.804722", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-01 14:59:28,805 - INFO - {"timestamp": "2026-01-01T14:59:28.805147", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-02 00:03:13,268 - ERROR - {"timestamp": "2026-01-02T00:03:13.268524", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-02 00:03:13,269 - ERROR - {"timestamp": "2026-01-02T00:03:13.269051", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-02 00:03:13,269 - INFO - {"timestamp": "2026-01-02T00:03:13.269756", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-02 00:03:13,270 - INFO - {"timestamp": "2026-01-02T00:03:13.270113", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-02 00:03:15,759 - ERROR - {"timestamp": "2026-01-02T00:03:15.759484", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-02 00:03:15,760 - ERROR - {"timestamp": "2026-01-02T00:03:15.760127", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-02 00:03:15,764 - INFO - {"timestamp": "2026-01-02T00:03:15.764619", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-02 00:03:15,765 - INFO - {"timestamp": "2026-01-02T00:03:15.765307", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-02 00:07:02,709 - ERROR - {"timestamp": "2026-01-02T00:07:02.709052", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-02 00:07:02,709 - ERROR - {"timestamp": "2026-01-02T00:07:02.709501", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-02 00:07:02,710 - INFO - {"timestamp": "2026-01-02T00:07:02.710590", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-02 00:07:02,711 - INFO - {"timestamp": "2026-01-02T00:07:02.711386", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-02 00:07:10,169 - ERROR - {"timestamp": "2026-01-02T00:07:10.169270", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-02 00:07:10,169 - ERROR - {"timestamp": "2026-01-02T00:07:10.169770", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-02 00:07:10,170 - INFO - {"timestamp": "2026-01-02T00:07:10.170601", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-02 00:07:10,171 - INFO - {"timestamp": "2026-01-02T00:07:10.171130", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-02 17:07:18,521 - ERROR - {"timestamp": "2026-01-02T17:07:18.521619", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-02 17:07:18,523 - ERROR - {"timestamp": "2026-01-02T17:07:18.523235", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-02 17:07:18,524 - INFO - {"timestamp": "2026-01-02T17:07:18.524735", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-02 17:07:18,525 - INFO - {"timestamp": "2026-01-02T17:07:18.525782", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2026-01-02 17:07:28,222 - ERROR - {"timestamp": "2026-01-02T17:07:28.222678", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2026-01-02 17:07:28,222 - ERROR - {"timestamp": "2026-01-02T17:07:28.222898", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2026-01-02 17:07:28,223 - INFO - {"timestamp": "2026-01-02T17:07:28.223294", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2026-01-02 17:07:28,223 - INFO - {"timestamp": "2026-01-02T17:07:28.223542", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}

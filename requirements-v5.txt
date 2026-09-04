@@ -1,0 +1,23 @@
+# ULTRON v5.0 Production Requirements
+# Install: pip install -r requirements-v5.txt
+
+# Core orchestration
+langgraph>=0.0.50
+langchain-core>=0.1.0
+
+# Local LLM client
+ollama>=0.2.0
+
+# Memory and data
+pydantic>=2.0.0
+typing-extensions>=4.5.0
+
+# Async support
+aiohttp>=3.9.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Monitoring (optional)
+langfuse>=2.0.0

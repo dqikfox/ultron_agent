@@ -1,0 +1,292 @@
+/* Advanced Styles for ULTRON GUI Enhancements */
+
+/* Quick Actions Bar */
+.quick-actions-bar {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    animation: slideInRight 0.5s ease;
+}
+
+.quick-action-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(40, 40, 40, 0.95));
+    color: #ff4444;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+}
+
+.quick-action-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(255, 68, 68, 0.5);
+    background: linear-gradient(135deg, rgba(255, 68, 68, 0.2), rgba(255, 102, 102, 0.2));
+}
+
+/* Theme Switcher */
+.theme-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.theme-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(40, 40, 40, 0.95));
+    color: #ff4444;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-menu {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: rgba(20, 20, 20, 0.98);
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    border-radius: 8px;
+    padding: 10px;
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+}
+
+.theme-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.theme-option:hover {
+    background: rgba(255, 68, 68, 0.2);
+    transform: translateX(5px);
+}
+
+/* Drag & Drop */
+.drag-over {
+    border: 3px dashed #ff4444 !important;
+    background: rgba(255, 68, 68, 0.1) !important;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background: rgba(20, 20, 20, 0.98);
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    border-radius: 8px;
+    padding: 5px;
+    min-width: 150px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.context-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.context-item:hover {
+    background: rgba(255, 68, 68, 0.2);
+    transform: translateX(5px);
+}
+
+/* Modal Enhancements */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.98), rgba(40, 40, 40, 0.98));
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+    animation: slideInUp 0.3s ease;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff4444;
+    margin-bottom: 20px;
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+}
+
+.modal-close {
+    margin-top: 20px;
+    padding: 10px 30px;
+    background: linear-gradient(135deg, #ff4444, #ff6666);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.modal-close:hover {
+    background: linear-gradient(135deg, #ff6666, #ff8888);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.5);
+}
+
+/* History List */
+.history-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+.history-item {
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.history-item:hover {
+    background: rgba(255, 68, 68, 0.2);
+    border-color: #ff4444;
+    transform: translateX(5px);
+}
+
+/* Help Modal */
+.help-modal {
+    max-width: 700px;
+}
+
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.shortcut {
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.shortcut kbd {
+    background: rgba(255, 68, 68, 0.2);
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 68, 68, 0.5);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    color: #ff4444;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Performance Monitor */
+#perf-monitor {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(20, 20, 20, 0.95);
+    border: 2px solid rgba(255, 68, 68, 0.5);
+    border-radius: 8px;
+    padding: 10px 15px;
+    color: #ff4444;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Scrollbar */
+.history-list::-webkit-scrollbar, .modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.history-list::-webkit-scrollbar-track, .modal-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb, .modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 68, 68, 0.5);
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .quick-actions-bar { bottom: 60px; right: 10px; }
+    .quick-action-btn { width: 40px; height: 40px; font-size: 1.2rem; }
+    .modal-content { max-width: 90%; padding: 20px; }
+    .shortcuts-grid { grid-template-columns: 1fr; }
+}

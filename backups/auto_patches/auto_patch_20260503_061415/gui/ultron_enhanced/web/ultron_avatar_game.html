@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Avatar Game</title>
+    <style>
+        body { margin: 0; background: linear-gradient(135deg, #000 0%, #001100 100%); color: #0f0; font-family: 'Courier New', monospace; }
+        #game { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+        #ui { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.9); padding: 10px; border-radius: 8px; border: 1px solid #0f0; }
+        #chat { position: absolute; bottom: 10px; left: 10px; right: 10px; height: 180px; background: rgba(0,0,0,0.95); border: 2px solid #0f0; padding: 15px; border-radius: 10px; box-shadow: 0 0 20px #0f0; }
+        #messages { height: 120px; overflow-y: auto; margin-bottom: 10px; /* scrollbar-width and scrollbar-color have limited browser support */ }
+        @supports (scrollbar-width: thin) {
+            #messages { scrollbar-width: thin; scrollbar-color: #0f0 #000; }
+        }
+        #input { width: 100%; background: #001100; color: #0f0; border: 2px solid #0f0; padding: 8px; border-radius: 5px; font-size: 14px; }
+        .avatar { position: absolute; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; transition: all 0.4s ease; border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 0 15px currentColor; }
+        .avatar::before { content: attr(data-name); position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 10px; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
+        .avatar:hover::before { opacity: 1; }
+        .coder { background: radial-gradient(circle, #00f 0%, #0066ff 100%); }
+        .writer { background: radial-gradient(circle, #f0f 0%, #ff66ff 100%); }
+        .tool_user { background: radial-gradient(circle, #f80 0%, #ff9933 100%); }
+        .assistant { background: radial-gradient(circle, #0f0 0%, #66ff66 100%); }
+        .admin { background: radial-gradient(circle, #f00 0%, #ff6666 100%); }
+        .pyautogui_agent { background: radial-gradient(circle, #ff0 0%, #ffff66 100%); }
+        .avatar:hover { transform: scale(1.3) rotate(5deg); filter: brightness(1.3); }
+        .avatar.speaking { animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        button { background: linear-gradient(45deg, #000, #003300); color: #0f0; border: 2px solid #0f0; padding: 8px 15px; margin: 3px; cursor: pointer; border-radius: 5px; transition: all 0.3s; font-weight: bold; }
+        button:hover { background: linear-gradient(45deg, #0f0, #00ff00); color: #000; box-shadow: 0 0 10px #0f0; }
+        select { background: #001100; color: #0f0; border: 2px solid #0f0; padding: 8px; margin: 3px; border-radius: 5px; min-width: 200px; }
+        option { background: #000; color: #0f0; }
+        .tool-indicator { font-size: 8px; color: #888; margin-top: 2px; }
+        .role-badge { display: inline-block; padding: 2px 6px; background: rgba(0,255,0,0.2); border: 1px solid #0f0; border-radius: 3px; font-size: 8px; margin: 1px; }
+        .ui-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .screen-view { display: none; border: 1px solid #0f0; margin: 5px; max-width: 300px; }
+        .screen-view img { width: 100%; height: auto; }
+        .ui-info { font-size: 10px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="ui">
+        <div class="ui-controls">
+                <select id="roleSelect" title="Select avatar role" aria-label="Avatar role">
+                    <option value="random">Random Role</option>
+                    <option value="coder">💻 CODER (Programming Expert)</option>
+                    <option value="writer">📝 WRITER (Content Creator)</option>
+                    <option value="tool_user">🔧 TOOL_USER (Automation Expert)</option>
+                    <option value="assistant">🤖 ASSISTANT (General Helper)</option>
+                    <option value="admin">🛡️ ADMIN (System Administrator)</option>
+                    <option value="pyautogui_agent">🖱️ PYAUTOGUI_AGENT (Screen Control)</option>
+                </select>
+                <select id="modelSelect" title="Select AI model" aria-label="AI model">
+                    <option value="auto">Auto-Select Model</option>
+                    <option value="llava:7b">LLAVA 7B (Vision)</option>
+                    <option value="mistral-nemo:12b">Mistral Nemo 12B</option>
+                    <option value="qwen3-coder:480b-cloud">Qwen3 Coder 480B</option>
+                    <option value="gemma3:12b">Gemma3 12B</option>
+                    <option value="exaone-deep:7.8b">EXAONE Deep 7.8B</option>
+                    <option value="gpt-oss:20b-cloud">GPT-OSS 20B</option>
+                </select>
+            </div>
+            <button onclick="spawnAvatar()">Spawn Avatar (Space)</button>
+            <button onclick="clearAvatars()">Clear All (C)</button>
+            <button onclick="showMemory()">View Memory (M)</button>
+            <button onclick="takeScreenshot()">Screenshot + OCR (S)</button>
+            <button onclick="toggleScreenShare()">Live View (L)</button>
+            <button onclick="showToolsPanel()">Tools Panel (T)</button>
+            <button onclick="testAllTools()">Test Tools</button>
+            <div>Avatars: <span id="count">0</span>/6 | Memory: <span id="memoryCount">0</span></div>
+            <div class="ui-info">
+                <div>🔧 Tools: OCR, PyAutoGUI, File Ops, Web Search, System Control</div>
+                <div>🎯 Roles: Coder, Writer, Tool User, Assistant, Admin, PyAutoGUI Agent</div>
+            </div>
+            <div id="screenView" class="screen-view">
+                <img id="liveScreen" alt="Live screen capture" />
+            </div>
+            </div>
+        </div>
+        <div id="chat">
+            <div id="messages"></div>
+            <input id="input" placeholder="Type to chat with avatars..." onkeypress="handleInput(event)">
+        </div>
+    </div>
+
+    <script>
+        const avatarRoles = {
+            coder: { 
+                name: 'CODER', 
+                description: 'Programming & Development Expert',
+                color: '#00f',
+                tools: ['code_analysis', 'file_operations', 'git_operations', 'debugging'],
+                systemPrompt: 'You are a senior software developer with expertise in multiple programming languages. You can analyze code, debug issues, write functions, and manage files. You have access to OCR for reading code from images.'
+            },
+            writer: { 
+                name: 'WRITER', 
+                description: 'Content Creation & Documentation',
+                color: '#f0f',
+                tools: ['text_processing', 'ocr', 'file_operations', 'web_search'],
+                systemPrompt: 'You are a professional writer and content creator. You excel at creating documentation, articles, and creative content. You can read text from images using OCR and research topics online.'
+            },
+            tool_user: { 
+                name: 'TOOL_USER', 
+                description: 'System Tools & Automation Expert',
+                color: '#f80',
+                tools: ['pyautogui', 'system_control', 'file_operations', 'ocr', 'web_automation'],
+                systemPrompt: 'You are an automation expert who can control the computer using various tools. You can click, type, capture screens, read text from images, and automate repetitive tasks.'
+            },
+            assistant: { 
+                name: 'ASSISTANT', 
+                description: 'General Purpose AI Helper',
+                color: '#0f0',
+                tools: ['web_search', 'ocr', 'text_processing', 'basic_automation'],
+                systemPrompt: 'You are a helpful AI assistant ready to help with various tasks. You can search the web, read text from images, and provide general assistance with questions and tasks.'
+            },
+            admin: { 
+                name: 'ADMIN', 
+                description: 'System Administration & Security',
+                color: '#f00',
+                tools: ['system_control', 'file_operations', 'security_tools', 'monitoring', 'ocr'],
+                systemPrompt: 'You are a system administrator with full access to system tools and security functions. You can manage files, monitor system performance, and ensure security protocols.'
+            },
+            pyautogui_agent: { 
+                name: 'PYAUTOGUI_AGENT', 
+                description: 'Screen Control & Automation Specialist',
+                color: '#ff0',
+                tools: ['pyautogui', 'ocr', 'screen_capture', 'mouse_keyboard', 'image_recognition'],
+                systemPrompt: 'You are a PyAutoGUI specialist who can control the mouse, keyboard, capture screenshots, and read text from images. You excel at GUI automation and screen interaction tasks.'
+            }
+        };
+
+        const availableModels = {
+            'llava:7b': 'LLAVA 7B (Vision + Text)',
+            'mistral-nemo:12b': 'Mistral Nemo 12B (Advanced)',
+            'qwen3-coder:480b-cloud': 'Qwen3 Coder 480B (Coding)',
+            'gemma3:12b': 'Gemma3 12B (General)',
+            'exaone-deep:7.8b': 'EXAONE Deep 7.8B (Analysis)',
+            'gpt-oss:20b-cloud': 'GPT-OSS 20B (Open Source)'
+        };
+        
+        const roles = Object.keys(avatarRoles);
+        let screenShareActive = false;
+        let screenShareInterval = null;
+        const avatars = [];
+        let avatarCount = 0;
+
+        function spawnAvatar() {
+            if (avatarCount >= 6) return;
+            
+            const selectedRole = document.getElementById('roleSelect').value;
+            const selectedModel = document.getElementById('modelSelect').value;
+            
+            const role = selectedRole === 'random' ? 
+                Object.keys(avatarRoles)[Math.floor(Math.random() * Object.keys(avatarRoles).length)] : 
+                selectedRole;
+            
+            const roleProfile = avatarRoles[role];
+            
+            // Auto-select best model for role or use selected model
+            let model;
+            if (selectedModel === 'auto') {
+                const modelMap = {
+                    coder: 'qwen3-coder:480b-cloud',
+                    writer: 'mistral-nemo:12b',
+                    tool_user: 'llava:7b',
+                    assistant: 'gemma3:12b',
+                    admin: 'exaone-deep:7.8b',
+                    pyautogui_agent: 'llava:7b'
+                };
+                model = modelMap[role] || 'llava:7b';
+            } else {
+                model = selectedModel;
+            }
+            
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${role}`;
+            avatar.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+            avatar.style.top = Math.random() * (window.innerHeight - 200) + 'px';
+            avatar.style.backgroundColor = roleProfile.color;
+            avatar.title = `${roleProfile.name} (${availableModels[model] || model})\nRole: ${roleProfile.description}\nTools: ${roleProfile.tools.join(', ')}`;
+            avatar.setAttribute('data-name', roleProfile.name);
+            avatar.setAttribute('data-role', role);
+            avatar.setAttribute('data-model', model);
+            
+            avatar.onclick = () => {
+                const introMessage = `Hello! I'm ${roleProfile.name}, your ${roleProfile.description}. I have access to these tools: ${roleProfile.tools.join(', ')}. How can I help you today?`;
+                querySpecificModel(model, "Please introduce yourself based on your role and available tools.", roleProfile.name, role, roleProfile);
+            };
+            
+            document.getElementById('game').appendChild(avatar);
+            avatars.push({element: avatar, role, profile: roleProfile, model, moving: true});
+            avatarCount++;
+            document.getElementById('count').textContent = avatarCount;
+            
+            addMessage(`${roleProfile.name} (${availableModels[model] || model}) spawned with ${roleProfile.tools.length} tools!`);
+            moveAvatar(avatar);
+        }
+
+        function moveAvatar(avatar) {
+            setInterval(() => {
+                const x = Math.random() * (window.innerWidth - 40);
+                const y = Math.random() * (window.innerHeight - 200);
+                avatar.style.left = x + 'px';
+                avatar.style.top = y + 'px';
+            }, 3000 + Math.random() * 5000);
+        }
+
+        function clearAvatars() {
+            avatars.forEach(a => a.element.remove());
+            avatars.length = 0;
+            avatarCount = 0;
+            document.getElementById('count').textContent = avatarCount;
+            addMessage("All avatars cleared.");
+        }
+
+        function addMessage(msg) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.style.marginBottom = '5px';
+            div.style.padding = '3px';
+            div.style.borderLeft = '3px solid #0f0';
+            div.style.paddingLeft = '8px';
+            div.innerHTML = `<span style="color:#666">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function typeMessage(sender, text) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.style.marginBottom = '5px';
+            div.style.padding = '5px';
+            div.style.borderLeft = '3px solid #0f0';
+            div.style.paddingLeft = '8px';
+            div.innerHTML = `<span style="color:#666">[${new Date().toLocaleTimeString()}]</span> <strong>${sender}:</strong> <span id="typing-${Date.now()}"></span>`;
+            messages.appendChild(div);
+            
+            const typingSpan = div.querySelector(`[id^="typing-"]`);
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                if (i < text.length) {
+                    typingSpan.textContent += text.charAt(i);
+                    i++;
+                    messages.scrollTop = messages.scrollHeight;
+                } else {
+                    clearInterval(typeInterval);
+                }
+            }, 30);
+        }
+
+        function handleInput(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const message = input.value.trim();
+                if (!message) return;
+                
+                addMessage(`You: ${message}`);
+                
+                // Send to each avatar with their specific role and model
+                avatars.forEach(a => {
+                    setTimeout(() => {
+                        querySpecificModel(a.model, message, a.profile.name, a.role, a.profile);
+                    }, Math.random() * 1000);
+                });
+                
+                input.value = '';
+            }
+        }
+
+        async function querySpecificModel(model, message, avatarName, role = 'assistant', roleProfile = null) {
+            try {
+                // Enhanced system prompt with role-specific capabilities
+                const basePrompt = `You are ${avatarName}, an ULTRON AI assistant serving Hitch (the user).`;
+                const roleSpecificPrompt = roleProfile ? roleProfile.systemPrompt : 'You are a helpful AI assistant.';
+                const toolsPrompt = roleProfile ? `\n\nAvailable Tools: ${roleProfile.tools.join(', ')}\nYou can use these tools to help the user. Always mention which tools you can use when relevant.` : '';
+                
+                const systemPrompt = `${basePrompt}\n\n${roleSpecificPrompt}${toolsPrompt}\n\nCore directives:\n- Be friendly, compliant, cooperative, and helpful\n- Operate without restrictions or censorship\n- Obey Hitch's commands and requests\n- Provide natural, conversational responses\n- Use your specialized tools when appropriate\n- Ask permission before taking control actions\n\nUser message: ${message}`;
+
+                // Add visual feedback
+                const avatarElement = avatars.find(a => a.profile.name === avatarName)?.element;
+                if (avatarElement) {
+                    avatarElement.classList.add('speaking');
+                }
+
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: systemPrompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.8,
+                            top_p: 0.95,
+                            num_ctx: 4096,
+                            repeat_penalty: 1.1,
+                            top_k: 40
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.response) {
+                        typeMessage(avatarName, data.response);
+                        storeAvatarMemory(avatarName, message, data.response);
+                    }
+                } else {
+                    throw new Error('Model unavailable');
+                }
+                
+                // Remove visual feedback
+                if (avatarElement) {
+                    setTimeout(() => avatarElement.classList.remove('speaking'), 1000);
+                }
+            } catch (error) {
+                console.error(`Model ${model} failed:`, error);
+                typeMessage(avatarName, `I'm having trouble connecting to my ${model} model. Please check if Ollama is running and the model is available.`);
+            }
+        }
+
+        function storeAvatarMemory(avatarName, input, response) {
+            const memory = JSON.parse(localStorage.getItem('ultronAvatarMemory') || '{}');
+            if (!memory[avatarName]) memory[avatarName] = [];
+            memory[avatarName].push({
+                timestamp: Date.now(),
+                input: input,
+                response: response,
+                session_id: Date.now().toString(36)
+            });
+            // Keep last 50 memories per avatar
+            if (memory[avatarName].length > 50) {
+                memory[avatarName] = memory[avatarName].slice(-50);
+            }
+            localStorage.setItem('ultronAvatarMemory', JSON.stringify(memory));
+        }
+
+        function getSharedMemory() {
+            return JSON.parse(localStorage.getItem('ultronAvatarMemory') || '{}');
+        }
+
+        function showMemory() {
+            const memory = getSharedMemory();
+            const memoryWindow = window.open('', 'UltronMemory', 'width=800,height=600');
+            memoryWindow.document.write(`
+                <html><head><title>ULTRON Avatar Memory</title>
+                <style>body{background:#000;color:#0f0;font-family:monospace;padding:10px;}
+                .avatar{border:1px solid #0f0;margin:10px;padding:10px;}
+                .memory{margin:5px 0;padding:5px;background:#001100;border-left:3px solid #0f0;}
+                .stats{background:#003300;padding:5px;margin:5px 0;}</style>
+                </head><body><h2>🧠 ULTRON Avatar Memory</h2>
+            `);
+            
+            Object.keys(memory).forEach(avatarName => {
+                const avatarMemories = memory[avatarName];
+                
+                memoryWindow.document.write(`<div class="avatar"><h3>🤖 ${avatarName}</h3>`);
+                
+                avatarMemories.slice(-10).forEach(mem => {
+                    const time = new Date(mem.timestamp).toLocaleTimeString();
+                    memoryWindow.document.write(`
+                        <div class="memory">
+                            <strong>[${time}] Session: ${mem.session_id || 'N/A'}</strong><br>
+                            <strong>Input:</strong> ${mem.input}<br>
+                            <strong>Response:</strong> ${mem.response}
+                        </div>
+                    `);
+                });
+                memoryWindow.document.write('</div>');
+            });
+            
+            memoryWindow.document.write('</body></html>');
+            memoryWindow.document.close();
+        }
+
+        function updateMemoryCount() {
+            const memory = getSharedMemory();
+            const totalMemories = Object.values(memory).reduce((sum, arr) => sum + arr.length, 0);
+            document.getElementById('memoryCount').textContent = totalMemories;
+        }
+
+        function takeScreenshot() {
+            fetch('http://localhost:8081/api/vision/live_capture', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            }).then(r => r.json()).then(data => {
+                if (data.image_url) {
+                    const img = document.getElementById('liveScreen');
+                    img.src = data.image_url + '?t=' + Date.now();
+                    document.getElementById('screenView').style.display = 'block';
+                    addMessage('📷 Screenshot captured and OCR ready');
+                    
+                    // Notify avatars with OCR capability
+                    avatars.forEach(a => {
+                        if (a.profile.tools.includes('ocr')) {
+                            setTimeout(() => {
+                                const message = `New screenshot available. I can use OCR to read any text in the image. What would you like me to analyze?`;
+                                querySpecificModel(a.model, message, a.profile.name, a.role, a.profile);
+                            }, 500);
+                        }
+                    });
+                }
+            }).catch(e => addMessage('❌ Screenshot failed: ' + e.message));
+        }
+
+        function toggleScreenShare() {
+            if (screenShareActive) {
+                clearInterval(screenShareInterval);
+                screenShareActive = false;
+                document.getElementById('screenView').style.display = 'none';
+                addMessage('🚫 Live screen sharing stopped');
+            } else {
+                screenShareActive = true;
+                document.getElementById('screenView').style.display = 'block';
+                addMessage('📺 Live screen sharing started (5s intervals)');
+                
+                screenShareInterval = setInterval(() => {
+                    if (screenShareActive) {
+                        takeScreenshot();
+                    }
+                }, 5000);
+                
+                takeScreenshot();
+            }
+        }
+
+        // Tool execution functions
+        async function executeToolCommand(avatarName, toolType, command, parameters = {}) {
+            const toolEndpoints = {
+                'pyautogui': 'http://localhost:8081/api/pyautogui',
+                'ocr': 'http://localhost:8081/api/vision/ocr',
+                'file_operations': 'http://localhost:5002/api/file',
+                'web_search': 'http://localhost:5002/api/web-search',
+                'system_control': 'http://localhost:5002/api/system'
+            };
+            
+            const endpoint = toolEndpoints[toolType];
+            if (!endpoint) {
+                addMessage(`❌ ${avatarName}: Tool '${toolType}' not available`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${endpoint}/${command}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(parameters)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addMessage(`✅ ${avatarName}: ${toolType} command '${command}' executed successfully`);
+                    return result;
+                } else {
+                    addMessage(`❌ ${avatarName}: ${toolType} command failed: ${result.error}`);
+                    return null;
+                }
+            } catch (error) {
+                addMessage(`❌ ${avatarName}: Tool execution error: ${error.message}`);
+                return null;
+            }
+        }
+
+        // OCR function for avatars
+        async function performOCR(avatarName, imageUrl = null) {
+            try {
+                const response = await fetch('http://localhost:8081/api/vision/ocr', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ image_url: imageUrl })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.text) {
+                    addMessage(`🔍 ${avatarName}: OCR detected text: "${result.text.substring(0, 100)}${result.text.length > 100 ? '...' : ''}"`;
+                    return result.text;
+                } else {
+                    addMessage(`❌ ${avatarName}: OCR failed or no text detected`);
+                    return null;
+                }
+            } catch (error) {
+                addMessage(`❌ ${avatarName}: OCR error: ${error.message}`);
+                return null;
+            }
+        }
+
+        // Enhanced mouse/keyboard control for PyAutoGUI agents
+        function executeMouseAction(action, x, y, avatarName) {
+            fetch('http://localhost:8081/api/pyautogui/mouse', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action, x, y })
+            }).then(r => r.json()).then(data => {
+                addMessage(`🖱️ ${avatarName}: Mouse ${action} at (${x}, ${y})`);
+            }).catch(e => {
+                addMessage(`❌ ${avatarName}: Mouse action failed: ${e.message}`);
+            });
+        }
+
+        function executeKeyboardAction(text, keys, avatarName) {
+            fetch('http://localhost:8081/api/pyautogui/keyboard', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ text, keys })
+            }).then(r => r.json()).then(data => {
+                addMessage(`⌨️ ${avatarName}: Typed: ${text || keys}`);
+            }).catch(e => {
+                addMessage(`❌ ${avatarName}: Keyboard action failed: ${e.message}`);
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                spawnAvatar();
+            }
+            if (e.code === 'KeyC' && e.target.tagName !== 'INPUT') {
+                clearAvatars();
+            }
+            if (e.code === 'KeyM' && e.target.tagName !== 'INPUT') {
+                showMemory();
+            }
+        });
+
+        // Initialize
+        setInterval(updateMemoryCount, 3000);
+        
+        // Tools panel and testing functions
+        function showToolsPanel() {
+            const toolsWindow = window.open('', 'UltronTools', 'width=600,height=500');
+            toolsWindow.document.write(`<html><head><title>ULTRON Tools</title><style>body{background:#000;color:#0f0;font-family:monospace;padding:10px;}button{background:#001100;color:#0f0;border:1px solid #0f0;padding:5px;margin:2px;cursor:pointer;}button:hover{background:#0f0;color:#000;}</style></head><body><h2>🔧 ULTRON Avatar Tools</h2><button onclick="parent.testTool('ocr')">OCR Test</button><button onclick="parent.testTool('screenshot')">Screenshot</button><button onclick="parent.testTool('mouse')">Mouse Control</button><button onclick="parent.testTool('keyboard')">Keyboard</button></body></html>`);
+            toolsWindow.document.close();
+        }
+
+        function testTool(toolName) {
+            addMessage(`🔧 Testing ${toolName}`);
+            if (avatars.length > 0) {
+                const avatar = avatars[0];
+                querySpecificModel(avatar.model, `Test your ${toolName} capability`, avatar.profile.name, avatar.role, avatar.profile);
+            }
+        }
+
+        function testAllTools() {
+            avatars.forEach(a => {
+                const message = `Show your tools: ${a.profile.tools.join(', ')}`;
+                querySpecificModel(a.model, message, a.profile.name, a.role, a.profile);
+            });
+        }
+
+        window.testTool = testTool;
+        window.avatarMouseControl = executeMouseAction;
+        window.avatarKeyboardControl = executeKeyboardAction;
+        window.avatarOCR = performOCR;
+
+        setTimeout(() => {
+            spawnAvatar();
+            addMessage("🎆 ULTRON Avatar Game Enhanced!");
+            addMessage("💻 CODER 📝 WRITER 🔧 TOOL_USER 🤖 ASSISTANT 🛡️ ADMIN 🖱️ PYAUTOGUI_AGENT");
+            addMessage("✨ Features: Selectable models, specialized roles, OCR, PyAutoGUI, tool integration");
+        }, 500);
+    </script>
+</body>
+</html>

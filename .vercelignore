@@ -1,0 +1,17 @@
+# ============================================================
+# Whitelist approach — exclude everything, then allow only
+# the minimal files needed by the Vercel Python function.
+# ============================================================
+
+# --- Block everything first ---
+*
+!.vercelignore
+
+# --- Re-allow the files Vercel actually needs ---
+!api/
+!api/**
+!app.py
+
+# --- Keep Git metadata out ---
+.git/
+.git/**

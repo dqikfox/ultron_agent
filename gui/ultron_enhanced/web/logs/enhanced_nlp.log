@@ -1,0 +1,113 @@
+2025-12-18 10:23:20,927 - ERROR - {"timestamp": "2025-12-18T10:23:20.927606", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-18 10:23:20,928 - ERROR - {"timestamp": "2025-12-18T10:23:20.928303", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-18 17:38:24,046 - ERROR - {"timestamp": "2025-12-18T17:38:24.046155", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-18 17:38:24,047 - ERROR - {"timestamp": "2025-12-18T17:38:24.047619", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-20 05:13:19,619 - ERROR - {"timestamp": "2025-12-20T05:13:19.619271", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-20 05:13:19,619 - ERROR - {"timestamp": "2025-12-20T05:13:19.619795", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-20 05:23:57,557 - ERROR - {"timestamp": "2025-12-20T05:23:57.557077", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-20 05:23:57,557 - ERROR - {"timestamp": "2025-12-20T05:23:57.557674", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-20 05:26:32,851 - ERROR - {"timestamp": "2025-12-20T05:26:32.851941", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-20 05:26:32,852 - ERROR - {"timestamp": "2025-12-20T05:26:32.852464", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-20 05:45:10,248 - ERROR - {"timestamp": "2025-12-20T05:45:10.248709", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-20 05:45:10,249 - ERROR - {"timestamp": "2025-12-20T05:45:10.249455", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-22 10:19:04,589 - ERROR - {"timestamp": "2025-12-22T10:19:04.588946", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-22 10:19:04,589 - ERROR - {"timestamp": "2025-12-22T10:19:04.589876", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-22 13:24:02,154 - ERROR - {"timestamp": "2025-12-22T13:24:02.154741", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-22 13:24:02,155 - ERROR - {"timestamp": "2025-12-22T13:24:02.155720", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-22 17:29:27,430 - ERROR - {"timestamp": "2025-12-22T17:29:27.430038", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-22 17:29:27,430 - ERROR - {"timestamp": "2025-12-22T17:29:27.430734", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-22 18:16:39,641 - ERROR - {"timestamp": "2025-12-22T18:16:39.641221", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-22 18:16:39,641 - ERROR - {"timestamp": "2025-12-22T18:16:39.641645", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-22 18:24:11,354 - ERROR - {"timestamp": "2025-12-22T18:24:11.354084", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-22 18:24:11,354 - ERROR - {"timestamp": "2025-12-22T18:24:11.354597", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-22 18:33:10,039 - ERROR - {"timestamp": "2025-12-22T18:33:10.038967", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-22 18:33:10,039 - ERROR - {"timestamp": "2025-12-22T18:33:10.039889", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 06:53:26,350 - ERROR - {"timestamp": "2025-12-25T06:53:26.350392", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-25 06:53:26,351 - ERROR - {"timestamp": "2025-12-25T06:53:26.351249", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 06:53:33,679 - ERROR - {"timestamp": "2025-12-25T06:53:33.679237", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 06:55:36,727 - ERROR - {"timestamp": "2025-12-25T06:55:36.727172", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-25 06:55:36,727 - ERROR - {"timestamp": "2025-12-25T06:55:36.727652", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 06:55:43,981 - ERROR - {"timestamp": "2025-12-25T06:55:43.981092", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 07:01:51,606 - ERROR - {"timestamp": "2025-12-25T07:01:51.606474", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-25 07:01:51,606 - ERROR - {"timestamp": "2025-12-25T07:01:51.606939", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 07:01:58,992 - ERROR - {"timestamp": "2025-12-25T07:01:58.992140", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 07:05:29,335 - ERROR - {"timestamp": "2025-12-25T07:05:29.335118", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-25 07:05:29,335 - ERROR - {"timestamp": "2025-12-25T07:05:29.335628", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-25 07:05:31,712 - ERROR - {"timestamp": "2025-12-25T07:05:31.712237", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-26 02:06:40,810 - ERROR - {"timestamp": "2025-12-26T02:06:40.809983", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-26 02:06:40,810 - ERROR - {"timestamp": "2025-12-26T02:06:40.810569", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-26 02:06:43,167 - ERROR - {"timestamp": "2025-12-26T02:06:43.167136", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-26 23:18:57,934 - ERROR - {"timestamp": "2025-12-26T23:18:57.934372", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-26 23:18:57,935 - ERROR - {"timestamp": "2025-12-26T23:18:57.935162", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-26 23:19:00,325 - ERROR - {"timestamp": "2025-12-26T23:19:00.325775", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 03:00:38,504 - ERROR - {"timestamp": "2025-12-27T03:00:38.504738", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-27 03:00:38,505 - ERROR - {"timestamp": "2025-12-27T03:00:38.505489", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 03:00:40,908 - ERROR - {"timestamp": "2025-12-27T03:00:40.908728", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 03:46:21,446 - ERROR - {"timestamp": "2025-12-27T03:46:21.446011", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-27 03:46:21,446 - ERROR - {"timestamp": "2025-12-27T03:46:21.446480", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 03:46:23,718 - ERROR - {"timestamp": "2025-12-27T03:46:23.718062", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 04:28:36,146 - ERROR - {"timestamp": "2025-12-27T04:28:36.146506", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-27 04:28:36,147 - ERROR - {"timestamp": "2025-12-27T04:28:36.147236", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 04:28:38,375 - ERROR - {"timestamp": "2025-12-27T04:28:38.375644", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:05:11,383 - ERROR - {"timestamp": "2025-12-28T03:05:11.383274", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-28 03:05:11,383 - ERROR - {"timestamp": "2025-12-28T03:05:11.383852", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:05:13,715 - ERROR - {"timestamp": "2025-12-28T03:05:13.715478", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:05:34,845 - ERROR - {"timestamp": "2025-12-28T03:05:34.845823", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-28 03:05:34,846 - ERROR - {"timestamp": "2025-12-28T03:05:34.846221", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:05:37,176 - ERROR - {"timestamp": "2025-12-28T03:05:37.176124", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:10:15,958 - ERROR - {"timestamp": "2025-12-28T03:10:15.958433", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-28 03:10:15,958 - ERROR - {"timestamp": "2025-12-28T03:10:15.958849", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:10:18,286 - ERROR - {"timestamp": "2025-12-28T03:10:18.286103", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:12:14,528 - ERROR - {"timestamp": "2025-12-28T03:12:14.528322", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-28 03:12:14,528 - ERROR - {"timestamp": "2025-12-28T03:12:14.528957", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 03:12:16,927 - ERROR - {"timestamp": "2025-12-28T03:12:16.927881", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 11:17:58,706 - ERROR - {"timestamp": "2025-12-28T11:17:58.706686", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-28 11:17:58,707 - ERROR - {"timestamp": "2025-12-28T11:17:58.707276", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-28 11:18:00,935 - ERROR - {"timestamp": "2025-12-28T11:18:00.935009", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-29 13:24:48,690 - ERROR - {"timestamp": "2025-12-29T13:24:48.690049", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-29 13:24:48,691 - ERROR - {"timestamp": "2025-12-29T13:24:48.690970", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-29 13:48:59,454 - ERROR - {"timestamp": "2025-12-29T13:48:59.454653", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-29 13:48:59,455 - ERROR - {"timestamp": "2025-12-29T13:48:59.455267", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-29 13:49:01,874 - ERROR - {"timestamp": "2025-12-29T13:49:01.874869", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-29 14:35:14,576 - ERROR - {"timestamp": "2025-12-29T14:35:14.576699", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-29 14:35:14,578 - ERROR - {"timestamp": "2025-12-29T14:35:14.578101", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-29 14:35:22,108 - ERROR - {"timestamp": "2025-12-29T14:35:22.108377", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-30 03:03:16,317 - ERROR - {"timestamp": "2025-12-30T03:03:16.316987", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-30 03:03:16,317 - ERROR - {"timestamp": "2025-12-30T03:03:16.317574", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-30 03:03:18,685 - ERROR - {"timestamp": "2025-12-30T03:03:18.684969", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-31 12:28:17,955 - ERROR - {"timestamp": "2025-12-31T12:28:17.955839", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-31 12:28:17,956 - ERROR - {"timestamp": "2025-12-31T12:28:17.956498", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-31 12:28:20,331 - ERROR - {"timestamp": "2025-12-31T12:28:20.331431", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 04:04:27,979 - ERROR - {"timestamp": "2026-01-01T04:04:27.979026", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 04:04:27,979 - ERROR - {"timestamp": "2026-01-01T04:04:27.979766", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 04:04:30,570 - ERROR - {"timestamp": "2026-01-01T04:04:30.570029", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:07:41,562 - ERROR - {"timestamp": "2026-01-01T07:07:41.561940", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 07:07:41,562 - ERROR - {"timestamp": "2026-01-01T07:07:41.562530", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:07:43,970 - ERROR - {"timestamp": "2026-01-01T07:07:43.970741", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:23:54,491 - ERROR - {"timestamp": "2026-01-01T07:23:54.491673", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 07:23:54,492 - ERROR - {"timestamp": "2026-01-01T07:23:54.492188", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:23:56,939 - ERROR - {"timestamp": "2026-01-01T07:23:56.939918", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:25:01,927 - ERROR - {"timestamp": "2026-01-01T07:25:01.926995", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 07:25:01,927 - ERROR - {"timestamp": "2026-01-01T07:25:01.927805", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:25:04,297 - ERROR - {"timestamp": "2026-01-01T07:25:04.297290", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:30:38,151 - ERROR - {"timestamp": "2026-01-01T07:30:38.151002", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 07:30:38,151 - ERROR - {"timestamp": "2026-01-01T07:30:38.151783", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:30:45,500 - ERROR - {"timestamp": "2026-01-01T07:30:45.500183", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:35:30,266 - ERROR - {"timestamp": "2026-01-01T07:35:30.266548", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 07:35:30,267 - ERROR - {"timestamp": "2026-01-01T07:35:30.267473", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 07:35:44,754 - ERROR - {"timestamp": "2026-01-01T07:35:44.754622", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 08:16:33,403 - ERROR - {"timestamp": "2026-01-01T08:16:33.403097", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 08:16:33,404 - ERROR - {"timestamp": "2026-01-01T08:16:33.404150", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 08:16:48,094 - ERROR - {"timestamp": "2026-01-01T08:16:48.094612", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 14:59:26,296 - ERROR - {"timestamp": "2026-01-01T14:59:26.296756", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-01 14:59:26,297 - ERROR - {"timestamp": "2026-01-01T14:59:26.297620", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-01 14:59:28,805 - ERROR - {"timestamp": "2026-01-01T14:59:28.805961", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-02 00:03:13,272 - ERROR - {"timestamp": "2026-01-02T00:03:13.272061", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-02 00:03:13,272 - ERROR - {"timestamp": "2026-01-02T00:03:13.272630", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-02 00:03:15,766 - ERROR - {"timestamp": "2026-01-02T00:03:15.766672", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-02 00:07:02,716 - ERROR - {"timestamp": "2026-01-02T00:07:02.716199", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-02 00:07:02,717 - ERROR - {"timestamp": "2026-01-02T00:07:02.717201", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-02 00:07:10,172 - ERROR - {"timestamp": "2026-01-02T00:07:10.172299", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-02 17:07:18,530 - ERROR - {"timestamp": "2026-01-02T17:07:18.530454", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2026-01-02 17:07:18,531 - ERROR - {"timestamp": "2026-01-02T17:07:18.531875", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2026-01-02 17:07:28,224 - ERROR - {"timestamp": "2026-01-02T17:07:28.224135", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}

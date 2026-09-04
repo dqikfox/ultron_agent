@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "azureLogicAppsStandard": {
+    "projectPath": "azure_logic_apps",
+    "deploymentPath": "azure_logic_apps",
+    "workflows": [
+      "game_content_generator",
+      "player_save_sync",
+      "ai_inference_pipeline"
+    ]
+  }
+}

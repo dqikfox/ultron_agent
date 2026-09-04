@@ -1,0 +1,158 @@
+{
+  "conversation_context": [
+    {
+      "timestamp": "374244ec-9dd7-415d-883e-df7763982e8d",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-25 07:36:53.930896\"}"
+    },
+    {
+      "timestamp": "922d1ffa-e4a2-43d7-ae6a-54a5d6c8f3e7",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-25 08:01:42.625253\"}"
+    },
+    {
+      "timestamp": "94134e59-164d-4ba3-b85c-34315b3375e5",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-29 01:56:54.075703\"}"
+    },
+    {
+      "timestamp": "98385d38-baca-4830-af28-fc7f21218d7b",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-04-30 00:06:24.573728\"}"
+    },
+    {
+      "timestamp": "c8712747-5484-4120-9a7b-e740bfadb9ab",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-02 10:02:44.505407\"}"
+    },
+    {
+      "timestamp": "fbfd6919-aa75-41ee-8594-7cca31179a13",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-04 08:58:13.853186\"}"
+    },
+    {
+      "timestamp": "dafba87b-e31a-4e90-801a-c0f0d4ec9d27",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-05-04 08:58:13.859724\"}"
+    },
+    {
+      "timestamp": "11657299-64b0-4816-85a7-5a5d55b81a4e",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-06-13 05:24:11.522605\"}"
+    },
+    {
+      "timestamp": "29240592-cf2e-4dcb-8800-f114acbfe810",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-06-13 07:47:44.727932\"}"
+    },
+    {
+      "timestamp": "2ba690ab-d867-47e8-b02c-d4580dd024ac",
+      "message": "test_message",
+      "response": "test_response",
+      "context_type": "test",
+      "time": "{\"timestamp\": \"2026-06-14 20:21:41.295160\"}"
+    }
+  ],
+  "task_history": [],
+  "learning_insights": [],
+  "self_reflection_log": [
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-30 17:20:42.604466"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-30 17:20:44.881825"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-30 18:05:18.057523"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-30 18:05:20.355728"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-31 01:39:28.486253"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-31 01:39:30.777819"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-31 02:33:52.456147"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-10-31 02:33:54.740588"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-11-01 18:48:42.948403"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-11-01 18:48:47.485176"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-11-03 00:47:59.947435"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-11-03 00:48:06.993914"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-18 05:46:27.873161"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-18 05:57:10.050883"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-18 06:57:54.030204"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-18 10:19:03.348875"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2025-12-20 10:25:04.351866"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-12-21 20:36:21.713412"
+    },
+    {
+      "reflection": "Identity awareness check: questionable (score: 0)",
+      "timestamp": "2025-12-21 20:36:21.722908"
+    },
+    {
+      "reflection": "Identity awareness check: maintained (score: 2)",
+      "timestamp": "2026-05-04 08:59:37.820431"
+    }
+  ]
+}
