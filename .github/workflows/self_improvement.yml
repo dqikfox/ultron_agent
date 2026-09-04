@@ -68,8 +68,13 @@ jobs:
           python self_improvement.py --scan > scan_output.txt
           cat scan_output.txt
           
-          # Extract suggestion count
-          SUGGESTIONS=$(grep "total_suggestions" metrics/suggestions.json | grep -oP '\d+' | head -1)
+          # Extract suggestion count from the array currently written by the scanner.
+          SUGGESTIONS=$(python -c "
+          import json
+          with open('metrics/suggestions.json') as f:
+              suggestions = json.load(f)
+          print(suggestions.get('total_suggestions', len(suggestions)) if isinstance(suggestions, dict) else len(suggestions))
+          ")
           echo "suggestion_count=$SUGGESTIONS" >> $GITHUB_OUTPUT
       
       - name: Generate Comprehensive Report
