@@ -10,5 +10,29 @@
     "tool_count": 3,
     "active_services": 4,
     "version": "5b4246c8"
+  },
+  {
+    "timestamp": "2026-09-04T20:28:07.750011",
+    "cpu_usage": 4.0,
+    "memory_usage": 10.1,
+    "response_time": 50.0,
+    "api_latency": -1,
+    "ollama_latency": -1,
+    "gui_load_time": -1,
+    "tool_count": 14,
+    "active_services": 0,
+    "version": "1e8f79d"
+  },
+  {
+    "timestamp": "2026-09-04T20:28:28.909727",
+    "cpu_usage": 8.2,
+    "memory_usage": 10.3,
+    "response_time": 50.0,
+    "api_latency": -1,
+    "ollama_latency": -1,
+    "gui_load_time": -1,
+    "tool_count": 14,
+    "active_services": 0,
+    "version": "1e8f79d"
   }
 ]
