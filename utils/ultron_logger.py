@@ -171,5 +171,39 @@ def cleanup_old_logs(days: int = 30):
     except Exception as e:
         print(f"Failed to cleanup logs: {e}")
 
+class ULTRONLogger:
+    """Compatibility wrapper for code that expects a logger instance."""
+
+    @staticmethod
+    def _resolve_component(component: Optional[str] = None, fallback: str = "ultron") -> str:
+        return component or fallback
+
+    def log_info(self, component: Optional[str] = None, message: str = "", **kwargs):
+        log_info(self._resolve_component(component, "ultron"), message, **kwargs)
+
+    def log_error(self, component: Optional[str] = None, message: str = "", **kwargs):
+        log_error(self._resolve_component(component, "ultron"), message, **kwargs)
+
+    def log_ai_decision(self, component: Optional[str] = None, message: str = "", **kwargs):
+        log_ai_decision(self._resolve_component(component, "ultron"), message, **kwargs)
+
+    def log_file_operation(self, component: Optional[str] = None, message: str = "", file_path: str = "", action: str = "", **kwargs):
+        log_file_operation(self._resolve_component(component, "ultron"), message, file_path=file_path, action=action, **kwargs)
+
+    def info(self, message: str, *args, **kwargs):
+        log_info("ultron", message, *args, **kwargs)
+
+    def error(self, message: str, *args, **kwargs):
+        log_error("ultron", message, *args, **kwargs)
+
+    def warning(self, message: str, *args, **kwargs):
+        log_info("ultron", message, level="WARNING", *args, **kwargs)
+
+    def debug(self, message: str, *args, **kwargs):
+        log_info("ultron", message, level="DEBUG", *args, **kwargs)
+
+
+ultron_logger = ULTRONLogger()
+
 # Initialize logging on import
 setup_logging()
