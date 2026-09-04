@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj": {}
+    "/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj": {}
   },
   "projects": {
-    "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj": {
+    "/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
+        "projectUniqueName": "/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
         "projectName": "UltronModule",
-        "projectPath": "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
-        "packagesPath": "C:\\Users\\CHANN0$\\.nuget\\packages\\",
-        "outputPath": "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\obj\\",
+        "projectPath": "/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\NuGet.Config",
-          "C:\\Users\\CHANN0$\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/nuget.config",
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.1"
@@ -25,6 +25,7 @@
         },
         "frameworks": {
           "netstandard2.1": {
+            "framework": "netstandard2.1",
             "targetAlias": "netstandard2.1",
             "projectReferences": {}
           }
@@ -39,10 +40,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.200"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "netstandard2.1": {
+          "framework": "netstandard2.1",
           "targetAlias": "netstandard2.1",
           "dependencies": {
             "Newtonsoft.Json": {
@@ -61,18 +63,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "NETStandard.Library.Ref",
-              "version": "[2.1.0, 2.1.0]"
-            }
-          ],
           "frameworkReferences": {
             "NETStandard.Library": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.204\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.400/RuntimeIdentifierGraph.json"
         }
       }
     }

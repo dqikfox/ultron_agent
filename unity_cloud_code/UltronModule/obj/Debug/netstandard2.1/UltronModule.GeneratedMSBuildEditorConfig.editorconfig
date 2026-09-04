@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = UltronModule
-build_property.ProjectDir = C:\project\ultron_agent\ultron_agent\unity_cloud_code\UltronModule\
+build_property.ProjectDir = /home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false
