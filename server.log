@@ -1,0 +1,1079 @@
+2025-12-27 04:28:31,315 - ultron_agent.config - WARNING - Secrets manager not available: No module named 'utils.secrets_manager'. Using fallback methods.
+2025-12-27 04:28:31,334 - ultron.tool_registry - INFO - {"timestamp": "2025-12-27T04:28:31.334074", "component": "tool_registry", "level": "INFO", "message": "Loaded 6 tools"}
+2025-12-27 04:28:31,334 - root - WARNING - Enhanced agent components not available - web_gui_server.py:34
+2025-12-27 04:28:31,475 - __main__ - INFO - ULTRON Web Server starting on port 8080
+2025-12-27 04:28:31,476 - __main__ - INFO - Serving from: /home/ultro/projects/ultron_agent/gui/ultron_enhanced/web
+2025-12-27 04:28:31,476 - __main__ - INFO - Access GUI at: http://localhost:8080
+2025-12-27 04:28:31,476 - __main__ - INFO - Remote access: http://YOUR_IP:8080
+2025-12-27 04:28:31,550 - __main__ - INFO - Browser opened automatically
+2025-12-27 04:28:31,551 - phase2_realtime_profiling - INFO - Real-time metrics collection started
+2025-12-27 04:28:31,551 - phase2_realtime_profiling - INFO - ULTRON Evolution Phase 2 services started
+2025-12-27 04:28:31,551 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.551667", "component": "agent_core", "level": "INFO", "message": "Loading configuration from ultron_config.json"}
+2025-12-27 04:28:31,552 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:31.552070", "component": "agent_core", "level": "ERROR", "message": "ULTRON_CONFIG not available, using UltronConfig fallback"}
+2025-12-27 04:28:31,552 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.552302", "component": "agent_core", "level": "INFO", "message": "Configuration loaded successfully", "extra": {"config_path": "ultron_config.json"}}
+2025-12-27 04:28:31,552 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.552584", "component": "agent_core", "level": "INFO", "message": "Configuration loaded successfully from ultron_config.json"}
+2025-12-27 04:28:31,552 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.552852", "component": "agent_core", "level": "INFO", "message": "Logging system initialized", "extra": {"log_level": "INFO", "handlers": 2}}
+2025-12-27 04:28:31,553 - ultron.diagnostics_core - INFO - {"timestamp": "2025-12-27T04:28:31.553608", "component": "diagnostics_core", "level": "INFO", "message": "Diagnostics system initialized"}
+2025-12-27 04:28:31,554 - ultron.global_workspace - INFO - {"timestamp": "2025-12-27T04:28:31.554402", "component": "global_workspace", "level": "INFO", "message": "Initialized with capacity=3"}
+2025-12-27 04:28:31,557 - ultron.self_model - INFO - {"timestamp": "2025-12-27T04:28:31.557842", "component": "self_model", "level": "INFO", "message": "Initialized self-model for ULTRON"}
+2025-12-27 04:28:31,561 - ultron.meta_representation - INFO - {"timestamp": "2025-12-27T04:28:31.561542", "component": "meta_representation", "level": "INFO", "message": "Initialized meta-level monitoring"}
+2025-12-27 04:28:31,562 - ultron.confidence - INFO - {"timestamp": "2025-12-27T04:28:31.562342", "component": "confidence", "level": "INFO", "message": "Initialized confidence estimator"}
+2025-12-27 04:28:31,563 - ultron.metacognition - INFO - {"timestamp": "2025-12-27T04:28:31.563166", "component": "metacognition", "level": "INFO", "message": "Initialized meta-cognitive monitoring"}
+2025-12-27 04:28:31,565 - ultron.cognition - INFO - {"timestamp": "2025-12-27T04:28:31.565189", "component": "cognition", "level": "INFO", "message": "StateIntrospector initialized for ULTRON"}
+2025-12-27 04:28:31,565 - ultron.cognition - INFO - {"timestamp": "2025-12-27T04:28:31.565769", "component": "cognition", "level": "INFO", "message": "PersonalityModel created for ULTRON"}
+2025-12-27 04:28:31,566 - ultron.cognition - INFO - {"timestamp": "2025-12-27T04:28:31.566194", "component": "cognition", "level": "INFO", "message": "Created NPC: ULTRON (balanced)"}
+2025-12-27 04:28:31,567 - ultron.global_workspace - INFO - {"timestamp": "2025-12-27T04:28:31.566948", "component": "global_workspace", "level": "INFO", "message": "Registered module: self_model_updater (type: metacognition)"}
+2025-12-27 04:28:31,569 - ultron.global_workspace - INFO - {"timestamp": "2025-12-27T04:28:31.569139", "component": "global_workspace", "level": "INFO", "message": "Registered module: emotion_system (type: emotion)"}
+2025-12-27 04:28:31,571 - ultron.global_workspace - INFO - {"timestamp": "2025-12-27T04:28:31.571036", "component": "global_workspace", "level": "INFO", "message": "Registered module: episodic_memory (type: memory)"}
+2025-12-27 04:28:31,572 - ultron.conscious_agent - INFO - {"timestamp": "2025-12-27T04:28:31.572893", "component": "conscious_agent", "level": "INFO", "message": "Initialized ULTRON as AI Assistant"}
+2025-12-27 04:28:31,574 - ultron.conscious_agent - INFO - {"timestamp": "2025-12-27T04:28:31.574058", "component": "conscious_agent", "level": "INFO", "message": "Personality: balanced"}
+2025-12-27 04:28:31,575 - ultron.ollama_conscious_agent - INFO - {"timestamp": "2025-12-27T04:28:31.575396", "component": "ollama_conscious_agent", "level": "INFO", "message": "Initialized ULTRON (AI Assistant) with model llama3.2:latest"}
+2025-12-27 04:28:31,577 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.577049", "component": "agent_core", "level": "INFO", "message": "Consciousness system initialized (personality-driven mode)"}
+2025-12-27 04:28:31,578 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.578195", "component": "agent_core", "level": "INFO", "message": "ULTRON Agent core initialized successfully", "extra": {"config_path": "ultron_config.json", "components_initialized": 10, "consciousness_enabled": true}}
+2025-12-27 04:28:31,580 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.580128", "component": "agent_core", "level": "INFO", "message": "Starting ULTRON Agent component initialization..."}
+2025-12-27 04:28:31,581 - agent_core - INFO - Periodic self-diagnosis loop started.
+2025-12-27 04:28:31,583 - ultron.performance_profiler - INFO - {"timestamp": "2025-12-27T04:28:31.582940", "component": "performance_profiler", "level": "INFO", "message": "Started system performance monitoring"}
+2025-12-27 04:28:31,587 - agent_core - INFO - Initializing ULTRON memory system...
+/home/ultro/projects/ultron_agent/memory.py:332: SyntaxWarning: invalid escape sequence '\M'
+  """Simple helper that copies files into a local Google Drive-mounted
+2025-12-27 04:28:31,606 - agent_core - ERROR - ❌ Memory initialization failed: unindent does not match any outer indentation level (memory.py, line 407)
+2025-12-27 04:28:31,606 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:31.606232", "component": "agent_core", "level": "INFO", "message": "Initialized memory successfully", "extra": {"component": "memory"}}
+2025-12-27 04:28:31,607 - agent_core - INFO - Initializing voice system (Enhanced -> pyttsx3 -> OpenAI -> Console)...
+ULTRON Agent 3.0 Web GUI Server - web_gui_server.py:1848
+= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849= - web_gui_server.py:1849
+
+✅ ULTRON Web GUI is now running! - web_gui_server.py:1892
+Open your browser to: http://localhost:8080 - web_gui_server.py:1893
+Press Ctrl+C to stop - web_gui_server.py:1894
+
+[1/3] Initializing ULTRON Agent Core... - web_gui_server.py:1854
+[OK] Phase 2 Realtime & Profiling Services Initialized - web_gui_server.py:1882
+[2/3] Initializing Memory, Brain, Tools... - web_gui_server.py:1858
+[Voice] Initializing Voice Assistant... - voice.py:635
+Loading cache directory [███---------------------------] 10% - voice.py:660[WARNING] ElevenLabs API key not found in environment or config [█████████---------------------] 30% - voice.py:6602025-12-27 04:28:31,808 - voice - INFO - ElevenLabs API key not found in environment variable ELEVENLABS_APIKEY or config file
+☁️  Initializing Google Cloud integration... [████████████████--------------] 55% - voice.py:660[WARNING] Google Cloud integration not configured [██████████████████------------] 60% - voice.py:6602025-12-27 04:28:32,010 - voice - INFO - Google Cloud integration available but not configured
+[INIT] Initializing fallback TTS engine... [██████████████████------------] 60% - voice.py:6602025-12-27 04:28:32,139 - voice - INFO - Using pyttsx3 voice: Afrikaans
+2025-12-27 04:28:32,140 - voice - INFO - pyttsx3 TTS initialized as fallback
+[SUCCESS] Fallback TTS engine ready - voice.py:989
+Voice Assistant ready [██████████████████████████████] 100% - voice.py:6602025-12-27 04:28:32,240 - voice - INFO - Voice Assistant initialized successfully
+2025-12-27 04:28:32,240 - agent_core - INFO - Voice system initialized successfully
+2025-12-27 04:28:32,241 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.241059", "component": "agent_core", "level": "INFO", "message": "Initialized voice successfully", "extra": {"component": "voice"}}
+2025-12-27 04:28:32,241 - agent_core - INFO - Initializing vision system...
+2025-12-27 04:28:32,279 - ultron.screen_vision_service - ERROR - {"timestamp": "2025-12-27T04:28:32.279603", "component": "screen_vision_service", "level": "ERROR", "message": "ScreenVisionService requires the 'mss' package for realtime screen capture. Install it with `pip install mss`."}
+2025-12-27 04:28:32,280 - ultron.multimodal_vision - ERROR - {"timestamp": "2025-12-27T04:28:32.280103", "component": "multimodal_vision", "level": "ERROR", "message": "Screen vision service unavailable: ScreenVisionService requires the 'mss' package for realtime screen capture. Install it with `pip install mss`."}
+2025-12-27 04:28:32,280 - agent_core - INFO - Vision system initialized successfully
+2025-12-27 04:28:32,280 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.280474", "component": "agent_core", "level": "INFO", "message": "Initialized vision successfully", "extra": {"component": "vision"}}
+2025-12-27 04:28:32,280 - agent_core - INFO - Initializing brain system...
+2025-12-27 04:28:32,282 - agent_core - ERROR - Brain system initialization error: unindent does not match any outer indentation level (brain.py, line 165)
+2025-12-27 04:28:32,282 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.282808", "component": "agent_core", "level": "INFO", "message": "Initialized brain successfully", "extra": {"component": "brain"}}
+2025-12-27 04:28:32,283 - agent_core - INFO - Initializing OpenAI Computer Use...
+2025-12-27 04:28:32,434 - agent_core - INFO - OpenAI Computer Use initialized successfully
+2025-12-27 04:28:32,435 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.435083", "component": "agent_core", "level": "INFO", "message": "Initialized computer_use successfully", "extra": {"component": "computer_use"}}
+2025-12-27 04:28:32,435 - agent_core - INFO - Initializing event system...
+2025-12-27 04:28:32,435 - agent_core - INFO - Event system initialized successfully
+2025-12-27 04:28:32,435 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.435554", "component": "agent_core", "level": "INFO", "message": "Initialized event_system successfully", "extra": {"component": "event_system"}}
+2025-12-27 04:28:32,435 - agent_core - INFO - Initializing platform manager...
+2025-12-27 04:28:32,439 - agent_core - INFO - Platform manager initialized successfully
+2025-12-27 04:28:32,440 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.440122", "component": "agent_core", "level": "INFO", "message": "Initialized platform_manager successfully", "extra": {"component": "platform_manager"}}
+2025-12-27 04:28:32,440 - agent_core - INFO - Initializing idle monitor...
+2025-12-27 04:28:32,441 - ultron.idle_monitor - INFO - {"timestamp": "2025-12-27T04:28:32.441100", "component": "idle_monitor", "level": "INFO", "message": "IdleMonitor initialized with threshold: 5 minutes"}
+2025-12-27 04:28:32,441 - ultron.idle_monitor - INFO - {"timestamp": "2025-12-27T04:28:32.441359", "component": "idle_monitor", "level": "INFO", "message": "Idle monitoring started"}
+2025-12-27 04:28:32,441 - agent_core - INFO - Idle monitor initialized and started
+2025-12-27 04:28:32,441 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.441618", "component": "agent_core", "level": "INFO", "message": "Initialized idle_monitor successfully", "extra": {"component": "idle_monitor"}}
+2025-12-27 04:28:32,441 - agent_core - WARNING - Keyboard library not available, Print Screen functionality disabled
+2025-12-27 04:28:32,441 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.441864", "component": "agent_core", "level": "INFO", "message": "Initialized keyboard_listener successfully", "extra": {"component": "keyboard_listener"}}
+2025-12-27 04:28:32,442 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:32.442118", "component": "agent_core", "level": "INFO", "message": "Loading tools from /home/ultro/projects/ultron_agent/tools..."}
+2025-12-27 04:28:32,645 - ultron.mobile_web_interface - INFO - {"timestamp": "2025-12-27T04:28:32.645422", "component": "mobile_web_interface", "level": "INFO", "message": "Waitress not available, using Flask dev server. Install with: pip install waitress"}
+2025-12-27 04:28:32,678 - ultron.mobile_web_interface - INFO - {"timestamp": "2025-12-27T04:28:32.678741", "component": "mobile_web_interface", "level": "INFO", "message": "Flask app initialized with static folder: /home/ultro/projects/ultron_agent/tools/../gui/ultron_enhanced/web"}
+2025-12-27 04:28:32,680 - ultron.mobile_web_interface - INFO - {"timestamp": "2025-12-27T04:28:32.680479", "component": "mobile_web_interface", "level": "INFO", "message": "Auto-starting web interface server on port 8001"}
+ * Serving Flask app 'tools.mobile_web_interface_tool'
+ * Debug mode: off
+2025-12-27 04:28:32,684 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8001
+ * Running on http://100.64.100.6:8001
+2025-12-27 04:28:32,684 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-27 04:28:34,680 - ultron.mobile_web_interface - INFO - {"timestamp": "2025-12-27T04:28:34.680777", "component": "mobile_web_interface", "level": "INFO", "message": "Web interface server auto-started successfully on port 8001"}
+2025-12-27 04:28:34,681 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.681253", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MobileWebInterfaceTool", "extra": {"tool_name": "MobileWebInterfaceTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,682 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.682030", "component": "agent_core", "level": "INFO", "message": "Loaded tool: VSCodeIntegrationTool", "extra": {"tool_name": "VSCodeIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,683 - ultron.memory_context - INFO - {"timestamp": "2025-12-27T04:28:34.683584", "component": "memory_context", "level": "INFO", "message": "Memory database initialized"}
+2025-12-27 04:28:34,683 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.683874", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MemoryContextTool", "extra": {"tool_name": "MemoryContextTool", "init_params": []}}
+2025-12-27 04:28:34,685 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.685321", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ProjectManagerTool", "extra": {"tool_name": "ProjectManagerTool", "init_params": []}}
+2025-12-27 04:28:34,686 - ultron.browser_mcp - INFO - {"timestamp": "2025-12-27T04:28:34.686145", "component": "browser_mcp", "level": "INFO", "message": "Browser MCP Tool initialized"}
+2025-12-27 04:28:34,686 - ultron.browser_mcp - INFO - {"timestamp": "2025-12-27T04:28:34.686509", "component": "browser_mcp", "level": "INFO", "message": "Browser MCP Tool initialized"}
+2025-12-27 04:28:34,686 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.686780", "component": "agent_core", "level": "INFO", "message": "Loaded tool: BrowserMCPTool", "extra": {"tool_name": "BrowserMCPTool", "init_params": []}}
+2025-12-27 04:28:34,687 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.687859", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AWSBedrockTool", "extra": {"tool_name": "AWSBedrockTool", "init_params": []}}
+2025-12-27 04:28:34,688 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.688665", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityBarracudaTool", "extra": {"tool_name": "UnityBarracudaTool", "init_params": ["config"]}}
+2025-12-27 04:28:34,689 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.689555", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AvatarBuilderTool", "extra": {"tool_name": "AvatarBuilderTool", "init_params": []}}
+2025-12-27 04:28:34,690 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.690340", "component": "agent_core", "level": "INFO", "message": "Loaded tool: FileSyncTool", "extra": {"tool_name": "FileSyncTool", "init_params": ["config"]}}
+2025-12-27 04:28:34,691 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.691051", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AutoGenAutomationTool", "extra": {"tool_name": "AutoGenAutomationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,692 - ultron.dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2025-12-27 04:28:34,692 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.692915", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DependencyAnalyzerTool", "extra": {"tool_name": "DependencyAnalyzerTool", "init_params": []}}
+2025-12-27 04:28:34,898 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.898936", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.gui_validation_suite: No module named 'bs4'"}
+2025-12-27 04:28:34,901 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.901432", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/gui_validation_suite.py: No module named 'bs4'"}
+2025-12-27 04:28:34,911 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.910954", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/gui_validation_suite.py: No module named 'bs4'"}
+2025-12-27 04:28:34,911 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.911494", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/gui_validation_suite.py"}
+2025-12-27 04:28:34,915 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.915850", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityInferenceTool", "extra": {"tool_name": "UnityInferenceTool", "init_params": ["config"]}}
+2025-12-27 04:28:34,917 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.916926", "component": "agent_core", "level": "INFO", "message": "Loaded tool: RedisIntegrationTool", "extra": {"tool_name": "RedisIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,917 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.917830", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DockerIntegrationTool", "extra": {"tool_name": "DockerIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,919 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.919092", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.windows_system_tool: No module named 'winreg'"}
+2025-12-27 04:28:34,920 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.920159", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/windows_system_tool.py: No module named 'winreg'"}
+2025-12-27 04:28:34,926 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.926097", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/windows_system_tool.py: No module named 'winreg'"}
+2025-12-27 04:28:34,926 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.926587", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/windows_system_tool.py"}
+2025-12-27 04:28:34,927 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.927222", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OpenAIComputerUseTool", "extra": {"tool_name": "OpenAIComputerUseTool", "init_params": []}}
+2025-12-27 04:28:34,928 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.928185", "component": "agent_core", "level": "INFO", "message": "Loaded tool: TorSearchTool", "extra": {"tool_name": "TorSearchTool", "init_params": []}}
+2025-12-27 04:28:34,929 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.929684", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.bedrock_agent_tool: No module named 'boto3'"}
+2025-12-27 04:28:34,931 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.931414", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/bedrock_agent_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:34,935 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.935358", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/bedrock_agent_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:34,935 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.935774", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/bedrock_agent_tool.py"}
+2025-12-27 04:28:34,938 - ultron.pycharm_integration - INFO - {"timestamp": "2025-12-27T04:28:34.938636", "component": "pycharm_integration", "level": "INFO", "message": "PyCharm Integration Tool initialized"}
+2025-12-27 04:28:34,939 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.939093", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PyCharmIntegrationTool", "extra": {"tool_name": "PyCharmIntegrationTool", "init_params": []}}
+2025-12-27 04:28:34,940 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.940493", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.database_integration_tool: No module named 'psycopg2'"}
+2025-12-27 04:28:34,942 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.942898", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/database_integration_tool.py: No module named 'psycopg2'"}
+2025-12-27 04:28:34,953 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.953463", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/database_integration_tool.py: No module named 'psycopg2'"}
+2025-12-27 04:28:34,954 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.954108", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/database_integration_tool.py"}
+2025-12-27 04:28:34,956 - ultron.pyautogui - INFO - {"timestamp": "2025-12-27T04:28:34.956242", "component": "pyautogui", "level": "INFO", "message": "Screenshot directory ready: screenshots"}
+2025-12-27 04:28:34,956 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.956721", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OllamaPyAutoGUIBridge", "extra": {"tool_name": "OllamaPyAutoGUIBridge", "init_params": ["config"]}}
+2025-12-27 04:28:34,957 - ultron.pyautogui - INFO - {"timestamp": "2025-12-27T04:28:34.957044", "component": "pyautogui", "level": "INFO", "message": "Screenshot directory ready: screenshots"}
+2025-12-27 04:28:34,957 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.957280", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PyAutoGUITool", "extra": {"tool_name": "PyAutoGUITool", "init_params": ["config"]}}
+2025-12-27 04:28:34,958 - ultron.ai_dev_coordinator - INFO - {"timestamp": "2025-12-27T04:28:34.958649", "component": "ai_dev_coordinator", "level": "INFO", "message": "Coordinator initialized"}
+2025-12-27 04:28:34,959 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.959248", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AIDevelopmentCoordinator", "extra": {"tool_name": "AIDevelopmentCoordinator", "init_params": []}}
+2025-12-27 04:28:34,959 - ultron.pyautogui - INFO - {"timestamp": "2025-12-27T04:28:34.959785", "component": "pyautogui", "level": "INFO", "message": "Screenshot directory ready: screenshots"}
+2025-12-27 04:28:34,960 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.960068", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PyAutoGUITool", "extra": {"tool_name": "PyAutoGUITool", "init_params": ["config"]}}
+2025-12-27 04:28:34,960 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.960819", "component": "agent_core", "level": "INFO", "message": "Loaded tool: JupyterIntegrationTool", "extra": {"tool_name": "JupyterIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,962 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.962135", "component": "agent_core", "level": "INFO", "message": "Loaded tool: FileMonitorTool", "extra": {"tool_name": "FileMonitorTool", "init_params": ["config"]}}
+2025-12-27 04:28:34,965 - ultron.enhanced_ocr - ERROR - {"timestamp": "2025-12-27T04:28:34.965377", "component": "enhanced_ocr", "level": "ERROR", "message": "Tesseract not found in standard locations"}
+2025-12-27 04:28:34,966 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.965957", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedOCRTool", "extra": {"tool_name": "EnhancedOCRTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,978 - ultron.service_integration - ERROR - {"timestamp": "2025-12-27T04:28:34.978102", "component": "service_integration", "level": "ERROR", "message": "Google API client not available. Install with: pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib"}
+2025-12-27 04:28:34,978 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.978707", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ServiceIntegrationTool", "extra": {"tool_name": "ServiceIntegrationTool", "init_params": []}}
+2025-12-27 04:28:34,980 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.980118", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DynamicCodeExecutor", "extra": {"tool_name": "DynamicCodeExecutor", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,981 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.981003", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ImageGenerationTool", "extra": {"tool_name": "ImageGenerationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:34,981 - ultron.screen_vision_service - ERROR - {"timestamp": "2025-12-27T04:28:34.981427", "component": "screen_vision_service", "level": "ERROR", "message": "ScreenVisionService requires the 'mss' package for realtime screen capture. Install it with `pip install mss`."}
+2025-12-27 04:28:34,981 - ultron.multimodal_vision - ERROR - {"timestamp": "2025-12-27T04:28:34.981722", "component": "multimodal_vision", "level": "ERROR", "message": "Screen vision service unavailable: ScreenVisionService requires the 'mss' package for realtime screen capture. Install it with `pip install mss`."}
+2025-12-27 04:28:34,982 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:34.982019", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MultimodalVisionTool", "extra": {"tool_name": "MultimodalVisionTool", "init_params": []}}
+2025-12-27 04:28:34,982 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.982776", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.vercel_assistant_tool: No module named 'tools.base'"}
+2025-12-27 04:28:34,983 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.983422", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/vercel_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:34,985 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.985197", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/vercel_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:34,985 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.985529", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/vercel_assistant_tool.py"}
+2025-12-27 04:28:34,987 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.987093", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.web_search_tool: No module named 'bs4'"}
+2025-12-27 04:28:34,988 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.988344", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/web_search_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:34,997 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.997753", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/web_search_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:34,998 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:34.998499", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/web_search_tool.py"}
+2025-12-27 04:28:35,000 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:35.000024", "component": "agent_core", "level": "ERROR", "message": "Unexpected error importing tools.mcp_integration_tool: unindent does not match any outer indentation level (mcp_integration_tool.py, line 56)"}
+2025-12-27 04:28:35,001 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.001069", "component": "agent_core", "level": "INFO", "message": "Loaded tool: GDriveAddonTool", "extra": {"tool_name": "GDriveAddonTool", "init_params": []}}
+2025-12-27 04:28:35,002 - ultron.stable_diffusion - INFO - {"timestamp": "2025-12-27T04:28:35.002426", "component": "stable_diffusion", "level": "INFO", "message": "Initialized Stable Diffusion Tool"}
+2025-12-27 04:28:35,002 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.002738", "component": "agent_core", "level": "INFO", "message": "Loaded tool: StableDiffusionTool", "extra": {"tool_name": "StableDiffusionTool", "init_params": []}}
+2025-12-27 04:28:35,008 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.008192", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ScreenshotAnalyzerTool", "extra": {"tool_name": "ScreenshotAnalyzerTool", "init_params": ["config"]}}
+2025-12-27 04:28:35,009 - ultron.github_models - ERROR - {"timestamp": "2025-12-27T04:28:35.009800", "component": "github_models", "level": "ERROR", "message": "mistralai package not available. Install: pip install mistralai>=1.0.0"}
+2025-12-27 04:28:35,010 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.010402", "component": "agent_core", "level": "INFO", "message": "Loaded tool: GitHubModelsTool", "extra": {"tool_name": "GitHubModelsTool", "init_params": ["config"]}}
+2025-12-27 04:28:35,022 - ultron.evolution_engine - INFO - Evolution engine initialized (Cycle #0)
+2025-12-27 04:28:35,022 - ultron.cache_manager - INFO - Redis not available, using SQLite cache only
+2025-12-27 04:28:35,023 - ultron.cache_manager - INFO - SQLite cache initialized at cache/ultron_cache.db
+2025-12-27 04:28:35,023 - ultron.cache_manager - INFO - Cache manager initialized (TTL: 3600s, Max: 100MB)
+2025-12-27 04:28:35,023 - ultron.evolution_tool - INFO - Evolution Monitor Tool initialized
+2025-12-27 04:28:35,023 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.023701", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EvolutionMonitorTool", "extra": {"tool_name": "EvolutionMonitorTool", "init_params": []}}
+2025-12-27 04:28:35,024 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.024745", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DirectorySortTool", "extra": {"tool_name": "DirectorySortTool", "init_params": ["config"]}}
+2025-12-27 04:28:35,026 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:35.026169", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.web_scraping_tool: No module named 'bs4'"}
+2025-12-27 04:28:35,027 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:35.027453", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/web_scraping_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:35,037 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:35.037121", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/web_scraping_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:35,037 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:35.037691", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/web_scraping_tool.py"}
+2025-12-27 04:28:35,039 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.039058", "component": "agent_core", "level": "INFO", "message": "Loaded tool: SSHServerTool", "extra": {"tool_name": "SSHServerTool", "init_params": []}}
+2025-12-27 04:28:35,039 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.039899", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityAITool", "extra": {"tool_name": "UnityAITool", "init_params": ["config"]}}
+2025-12-27 04:28:35,041 - ultron.mcp_enhanced - INFO - {"timestamp": "2025-12-27T04:28:35.041031", "component": "mcp_enhanced", "level": "INFO", "message": "Enhanced MCP Tool initialized"}
+2025-12-27 04:28:35,041 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.041446", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MCPEnhancedTool", "extra": {"tool_name": "MCPEnhancedTool", "init_params": []}}
+2025-12-27 04:28:35,042 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.042350", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnitySentisTool", "extra": {"tool_name": "UnitySentisTool", "init_params": ["config"]}}
+2025-12-27 04:28:35,043 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.043925", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedErrorHandler", "extra": {"tool_name": "EnhancedErrorHandler", "init_params": []}}
+2025-12-27 04:28:35,045 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.045461", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ImageDescriptionTool", "extra": {"tool_name": "ImageDescriptionTool", "init_params": []}}
+2025-12-27 04:28:35,046 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:35.046157", "component": "agent_core", "level": "INFO", "message": "Loaded tool: SmartScreenshotTool", "extra": {"tool_name": "SmartScreenshotTool", "init_params": []}}
+2025-12-27 04:28:36,131 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.131815", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.openai_assistant_tool: No module named 'tools.base'"}
+2025-12-27 04:28:36,133 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.133192", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/openai_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:36,136 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.136225", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/openai_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:36,136 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.136633", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/openai_assistant_tool.py"}
+2025-12-27 04:28:36,139 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.139535", "component": "agent_core", "level": "ERROR", "message": "Unexpected error importing tools.reasoning_pipeline_tool: invalid syntax (reasoning_pipeline_tool.py, line 112)"}
+2025-12-27 04:28:36,141 - ultron.database_tool - ERROR - {"timestamp": "2025-12-27T04:28:36.141810", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 04:28:36,142 - ultron.database_tool - ERROR - {"timestamp": "2025-12-27T04:28:36.142151", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 04:28:36,143 - ultron.database_tool - INFO - {"timestamp": "2025-12-27T04:28:36.143099", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 04:28:36,143 - ultron.database_tool - INFO - {"timestamp": "2025-12-27T04:28:36.143629", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 04:28:36,144 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.144031", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DatabaseTool", "extra": {"tool_name": "DatabaseTool", "init_params": []}}
+2025-12-27 04:28:36,146 - ultron.enhanced_nlp - ERROR - {"timestamp": "2025-12-27T04:28:36.146506", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available: No module named 'spacy'"}
+2025-12-27 04:28:36,147 - ultron.enhanced_nlp - ERROR - {"timestamp": "2025-12-27T04:28:36.147236", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 04:28:36,147 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.147656", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedNLPTool", "extra": {"tool_name": "EnhancedNLPTool", "init_params": []}}
+2025-12-27 04:28:36,149 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.149662", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedVoiceTool", "extra": {"tool_name": "EnhancedVoiceTool", "init_params": []}}
+2025-12-27 04:28:36,150 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.150237", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ImageDescriptionTool", "extra": {"tool_name": "ImageDescriptionTool", "init_params": []}}
+2025-12-27 04:28:36,151 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.151560", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.tool_performance_tracker: cannot import name 'log' from 'ultron_logger' (/home/ultro/projects/ultron_agent/ultron_logger.py)"}
+2025-12-27 04:28:36,152 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.152405", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/tool_performance_tracker.py: cannot import name 'log' from 'ultron_logger' (/home/ultro/projects/ultron_agent/ultron_logger.py)"}
+2025-12-27 04:28:36,155 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.155342", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/tool_performance_tracker.py: cannot import name 'log' from 'ultron_logger' (/home/ultro/projects/ultron_agent/ultron_logger.py)"}
+2025-12-27 04:28:36,155 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.155720", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/tool_performance_tracker.py"}
+2025-12-27 04:28:36,157 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.157152", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OpenAIAgentTool", "extra": {"tool_name": "OpenAIAgentTool", "init_params": []}}
+2025-12-27 04:28:36,157 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.157934", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AmazonQIntegrationTool", "extra": {"tool_name": "AmazonQIntegrationTool", "init_params": ["config"]}}
+2025-12-27 04:28:36,158 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.158570", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowIntegrationTool", "extra": {"tool_name": "LangflowIntegrationTool", "init_params": ["config"]}}
+2025-12-27 04:28:36,159 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.159165", "component": "agent_core", "level": "INFO", "message": "Loaded tool: HelloTool", "extra": {"tool_name": "HelloTool", "init_params": []}}
+2025-12-27 04:28:36,161 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.161082", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.aws_solutions_tool: No module named 'boto3'"}
+2025-12-27 04:28:36,162 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.162793", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/aws_solutions_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:36,168 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.168201", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/aws_solutions_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:36,168 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.168610", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/aws_solutions_tool.py"}
+2025-12-27 04:28:36,169 - ultron.performance_analytics - INFO - Performance Analytics initialized
+2025-12-27 04:28:36,169 - ultron.performance_dashboard - INFO - Performance Dashboard Tool initialized
+2025-12-27 04:28:36,169 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.169885", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PerformanceDashboardTool", "extra": {"tool_name": "PerformanceDashboardTool", "init_params": []}}
+2025-12-27 04:28:36,170 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.170618", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedMemoryTool", "extra": {"tool_name": "EnhancedMemoryTool", "init_params": []}}
+2025-12-27 04:28:36,171 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.171273", "component": "agent_core", "level": "INFO", "message": "Loaded tool: BrowserMCPEnhancedTool", "extra": {"tool_name": "BrowserMCPEnhancedTool", "init_params": []}}
+2025-12-27 04:28:36,172 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.172324", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.google_drive_tool: No module named 'google'"}
+2025-12-27 04:28:36,173 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.173314", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/google_drive_tool.py: No module named 'google'"}
+2025-12-27 04:28:36,175 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.175629", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/google_drive_tool.py: No module named 'google'"}
+2025-12-27 04:28:36,175 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.175910", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/google_drive_tool.py"}
+2025-12-27 04:28:36,177 - ultron.langflow_workflow - INFO - {"timestamp": "2025-12-27T04:28:36.177167", "component": "langflow_workflow", "level": "INFO", "message": "Tool initialized"}
+2025-12-27 04:28:36,177 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.177437", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowWorkflowTool", "extra": {"tool_name": "LangflowWorkflowTool", "init_params": []}}
+2025-12-27 04:28:36,179 - ultron.copilot_cli_tool - INFO - {"timestamp": "2025-12-27T04:28:36.179853", "component": "copilot_cli_tool", "level": "INFO", "message": "Initialized. Copilot CLI available: False", "config_loaded": false}
+2025-12-27 04:28:36,180 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.180174", "component": "agent_core", "level": "INFO", "message": "Loaded tool: CopilotCLIAutomationTool", "extra": {"tool_name": "CopilotCLIAutomationTool", "init_params": []}}
+2025-12-27 04:28:36,182 - ultron.langflow_mcp - INFO - {"timestamp": "2025-12-27T04:28:36.182527", "component": "langflow_mcp", "level": "INFO", "message": "Initialized LangFlow MCP Tool"}
+2025-12-27 04:28:36,182 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.182801", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowMCPTool", "extra": {"tool_name": "LangflowMCPTool", "init_params": []}}
+2025-12-27 04:28:36,184 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.183992", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.gui_link_validator: No module named 'bs4'"}
+2025-12-27 04:28:36,185 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.184986", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/gui_link_validator.py: No module named 'bs4'"}
+2025-12-27 04:28:36,194 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.194203", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/gui_link_validator.py: No module named 'bs4'"}
+2025-12-27 04:28:36,194 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.194644", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/gui_link_validator.py"}
+2025-12-27 04:28:36,195 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.195477", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DeepWikiMCPTool", "extra": {"tool_name": "DeepWikiMCPTool", "init_params": []}}
+2025-12-27 04:28:36,196 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.196703", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.project_automation_tool: No module named 'anthropic'"}
+2025-12-27 04:28:36,197 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.197640", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/project_automation_tool.py: No module named 'anthropic'"}
+2025-12-27 04:28:36,202 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.202085", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/project_automation_tool.py: No module named 'anthropic'"}
+2025-12-27 04:28:36,202 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.202490", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/project_automation_tool.py"}
+2025-12-27 04:28:36,203 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.203285", "component": "agent_core", "level": "INFO", "message": "Loaded tool: SelfAwarenessTool", "extra": {"tool_name": "SelfAwarenessTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:36,204 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.204248", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityHubTool", "extra": {"tool_name": "UnityHubTool", "init_params": []}}
+2025-12-27 04:28:36,204 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.204838", "component": "agent_core", "level": "INFO", "message": "Loaded tool: StreamlitIntegrationTool", "extra": {"tool_name": "StreamlitIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:36,206 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.205985", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.aws_integration_tool: No module named 'boto3'"}
+2025-12-27 04:28:36,207 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.207076", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/aws_integration_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:36,214 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.214420", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/aws_integration_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:36,214 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.214866", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/aws_integration_tool.py"}
+2025-12-27 04:28:36,216 - ultron.repomix_tool - INFO - {"timestamp": "2025-12-27T04:28:36.216522", "component": "repomix_tool", "level": "INFO", "message": "Repomix integration initialized"}
+2025-12-27 04:28:36,218 - ultron.repomix_tool - INFO - {"timestamp": "2025-12-27T04:28:36.218127", "component": "repomix_tool", "level": "INFO", "message": "Git dependency verified"}
+2025-12-27 04:28:36,218 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.218458", "component": "agent_core", "level": "INFO", "message": "Loaded tool: RepomixTool", "extra": {"tool_name": "RepomixTool", "init_params": []}}
+2025-12-27 04:28:36,219 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.219237", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AWSBedrockTool", "extra": {"tool_name": "AWSBedrockTool", "init_params": []}}
+2025-12-27 04:28:36,219 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.219638", "component": "agent_core", "level": "INFO", "message": "Loaded tool: VoiceAWSTool", "extra": {"tool_name": "VoiceAWSTool", "init_params": []}}
+2025-12-27 04:28:36,221 - ultron.langflow_tool - INFO - {"timestamp": "2025-12-27T04:28:36.220984", "component": "langflow_tool", "level": "INFO", "message": "Langflow tool initialized with URL: http://127.0.0.1:7861"}
+2025-12-27 04:28:36,221 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.221259", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowTool", "extra": {"tool_name": "LangflowTool", "init_params": ["config"]}}
+2025-12-27 04:28:36,222 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.222617", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.aws_config_monitoring_tool: No module named 'boto3'"}
+2025-12-27 04:28:36,223 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.223671", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/aws_config_monitoring_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:36,229 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.229516", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/aws_config_monitoring_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:36,230 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:36.229971", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/aws_config_monitoring_tool.py"}
+2025-12-27 04:28:36,230 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.230849", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ContinueDocsTool", "extra": {"tool_name": "ContinueDocsTool", "init_params": []}}
+2025-12-27 04:28:36,231 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.231473", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AutonomousPyAutoGUI", "extra": {"tool_name": "AutonomousPyAutoGUI", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:36,232 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.232003", "component": "agent_core", "level": "INFO", "message": "Loaded tool: FastAPIIntegrationTool", "extra": {"tool_name": "FastAPIIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:36,232 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.232893", "component": "agent_core", "level": "INFO", "message": "Loaded tool: WorkflowEditorTool", "extra": {"tool_name": "WorkflowEditorTool", "init_params": ["config"]}}
+2025-12-27 04:28:36,233 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.233930", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PerformanceMonitor", "extra": {"tool_name": "PerformanceMonitor", "init_params": []}}
+2025-12-27 04:28:36,241 - ultron.orchestrator - INFO - {"timestamp": "2025-12-27T04:28:36.241192", "component": "orchestrator", "level": "INFO", "message": "Agent registered: CodeAgent"}
+2025-12-27 04:28:36,241 - ultron.orchestrator - INFO - {"timestamp": "2025-12-27T04:28:36.241502", "component": "orchestrator", "level": "INFO", "message": "Agent registered: ReasoningAgent"}
+2025-12-27 04:28:36,241 - ultron.orchestrator - INFO - {"timestamp": "2025-12-27T04:28:36.241701", "component": "orchestrator", "level": "INFO", "message": "Agent registered: VisionAgent"}
+2025-12-27 04:28:36,245 - ultron.workflow_engine - INFO - {"timestamp": "2025-12-27T04:28:36.245364", "component": "workflow_engine", "level": "INFO", "message": "Workflow registered: code_review_workflow"}
+2025-12-27 04:28:36,245 - ultron.workflow_engine - INFO - {"timestamp": "2025-12-27T04:28:36.245762", "component": "workflow_engine", "level": "INFO", "message": "Workflow registered: deployment_workflow"}
+2025-12-27 04:28:36,246 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.246198", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OrchestrationTool", "extra": {"tool_name": "OrchestrationTool", "init_params": []}}
+2025-12-27 04:28:36,247 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.247132", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UncensoredSearchTool", "extra": {"tool_name": "UncensoredSearchTool", "init_params": []}}
+2025-12-27 04:28:36,247 - ultron.ai_activities - INFO - {"timestamp": "2025-12-27T04:28:36.247600", "component": "agent_core", "level": "AI_DECISION", "message": "Tool loading completed", "ai_model": "agent_core", "confidence_score": 0.8235294117647058, "reasoning": "Loaded 70 tools, 15 failed"}
+2025-12-27 04:28:36,247 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.247839", "component": "agent_core", "level": "INFO", "message": "Initialized tools successfully", "extra": {"component": "tools"}}
+2025-12-27 04:28:36,248 - agent_core - INFO - Starting web interface...
+2025-12-27 04:28:36,248 - agent_core - INFO - Web interface started in background thread
+2025-12-27 04:28:36,248 - ultron.ai_activities - INFO - {"timestamp": "2025-12-27T04:28:36.248458", "component": "agent_core", "level": "AI_DECISION", "message": "Agent initialization completed", "ai_model": "agent_core", "confidence_score": 0.95, "reasoning": "Initialized 12 components in 4.67s"}
+2025-12-27 04:28:36,248 - agent_core - INFO - Performing ULTRON identity maintenance...
+2025-12-27 04:28:36,248 - agent_core - WARNING - Brain not available for identity maintenance
+2025-12-27 04:28:36,248 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.248814", "component": "agent_core", "level": "INFO", "message": "Voice system enabled, starting voice listening..."}
+2025-12-27 04:28:36,249 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.249013", "component": "agent_core", "level": "INFO", "message": "ULTRON Agent fully initialized and ready", "extra": {"initialized_components": 12, "duration_seconds": "4.67", "components": ["performance_monitoring", "memory", "voice", "vision", "brain", "computer_use", "event_system", "platform_manager", "idle_monitor", "keyboard_listener", "tools", "web_interface"]}}
+2025-12-27 04:28:36,249 - agent_core - INFO - Starting periodic self-diagnosis and auto-repair loop...
+2025-12-27 04:28:36,249 - agent_core - INFO - Self-diagnosis results: {'memory': {'success': False, 'error': 'No memory or self_test method'}, 'brain': {'success': False, 'error': 'No brain or self_test method'}, 'tools': {'success': False}, 'event_system': {'status': 'ok', 'errors': [], 'details': {'stats': {'total_events': 0, 'events_by_type': {}, 'active_subscriptions': 0, 'subscribed_events': [], 'max_history': 1000, 'shutdown': False, 'failed_handlers': 0, 'subscriber_count': 0}, 'emit_test': 'ok'}}}
+2025-12-27 04:28:36,249 - agent_core - WARNING - Component 'memory' failed self-test. Attempting auto-repair...
+2025-12-27 04:28:36,249 - agent_core - INFO - Initializing ULTRON memory system...
+/home/ultro/projects/ultron_agent/memory.py:332: SyntaxWarning: invalid escape sequence '\M'
+  """Simple helper that copies files into a local Google Drive-mounted
+2025-12-27 04:28:36,254 - agent_core - ERROR - ❌ Memory initialization failed: unindent does not match any outer indentation level (memory.py, line 407)
+2025-12-27 04:28:36,254 - agent_core - INFO - Memory system reinitialized.
+2025-12-27 04:28:36,254 - agent_core - WARNING - Component 'brain' failed self-test. Attempting auto-repair...
+2025-12-27 04:28:36,254 - agent_core - INFO - Initializing brain system...
+2025-12-27 04:28:36,256 - agent_core - ERROR - Brain system initialization error: unindent does not match any outer indentation level (brain.py, line 165)
+2025-12-27 04:28:36,256 - agent_core - INFO - Brain system reinitialized.
+2025-12-27 04:28:36,256 - agent_core - WARNING - Component 'tools' failed self-test. Attempting auto-repair...
+2025-12-27 04:28:36,256 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:36.256600", "component": "agent_core", "level": "INFO", "message": "Loading tools from /home/ultro/projects/ultron_agent/tools..."}
+2025-12-27 04:28:36,279 - ultron.mobile_web_interface - INFO - {"timestamp": "2025-12-27T04:28:36.279048", "component": "mobile_web_interface", "level": "INFO", "message": "Flask app initialized with static folder: /home/ultro/projects/ultron_agent/tools/../gui/ultron_enhanced/web"}
+2025-12-27 04:28:36,279 - ultron.mobile_web_interface - INFO - {"timestamp": "2025-12-27T04:28:36.279617", "component": "mobile_web_interface", "level": "INFO", "message": "Auto-starting web interface server on port 8001"}
+ * Serving Flask app 'tools.mobile_web_interface_tool'
+ * Debug mode: off
+Address already in use
+Port 8001 is in use by another program. Either identify and stop that program, or start the server with a different port.
+2025-12-27 04:28:38,280 - ultron.mobile_web_interface - INFO - {"timestamp": "2025-12-27T04:28:38.280005", "component": "mobile_web_interface", "level": "INFO", "message": "Web interface server auto-started successfully on port 8001"}
+2025-12-27 04:28:38,280 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.280486", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MobileWebInterfaceTool", "extra": {"tool_name": "MobileWebInterfaceTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,280 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.280814", "component": "agent_core", "level": "INFO", "message": "Loaded tool: VSCodeIntegrationTool", "extra": {"tool_name": "VSCodeIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,281 - ultron.memory_context - INFO - {"timestamp": "2025-12-27T04:28:38.281426", "component": "memory_context", "level": "INFO", "message": "Memory database initialized"}
+2025-12-27 04:28:38,281 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.281730", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MemoryContextTool", "extra": {"tool_name": "MemoryContextTool", "init_params": []}}
+2025-12-27 04:28:38,282 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.282035", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ProjectManagerTool", "extra": {"tool_name": "ProjectManagerTool", "init_params": []}}
+2025-12-27 04:28:38,282 - ultron.browser_mcp - INFO - {"timestamp": "2025-12-27T04:28:38.282332", "component": "browser_mcp", "level": "INFO", "message": "Browser MCP Tool initialized"}
+2025-12-27 04:28:38,282 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.282550", "component": "agent_core", "level": "INFO", "message": "Loaded tool: BrowserMCPTool", "extra": {"tool_name": "BrowserMCPTool", "init_params": []}}
+2025-12-27 04:28:38,282 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.282831", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AWSBedrockTool", "extra": {"tool_name": "AWSBedrockTool", "init_params": []}}
+2025-12-27 04:28:38,283 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.283154", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityBarracudaTool", "extra": {"tool_name": "UnityBarracudaTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,283 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.283486", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AvatarBuilderTool", "extra": {"tool_name": "AvatarBuilderTool", "init_params": []}}
+2025-12-27 04:28:38,283 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.283787", "component": "agent_core", "level": "INFO", "message": "Loaded tool: FileSyncTool", "extra": {"tool_name": "FileSyncTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,284 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.284021", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AutoGenAutomationTool", "extra": {"tool_name": "AutoGenAutomationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,284 - ultron.dependency_analyzer - INFO - Dependency Analyzer Tool initialized
+2025-12-27 04:28:38,284 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.284547", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DependencyAnalyzerTool", "extra": {"tool_name": "DependencyAnalyzerTool", "init_params": []}}
+2025-12-27 04:28:38,287 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.287519", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.gui_validation_suite: No module named 'bs4'"}
+2025-12-27 04:28:38,289 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.289852", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/gui_validation_suite.py: No module named 'bs4'"}
+2025-12-27 04:28:38,298 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.298279", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/gui_validation_suite.py: No module named 'bs4'"}
+2025-12-27 04:28:38,298 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.298869", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/gui_validation_suite.py"}
+2025-12-27 04:28:38,299 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.299318", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityInferenceTool", "extra": {"tool_name": "UnityInferenceTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,299 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.299617", "component": "agent_core", "level": "INFO", "message": "Loaded tool: RedisIntegrationTool", "extra": {"tool_name": "RedisIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,299 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.299907", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DockerIntegrationTool", "extra": {"tool_name": "DockerIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,301 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.301177", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.windows_system_tool: No module named 'winreg'"}
+2025-12-27 04:28:38,302 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.302200", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/windows_system_tool.py: No module named 'winreg'"}
+2025-12-27 04:28:38,307 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.307944", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/windows_system_tool.py: No module named 'winreg'"}
+2025-12-27 04:28:38,308 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.308327", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/windows_system_tool.py"}
+2025-12-27 04:28:38,308 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.308918", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OpenAIComputerUseTool", "extra": {"tool_name": "OpenAIComputerUseTool", "init_params": []}}
+2025-12-27 04:28:38,309 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.309218", "component": "agent_core", "level": "INFO", "message": "Loaded tool: TorSearchTool", "extra": {"tool_name": "TorSearchTool", "init_params": []}}
+2025-12-27 04:28:38,310 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.310829", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.bedrock_agent_tool: No module named 'boto3'"}
+2025-12-27 04:28:38,312 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.312548", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/bedrock_agent_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,316 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.316288", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/bedrock_agent_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,316 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.316629", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/bedrock_agent_tool.py"}
+2025-12-27 04:28:38,317 - ultron.pycharm_integration - INFO - {"timestamp": "2025-12-27T04:28:38.317767", "component": "pycharm_integration", "level": "INFO", "message": "PyCharm Integration Tool initialized"}
+2025-12-27 04:28:38,318 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.318045", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PyCharmIntegrationTool", "extra": {"tool_name": "PyCharmIntegrationTool", "init_params": []}}
+2025-12-27 04:28:38,319 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.319240", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.database_integration_tool: No module named 'psycopg2'"}
+2025-12-27 04:28:38,320 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.320325", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/database_integration_tool.py: No module named 'psycopg2'"}
+2025-12-27 04:28:38,325 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.325567", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/database_integration_tool.py: No module named 'psycopg2'"}
+2025-12-27 04:28:38,326 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.326003", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/database_integration_tool.py"}
+2025-12-27 04:28:38,326 - ultron.pyautogui - INFO - {"timestamp": "2025-12-27T04:28:38.326362", "component": "pyautogui", "level": "INFO", "message": "Screenshot directory ready: screenshots"}
+2025-12-27 04:28:38,326 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.326635", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OllamaPyAutoGUIBridge", "extra": {"tool_name": "OllamaPyAutoGUIBridge", "init_params": ["config"]}}
+2025-12-27 04:28:38,326 - ultron.pyautogui - INFO - {"timestamp": "2025-12-27T04:28:38.326879", "component": "pyautogui", "level": "INFO", "message": "Screenshot directory ready: screenshots"}
+2025-12-27 04:28:38,327 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.327065", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PyAutoGUITool", "extra": {"tool_name": "PyAutoGUITool", "init_params": ["config"]}}
+2025-12-27 04:28:38,327 - ultron.ai_dev_coordinator - INFO - {"timestamp": "2025-12-27T04:28:38.327326", "component": "ai_dev_coordinator", "level": "INFO", "message": "Coordinator initialized"}
+2025-12-27 04:28:38,327 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.327527", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AIDevelopmentCoordinator", "extra": {"tool_name": "AIDevelopmentCoordinator", "init_params": []}}
+2025-12-27 04:28:38,327 - ultron.pyautogui - INFO - {"timestamp": "2025-12-27T04:28:38.327792", "component": "pyautogui", "level": "INFO", "message": "Screenshot directory ready: screenshots"}
+2025-12-27 04:28:38,328 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.327987", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PyAutoGUITool", "extra": {"tool_name": "PyAutoGUITool", "init_params": ["config"]}}
+2025-12-27 04:28:38,328 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.328218", "component": "agent_core", "level": "INFO", "message": "Loaded tool: JupyterIntegrationTool", "extra": {"tool_name": "JupyterIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,328 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.328516", "component": "agent_core", "level": "INFO", "message": "Loaded tool: FileMonitorTool", "extra": {"tool_name": "FileMonitorTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,328 - ultron.enhanced_ocr - ERROR - {"timestamp": "2025-12-27T04:28:38.328821", "component": "enhanced_ocr", "level": "ERROR", "message": "Tesseract not found in standard locations"}
+2025-12-27 04:28:38,329 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.329013", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedOCRTool", "extra": {"tool_name": "EnhancedOCRTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,329 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.329342", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ServiceIntegrationTool", "extra": {"tool_name": "ServiceIntegrationTool", "init_params": []}}
+2025-12-27 04:28:38,329 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.329661", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DynamicCodeExecutor", "extra": {"tool_name": "DynamicCodeExecutor", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,329 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.329893", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ImageGenerationTool", "extra": {"tool_name": "ImageGenerationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,330 - ultron.screen_vision_service - ERROR - {"timestamp": "2025-12-27T04:28:38.330158", "component": "screen_vision_service", "level": "ERROR", "message": "ScreenVisionService requires the 'mss' package for realtime screen capture. Install it with `pip install mss`."}
+2025-12-27 04:28:38,330 - ultron.multimodal_vision - ERROR - {"timestamp": "2025-12-27T04:28:38.330364", "component": "multimodal_vision", "level": "ERROR", "message": "Screen vision service unavailable: ScreenVisionService requires the 'mss' package for realtime screen capture. Install it with `pip install mss`."}
+2025-12-27 04:28:38,330 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.330569", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MultimodalVisionTool", "extra": {"tool_name": "MultimodalVisionTool", "init_params": []}}
+2025-12-27 04:28:38,331 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.331422", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.vercel_assistant_tool: No module named 'tools.base'"}
+2025-12-27 04:28:38,332 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.332148", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/vercel_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:38,334 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.334121", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/vercel_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:38,334 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.334470", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/vercel_assistant_tool.py"}
+2025-12-27 04:28:38,335 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.335749", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.web_search_tool: No module named 'bs4'"}
+2025-12-27 04:28:38,336 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.336835", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/web_search_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:38,345 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.345655", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/web_search_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:38,346 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.346484", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/web_search_tool.py"}
+2025-12-27 04:28:38,347 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.347933", "component": "agent_core", "level": "ERROR", "message": "Unexpected error importing tools.mcp_integration_tool: unindent does not match any outer indentation level (mcp_integration_tool.py, line 56)"}
+2025-12-27 04:28:38,348 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.348472", "component": "agent_core", "level": "INFO", "message": "Loaded tool: GDriveAddonTool", "extra": {"tool_name": "GDriveAddonTool", "init_params": []}}
+2025-12-27 04:28:38,348 - ultron.stable_diffusion - INFO - {"timestamp": "2025-12-27T04:28:38.348818", "component": "stable_diffusion", "level": "INFO", "message": "Initialized Stable Diffusion Tool"}
+2025-12-27 04:28:38,349 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.349048", "component": "agent_core", "level": "INFO", "message": "Loaded tool: StableDiffusionTool", "extra": {"tool_name": "StableDiffusionTool", "init_params": []}}
+2025-12-27 04:28:38,349 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.349523", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ScreenshotAnalyzerTool", "extra": {"tool_name": "ScreenshotAnalyzerTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,349 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.349893", "component": "agent_core", "level": "INFO", "message": "Loaded tool: GitHubModelsTool", "extra": {"tool_name": "GitHubModelsTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,350 - ultron.evolution_tool - INFO - Evolution Monitor Tool initialized
+2025-12-27 04:28:38,350 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.350316", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EvolutionMonitorTool", "extra": {"tool_name": "EvolutionMonitorTool", "init_params": []}}
+2025-12-27 04:28:38,350 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.350601", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DirectorySortTool", "extra": {"tool_name": "DirectorySortTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,351 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.351916", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.web_scraping_tool: No module named 'bs4'"}
+2025-12-27 04:28:38,353 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.353152", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/web_scraping_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:38,362 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.362908", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/web_scraping_tool.py: No module named 'bs4'"}
+2025-12-27 04:28:38,363 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.363382", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/web_scraping_tool.py"}
+2025-12-27 04:28:38,363 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.363819", "component": "agent_core", "level": "INFO", "message": "Loaded tool: SSHServerTool", "extra": {"tool_name": "SSHServerTool", "init_params": []}}
+2025-12-27 04:28:38,364 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.364117", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityAITool", "extra": {"tool_name": "UnityAITool", "init_params": ["config"]}}
+2025-12-27 04:28:38,364 - ultron.mcp_enhanced - INFO - {"timestamp": "2025-12-27T04:28:38.364413", "component": "mcp_enhanced", "level": "INFO", "message": "Enhanced MCP Tool initialized"}
+2025-12-27 04:28:38,364 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.364623", "component": "agent_core", "level": "INFO", "message": "Loaded tool: MCPEnhancedTool", "extra": {"tool_name": "MCPEnhancedTool", "init_params": []}}
+2025-12-27 04:28:38,364 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.364941", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnitySentisTool", "extra": {"tool_name": "UnitySentisTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,365 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.365309", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedErrorHandler", "extra": {"tool_name": "EnhancedErrorHandler", "init_params": []}}
+2025-12-27 04:28:38,365 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.365610", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ImageDescriptionTool", "extra": {"tool_name": "ImageDescriptionTool", "init_params": []}}
+2025-12-27 04:28:38,365 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.365834", "component": "agent_core", "level": "INFO", "message": "Loaded tool: SmartScreenshotTool", "extra": {"tool_name": "SmartScreenshotTool", "init_params": []}}
+2025-12-27 04:28:38,366 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.366830", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.openai_assistant_tool: No module named 'tools.base'"}
+2025-12-27 04:28:38,367 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.367928", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/openai_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:38,370 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.370645", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/openai_assistant_tool.py: No module named 'tools.base'"}
+2025-12-27 04:28:38,370 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.370931", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/openai_assistant_tool.py"}
+2025-12-27 04:28:38,373 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.373399", "component": "agent_core", "level": "ERROR", "message": "Unexpected error importing tools.reasoning_pipeline_tool: invalid syntax (reasoning_pipeline_tool.py, line 112)"}
+2025-12-27 04:28:38,373 - ultron.database_tool - ERROR - {"timestamp": "2025-12-27T04:28:38.373910", "component": "database_tool", "level": "ERROR", "message": "PostgreSQL support not available. Install with: pip install psycopg2-binary"}
+2025-12-27 04:28:38,374 - ultron.database_tool - ERROR - {"timestamp": "2025-12-27T04:28:38.374237", "component": "database_tool", "level": "ERROR", "message": "MongoDB support not available. Install with: pip install pymongo"}
+2025-12-27 04:28:38,374 - ultron.database_tool - INFO - {"timestamp": "2025-12-27T04:28:38.374874", "component": "database_tool", "level": "INFO", "message": "Default tables created"}
+2025-12-27 04:28:38,375 - ultron.database_tool - INFO - {"timestamp": "2025-12-27T04:28:38.375131", "component": "database_tool", "level": "INFO", "message": "Database initialized: sqlite"}
+2025-12-27 04:28:38,375 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.375333", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DatabaseTool", "extra": {"tool_name": "DatabaseTool", "init_params": []}}
+2025-12-27 04:28:38,375 - ultron.enhanced_nlp - ERROR - {"timestamp": "2025-12-27T04:28:38.375644", "component": "enhanced_nlp", "level": "ERROR", "message": "spaCy not available for NLP processing"}
+2025-12-27 04:28:38,375 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.375847", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedNLPTool", "extra": {"tool_name": "EnhancedNLPTool", "init_params": []}}
+2025-12-27 04:28:38,376 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.376147", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedVoiceTool", "extra": {"tool_name": "EnhancedVoiceTool", "init_params": []}}
+2025-12-27 04:28:38,376 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.376416", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ImageDescriptionTool", "extra": {"tool_name": "ImageDescriptionTool", "init_params": []}}
+2025-12-27 04:28:38,377 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.376969", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.tool_performance_tracker: cannot import name 'log' from 'ultron_logger' (/home/ultro/projects/ultron_agent/ultron_logger.py)"}
+2025-12-27 04:28:38,377 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.377418", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/tool_performance_tracker.py: cannot import name 'log' from 'ultron_logger' (/home/ultro/projects/ultron_agent/ultron_logger.py)"}
+2025-12-27 04:28:38,379 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.379087", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/tool_performance_tracker.py: cannot import name 'log' from 'ultron_logger' (/home/ultro/projects/ultron_agent/ultron_logger.py)"}
+2025-12-27 04:28:38,379 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.379363", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/tool_performance_tracker.py"}
+2025-12-27 04:28:38,379 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.379646", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OpenAIAgentTool", "extra": {"tool_name": "OpenAIAgentTool", "init_params": []}}
+2025-12-27 04:28:38,379 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.379914", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AmazonQIntegrationTool", "extra": {"tool_name": "AmazonQIntegrationTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,380 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.380168", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowIntegrationTool", "extra": {"tool_name": "LangflowIntegrationTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,380 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.380417", "component": "agent_core", "level": "INFO", "message": "Loaded tool: HelloTool", "extra": {"tool_name": "HelloTool", "init_params": []}}
+2025-12-27 04:28:38,382 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.382487", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.aws_solutions_tool: No module named 'boto3'"}
+2025-12-27 04:28:38,384 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.384194", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/aws_solutions_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,389 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.389161", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/aws_solutions_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,389 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.389658", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/aws_solutions_tool.py"}
+2025-12-27 04:28:38,390 - ultron.performance_dashboard - INFO - Performance Dashboard Tool initialized
+2025-12-27 04:28:38,390 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.390119", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PerformanceDashboardTool", "extra": {"tool_name": "PerformanceDashboardTool", "init_params": []}}
+2025-12-27 04:28:38,390 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.390486", "component": "agent_core", "level": "INFO", "message": "Loaded tool: EnhancedMemoryTool", "extra": {"tool_name": "EnhancedMemoryTool", "init_params": []}}
+2025-12-27 04:28:38,390 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.390770", "component": "agent_core", "level": "INFO", "message": "Loaded tool: BrowserMCPEnhancedTool", "extra": {"tool_name": "BrowserMCPEnhancedTool", "init_params": []}}
+2025-12-27 04:28:38,392 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.391970", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.google_drive_tool: No module named 'google'"}
+2025-12-27 04:28:38,393 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.392990", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/google_drive_tool.py: No module named 'google'"}
+2025-12-27 04:28:38,395 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.395656", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/google_drive_tool.py: No module named 'google'"}
+2025-12-27 04:28:38,396 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.396013", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/google_drive_tool.py"}
+2025-12-27 04:28:38,396 - ultron.langflow_workflow - INFO - {"timestamp": "2025-12-27T04:28:38.396333", "component": "langflow_workflow", "level": "INFO", "message": "Tool initialized"}
+2025-12-27 04:28:38,396 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.396555", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowWorkflowTool", "extra": {"tool_name": "LangflowWorkflowTool", "init_params": []}}
+2025-12-27 04:28:38,397 - ultron.copilot_cli_tool - INFO - {"timestamp": "2025-12-27T04:28:38.397804", "component": "copilot_cli_tool", "level": "INFO", "message": "Initialized. Copilot CLI available: False", "config_loaded": false}
+2025-12-27 04:28:38,398 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.398054", "component": "agent_core", "level": "INFO", "message": "Loaded tool: CopilotCLIAutomationTool", "extra": {"tool_name": "CopilotCLIAutomationTool", "init_params": []}}
+2025-12-27 04:28:38,398 - ultron.langflow_mcp - INFO - {"timestamp": "2025-12-27T04:28:38.398348", "component": "langflow_mcp", "level": "INFO", "message": "Initialized LangFlow MCP Tool"}
+2025-12-27 04:28:38,398 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.398564", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowMCPTool", "extra": {"tool_name": "LangflowMCPTool", "init_params": []}}
+2025-12-27 04:28:38,399 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.399825", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.gui_link_validator: No module named 'bs4'"}
+2025-12-27 04:28:38,400 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.400949", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/gui_link_validator.py: No module named 'bs4'"}
+2025-12-27 04:28:38,410 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.410456", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/gui_link_validator.py: No module named 'bs4'"}
+2025-12-27 04:28:38,410 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.410847", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/gui_link_validator.py"}
+2025-12-27 04:28:38,411 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.411159", "component": "agent_core", "level": "INFO", "message": "Loaded tool: DeepWikiMCPTool", "extra": {"tool_name": "DeepWikiMCPTool", "init_params": []}}
+2025-12-27 04:28:38,412 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.412307", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.project_automation_tool: No module named 'anthropic'"}
+2025-12-27 04:28:38,413 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.413316", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/project_automation_tool.py: No module named 'anthropic'"}
+2025-12-27 04:28:38,418 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.418151", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/project_automation_tool.py: No module named 'anthropic'"}
+2025-12-27 04:28:38,418 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.418511", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/project_automation_tool.py"}
+2025-12-27 04:28:38,418 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.418821", "component": "agent_core", "level": "INFO", "message": "Loaded tool: SelfAwarenessTool", "extra": {"tool_name": "SelfAwarenessTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,419 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.419107", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UnityHubTool", "extra": {"tool_name": "UnityHubTool", "init_params": []}}
+2025-12-27 04:28:38,419 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.419360", "component": "agent_core", "level": "INFO", "message": "Loaded tool: StreamlitIntegrationTool", "extra": {"tool_name": "StreamlitIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,420 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.420638", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.aws_integration_tool: No module named 'boto3'"}
+2025-12-27 04:28:38,421 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.421773", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/aws_integration_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,429 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.429307", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/aws_integration_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,429 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.429698", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/aws_integration_tool.py"}
+2025-12-27 04:28:38,430 - ultron.repomix_tool - INFO - {"timestamp": "2025-12-27T04:28:38.430395", "component": "repomix_tool", "level": "INFO", "message": "Repomix integration initialized"}
+2025-12-27 04:28:38,432 - ultron.repomix_tool - INFO - {"timestamp": "2025-12-27T04:28:38.432581", "component": "repomix_tool", "level": "INFO", "message": "Git dependency verified"}
+2025-12-27 04:28:38,433 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.432971", "component": "agent_core", "level": "INFO", "message": "Loaded tool: RepomixTool", "extra": {"tool_name": "RepomixTool", "init_params": []}}
+2025-12-27 04:28:38,433 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.433453", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AWSBedrockTool", "extra": {"tool_name": "AWSBedrockTool", "init_params": []}}
+2025-12-27 04:28:38,433 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.433756", "component": "agent_core", "level": "INFO", "message": "Loaded tool: VoiceAWSTool", "extra": {"tool_name": "VoiceAWSTool", "init_params": []}}
+2025-12-27 04:28:38,434 - ultron.langflow_tool - INFO - {"timestamp": "2025-12-27T04:28:38.434317", "component": "langflow_tool", "level": "INFO", "message": "Langflow tool initialized with URL: http://127.0.0.1:7861"}
+2025-12-27 04:28:38,434 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.434630", "component": "agent_core", "level": "INFO", "message": "Loaded tool: LangflowTool", "extra": {"tool_name": "LangflowTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,436 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.436031", "component": "agent_core", "level": "ERROR", "message": "Package import failed for tools.aws_config_monitoring_tool: No module named 'boto3'"}
+2025-12-27 04:28:38,437 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.437418", "component": "agent_core", "level": "ERROR", "message": "importlib load failed for /home/ultro/projects/ultron_agent/tools/aws_config_monitoring_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,443 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.443744", "component": "agent_core", "level": "ERROR", "message": "runpy load failed for /home/ultro/projects/ultron_agent/tools/aws_config_monitoring_tool.py: No module named 'boto3'"}
+2025-12-27 04:28:38,444 - ultron.agent_core - ERROR - {"timestamp": "2025-12-27T04:28:38.444150", "component": "agent_core", "level": "ERROR", "message": "All loading methods failed for /home/ultro/projects/ultron_agent/tools/aws_config_monitoring_tool.py"}
+2025-12-27 04:28:38,444 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.444605", "component": "agent_core", "level": "INFO", "message": "Loaded tool: ContinueDocsTool", "extra": {"tool_name": "ContinueDocsTool", "init_params": []}}
+2025-12-27 04:28:38,444 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.444881", "component": "agent_core", "level": "INFO", "message": "Loaded tool: AutonomousPyAutoGUI", "extra": {"tool_name": "AutonomousPyAutoGUI", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,445 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.445119", "component": "agent_core", "level": "INFO", "message": "Loaded tool: FastAPIIntegrationTool", "extra": {"tool_name": "FastAPIIntegrationTool", "init_params": ["config", "memory"]}}
+2025-12-27 04:28:38,445 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.445430", "component": "agent_core", "level": "INFO", "message": "Loaded tool: WorkflowEditorTool", "extra": {"tool_name": "WorkflowEditorTool", "init_params": ["config"]}}
+2025-12-27 04:28:38,445 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.445827", "component": "agent_core", "level": "INFO", "message": "Loaded tool: PerformanceMonitor", "extra": {"tool_name": "PerformanceMonitor", "init_params": []}}
+2025-12-27 04:28:38,446 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.446165", "component": "agent_core", "level": "INFO", "message": "Loaded tool: OrchestrationTool", "extra": {"tool_name": "OrchestrationTool", "init_params": []}}
+2025-12-27 04:28:38,446 - ultron.agent_core - INFO - {"timestamp": "2025-12-27T04:28:38.446599", "component": "agent_core", "level": "INFO", "message": "Loaded tool: UncensoredSearchTool", "extra": {"tool_name": "UncensoredSearchTool", "init_params": []}}
+2025-12-27 04:28:38,446 - ultron.ai_activities - INFO - {"timestamp": "2025-12-27T04:28:38.446853", "component": "agent_core", "level": "AI_DECISION", "message": "Tool loading completed", "ai_model": "agent_core", "confidence_score": 0.8235294117647058, "reasoning": "Loaded 70 tools, 15 failed"}
+2025-12-27 04:28:38,447 - agent_core - INFO - Tools reloaded.
+2025-12-27 04:28:38,447 - agent_core - WARNING - Component 'event_system' failed self-test. Attempting auto-repair...
+2025-12-27 04:28:38,447 - agent_core - INFO - Initializing event system...
+2025-12-27 04:28:38,447 - agent_core - INFO - Event system initialized successfully
+2025-12-27 04:28:38,447 - agent_core - INFO - Event system reinitialized.
+2025-12-27 04:28:38,447 - ultron.ultron - INFO - {"timestamp": "2025-12-27T04:28:38.447771", "component": "ultron", "level": "INFO", "message": "Subscribed to event: screen_analysis_result (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - voice - INFO - Voice assistant subscribed to screen analysis events
+2025-12-27 04:28:38,448 - ultron.ultron - INFO - {"timestamp": "2025-12-27T04:28:38.448142", "component": "ultron", "level": "INFO", "message": "Subscribed to event: user_input (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - ultron.ultron - INFO - {"timestamp": "2025-12-27T04:28:38.448436", "component": "ultron", "level": "INFO", "message": "Subscribed to event: voice_command (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - ultron.ultron - INFO - {"timestamp": "2025-12-27T04:28:38.448630", "component": "ultron", "level": "INFO", "message": "Subscribed to event: gui_interaction (priority: NORMAL)"}
+2025-12-27 04:28:38,448 - ultron.ultron - INFO - {"timestamp": "2025-12-27T04:28:38.448807", "component": "ultron", "level": "INFO", "message": "Subscribed to event: command_executed (priority: NORMAL)"}
+2025-12-27 04:28:38,449 - agent_core - INFO - Starting voice listening...
+2025-12-27 04:28:38,449 - ultron.ultron - INFO - {"timestamp": "2025-12-27T04:28:38.449123", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_start"}
+2025-12-27 04:28:38,449 - voice - INFO - Using default microphone
+2025-12-27 04:28:38,449 - voice - ERROR - Speech recognition error: Could not find PyAudio; check installation
+2025-12-27 04:28:38,450 - ultron.ultron - INFO - {"timestamp": "2025-12-27T04:28:38.450001", "component": "ultron", "level": "INFO", "message": "Emitted event: voice_listen_error"}
+2025-12-27 04:29:11,968 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:29:12,970 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:29:12,971 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:29:12,972 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:29:12,973 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:29:12,973 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:30:11,969 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:30:12,971 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:30:12,973 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:30:12,973 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:30:12,974 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:30:12,975 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:31:11,969 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:31:12,971 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:31:12,973 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:31:12,973 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:31:12,974 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:31:12,974 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:32:11,970 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:32:12,973 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:32:12,975 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:32:12,975 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:32:12,977 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:32:12,978 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:33:11,970 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:33:12,972 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:33:12,973 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:33:12,973 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:33:12,975 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:33:12,975 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:34:11,970 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:34:12,972 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:34:12,973 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:34:12,973 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:34:12,974 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:34:12,975 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:35:11,988 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:35:12,990 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:35:12,991 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:35:12,992 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:35:12,993 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:35:12,993 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:36:11,970 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:36:12,973 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:36:12,975 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:36:12,975 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:36:12,977 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:36:12,977 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:37:11,970 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:37:12,972 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:37:12,973 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:37:12,974 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:37:12,975 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:37:12,976 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:38:11,969 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:38:12,972 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:38:12,974 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:38:12,975 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:38:12,977 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:38:12,977 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:39:11,969 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:39:12,972 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:39:12,973 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:39:12,973 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:39:12,975 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:39:12,975 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:40:11,970 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:40:12,974 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:40:12,975 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:40:12,976 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:40:12,977 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:40:12,977 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:41:11,970 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:41:12,972 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:41:12,973 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:41:12,973 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:41:12,974 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:41:12,975 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:42:11,969 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:42:12,972 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:42:12,974 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:42:12,976 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:42:12,977 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:42:12,977 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:43:11,969 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 04:43:12,970 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:43:12,972 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 04:43:12,972 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 04:43:12,973 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 04:43:12,973 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:57:13,120 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 15:57:14,122 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:57:14,123 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 15:57:14,124 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:57:14,126 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 15:57:14,127 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:57:16,128 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 15:57:17,131 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:57:17,133 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 15:57:17,133 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:57:17,135 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 15:57:17,135 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:58:13,120 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 15:58:14,121 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:58:14,123 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 15:58:14,124 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:58:14,126 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 15:58:14,126 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:59:13,122 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 15:59:14,125 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:59:14,127 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 15:59:14,128 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 15:59:14,130 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 15:59:14,131 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:00:13,120 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:00:14,123 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:00:14,125 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:00:14,126 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:00:14,127 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:00:14,128 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:01:13,121 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:01:14,123 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:01:14,125 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:01:14,126 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:01:14,127 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:01:14,127 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:02:13,121 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:02:14,122 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:02:14,123 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:02:14,124 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:02:14,125 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:02:14,126 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:03:13,123 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:03:14,126 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:03:14,127 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:03:14,128 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:03:14,130 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:03:14,130 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:04:13,120 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:04:14,123 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:04:14,125 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:04:14,126 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:04:14,127 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:04:14,127 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:05:13,128 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:05:14,131 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:05:14,132 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:05:14,132 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:05:14,133 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:05:14,133 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:06:13,122 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:06:14,124 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:06:14,126 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:06:14,126 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:06:14,128 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:06:14,128 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:07:13,122 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:07:14,125 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:07:14,127 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:07:14,127 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:07:14,129 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:07:14,129 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:08:13,120 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:08:14,121 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:08:14,123 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:08:14,124 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:08:14,125 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:08:14,125 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:09:13,121 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:09:14,123 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:09:14,125 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:09:14,126 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:09:14,127 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:09:14,128 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:10:13,120 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:10:14,122 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:10:14,124 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:10:14,125 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:10:14,126 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:10:14,126 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:11:13,120 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 16:11:14,122 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:11:14,124 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 16:11:14,125 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 16:11:14,126 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 16:11:14,126 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:46:20,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:46:21,616 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:46:21,626 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:46:21,631 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:46:21,642 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:46:21,645 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:47:18,598 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:47:19,601 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:47:19,602 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:47:19,604 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:47:19,606 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:47:19,606 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:48:18,596 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:48:19,598 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:48:19,599 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:48:19,600 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:48:19,601 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:48:19,601 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:49:18,597 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:49:19,598 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:49:19,600 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:49:19,625 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:49:19,627 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:49:19,627 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:50:18,596 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:50:19,598 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:50:19,599 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:50:19,600 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:50:19,601 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:50:19,601 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:51:18,598 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:51:19,599 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:51:19,600 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:51:19,601 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:51:19,603 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:51:19,603 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:52:18,596 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:52:19,600 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:52:19,602 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:52:19,603 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:52:19,604 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:52:19,605 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:53:18,597 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:53:19,600 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:53:19,605 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:53:19,606 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:53:19,608 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:53:19,608 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:54:18,598 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:54:19,600 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:54:19,601 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:54:19,602 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:54:19,603 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:54:19,604 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:55:18,596 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:55:19,599 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:55:19,626 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:55:19,627 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:55:19,628 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:55:19,629 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:56:18,597 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:56:19,599 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:56:19,600 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:56:19,600 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:56:19,601 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:56:19,601 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:57:18,596 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:57:19,598 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:57:19,600 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:57:19,601 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:57:19,602 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:57:19,603 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:58:18,597 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:58:19,598 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:58:19,599 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:58:19,600 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:58:19,601 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:58:19,602 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:59:18,595 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 21:59:19,597 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:59:19,598 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 21:59:19,599 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 21:59:19,600 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 21:59:19,600 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:00:18,596 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 22:00:19,599 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:00:19,600 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 22:00:19,601 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:00:19,603 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 22:00:19,603 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:01:18,596 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 22:01:19,598 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:01:19,599 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 22:01:19,600 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:01:19,601 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 22:01:19,601 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:57:06,632 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 22:57:07,639 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:57:07,647 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 22:57:07,649 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:57:07,658 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 22:57:07,660 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:57:08,617 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 22:57:09,627 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:57:09,632 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 22:57:09,634 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:57:09,639 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 22:57:09,641 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:58:03,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 22:58:04,605 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:58:04,606 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 22:58:04,606 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:58:04,608 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 22:58:04,610 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:59:03,604 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 22:59:04,606 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:59:04,608 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 22:59:04,608 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 22:59:04,610 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 22:59:04,610 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:00:03,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:00:04,606 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:00:04,607 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:00:04,608 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:00:04,610 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:00:04,610 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:01:03,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:01:04,606 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:01:04,608 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:01:04,609 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:01:04,610 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:01:04,610 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:02:03,602 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:02:04,604 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:02:04,605 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:02:04,605 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:02:04,606 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:02:04,607 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:03:03,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:03:04,605 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:03:04,606 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:03:04,607 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:03:04,608 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:03:04,608 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:04:03,604 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:04:04,606 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:04:04,607 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:04:04,608 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:04:04,610 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:04:04,610 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:05:03,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:05:04,605 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:05:04,606 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:05:04,607 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:05:04,608 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:05:04,608 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:06:03,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:06:04,606 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:06:04,608 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:06:04,609 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:06:04,611 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:06:04,611 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:07:03,602 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:07:04,605 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:07:04,606 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:07:04,607 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:07:04,609 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:07:04,609 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:08:03,603 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:08:04,604 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:08:04,606 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:08:04,606 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:08:04,607 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:08:04,607 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:09:03,602 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:09:04,605 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:09:04,607 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:09:04,607 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:09:04,609 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:09:04,610 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:10:03,602 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:10:04,604 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:10:04,605 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:10:04,606 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:10:04,608 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:10:04,608 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:11:03,602 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:11:04,605 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:11:04,607 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:11:04,608 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:11:04,609 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:11:04,610 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:12:03,602 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:12:04,605 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:12:04,607 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:12:04,607 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:12:04,609 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:12:04,609 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:22:08,163 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:22:09,165 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:22:09,166 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:22:09,166 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:22:09,168 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:22:09,168 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:23:08,165 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:23:09,168 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:23:09,170 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:23:09,170 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:23:09,172 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:23:09,173 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:24:08,163 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:24:09,166 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:24:09,168 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:24:09,169 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:24:09,172 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:24:09,172 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:25:08,162 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:25:09,164 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:25:09,166 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:25:09,166 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:25:09,167 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:25:09,167 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:26:08,163 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:26:09,164 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:26:09,166 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:26:09,166 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:26:09,168 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:26:09,168 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:27:08,163 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:27:09,166 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:27:09,168 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:27:09,169 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:27:09,171 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:27:09,171 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:28:08,162 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:28:09,164 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:28:09,166 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:28:09,167 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:28:09,169 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:28:09,169 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:29:08,162 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:29:09,164 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:29:09,165 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:29:09,190 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:29:09,192 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:29:09,192 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:30:08,162 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:30:09,165 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:30:09,170 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:30:09,171 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:30:09,176 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:30:09,176 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:31:08,162 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:31:09,164 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:31:09,165 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:31:09,165 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:31:09,167 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:31:09,167 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:32:11,675 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:32:12,678 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:32:12,680 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:32:12,680 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:32:12,683 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:32:12,684 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:33:11,673 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:33:12,675 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:33:12,676 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:33:12,676 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:33:12,678 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:33:12,678 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:34:11,673 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:34:12,676 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:34:12,678 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:34:12,678 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:34:12,680 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:34:12,680 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:35:11,673 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:35:12,676 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:35:12,678 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:35:12,678 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:35:12,679 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:35:12,679 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:36:11,672 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:36:12,674 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:36:12,675 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:36:12,675 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:36:12,676 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:36:12,676 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:37:11,672 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:37:12,673 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:37:12,675 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:37:12,676 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:37:12,678 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:37:12,678 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:38:11,672 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-27 23:38:12,674 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:38:12,676 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-27 23:38:12,677 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-27 23:38:12,678 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-27 23:38:12,679 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:39:17,033 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:39:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:39:18,036 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:39:18,037 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:39:18,038 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:39:18,038 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:40:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:40:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:40:18,058 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:40:18,058 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:40:18,060 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:40:18,061 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:41:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:41:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:41:18,036 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:41:18,037 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:41:18,039 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:41:18,039 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:42:17,034 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:42:18,037 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:42:18,039 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:42:18,039 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:42:18,041 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:42:18,042 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:43:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:43:18,034 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:43:18,035 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:43:18,036 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:43:18,037 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:43:18,037 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:44:17,033 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:44:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:44:18,037 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:44:18,038 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:44:18,039 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:44:18,039 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:45:17,033 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:45:18,036 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:45:18,038 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:45:18,038 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:45:18,040 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:45:18,040 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:46:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:46:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:46:18,037 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:46:18,037 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:46:18,039 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:46:18,039 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:47:17,033 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:47:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:47:18,036 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:47:18,036 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:47:18,038 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:47:18,039 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:48:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:48:18,034 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:48:18,035 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:48:18,036 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:48:18,037 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:48:18,037 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:49:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:49:18,034 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:49:18,036 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:49:18,037 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:49:18,038 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:49:18,038 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:50:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:50:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:50:18,037 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:50:18,037 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:50:18,039 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:50:18,039 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:51:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:51:18,034 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:51:18,035 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:51:18,035 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:51:18,037 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:51:18,037 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:52:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:52:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:52:18,037 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:52:18,037 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:52:18,039 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:52:18,039 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:53:17,032 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:53:18,035 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:53:18,037 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:53:18,037 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:53:18,038 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:53:18,039 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:56:23,552 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:56:24,554 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:56:24,555 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:56:24,555 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:56:24,557 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:56:24,557 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:56:25,097 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:56:26,100 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:56:26,102 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:56:26,103 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:56:26,105 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:56:26,105 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:57:22,097 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:57:23,100 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:57:23,102 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:57:23,103 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:57:23,104 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:57:23,105 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:58:22,098 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:58:23,101 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:58:23,103 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:58:23,103 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:58:23,105 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:58:23,106 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:59:22,098 - root - INFO - GET request: /api/system/stats - web_gui_server.py:140
+2025-12-28 02:59:23,100 - root - INFO - WEB "GET /api/system/stats HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:59:23,101 - root - INFO - GET request: /api/ssh/status - web_gui_server.py:140
+2025-12-28 02:59:23,101 - root - INFO - WEB "GET /api/ssh/status HTTP/1.1" 200 - - web_gui_server.py:1581
+2025-12-28 02:59:23,102 - root - INFO - GET request: /api/vision/recent - web_gui_server.py:140
+2025-12-28 02:59:23,103 - root - INFO - WEB "GET /api/vision/recent HTTP/1.1" 200 - - web_gui_server.py:1581

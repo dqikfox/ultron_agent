@@ -1,0 +1,17 @@
+{
+  "name": "code_assistant",
+  "description": "General coding assistant",
+  "data": {
+    "nodes": [
+      {"id": "input", "type": "ChatInput", "position": {"x": 0, "y": 0}},
+      {"id": "prompt", "type": "Prompt", "position": {"x": 300, "y": 0}, "data": {"template": "You are an expert coding assistant.\n\nTask: {input}\n\nProvide:\n1. Clean, formatted code\n2. Type hints (Python) or types (TypeScript)\n3. Brief inline comments\n4. Best practices\n\nOutput only code."}},
+      {"id": "ollama", "type": "OllamaModel", "position": {"x": 600, "y": 0}, "data": {"model_name": "qwen2.5-coder:1.5b", "base_url": "http://localhost:11434"}},
+      {"id": "output", "type": "ChatOutput", "position": {"x": 900, "y": 0}}
+    ],
+    "edges": [
+      {"source": "input", "target": "prompt"},
+      {"source": "prompt", "target": "ollama"},
+      {"source": "ollama", "target": "output"}
+    ]
+  }
+}

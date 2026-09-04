@@ -1,0 +1,17 @@
+{
+  "name": "image_generation",
+  "description": "Generate images with Stable Diffusion",
+  "data": {
+    "nodes": [
+      {"id": "input", "type": "ChatInput", "position": {"x": 0, "y": 0}},
+      {"id": "prompt", "type": "Prompt", "position": {"x": 300, "y": 0}, "data": {"template": "Generate a detailed Stable Diffusion prompt for:\n\n{input}\n\nEnhance with:\n- Art style keywords\n- Quality tags (masterpiece, best quality, highly detailed)\n- Technical specs (8k, ultra detailed)\n- Lighting and composition\n\nOutput: Enhanced prompt only, no explanation."}},
+      {"id": "ollama", "type": "OllamaModel", "position": {"x": 600, "y": 0}, "data": {"model_name": "qwen2.5-coder:1.5b", "base_url": "http://localhost:11434"}},
+      {"id": "output", "type": "ChatOutput", "position": {"x": 900, "y": 0}}
+    ],
+    "edges": [
+      {"source": "input", "target": "prompt"},
+      {"source": "prompt", "target": "ollama"},
+      {"source": "ollama", "target": "output"}
+    ]
+  }
+}

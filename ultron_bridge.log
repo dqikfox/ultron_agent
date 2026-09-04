@@ -1,0 +1,11 @@
+2026-01-12 14:09:15,217 - ultron_bridge - INFO - UltronBridge initialized on port 5001
+2026-01-12 14:09:15,217 - ultron_bridge - INFO - Initializing Ultron Bridge...
+2026-01-12 14:09:15,217 - ultron_bridge - INFO - Initializing Ultron Agent brain...
+2026-01-12 14:09:15,217 - ultron_bridge - WARNING - Configuration file not found, using defaults
+2026-01-12 14:09:15,217 - ultron_bridge - INFO - Minimal Brain with Ollama integration initialized
+2026-01-12 14:09:15,217 - ultron_bridge - INFO - Ultron Agent modules initialized successfully
+2026-01-12 14:09:15,217 - ultron_bridge - INFO - Bridge ready! Type 'quit' to exit, 'status' for info
+2026-01-15 02:52:24,619 - ultron_bridge - INFO - Processing command: /bin/python3 "/home/ultro/projects/ultron_agent/.github/agents/"""Run this model in Python.py"
+2026-01-15 02:52:24,620 - ultron_bridge - INFO - Attempt 1/3 for system command
+2026-01-15 02:52:24,621 - ultron_bridge - INFO - Processing prompt: 'As ULTRON AI, provide system information. Command: /bin/python3 "/home/ultro/projects/ultron_agent/....' (length: 145)
+2026-01-15 02:52:24,621 - ultron_bridge - INFO - Sending prompt to Ollama model 'llama3.2:latest' at http://localhost:11434

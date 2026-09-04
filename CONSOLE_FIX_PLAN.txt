@@ -1,0 +1,264 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║     🔴 PRIMARY PRIORITY: FIX COMMAND CONSOLE ROOT CAUSE                    ║
+║                                                                            ║
+║  Current Status: Admin workaround exists, but need PERMANENT FIX           ║
+║  Issue: CMD/PowerShell open then immediately close (unless run as admin)   ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 ROOT CAUSE INVESTIGATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+What We Know:
+  ✓ Console works when run as admin
+  ✗ Console crashes when run normally (non-admin)
+  ✓ System file check (SFC) completed earlier
+  ✗ Event Viewer shows NO crash logs
+
+Possible Causes:
+  1. Registry restrictions (DisableCMD policy)
+  2. Execution policy (PowerShell blocked)
+  3. File associations corrupted
+  4. Console Host permissions issue
+  5. Graphics driver issue (earlier Windows Terminal crash)
+  6. Group Policy restrictions
+  7. AppLocker policy blocking
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ TOOLS CREATED FOR DIAGNOSIS & REPAIR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. CMD_Console_Repair.bat
+   ├─ Checks for DisableCMD registry policy
+   ├─ Verifies PowerShell execution policy
+   ├─ Tests Console Host integrity
+   ├─ Clears console cache
+   ├─ Repairs file associations
+   └─ Tests CMD functionality
+
+2. CONSOLE_Diagnostic.ps1
+   ├─ Detailed diagnostic of all console components
+   ├─ Checks execution policy
+   ├─ Checks registry restrictions
+   ├─ Verifies conhost.exe and cmd.exe
+   ├─ Tests file associations
+   ├─ Scans Event Viewer for crashes
+   ├─ Run with -Repair flag to auto-fix
+   └─ Provides detailed summary report
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 ACTION PLAN TO PERMANENTLY FIX CONSOLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: Run Diagnostic (Find root cause)
+──────────────────────────────────────────
+
+Option A (PowerShell - Most Detailed):
+
+  Right-click PowerShell → Run as administrator
+  Then paste:
+
+  C:\Projects\ultron_agent\CONSOLE_Diagnostic.ps1
+
+  This will:
+  ✓ Check all console components
+  ✓ List any issues found
+  ✓ NOT make changes (safe to run)
+
+
+Option B (Batch - Simpler):
+
+  Right-click CMD → Run as administrator
+  Then paste:
+
+  C:\Projects\ultron_agent\CMD_Console_Repair.bat
+
+  This will:
+  ✓ Check components
+  ✓ Display findings
+  ✓ Repair automatically
+
+
+STEP 2: Run Repair (Auto-fix issues)
+────────────────────────────────────
+
+If diagnostic found issues, run with -Repair flag:
+
+  PowerShell as admin:
+  C:\Projects\ultron_agent\CONSOLE_Diagnostic.ps1 -Repair
+
+  OR use batch:
+  C:\Projects\ultron_agent\CMD_Console_Repair.bat
+
+
+STEP 3: Restart Windows
+──────────────────────
+
+After repair, restart your computer:
+
+  Win+R → shutdown /r /t 0
+
+
+STEP 4: Test Console
+───────────────────
+
+After restart, test if console works:
+
+  Win+R → cmd
+
+  If console opens normally (without admin):
+  ✅ FIXED! Problem solved!
+
+  If still requires admin:
+  ⚠️  Try advanced fix (see below)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🛠️  ADVANCED FIXES (If basic repair doesn't work)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If diagnostic & repair don't solve it, try these:
+
+
+OPTION 1: Reset PowerShell Execution Policy
+─────────────────────────────────────────
+
+Run PowerShell AS ADMIN and paste:
+
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
+
+
+OPTION 2: Fix Batch File Association
+──────────────────────────────────────
+
+Run CMD AS ADMIN and paste:
+
+  assoc .bat=batfile
+  assoc .cmd=cmdfile
+  ftype batfile=%COMSPEC% /c "%%1"
+  ftype cmdfile=%COMSPEC% /c "%%1"
+
+
+OPTION 3: Remove DisableCMD Registry Key
+─────────────────────────────────────────
+
+Run CMD AS ADMIN and paste:
+
+  reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v DisableCMD /f
+
+
+OPTION 4: Check AppLocker Policy
+────────────────────────────────
+
+Run PowerShell AS ADMIN:
+
+  Get-AppLockerPolicy -Effective
+
+
+OPTION 5: Full System Scan
+──────────────────────────
+
+Run CMD AS ADMIN:
+
+  sfc /scannow
+
+  Then restart Windows.
+
+
+OPTION 6: Reset Graphics Driver
+──────────────────────────────
+
+Device Manager → Display Adapters → Right-click GPU → Update Driver
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 QUICK REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Files Created:
+  ├─ CMD_Console_Repair.bat (automatic repair)
+  ├─ CONSOLE_Diagnostic.ps1 (detailed diagnostic)
+  └─ CONSOLE_FIX_PLAN.txt (this file)
+
+How to Run (all require admin):
+  1. Right-click file
+  2. "Run as administrator"
+  3. Let it complete
+  4. Restart Windows
+  5. Test: Win+R → cmd
+
+Key Commands:
+  ├─ Diagnostic: CONSOLE_Diagnostic.ps1
+  ├─ Repair: CONSOLE_Diagnostic.ps1 -Repair
+  ├─ Test: powershell "cmd /c echo test"
+  └─ Check policy: reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 IMMEDIATE ACTION (DO THIS NOW)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You have two options:
+
+OPTION A (RECOMMENDED - Most thorough):
+────────────────────────────────────
+
+1. Right-click PowerShell
+2. "Run as administrator"
+3. Paste: C:\Projects\ultron_agent\CONSOLE_Diagnostic.ps1
+4. Review findings
+5. If issues found, paste: C:\Projects\ultron_agent\CONSOLE_Diagnostic.ps1 -Repair
+6. Restart Windows
+7. Test console: Win+R → cmd
+
+OPTION B (Simpler):
+──────────────────
+
+1. Right-click CMD
+2. "Run as administrator"
+3. Paste: C:\Projects\ultron_agent\CMD_Console_Repair.bat
+4. Let it complete
+5. Restart Windows
+6. Test console: Win+R → cmd
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Q: Can't run PowerShell or CMD even as admin?
+A: Use VS Code terminal (Ctrl+`) to run the diagnostic scripts
+
+Q: Diagnostic shows no issues but console still broken?
+A: Try Option 4 (AppLocker) or Option 5 (Full system scan)
+
+Q: Still broken after all fixes?
+A: May be corrupted system file - run: sfc /scannow as admin
+
+Q: Need to restore old PowerShell shortcut?
+A: Don't - you created this one with admin for workaround (it's still there)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ COMPLETION CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+☐ Run diagnostic (find root cause)
+☐ Run repair (fix issues)
+☐ Restart Windows
+☐ Test console (Win+R → cmd)
+☐ Console works without admin? → ✅ FIXED!
+
+
+Status: 🔴 IN PROGRESS - Tools ready, awaiting your action
+Next: Run CONSOLE_Diagnostic.ps1 as admin to begin

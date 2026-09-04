@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Control Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2em;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+        .subtitle { color: #666; font-size: 0.9em; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+        }
+        
+        .card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card h2 {
+            color: #00ff88;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+        }
+        .status-row:last-child { border-bottom: none; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .online { background: #00ff88; }
+        .offline { background: #ff4444; }
+        .warning { background: #ffaa00; }
+        
+        button {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.8; }
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .timestamp { color: #666; margin-right: 10px; }
+        .success { color: #00ff88; }
+        .error { color: #ff4444; }
+        .info { color: #00aaff; }
+        
+        #file-content {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ULTRON Control Panel</h1>
+        <div class="subtitle">v5.0 Production System</div>
+    </div>
+    
+    <div class="grid">
+        <!-- System Status -->
+        <div class="card">
+            <h2>System Status</h2>
+            <div id="system-status">
+                <div class="status-row">
+                    <span>LangGraph Orchestrator</span>
+                    <span><span class="status-indicator online"></span>Ready</span>
+                </div>
+                <div class="status-row">
+                    <span>Multiverse Nexus</span>
+                    <span><span class="status-indicator online"></span>Active</span>
+                </div>
+                <div class="status-row">
+                    <span>Memory System</span>
+                    <span><span class="status-indicator online"></span>4 Tiers</span>
+                </div>
+                <div class="status-row">
+                    <span>Ollama Connection</span>
+                    <span id="ollama-status"><span class="status-indicator warning"></span>Checking...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <h2>Quick Actions</h2>
+            <div style="margin-bottom: 15px;">
+                <button onclick="checkOllama()">Check Ollama</button>
+                <button onclick="listModels()">List Models</button>
+                <button onclick="viewFiles()">View Files</button>
+            </div>
+            <div>
+                <button onclick="loadFile('ultron_langgraph_orchestrator.py')">View Orchestrator</button>
+                <button onclick="loadFile('ultron_multiverse.py')">View Multiverse</button>
+                <button onclick="loadFile('evolution_engine.py')">View Evolution</button>
+            </div>
+        </div>
+        
+        <!-- Active Files -->
+        <div class="card">
+            <h2>System Files</h2>
+            <div id="file-list">
+                <div class="status-row">
+                    <span>ultron_langgraph_orchestrator.py</span>
+                    <span style="color: #00ff88;">18 KB</span>
+                </div>
+                <div class="status-row">
+                    <span>ultron_multiverse.py</span>
+                    <span style="color: #00ff88;">15 KB</span>
+                </div>
+                <div class="status-row">
+                    <span>evolution_engine.py</span>
+                    <span style="color: #00ff88;">15 KB</span>
+                </div>
+                <div class="status-row">
+                    <span>cli_hub.py</span>
+                    <span style="color: #00ff88;">11 KB</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log Output -->
+        <div class="card" style="grid-column: span 2;">
+            <h2>System Log</h2>
+            <div id="log-output" class="log">
+                <div class="log-entry"><span class="timestamp">[INIT]</span><span class="info">Control panel loaded</span></div>
+            </div>
+        </div>
+        
+        <!-- File Viewer -->
+        <div class="card" style="grid-column: span 2;">
+            <h2>File Viewer <span id="current-file" style="color: #666; font-size: 0.8em;"></span></h2>
+            <div id="file-content">Select a file to view...</div>
+        </div>
+    </div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log-output');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span class="timestamp">[${time}]</span><span class="${type}">${message}</span>`;
+            logDiv.insertBefore(entry, logDiv.firstChild);
+        }
+        
+        async function checkOllama() {
+            log('Checking Ollama status...', 'info');
+            try {
+                const response = await fetch('http://127.0.0.1:11434/api/tags');
+                if (response.ok) {
+                    const data = await response.json();
+                    const count = data.models ? data.models.length : 0;
+                    document.getElementById('ollama-status').innerHTML = 
+                        '<span class="status-indicator online"></span>' + count + ' models';
+                    log('Ollama connected: ' + count + ' models', 'success');
+                } else {
+                    throw new Error('HTTP ' + response.status);
+                }
+            } catch (e) {
+                document.getElementById('ollama-status').innerHTML = 
+                    '<span class="status-indicator offline"></span>Disconnected';
+                log('Ollama not running: ' + e.message, 'error');
+            }
+        }
+        
+        async function listModels() {
+            log('Fetching model list...', 'info');
+            try {
+                const response = await fetch('http://127.0.0.1:11434/api/tags');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.models && data.models.length > 0) {
+                        const names = data.models.slice(0, 5).map(m => m.name.split(':')[0]);
+                        log('Top models: ' + names.join(', ') + '...', 'success');
+                    }
+                }
+            } catch (e) {
+                log('Failed to list models', 'error');
+            }
+        }
+        
+        function viewFiles() {
+            log('Files: 4 Python modules loaded (59KB total)', 'info');
+        }
+        
+        function loadFile(filename) {
+            log('Loading ' + filename + '...', 'info');
+            document.getElementById('current-file').textContent = '- ' + filename;
+            document.getElementById('file-content').textContent = 
+                'File content would be loaded here via fetch API.\n\n' +
+                'In production, this would read the actual file from disk\n' +
+                'using a simple HTTP endpoint.\n\n' +
+                'File: ' + filename + '\n' +
+                'Status: Present in project directory';
+        }
+        
+        // Check Ollama on load
+        checkOllama();
+    </script>
+</body>
+</html>

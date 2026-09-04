@@ -1,0 +1,41 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "triggers": {
+      "When_blob_added": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['azureblob']['connectionId']"
+            }
+          },
+          "method": "get",
+          "path": "/datasets/default/triggers/batch/onupdatedfile"
+        }
+      }
+    },
+    "actions": {
+      "Parse_Save_Data": {
+        "type": "ParseJson",
+        "inputs": {
+          "content": "@triggerBody()"
+        }
+      },
+      "Update_Database": {
+        "type": "Http",
+        "inputs": {
+          "method": "POST",
+          "uri": "https://ultron-unity-game.azurewebsites.net/api/save"
+        }
+      },
+      "Notify_Player": {
+        "type": "Http",
+        "inputs": {
+          "method": "POST",
+          "uri": "https://ultron-unity-game.azurewebsites.net/api/notify"
+        }
+      }
+    }
+  }
+}

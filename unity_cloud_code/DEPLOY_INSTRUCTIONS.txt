@@ -1,0 +1,18 @@
+UGS CLI Deployment Instructions
+================================
+
+CMD is broken on your system. Use PowerShell instead:
+
+1. Open PowerShell (Win+X, then A)
+
+2. Navigate to project:
+   cd C:\Projects\ultron_agent
+
+3. Login to Unity:
+   .\ugs.exe login
+
+4. Deploy module:
+   cd unity_cloud_code
+   ..\ugs.exe deploy UltronModule
+
+That's it. PowerShell works fine - no admin needed.

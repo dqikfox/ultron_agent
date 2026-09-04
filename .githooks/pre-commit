@@ -1,0 +1,18 @@
+#!/bin/bash
+# Pre-commit hook to maintain documentation quality
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Check if instruction files were modified
+if git diff --cached --name-only | grep -q -E "\.github/copilot-instructions\.md|\.codex/instructions\.md|TESTING_GUIDE\.md|MEMORY_AND_VECTORS_GUIDE\.md"; then
+    echo "✓ Instruction files modified"
+fi
+
+# Check if tools directory was modified
+if git diff --cached --name-only | grep -q "^tools/.*\.py$"; then
+    echo "✓ Reminder: Run 'python3 tools_inventory.py' to update tool catalog"
+fi
+
+echo "✓ Pre-commit checks passed"

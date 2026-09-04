@@ -1,0 +1,14 @@
+{
+  "daily_content_generation": {
+    "frequency": "Day",
+    "interval": 1,
+    "start_time": "2025-01-01T00:00:00Z",
+    "runbook": "Generate-GameContent"
+  },
+  "hourly_save_sync": {
+    "frequency": "Hour",
+    "interval": 1,
+    "start_time": "2025-01-01T00:00:00Z",
+    "runbook": "Sync-PlayerSaves"
+  }
+}

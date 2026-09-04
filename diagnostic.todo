@@ -1,0 +1,40 @@
+# ULTRON Agent Self-Diagnosis TODO List
+
+## 1. Inventory & Health Check
+- [ ] List all core components and their health check methods
+- [ ] Implement/verify `/api/status` endpoint for all components
+- [ ] Add per-component health-check methods (e.g., `is_healthy()`)
+
+## 2. Memory & Brain System
+- [ ] Test memory read/write and context recall
+- [ ] Ensure conversation history persists
+- [ ] Add self-test for memory/brain
+
+## 3. Tool System
+- [ ] Verify tool auto-discovery and registration
+- [ ] Add tool self-test (safe test input)
+- [ ] Log/report tool failures
+
+## 4. Voice, TTS, SST, OCR
+- [ ] Validate voice input/output
+- [ ] Test TTS/SST pipeline
+- [ ] Test OCR tool
+- [ ] Add diagnostics for each
+
+## 5. Event System
+- [ ] Ensure event bus is running
+- [ ] Test pub/sub for agent actions and memory updates
+
+## 6. Self-Diagnosis & Self-Repair
+- [ ] Implement periodic self-check routine
+- [ ] Trigger self-repair on error/missing component
+- [ ] Log all self-repair attempts
+
+## 7. Integration & Regression Tests
+- [ ] Add/expand tests for all core features
+- [ ] Ensure tests are automated and logged
+
+## 8. Reporting & Monitoring
+- [ ] Centralize diagnostic logs
+- [ ] Expose health status via API/GUI
+- [ ] Alert on critical failures

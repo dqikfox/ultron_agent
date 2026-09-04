@@ -1,0 +1,28 @@
+ce_manager import UltronVoiceManager import logging 
+logging.basicConfig(level=logging.INFO) vm = UltronVoiceManager() 
+print('Available engines:', list(vm.engines.keys())) result = 
+vm.speak('Hello, this is a test of the ElevenLabs TTS system. The audio 
+should now play correctly.') print(f'TTS Test Result: {result}') "
+ export ELEVENLABS_API_KEY="a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed" && cd /home/ultro/projects/ultron_agent && timeout 10 python3 -c "
+from voice_manager import UltronVoiceManager
+import logging
+logging.basicConfig(level=logging.INFO)
+vm = UltronVoiceManager()
+print('Testing ElevenLabs TTS...')
+result = vm.speak('Hello, this is a test of the ElevenLabs TTS system.')
+print(f'TTS Test Result: {result}')
+" 2>&1
+ cd /home/ultro/projects/ultron_agent && export ELEVENLABS_API_KEY="a831a3df8229fdbf27173e8157e558200528564937c55a093e10ff752bf98bed" && timeout 5 python3 -c "
+import sys
+sys.path.append('.')
+from voice_manager import UltronVoiceManager
+vm = UltronVoiceManager()
+print('ElevenLabs available:', 'elevenlabs' in vm.engines and vm.engines['elevenlabs'] is not None)
+print('Testing TTS engines...')
+try:
+    result = vm.test_engine('elevenlabs')
+    print(f'ElevenLabs test result: {result}')
+except Exception as e:
+    print(f'ElevenLabs test failed: {e}')
+" 2>&1 || echo "Command completed or timed out"
+

@@ -1,0 +1,122 @@
+# Docker Build Ignore File
+# Files/directories excluded from Docker build context
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-*
+
+# Version Control
+.git/
+.gitignore
+.github/
+
+# Documentation
+docs/
+*.md
+README.md
+LICENSE
+CHANGELOG.md
+
+# Test/Coverage
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Dependencies
+node_modules/
+.npm
+yarn.lock
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+appveyor.yml
+azure-pipelines.yml
+
+# Build/Deploy Scripts
+*.bat
+*.sh
+build.sh
+deploy.sh
+run.bat
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+
+# Docker files themselves (already included)
+# Dockerfile (needed)
+# docker-compose.yml (needed)
+# .dockerignore (this file)
+
+# Performance files
+.cache/
+*.prof
+perf*.txt
+
+# Logs (keep for build, but ignore old logs)
+logs/*.log.old
+
+# Never include
+secrets/
+.env
+.env.local
+.env.*.local
+credentials.json
+private_keys/
+
+# Large files
+*.iso
+*.zip
+*.tar.gz
+*.7z
+
+# Development
+Makefile
+*.dockerfile

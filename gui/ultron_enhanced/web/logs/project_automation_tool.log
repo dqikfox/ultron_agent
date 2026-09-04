@@ -1,0 +1,6 @@
+2026-01-01 07:35:36,120 - ERROR - {"timestamp": "2026-01-01T07:35:36.120632", "component": "project_automation_tool", "level": "ERROR", "message": "No Anthropic API key found"}
+2026-01-01 07:35:49,784 - ERROR - {"timestamp": "2026-01-01T07:35:49.784101", "component": "project_automation_tool", "level": "ERROR", "message": "No Anthropic API key found"}
+2026-01-01 08:16:39,232 - ERROR - {"timestamp": "2026-01-01T08:16:39.232047", "component": "project_automation_tool", "level": "ERROR", "message": "No Anthropic API key found"}
+2026-01-01 08:16:53,134 - ERROR - {"timestamp": "2026-01-01T08:16:53.133588", "component": "project_automation_tool", "level": "ERROR", "message": "No Anthropic API key found"}
+2026-01-02 17:07:19,475 - ERROR - {"timestamp": "2026-01-02T17:07:19.475847", "component": "project_automation_tool", "level": "ERROR", "message": "No Anthropic API key found"}
+2026-01-02 17:07:28,368 - ERROR - {"timestamp": "2026-01-02T17:07:28.368806", "component": "project_automation_tool", "level": "ERROR", "message": "No Anthropic API key found"}

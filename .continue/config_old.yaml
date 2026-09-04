@@ -1,0 +1,110 @@
+name: gizmo
+version: 1.0.28
+schema: v1
+
+models:
+  # PRIMARY: Local Ollama Models for Coding
+  - name: Qwen 2.5 Coder 7B (Primary)
+    provider: ollama
+    model: qwen2.5-coder:7b
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+      - apply
+    completionOptions:
+      temperature: 0.2
+      maxTokens: 4096
+
+  - name: DeepSeek R1 14B (Reasoning)
+    provider: ollama
+    model: deepseek-r1:14b
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+    completionOptions:
+      temperature: 0.3
+      maxTokens: 8192
+
+  # CLOUD: Working Models
+  - name: Claude 3 Haiku (Cloud)
+    provider: anthropic
+    model: claude-3-haiku-20240307
+    apiKey: REDACTED_ANTHROPIC_KEY_1
+    roles:
+      - chat
+      - edit
+      - apply
+
+  - name: MiniMax ABAB 6.5S (Cloud)
+    provider: openai
+    model: abab6.5s-chat
+    apiKey: REDACTED_API_KEY_1
+    apiBase: https://api.minimax.chat/v1
+    roles:
+      - chat
+      - edit
+
+# Autocomplete with lightweight model
+tabAutocompleteModel:
+  provider: ollama
+  model: qwen2.5-coder:1.5b
+  apiBase: http://localhost:11434
+  completionOptions:
+    temperature: 0.1
+    maxTokens: 512
+
+tabAutocompleteOptions:
+  disable: false
+  maxPromptTokens: 1024
+  debounceDelay: 200
+  modelTimeout: 100
+  multilineCompletions: auto
+
+context:
+  - provider: diff
+  - provider: codebase
+  - provider: url
+  - provider: folder
+  - provider: terminal
+  - provider: code
+  - provider: file
+  - provider: docs
+    startUrl: "https://docs.continue.dev"
+    maxDepth: 3
+
+rules:
+  - .continue/rules/project-architecture.md
+  - .continue/rules/coding-standards.md
+
+mcpServers:
+  - name: github
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_PERSONAL_ACCESS_TOKEN}
+
+  - name: filesystem
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-filesystem"]
+    env:
+      PATH: ${FILESYSTEM_PATH}
+
+  - name: browser
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-browser"]
+    env:
+      BROWSER_HEADLESS: "false"
+
+  - name: browsermcp
+    command: npx
+    args: ["@browsermcp/mcp@latest"]
+
+  - name: deepwiki
+    type: streamable-http
+    url: https://mcp.deepwiki.com/mcp
+
+  - name: langflow
+    command: npx
+    args: ["-y", "@langflow/mcp-server"]

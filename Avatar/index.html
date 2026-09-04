@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON Avatar Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #00ff41;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            color: #00ff41;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px #00ff41;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: #fff;
+            opacity: 0.8;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .avatar-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .avatar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 255, 65, 0.4);
+            border-color: #00ffff;
+        }
+
+        .avatar-card h2 {
+            color: #00ff41;
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .avatar-card p {
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .features {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .features li {
+            color: #00ff41;
+            font-size: 12px;
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .features li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+        }
+
+        .launch-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            margin-top: 15px;
+        }
+
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 65, 0.5);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-ready {
+            background: #00ff41;
+            color: #000;
+        }
+
+        .status-requires-export {
+            background: #ffa500;
+            color: #000;
+        }
+
+        .info-section {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 1400px;
+            width: 100%;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-section h3 {
+            color: #00ff41;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .info-section p {
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .file-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .file-item {
+            background: rgba(0, 255, 65, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            font-size: 12px;
+        }
+
+        .file-item strong {
+            color: #00ff41;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 ULTRON AVATAR GALLERY</h1>
+        <p>Interactive 3D Model Viewers</p>
+    </div>
+
+    <div class="gallery">
+        <!-- Procedural Avatar -->
+        <div class="avatar-card" onclick="window.open('ultron_avatar.html', '_blank')">
+            <span class="status-badge status-ready">✓ READY</span>
+            <h2>Procedural Avatar</h2>
+            <p>Dynamically generated 3D avatar with animations and emotions. No model files required - built entirely with Three.js primitives.</p>
+
+            <ul class="features">
+                <li>4 Animation Modes (Idle, Talking, Thinking, Listening)</li>
+                <li>4 Emotional States (Happy, Neutral, Focused, Alert)</li>
+                <li>Mouse tracking - Head follows cursor</li>
+                <li>Glowing core reactor effect</li>
+                <li>Holographic ring animation</li>
+                <li>Real-time FPS counter</li>
+            </ul>
+
+            <button class="launch-btn" onclick="event.stopPropagation(); window.open('ultron_avatar.html', '_blank')">
+                🚀 Launch Viewer
+            </button>
+        </div>
+
+        <!-- Trooper Model -->
+        <div class="avatar-card" onclick="window.open('trooper_viewer.html', '_blank')">
+            <span class="status-badge status-ready">✓ READY</span>
+            <h2>Trooper Model</h2>
+            <p>Pre-exported OBJ/MTL model viewer. Loads the TOON TROOPER character directly from existing files.</p>
+
+            <ul class="features">
+                <li>OBJ format with MTL materials</li>
+                <li>Auto-rotation control</li>
+                <li>Wireframe toggle</li>
+                <li>3 Lighting modes (Green, Blue, Red)</li>
+                <li>Orbit camera controls</li>
+                <li>ULTRON-themed lighting</li>
+            </ul>
+
+            <button class="launch-btn" onclick="event.stopPropagation(); window.open('trooper_viewer.html', '_blank')">
+                🚀 Launch Viewer
+            </button>
+        </div>
+
+        <!-- Blender Model Viewer -->
+        <div class="avatar-card">
+            <span class="status-badge status-requires-export">⚠ REQUIRES EXPORT</span>
+            <h2>ULTRON Blender Model</h2>
+            <p>High-quality Blender model viewer. Requires exporting the .blend file to GLB format first.</p>
+
+            <ul class="features">
+                <li>Full Blender model support</li>
+                <li>Animation playback (if exported)</li>
+                <li>Advanced materials and textures</li>
+                <li>Model statistics display</li>
+                <li>Adjustable rotation speed</li>
+                <li>Dynamic zoom controls</li>
+            </ul>
+
+            <button class="launch-btn" onclick="alert('Please export ultron+xps.blend to GLB first!\n\n1. Open Blender\n2. Run export_to_web.py script\n3. Then launch this viewer\n\nSee BLENDER_GUIDE.md for details')">
+                📋 View Export Instructions
+            </button>
+            <button class="launch-btn" style="margin-top: 10px; opacity: 0.7" onclick="window.open('ultron_avatar_blender.html', '_blank')">
+                🚀 Launch Viewer (After Export)
+            </button>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h3>📁 Project Files</h3>
+        <p>Available 3D models and resources in the Avatar directory:</p>
+
+        <div class="file-list">
+            <div class="file-item">
+                <strong>ultron+xps.blend</strong>
+                Blender source model (requires export)
+            </div>
+            <div class="file-item">
+                <strong>TROOPER.obj/.mtl</strong>
+                Wavefront OBJ format (ready to use)
+            </div>
+            <div class="file-item">
+                <strong>export_to_web.py</strong>
+                Blender export script
+            </div>
+            <div class="file-item">
+                <strong>BLENDER_GUIDE.md</strong>
+                Complete export guide
+            </div>
+            <div class="file-item">
+                <strong>README.md</strong>
+                Avatar system documentation
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h3>🎯 Quick Start Guide</h3>
+        <p><strong>Option 1: Use Procedural Avatar</strong> - Click "Procedural Avatar" card above. No setup needed!</p>
+        <p style="margin-top: 10px;"><strong>Option 2: Use Trooper Model</strong> - Click "Trooper Model" card above. Loads instantly!</p>
+        <p style="margin-top: 10px;"><strong>Option 3: Export Blender Model</strong></p>
+        <ol style="margin-left: 20px; margin-top: 10px; color: #fff; opacity: 0.9; line-height: 1.8;">
+            <li>Open Blender and load <code>ultron+xps.blend</code></li>
+            <li>Switch to Scripting tab</li>
+            <li>Open and run <code>export_to_web.py</code></li>
+            <li>Wait for "Model exported successfully" message</li>
+            <li>Launch "ULTRON Blender Model" viewer above</li>
+        </ol>
+    </div>
+
+    <div class="info-section">
+        <h3>🔮 Integration Ideas</h3>
+        <p><strong>Embed in Main GUI:</strong> Add any avatar viewer as an iframe in the Pokédex interface</p>
+        <p style="margin-top: 10px;"><strong>Voice Sync:</strong> Connect animations to TTS events via WebSocket</p>
+        <p style="margin-top: 10px;"><strong>Status Mirroring:</strong> Match avatar emotions to agent operational state</p>
+        <p style="margin-top: 10px;"><strong>Command Feedback:</strong> Visual indicators when processing user commands</p>
+    </div>
+
+    <script>
+        console.log(`
+╔══════════════════════════════════════════════════════╗
+║         ULTRON AVATAR GALLERY v1.0                   ║
+║                                                      ║
+║  3 Interactive 3D Model Viewers Available            ║
+║  - Procedural Avatar (Ready)                         ║
+║  - Trooper Model (Ready)                             ║
+║  - Blender Model (Requires Export)                   ║
+║                                                      ║
+║  Click any card to launch viewer!                    ║
+╚══════════════════════════════════════════════════════╝
+        `);
+    </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+================================================================================
+GOOGLE DRIVE FILE ANALYSIS - UNLIMITED RESOURCES MODE
+================================================================================
+
+Source: H:\My Drive\ultron
+Total Files: 181
+Total Size: 301.91 MB
+
+================================================================================
+FILE CATEGORIES
+================================================================================
+
+CODE (117 files):
+  - gui.py (0.0 KB)
+  - main.py (0.0 KB)
+  - node_modules @types node assert strict.d.ts (0.2 KB)
+  - node_modules @types node assert.d.ts (39.9 KB)
+  - node_modules @types node async_hooks.d.ts (23.6 KB)
+  - node_modules @types node buffer.buffer.d.ts (21.6 KB)
+  - node_modules @types node buffer.d.ts (84.8 KB)
+  - node_modules @types node child_process.d.ts (67.6 KB)
+  - node_modules @types node cluster.d.ts (27.4 KB)
+  - node_modules @types node compatibility disposable.d.ts (0.3 KB)
+  - node_modules @types node compatibility index.d.ts (0.5 KB)
+  - node_modules @types node compatibility indexable.d.ts (1.0 KB)
+  - node_modules @types node compatibility iterators.d.ts (1.1 KB)
+  - node_modules @types node console.d.ts (20.8 KB)
+  - node_modules @types node constants.d.ts (0.8 KB)
+  - node_modules @types node crypto.d.ts (185.4 KB)
+  - node_modules @types node dgram.d.ts (27.1 KB)
+  - node_modules @types node diagnostics_channel.d.ts (22.5 KB)
+  - node_modules @types node dns promises.d.ts (20.0 KB)
+  - node_modules @types node dns.d.ts (33.8 KB)
+  ... and 97 more files
+
+CONFIG (18 files):
+  - node_modules @types node package.json (6.5 KB)
+  - node_modules @types node-fetch package.json (2.5 KB)
+  - node_modules abort-controller package.json (2.8 KB)
+  - node_modules accepts package.json (1.1 KB)
+  - node_modules agentkeepalive package.json (1.3 KB)
+  - node_modules append-field package.json (0.4 KB)
+  - node_modules asynckit package.json (1.6 KB)
+  - node_modules body-parser package.json (1.2 KB)
+  - node_modules buffer-from package.json (0.3 KB)
+  - node_modules busboy .github workflows ci.yml (0.5 KB)
+  - node_modules busboy .github workflows lint.yml (0.5 KB)
+  - node_modules busboy package.json (0.8 KB)
+  - package.json (0.5 KB)
+  - package-lock.json (50.3 KB)
+  - ultron-project-461408-ea3a9b103b69.json (2.3 KB)
+  - conversations.json (14415.8 KB)
+  - desktop.ini (0.2 KB)
+  - desktop.ini (0.2 KB)
+
+DOCS (16 files):
+  - node_modules @types node README.md (2.2 KB)
+  - node_modules @types node-fetch README.md (1.1 KB)
+  - node_modules abort-controller README.md (3.1 KB)
+  - node_modules accepts HISTORY.md (5.1 KB)
+  - node_modules accepts README.md (4.0 KB)
+  - node_modules agentkeepalive README.md (11.5 KB)
+  - node_modules append-field README.md (1.0 KB)
+  - node_modules asynckit README.md (7.5 KB)
+  - node_modules body-parser HISTORY.md (17.8 KB)
+  - node_modules body-parser README.md (19.0 KB)
+  - node_modules buffer-from readme.md (1.9 KB)
+  - node_modules busboy README.md (7.7 KB)
+  - README.txt (0.1 KB)
+  - requirements.txt (0.0 KB)
+  - ultron_log.txt (0.9 KB)
+  - ultron_voice_input.txt (0.1 KB)
+
+DATA (1 files):
+  - copilot-activity-history.csv (49.9 KB)
+
+IMAGES (1 files):
+  - 0358521c7a1cbb5335b9bcfe0b98bd2cca7cccc49ff03edddac15ea333de3f52_share_0.jpg (66.1 KB)
+
+BATCH (5 files):
+  - node_modules .bin mkdirp.cmd (0.3 KB)
+  - node_modules .bin mkdirp.ps1 (0.8 KB)
+  - node_modules .bin openai.cmd (0.3 KB)
+  - node_modules .bin openai.ps1 (0.8 KB)
+  - build.bat (0.0 KB)
+
+OTHER (23 files):
+  - input.wav (0.0 KB)
+  - node_modules .bin mkdirp (0.4 KB)
+  - node_modules .bin openai (0.4 KB)
+  - node_modules @types node LICENSE (1.1 KB)
+  - node_modules @types node-fetch LICENSE (1.1 KB)
+  - node_modules abort-controller browser.mjs (0.3 KB)
+  - node_modules abort-controller dist abort-controller.js.map (6.2 KB)
+  - node_modules abort-controller dist abort-controller.mjs (3.2 KB)
+  - node_modules abort-controller dist abort-controller.mjs.map (6.2 KB)
+  - node_modules abort-controller dist abort-controller.umd.js.map (36.5 KB)
+  - node_modules abort-controller LICENSE (1.0 KB)
+  - node_modules abort-controller polyfill.mjs (0.5 KB)
+  - node_modules accepts LICENSE (1.1 KB)
+  - node_modules agentkeepalive LICENSE (1.1 KB)
+  - node_modules append-field LICENSE (1.1 KB)
+  - node_modules asynckit LICENSE (1.1 KB)
+  - node_modules body-parser LICENSE (1.1 KB)
+  - node_modules buffer-from LICENSE (1.1 KB)
+  - node_modules busboy LICENSE (1.0 KB)
+  - Ultron.exe (0.0 KB)
+  ... and 3 more files

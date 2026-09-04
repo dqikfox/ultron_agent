@@ -1,0 +1,63 @@
+name: Validate Developer Instructions
+
+on:
+  push:
+    paths:
+      - '.github/copilot-instructions.md'
+      - '.codex/instructions.md'
+      - 'TESTING_GUIDE.md'
+      - 'MEMORY_AND_VECTORS_GUIDE.md'
+  pull_request:
+    paths:
+      - '.github/copilot-instructions.md'
+      - '.codex/instructions.md'
+      - 'TESTING_GUIDE.md'
+      - 'MEMORY_AND_VECTORS_GUIDE.md'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check instruction files exist
+        run: |
+          echo "Checking instruction files..."
+          test -f .github/copilot-instructions.md || exit 1
+          test -f .codex/instructions.md || exit 1
+          echo "✓ All instruction files present"
+      
+      - name: Validate markdown syntax
+        run: |
+          echo "Validating markdown..."
+          for file in .github/copilot-instructions.md .codex/instructions.md TESTING_GUIDE.md MEMORY_AND_VECTORS_GUIDE.md; do
+            if [ -f "$file" ]; then
+              lines=$(wc -l < "$file")
+              echo "✓ $file: $lines lines"
+              # Check for common markdown issues
+              if grep -q '\[.*\](#)' "$file"; then
+                echo "⚠ Warning: Possible broken link in $file"
+              fi
+            fi
+          done
+      
+      - name: Check for code examples
+        run: |
+          echo "Checking for runnable examples..."
+          if grep -q '```python' TESTING_GUIDE.md; then
+            echo "✓ Python examples found in TESTING_GUIDE.md"
+          fi
+          if grep -q '```bash' .github/copilot-instructions.md; then
+            echo "✓ Bash examples found in COPILOT instructions"
+          fi
+      
+      - name: Validate cross-references
+        run: |
+          echo "Validating cross-references..."
+          if grep -q "TESTING_GUIDE.md" .github/copilot-instructions.md; then
+            echo "✓ COPILOT instructions reference TESTING_GUIDE"
+          fi
+          if grep -q "MEMORY_AND_VECTORS_GUIDE.md" .github/copilot-instructions.md; then
+            echo "✓ COPILOT instructions reference MEMORY guide"
+          fi
+

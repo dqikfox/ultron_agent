@@ -1,0 +1,138 @@
+name: AWS Infrastructure Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      budget_limit:
+        description: 'Monthly budget limit (USD)'
+        required: true
+        default: '100'
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy-aws-infrastructure:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+          role-session-name: UltronAgentDeployment
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install boto3 botocore
+
+      - name: Validate CloudFormation template
+        run: |
+          aws cloudformation validate-template \
+            --template-body file://aws_integration/cloudformation/ultron-aws-infrastructure.yaml
+
+      - name: Deploy AWS infrastructure
+        id: deploy
+        run: |
+          cd aws_integration/deployment
+          python deploy.py
+        env:
+          BUDGET_LIMIT: ${{ github.event.inputs.budget_limit }}
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+
+      - name: Test deployed endpoints
+        run: |
+          # Test API Gateway endpoint
+          API_ENDPOINT=$(aws cloudformation describe-stacks \
+            --stack-name ultron-agent-infrastructure \
+            --query 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue' \
+            --output text)
+          
+          echo "Testing API endpoint: $API_ENDPOINT"
+          curl -f "$API_ENDPOINT/chat" -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"message": "Hello from ULTRON Agent deployment test"}'
+
+      - name: Update deployment status
+        if: always()
+        run: |
+          echo "Deployment completed for environment: ${{ github.event.inputs.environment }}"
+          echo "Budget limit set to: ${{ github.event.inputs.budget_limit }} USD"
+
+  cost-monitoring-setup:
+    runs-on: ubuntu-latest
+    needs: deploy-aws-infrastructure
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup cost monitoring
+        run: |
+          # Create CloudWatch dashboard
+          aws cloudwatch put-dashboard \
+            --dashboard-name "ULTRON-Agent-Costs" \
+            --dashboard-body '{
+              "widgets": [
+                {
+                  "type": "metric",
+                  "properties": {
+                    "metrics": [
+                      ["ULTRON/Costs", "TotalMonthlyCost"]
+                    ],
+                    "period": 86400,
+                    "stat": "Maximum",
+                    "region": "us-east-1",
+                    "title": "Monthly AWS Costs"
+                  }
+                }
+              ]
+            }'
+
+      - name: Create cost alerts
+        run: |
+          # Create SNS topic for cost alerts
+          TOPIC_ARN=$(aws sns create-topic \
+            --name ultron-agent-cost-alerts \
+            --query 'TopicArn' --output text)
+          
+          # Create CloudWatch alarm for 80% budget threshold
+          aws cloudwatch put-metric-alarm \
+            --alarm-name "ULTRON-Agent-Cost-Alert-80%" \
+            --alarm-description "Alert when costs reach 80% of budget" \
+            --metric-name "TotalMonthlyCost" \
+            --namespace "ULTRON/Costs" \
+            --statistic "Maximum" \
+            --period 86400 \
+            --threshold $(echo "${{ github.event.inputs.budget_limit }} * 0.8" | bc) \
+            --comparison-operator "GreaterThanThreshold" \
+            --alarm-actions "$TOPIC_ARN"
