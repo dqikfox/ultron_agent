@@ -1,11 +1,17 @@
 import pytest
 import sys
 import os
+import builtins
 from pathlib import Path
+from unittest.mock import mock_open
 
 # Add project root to Python path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
+
+# Back-compat for test modules that reference mock_open without importing it.
+if not hasattr(builtins, "mock_open"):
+    builtins.mock_open = mock_open
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():

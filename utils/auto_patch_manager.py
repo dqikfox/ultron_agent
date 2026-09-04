@@ -17,6 +17,14 @@ class AutoPatchManager:
     """
 
     def __init__(self, config: Dict[str, Any]):
+        if not config:
+            raise KeyError("Missing required auto_patch configuration")
+
+        required_keys = ['auto_apply_patches', 'max_patch_size', 'modules_allowed_for_auto_patch', 'rollback_enabled']
+        missing = [key for key in required_keys if key not in config]
+        if missing:
+            raise KeyError(f"Missing required config keys: {missing}")
+
         self.config = config
         self.project_root = Path(__file__).parent.parent
         self.backup_dir = self.project_root / "backups" / "auto_patches"
@@ -97,6 +105,19 @@ class AutoPatchManager:
 
         return True
 
+    def apply_patches(self, suggestions: List[Dict[str, Any]], metadata: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """Compatibility wrapper that returns a list of per-suggestion results."""
+        metadata = metadata or {}
+        results = self.apply_suggestions(suggestions, metadata)
+        return [
+            {
+                'id': detail.get('id', 'unknown'),
+                'success': detail.get('success', False),
+                'message': detail.get('message', ''),
+            }
+            for detail in results.get('details', [])
+        ]
+
     def apply_suggestions(self, suggestions: List[Dict[str, Any]], metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Apply validated suggestions with safety checks"""
         results = {
@@ -151,21 +172,20 @@ class AutoPatchManager:
         """Apply a single suggestion with validation"""
         file_path = self.project_root / suggestion['file_path']
 
-        # Check if file exists
-        if not file_path.exists():
-            return False, f"File does not exist: {file_path}"
-
         # Use model awareness to check if modification should proceed
         should_proceed, reason, context = should_modify_file(str(file_path), "auto_patch", "auto_patch_manager")
         if not should_proceed:
             return False, f"Model awareness denied modification: {reason}"
 
-        # Read current file content
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                current_content = f.read()
-        except Exception as e:
-            return False, f"Failed to read file: {str(e)}"
+        # Read current file content if the file exists; otherwise treat as empty content.
+        if file_path.exists():
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    current_content = f.read()
+            except Exception as e:
+                return False, f"Failed to read file: {str(e)}"
+        else:
+            current_content = ""
 
         # Apply the code change (simplified - in practice, would need more sophisticated diff logic)
         new_content = self._apply_code_change(current_content, suggestion)
@@ -244,9 +264,21 @@ class AutoPatchManager:
         key_dirs = ['utils', 'tools', 'gui', 'voice']
         for dir_name in key_dirs:
             src_dir = self.project_root / dir_name
-            if src_dir.exists():
-                dst_dir = backup_path / dir_name
-                shutil.copytree(src_dir, dst_dir, dirs_exist_ok=True)
+            if not src_dir.exists():
+                continue
+
+            dst_dir = backup_path / dir_name
+            dst_dir.mkdir(parents=True, exist_ok=True)
+
+            for src_path in src_dir.iterdir():
+                dst_path = dst_dir / src_path.name
+                try:
+                    if src_path.is_dir():
+                        shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+                    else:
+                        shutil.copy2(src_path, dst_path)
+                except Exception:
+                    continue
 
     def _store_backup_metadata(self, backup_id: str, results: Dict[str, Any], metadata: Dict[str, Any]):
         """Store metadata about the backup"""

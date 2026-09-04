@@ -359,6 +359,18 @@ class UltronNvidiaRouter:
         }
 
 
+class NvidiaNIMRouter(UltronNvidiaRouter):
+    """Backward-compatible alias used by tests and older integration code."""
+
+    def __init__(self, api_key_or_config: Any = None, config: Dict[str, Any] = None):
+        if isinstance(api_key_or_config, dict):
+            config = api_key_or_config
+            api_key = config.get("api_key") if config else None
+            super().__init__(api_key=api_key, config=config)
+        else:
+            super().__init__(api_key=api_key_or_config, config=config)
+
+
 # Voice Command Integration
 class UltronNvidiaVoiceIntegration:
     """Voice command integration for NVIDIA NIM router"""

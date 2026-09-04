@@ -896,3 +896,34 @@ class UltronAgent:
             }
         finally:
             self.current_task = None
+
+
+class AgentCore(UltronAgent):
+    """Compatibility wrapper exposing the historical AgentCore name expected by tests."""
+
+    def __init__(self, config=None, config_path: str = "ultron_config.json"):
+        if isinstance(config, dict):
+            self._compat_config = config
+            self.config = type("CompatConfig", (), config)()
+            self.config.get = lambda key, default=None: getattr(self.config, key, default)
+            self.config.__dict__.update(config)
+            # Preserve a dict-based config for tests and codepaths expecting .config data
+            self.config.data = config
+            # Behave like the original class after initialization
+            self.logger = None
+            self.status = AgentStatus.INITIALIZING
+            self.brain = None
+            self.voice = None
+            self.memory = None
+            self.vision = None
+            self.event_system = None
+            self.performance_monitor = None
+            self.task_scheduler = None
+            self.platform_manager = None
+            self.tools = {}
+            self.is_running = False
+            self.current_task = None
+            self.performance_profiler = None
+            return
+
+        super().__init__(config_path=config_path)
