@@ -1,0 +1,10 @@
+{
+  "session_id": "20260904_203002",
+  "total_actions": 2,
+  "action_counts": {
+    "SYSTEM_START": 1,
+    "SYSTEM_SHUTDOWN": 1
+  },
+  "session_start": "2026-09-04T20:30:02.047038",
+  "session_duration": 2
+}

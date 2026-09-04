@@ -5,6 +5,7 @@ Logs all system actions, user inputs, responses, and system status changes.
 
 import logging
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 import threading
@@ -12,53 +13,64 @@ from typing import Dict, Any, Optional
 
 class ActionLogger:
     def __init__(self, log_file: str = "ultron_actions.log", config_file: str = "ultron_config.json"):
-        self.log_file = Path(log_file)
-        self.config_file = Path(config_file)
+        self.log_file = str(log_file)
+        self.config_file = str(config_file)
+        self.log_path = Path(self.log_file)
+        self.config_path = Path(self.config_file)
         self.lock = threading.Lock()
-        
+        self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.actions = []
+        self.action_history = []
+        self.session_stats = {"actions_logged": 0, "errors_logged": 0, "voice_activities": 0}
+        self.action_log_file = self.log_path.parent / f"actions_{self.session_id}.json"
+        self.logger = None
+
         # Setup comprehensive logging
         self.setup_logging()
-        
+
         # Load configuration for context
         self.config = self.load_config()
-        
-        # Initialize session
-        self.log_action("SYSTEM_START", f"Ultron Agent 2 session started - Session ID: {self.session_id}")
-    
+
     def setup_logging(self):
         """Setup detailed logging configuration"""
         # Initialize session ID first
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+        self.log_path = Path(self.log_file)
+        self.config_path = Path(self.config_file)
+
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(self.log_file, encoding='utf-8'),
+                logging.FileHandler(self.log_path, encoding='utf-8'),
                 logging.StreamHandler()  # Also log to console
             ]
         )
         self.logger = logging.getLogger(__name__)
-        
+
         # Create separate detailed action log
-        self.action_log_file = self.log_file.parent / f"actions_{self.session_id}.json"
+        self.action_log_file = self.log_path.parent / f"actions_{self.session_id}.json"
         self.actions = []
-    
+
     def load_config(self) -> Dict[str, Any]:
         """Load configuration for context"""
+        if self.logger is None:
+            self.logger = logging.getLogger(__name__)
         try:
-            if self.config_file.exists():
-                with open(self.config_file, 'r', encoding='utf-8') as f:
+            if os.path.exists(self.config_file):
+                with open(self.config_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
         except Exception as e:
             self.logger.error(f"Failed to load config: {e}")
         return {}
-    
     def log_action(self, action_type: str, description: str, details: Optional[Dict[str, Any]] = None):
         """Log an action with timestamp and details"""
+        if self.logger is None:
+            self.logger = logging.getLogger(__name__)
+
         with self.lock:
             timestamp = datetime.now().isoformat()
-            
+
             action_entry = {
                 "timestamp": timestamp,
                 "session_id": self.session_id,
@@ -66,13 +78,20 @@ class ActionLogger:
                 "description": description,
                 "details": details or {}
             }
-            
+
             # Add to memory
             self.actions.append(action_entry)
-            
+            if hasattr(self, "action_history"):
+                self.action_history.append(action_entry)
+            if hasattr(self, "session_stats") and isinstance(self.session_stats, dict):
+                self.session_stats["actions_logged"] = self.session_stats.get("actions_logged", 0) + 1
+
             # Log to file immediately
-            self.logger.info(f"[{action_type}] {description}")
-            
+            log_message = f"[{action_type}] {description}"
+            if details:
+                log_message += f" | details={json.dumps(details, default=str, sort_keys=True)}"
+            self.logger.info(log_message)
+
             # Save detailed JSON log
             self.save_action_log()
     
@@ -104,12 +123,24 @@ class ActionLogger:
     def log_voice_activity(self, activity: str, success: bool = True, details: Optional[Dict] = None):
         """Log voice-related activities"""
         status = "SUCCESS" if success else "FAILED"
-        self.log_action(
-            "VOICE_ACTIVITY",
-            f"Voice {activity}: {status}",
-            details or {}
-        )
-    
+        message = f"[VOICE_ACTIVITY] Voice {activity}: {status}"
+        if details:
+            message += f" | details={json.dumps(details, default=str, sort_keys=True)}"
+
+        if success:
+            self.logger.info(message)
+        else:
+            self.logger.warning(message)
+
+        self.actions.append({
+            "timestamp": datetime.now().isoformat(),
+            "session_id": self.session_id,
+            "action_type": "VOICE_ACTIVITY",
+            "description": f"Voice {activity}: {status}",
+            "details": details or {}
+        })
+        self.save_action_log()
+
     def log_system_status(self, component: str, status: str, metrics: Optional[Dict] = None):
         """Log system status changes"""
         self.log_action(
@@ -124,15 +155,29 @@ class ActionLogger:
     
     def log_error(self, error_type: str, error_message: str, traceback_info: str = ""):
         """Log errors with details"""
-        self.log_action(
-            "ERROR",
-            f"{error_type}: {error_message}",
-            {
-                "error_type": error_type,
-                "error_message": error_message,
-                "traceback": traceback_info
-            }
-        )
+        details = {
+            "error_type": error_type,
+            "error_message": error_message,
+            "traceback": traceback_info
+        }
+        log_message = f"[ERROR] {error_type}: {error_message}"
+        if traceback_info:
+            log_message += f" | traceback={traceback_info}"
+
+        self.logger.error(log_message)
+        error_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "session_id": self.session_id,
+            "action_type": "ERROR",
+            "description": f"{error_type}: {error_message}",
+            "details": details
+        }
+        self.actions.append(error_entry)
+        if hasattr(self, "action_history"):
+            self.action_history.append(error_entry)
+        if hasattr(self, "session_stats") and isinstance(self.session_stats, dict):
+            self.session_stats["errors_logged"] = self.session_stats.get("errors_logged", 0) + 1
+        self.save_action_log()
     
     def log_file_operation(self, operation: str, file_path: str, success: bool = True):
         """Log file operations"""
@@ -223,23 +268,35 @@ class ActionLogger:
         for action in self.actions:
             action_type = action["action_type"]
             action_counts[action_type] = action_counts.get(action_type, 0) + 1
-        
-        return {
+
+        summary = {
             "session_id": self.session_id,
             "total_actions": len(self.actions),
             "action_counts": action_counts,
             "session_start": self.actions[0]["timestamp"] if self.actions else None,
             "session_duration": len(self.actions)
         }
+
+        if hasattr(self, "session_stats"):
+            summary.update(self.session_stats)
+
+        return summary
     
     def shutdown(self):
         """Shutdown logger and save final state"""
-        self.log_action("SYSTEM_SHUTDOWN", "Ultron Agent 2 session ended")
+        self.actions.append({
+            "timestamp": datetime.now().isoformat(),
+            "session_id": self.session_id,
+            "action_type": "SYSTEM_SHUTDOWN",
+            "description": "Ultron Agent 2 session ended",
+            "details": {}
+        })
+        self.logger.info("[SYSTEM_SHUTDOWN] Ultron Agent 2 session ended")
         self.save_action_log()
-        
+
         # Save session summary
         summary = self.get_session_summary()
-        summary_file = self.log_file.parent / f"session_summary_{self.session_id}.json"
+        summary_file = self.log_path.parent / f"session_summary_{self.session_id}.json"
         try:
             with open(summary_file, 'w', encoding='utf-8') as f:
                 json.dump(summary, f, indent=2)
