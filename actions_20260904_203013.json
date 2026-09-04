@@ -1,0 +1,16 @@
+[
+  {
+    "timestamp": "2026-09-04T20:30:13.208877",
+    "session_id": "20260904_203013",
+    "action_type": "GUI_EVENT",
+    "description": "GUI button_click in main_window",
+    "details": {
+      "event": "button_click",
+      "component": "main_window",
+      "details": {
+        "x": 100,
+        "y": 200
+      }
+    }
+  }
+]

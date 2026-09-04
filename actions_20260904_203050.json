@@ -1,0 +1,13 @@
+[
+  {
+    "timestamp": "2026-09-04T20:30:50.547015",
+    "session_id": "20260904_203050",
+    "action_type": "ERROR",
+    "description": "test_error: error message",
+    "details": {
+      "error_type": "test_error",
+      "error_message": "error message",
+      "traceback": ""
+    }
+  }
+]
