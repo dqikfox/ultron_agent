@@ -1,0 +1,12 @@
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/bin/Release/netstandard2.1/UltronModule.deps.json
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/bin/Release/netstandard2.1/UltronModule.dll
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/bin/Release/netstandard2.1/UltronModule.pdb
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/bin/Release/netstandard2.1/UltronModule.xml
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.csproj.AssemblyReference.cache
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.AssemblyInfoInputs.cache
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.AssemblyInfo.cs
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.csproj.CoreCompileInputs.cache
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.dll
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.xml
+/home/runner/work/ultron_agent/ultron_agent/unity_cloud_code/UltronModule/obj/Release/netstandard2.1/UltronModule.pdb
