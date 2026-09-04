@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UltronModule")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1c1763a82db9f49f65372cff6969851a51057bd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c7308b5ac4848726046c5f56958c864db079c9f")]
 [assembly: System.Reflection.AssemblyProductAttribute("UltronModule")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UltronModule")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
