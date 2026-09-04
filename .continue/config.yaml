@@ -1,10 +1,214 @@
-models:
-  - title: Claude 3 Haiku
-    provider: anthropic
-    model: claude-3-haiku-20240307
-    apiKey: REDACTED_ANTHROPIC_KEY_1
+name: gizmo
+version: 1.0.28
+schema: v1
 
-  - title: Qwen Coder
+models:
+  # Anthropic Models
+  - name: Claude 3.7 Sonnet
+    provider: anthropic
+    model: claude-3-7-sonnet-20240229
+    apiKey: ${ANTHROPIC_API_KEY}
+    roles:
+      - chat
+      - edit
+      - apply
+
+  - name: Claude 3.5 Sonnet
+    provider: anthropic
+    model: claude-3-5-sonnet-20241022
+    apiKey: ${ANTHROPIC_API_KEY}
+    roles:
+      - chat
+      - edit
+      - apply
+
+  - name: Claude 4 Sonnet
+    provider: anthropic
+    model: claude-4-sonnet
+    apiKey: ${ANTHROPIC_API_KEY}
+    roles:
+      - chat
+      - edit
+
+  # Mistral Models
+  - name: Codestral
+    provider: mistral
+    model: codestral-latest
+    apiKey: ${MISTRAL_API_KEY}
+    roles:
+      - autocomplete
+
+  # Voyage AI Models
+  - name: Voyage Code 3
+    provider: voyage
+    model: voyage-code-3
+    apiKey: ${VOYAGE_API_KEY}
+
+  - name: Voyage Rerank 2
+    provider: voyage
+    model: rerank-2
+    apiKey: ${VOYAGE_API_KEY}
+
+  # XAI Models
+  - name: Grok 4
+    provider: openai
+    model: grok-4
+    apiBase: https://api.x.ai/v1
+    apiKey: ${XAI_API_KEY}
+
+  # Ollama Models (Local)
+  - name: Qwen2.5 Coder 7B
     provider: ollama
     model: qwen2.5-coder:7b
-    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - autocomplete
+
+  - name: Devstral
+    provider: ollama
+    model: devstral
+
+  - name: Qwen3 30B
+    provider: ollama
+    model: qwen3:30b
+
+  - name: Qwen2.5 Coder 1.5B
+    provider: ollama
+    model: qwen2.5-coder:1.5b
+    roles:
+      - autocomplete
+
+  # Local Agent (ULTRON Agent Integration)
+  - name: Local Agent
+    provider: openai
+    model: gpt-3.5-turbo
+    apiBase: http://localhost:8000/v1
+    apiKey: ultron-local-key
+    roles:
+      - chat
+      - edit
+      - apply
+    description: "Local ULTRON Agent via FastAPI endpoint"
+
+# Context Providers
+context:
+  - provider: diff
+  - provider: codebase
+    nRetrieve: 50
+    nFinal: 20
+  - provider: url
+  - provider: folder
+  - provider: terminal
+  - provider: code
+  - provider: file
+  - provider: docs
+  - provider: currentFile
+  - provider: repoMap
+  - provider: openFiles
+  - provider: clipboard
+  - provider: os
+  - provider: commits
+  - provider: problems
+
+# MCP Servers
+mcpServers:
+  github:
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_PERSONAL_ACCESS_TOKEN}
+
+  postgres:
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-postgres"]
+    env:
+      CONNECTION_STRING: ${POSTGRES_CONNECTION_STRING}
+
+  filesystem:
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-filesystem"]
+    env:
+      PATH: ${FILESYSTEM_PATH}
+
+  playwright:
+    command: npx
+    args: ["-y", "playwright-mcp-server"]
+
+  exa:
+    command: npx
+    args: ["-y", "exa-mcp"]
+    env:
+      EXA_API_KEY: ${EXA_API_KEY}
+
+  brave-search:
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-brave-search"]
+    env:
+      BRAVE_API_KEY: ${BRAVE_API_KEY}
+
+  memory:
+    command: npx
+    args: ["-y", "@anthropic-ai/mcp-server-memory"]
+
+# Custom Slash Commands
+slashCommands:
+  - name: analyze
+    description: Analyze code patterns and best practices
+    step: |
+      Analyze the selected code for development patterns, including:
+      - Code quality and maintainability
+      - Security considerations
+      - Performance optimizations
+      - Best practices compliance
+      Provide actionable recommendations.
+
+  - name: test
+    description: Generate comprehensive test cases
+    step: |
+      Generate test cases for the selected code, including:
+      - Unit tests for core functionality
+      - Integration tests
+      - Edge cases and error handling
+      - Mock implementations where needed
+
+  - name: docs
+    description: Generate documentation
+    step: |
+      Generate comprehensive documentation including:
+      - Function/class descriptions
+      - Parameter explanations
+      - Usage examples
+      - Integration guidelines
+
+  - name: refactor
+    description: Refactor code for better structure
+    step: |
+      Refactor the selected code to improve:
+      - Code organization and readability
+      - Error handling
+      - Type safety
+      - Performance
+      - Maintainability
+
+# UI Settings
+ui:
+  showChatScrollbar: true
+  showPromptScrollbar: true
+  codeBlockToolbarPosition: top
+  fontSize: 14
+
+# Autocomplete Settings
+tabAutocompleteOptions:
+  disable: false
+  maxPromptTokens: 1024
+  debounceDelay: 250
+  modelTimeout: 150
+  maxSuffixPercentage: 0.2
+  prefixPercentage: 0.3
+  onlyMyCode: true
+  multilineCompletions: auto
+
+# Experimental Features
+experimental:
+  promptPath: .continue/prompts
+  modelContextWindowLimit: 128000

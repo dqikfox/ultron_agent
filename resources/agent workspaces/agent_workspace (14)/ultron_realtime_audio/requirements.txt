@@ -1,0 +1,30 @@
+# Core AI and System Libraries
+psutil>=5.9.0
+numpy>=1.21.0
+pillow>=9.0.0
+
+# Real-Time Audio Processing (CRITICAL for live audio)
+sounddevice>=0.4.6
+webrtcvad>=2.0.10
+pyaudio>=0.2.11
+
+# Voice Recognition and Speech
+speechrecognition>=3.8.1
+pyttsx3>=2.90
+
+# GUI and Interface
+tkinter-tooltip>=2.0.0
+
+# Optional Enhanced Features
+openai>=1.0.0
+requests>=2.28.0
+
+# Audio Processing & Signal Processing
+scipy>=1.9.0
+librosa>=0.9.0
+
+# System Control (Windows specific)
+pywin32>=304; sys_platform == "win32"
+
+# Cross-platform compatibility
+pathlib2>=2.3.0

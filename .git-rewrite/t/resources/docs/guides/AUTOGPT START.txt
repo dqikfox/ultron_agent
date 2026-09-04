@@ -1,0 +1,44 @@
+docker compose --profile local up deps --build --detach
+cd backend
+poetry run app
+
+
+
+corepack enable
+ pnpm install
+ pnpm dev
+
+C:\Users\ultro\source\repos\AutoGPT>poetry init
+
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\backend>poetry run app    
+
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\frontend>pnpm dev
+
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\backend>docker compose up -d --build
+
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\backend>docker compose up -d --build  
+
+C:\Windows\System32>cd C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\backend                                                                                                                             C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\backend>poetry run app     
+
+C:\Users\ultro>docker ps -a
+
+C:\Users\ultro>docker logs autogpt_platform-migrate-1   
+
+
+C:\Users\ultro\source\repos\AutoGPT\autogpt_platform\backend>docker compose up -d --build
+
+poetry install --extras benchmark
+
+Access services at:
+
+Database: localhost:5432
+
+Redis: localhost:6379
+
+RabbitMQ: http://localhost:15672
+
+REST API: http://localhost:8006/docs
+
+Frontend: http://localhost:3000
+
+All credentials remain Havikz111111 as spke

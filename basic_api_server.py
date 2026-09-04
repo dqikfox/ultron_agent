@@ -26,5 +26,10 @@ def test():
 
 
 if __name__ == "__main__":
+    try:
     print("🚀 Starting basic Flask API server on port 5002...")
     app.run(host="0.0.0.0", port=5002, debug=False)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

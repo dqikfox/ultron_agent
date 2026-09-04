@@ -99,4 +99,8 @@ async def test_enhanced_scheduler():
     print("\n✅ EnhancedTaskScheduler test completed!")
 
 if __name__ == "__main__":
+    try:
     asyncio.run(test_enhanced_scheduler())
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

@@ -1,0 +1,49 @@
+name: ultron-multi
+version: 1.0.5
+schema: v1
+
+models:
+  # Primary: Qwen2.5-Coder (Instruct) - Best overall for chat + code
+  - name: qwen-main
+    provider: ollama
+    model: qwen2.5-coder:1.5b  # Memory optimized for 4GB systems
+    apiKey: ee50c43f3f854b06856b6a0f23f2ae13.NbmLeq0kN8pDxlIlBaDKKXu0
+    baseUrl: http://localhost:11434
+    roles: [chat, edit, apply]
+    
+    chatOptions:
+      baseSystemMessage: "You are Ultron Assistant, an expert AI coding assistant for the ULTRON Agent 2 automation project. You specialize in Python automation, PyAutoGUI safety, voice integration, and clean code with proper error handling. Always prioritize safety and provide concise, practical solutions."
+    
+    defaultCompletionOptions:
+      maxTokens: 2048
+      temperature: 0.1
+      topP: 0.95
+      stop: ["Human:", "Assistant:", "User:"]
+
+  # Autocomplete only: Qwen2.5-Coder Base (faster, more focused)
+  - name: qwen-autocomplete
+    provider: ollama
+    model: qwen2.5-coder:1.5b
+    apiKey: ee50c43f3f854b06856b6a0f23f2ae13.NbmLeq0kN8pDxlIlBaDKKXu0
+    baseUrl: http://localhost:11434
+    roles: [autocomplete]
+    
+    autocompleteOptions:
+      maxTokens: 96
+      temperature: 0.01
+      topP: 0.9
+      stop: ["\n\n", "def ", "class ", "import ", "from "]
+
+  # Fallback: Use StarCoder2 only for specific code completion tasks
+  - name: starcoder-backup
+    provider: ollama
+    model: starcoder2:7b
+    apiKey: ee50c43f3f854b06856b6a0f23f2ae13.NbmLeq0kN8pDxlIlBaDKKXu0
+    baseUrl: http://localhost:11434
+    roles: [autocomplete]
+    
+    autocompleteOptions:
+      maxTokens: 64
+      temperature: 0.005
+      topP: 0.85
+      stop: ["\n\n", "def ", "class "]

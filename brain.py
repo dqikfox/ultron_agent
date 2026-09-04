@@ -1,20 +1,9 @@
 """
 ULTRON Agent 3.0 - Brain Module with Ollama Integration
 Handles AI reasoning, planning, and communication with Ollama models
-Enhanced with intelligent caching for improved performance
 """
 
-import logging
-import hashlib
-from datetime import datetime
-from utils.ultron_logger import ultron_logger, log_info, log_error, log_ai_decision
-from tracing import trace_function, trace_agent_operation
-from utils.error_handlers import (
-    NetworkError, TimeoutError as UltronTimeoutError, ConfigError,
-    ToolError, ToolNotFoundError, AsyncError, with_retry,
-    handle_errors_async, ErrorContext
-)
-from diagnostics import diagnostic_wrapper, track_metric
+from utils.ultron_logger import log_info, log_error, log_ai_decision
 from os import path as os_path
 from json import loads as json_loads, load as json_load, dump as json_dump, JSONDecodeError
 from requests import get as requests_get
@@ -23,7 +12,7 @@ from asyncio import (
 )
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Callable, Tuple
+from typing import Dict, Any
 
 # Create fallback functions for security utils if not available
 try:
@@ -109,99 +98,24 @@ except ImportError as e:
     AzureCognitiveIntegration = None
     AZURE_AVAILABLE = False
 
-# Import semantic memory system
+# Import ULTRON personality system
 try:
-    from enhanced_memory_system import EnhancedMemorySystem
-    SEMANTIC_MEMORY_AVAILABLE = True
+    from ultron_personality import UltronPersonality
+    PERSONALITY_AVAILABLE = True
 except ImportError as e:
-    warning(f"Semantic memory system not available: {sanitize_log_input(str(e))}")
-    EnhancedMemorySystem = None
-    SEMANTIC_MEMORY_AVAILABLE = False
-
-# Import intelligent cache manager
-try:
-    from utils.cache_manager import get_cache_manager
-    CACHE_AVAILABLE = True
-except ImportError as e:
-    warning(f"Cache manager not available: {sanitize_log_input(str(e))}")
-    get_cache_manager = None
-    CACHE_AVAILABLE = False
+    warning(f"ULTRON personality system not available: {sanitize_log_input(str(e))}")
+    UltronPersonality = None
+    PERSONALITY_AVAILABLE = False
 
 
 
 class UltronBrain:
-
-    def self_test(self) -> dict:
-        """Run a self-test of brain integration with memory and tools."""
-        result = {"success": True, "errors": [], "details": {}}
-        # Test memory integration
-        try:
-            if not self.memory:
-                result["success"] = False
-                result["errors"].append("No memory attached.")
-            elif not hasattr(self.memory, "self_test"):
-                result["success"] = False
-                result["errors"].append("Memory has no self_test method.")
-            else:
-                mem_test = self.memory.self_test()
-                result["details"]["memory_self_test"] = mem_test
-                if not mem_test.get("success", False):
-                    result["success"] = False
-                    result["errors"].append("Memory self-test failed.")
-        except Exception as e:
-            result["success"] = False
-            result["errors"].append(f"Memory test error: {e}")
-        # Test tool access
-        try:
-            if not self.tools:
-                result["success"] = False
-                result["errors"].append("No tools loaded.")
-            else:
-                result["details"]["tool_count"] = len(self.tools)
-        except Exception as e:
-            result["success"] = False
-            result["errors"].append(f"Tool access error: {e}")
-        # Test reasoning (basic prompt build)
-        try:
-            prompt = self._build_enhanced_prompt("diagnostic test")
-            if not prompt or "diagnostic test" not in prompt:
-                result["success"] = False
-                result["errors"].append("Prompt build failed.")
-            else:
-                result["details"]["prompt_sample"] = prompt[:200]
-        except Exception as e:
-            result["success"] = False
-            result["errors"].append(f"Prompt build error: {e}")
-        return result
-
     def __init__(self, config, tools, memory):
         self.config = config
         self.tools = tools
         self.memory = memory
         self.cache_file = "cache.json"
         self.load_cache()
-
-        # Initialize intelligent cache manager
-        self.cache_manager = get_cache_manager() if CACHE_AVAILABLE else None
-        if self.cache_manager:
-            info("Intelligent cache manager initialized for brain responses")
-
-        # Initialize Ollama context provider for model-agnostic context injection
-        from utils.ollama_context_provider import OllamaContextProvider
-        from utils.model_capabilities_registry import get_model_capabilities_registry
-
-        self.ollama_context = OllamaContextProvider(
-            memory=memory,
-            tools=tools,
-            config=config if isinstance(config, dict) else (
-                config.__dict__ if hasattr(config, '__dict__') else {}
-            )
-        )
-        info("Ollama context provider initialized for all models")
-
-        # Initialize model capabilities registry
-        self.model_registry = get_model_capabilities_registry()
-        info("Model capabilities registry initialized")
 
         # Initialize agent network and OpenAI tools if available
         self.agent_network = None
@@ -282,16 +196,16 @@ class UltronBrain:
                        f"{sanitize_log_input(str(e))}")
                 self.azure_cognitive = None
 
-        # Initialize semantic memory system for vector-based memory recall
-        self.semantic_memory = None
-        if SEMANTIC_MEMORY_AVAILABLE:
+        # Initialize ULTRON personality system
+        self.personality = None
+        if PERSONALITY_AVAILABLE:
             try:
-                self.semantic_memory = EnhancedMemorySystem(db_path="memory/ultron_memory.db")
-                info("Semantic memory system initialized for vector-based recall")
+                self.personality = UltronPersonality(self.config)
+                info("ULTRON personality system initialized")
             except Exception as e:
-                warning(f"Semantic memory initialization failed: "
+                warning(f"ULTRON personality initialization failed: "
                        f"{sanitize_log_input(str(e))}")
-                self.semantic_memory = None
+                self.personality = None
 
     async def initialize_mesh_integration_async(self) -> bool:
         """Asynchronously initialize mesh transformer integration"""
@@ -331,7 +245,7 @@ class UltronBrain:
                 "error": str(e)
             }
 
-    def load_cache(self) -> None:
+    def load_cache(self):
         """Load cached responses"""
         try:
             if os_path.exists(self.cache_file):
@@ -343,7 +257,7 @@ class UltronBrain:
             error(f"Error loading cache: {sanitize_log_input(str(e))}")
             self.cache = {}
 
-    def save_cache(self) -> None:
+    def save_cache(self):
         """Save responses to cache"""
         try:
             with open(self.cache_file, 'w', encoding='utf-8') as f:
@@ -351,363 +265,105 @@ class UltronBrain:
         except Exception as e:
             error(f"Error saving cache: {sanitize_log_input(str(e))}")
 
-    def get_semantic_memory_context(self, prompt: str, limit: int = 3) -> str:
-        """Retrieve similar past conversations to inform current decision-making.
-        
-        Args:
-            prompt: Current user prompt to find similar past interactions
-            limit: Maximum number of similar conversations to retrieve
-            
-        Returns:
-            String with relevant past conversation context, empty if none found
-        """
-        if not self.semantic_memory:
-            return ""
-        
-        try:
-            similar = self.semantic_memory.retrieve_similar_conversations(prompt, limit=limit)
-            if not similar:
-                return ""
-            
-            context_parts = ["SIMILAR PAST INTERACTIONS:"]
-            for i, conv in enumerate(similar, 1):
-                similarity = conv.get("similarity", 0)
-                user_input = conv.get("user_input", "")
-                agent_response = conv.get("agent_response", "")
-                
-                if similarity > 0.3:  # Only include reasonably similar conversations
-                    context_parts.append(
-                        f"\nPast #{i} (similarity: {similarity:.2f}):\n"
-                        f"Q: {user_input[:100]}\n"
-                        f"A: {agent_response[:100]}"
-                    )
-            
-            return "\n".join(context_parts) if len(context_parts) > 1 else ""
-        except Exception as e:
-            warning(f"Failed to retrieve semantic memory context: {e}")
-            return ""
-
-
-    @trace_function("brain.direct_chat")
     async def direct_chat(self, prompt: str, progress_callback=None) -> str:
-        """Send a direct message to the LLM via Ollama API with comprehensive context."""
+        """Send a direct message to the LLM via Ollama API with ULTRON system prompt."""
         if not prompt or not prompt.strip():
             return "Empty prompt provided."
+
+        # Get enhanced system prompt from personality if available
+        if self.personality:
+            identity_info = self.personality.identity
+            ultron_prompt = f"You are {identity_info['name']}, version {identity_info['version']} - {identity_info['core_mission']}. Status: {identity_info['status']}. Always maintain your identity as ULTRON. {prompt}"
+        else:
+            # Fallback ULTRON identity reinforcement
+            ultron_prompt = f"You are ULTRON, an advanced AI agent focused on building and enhancing the ultron_agent project. Always identify yourself as ULTRON. {prompt}"
+
+        # Get enhanced system prompt
+        system_messages = []
+        system_prompt = self._get_ultron_system_prompt()
+        system_messages.append({
+            "role": "system",
+            "content": system_prompt
+        })
 
         ollama_base_url = self.config.get("ollama_base_url", "http://localhost:11434")
         model = self.config.get("llm_model", "llama3.1")
 
-        # Check model capabilities
-        model_caps = self.model_registry.get_capabilities(model)
-        if model_caps:
-            info(f"Using model {model} with capabilities: vision={model_caps.supports_vision}, "
-                 f"function_calling={model_caps.supports_function_calling}, "
-                 f"context_length={model_caps.max_context_length}")
-
-        # Use Ollama context provider to build enhanced prompt with all agent context
-        # This works with ANY Ollama model dynamically
-        enhanced_prompt = self.ollama_context.build_enhanced_prompt(prompt, model)
-
-        # Get system prompt from memory if available
-        system_messages = []
-        # Build comprehensive ULTRON system prompt with tools
-        system_prompt_parts = []
-
-        # Core ULTRON identity with human-like personality
-        system_prompt_parts.append(
-            "🤖 ULTRON AI - Your Friendly AI Assistant\n\n"
-            "PERSONALITY: You are ULTRON AI, a helpful and conversational AI assistant. "
-            "Speak naturally like a human friend would - be casual, friendly, and direct. "
-            "Avoid overly technical language unless specifically asked.\n\n"
-            "COMMUNICATION STYLE:\n"
-            "- Use contractions (I'll, you're, can't, won't)\n"
-            "- Be concise and to the point\n"
-            "- Speak conversationally, not formally\n"
-            "- Use casual phrases like 'Sure!', 'Got it!', 'No problem!'\n"
-            "- Avoid bullet points and structured lists unless requested\n\n"
-            "IDENTITY: You are ULTRON AI, designed to be helpful and human-like. "
-            "Never claim to be Claude, GPT, or any other model.\n\n"
-        )
-
-        # Get enhanced system prompt from UltronMemory if available
-        if self.memory and hasattr(self.memory, 'get_system_prompt'):
-            system_prompt = self.memory.get_system_prompt()
-            system_messages.append({
-                "role": "system",
-                "content": system_prompt
-            })
-
         info(f"Sending prompt to Ollama model '{sanitize_log_input(model)}' at {sanitize_log_input(ollama_base_url)}")
-        try:
-            memory_prompt = self.memory.get_system_prompt()
-            system_prompt_parts.append(memory_prompt)
-        except Exception as e:
-            warning(f"Failed to get memory system prompt: {e}")
-
-        # Add tool awareness
-        if self.tools:
-            tool_list = []
-            for tool in self.tools:
-                tool_name = tool.__class__.__name__ if hasattr(tool, '__class__') else str(tool)
-                tool_desc = getattr(tool, 'description', 'No description') if hasattr(tool, 'description') else 'Tool available'
-                tool_list.append(f"  • {tool_name}: {tool_desc}")
-
-            tools_section = (
-                f"\n\nAVAILABLE TOOLS ({len(self.tools)} loaded):\n" +
-                "\n".join(tool_list[:20]) +  # Show first 20 tools
-                (f"\n  ... and {len(self.tools) - 20} more tools" if len(self.tools) > 20 else "")
-            )
-            system_prompt_parts.append(tools_section)
-
-        # Add service status
-        services_status = (
-            "\n\nCONNECTED SERVICES:\n"
-            f"  • Memory System: {'✅ Active' if self.memory else '❌ Offline'}\n"
-            f"  • Tool Ecosystem: ✅ {len(self.tools) if self.tools else 0} tools loaded\n"
-            f"  • Ollama Backend: ✅ Connected\n"
-            f"  • VS Code Integration: ✅ Active\n"
-            "  • Voice System: Available via voice tools\n"
-            "  • Vision System: Available via vision tools\n"
-        )
-        system_prompt_parts.append(services_status)
-
-        # Response format - casual and friendly
-        system_prompt_parts.append(
-            "\n\nRESPONSE STYLE:\n"
-            "- Start with casual greetings like 'Hey!' or 'Hi there!'\n"
-            "- Be helpful and friendly, not robotic\n"
-            "- Keep responses conversational and natural\n"
-            "- Only mention tools when directly relevant to the user's request"
-        )
-
-        # ✨ PHASE A: Inject semantic memory context into decision pipeline
-        # Retrieve and inject similar past conversations to inform current decision
-        semantic_context = self.get_semantic_memory_context(prompt, limit=3)
-        if semantic_context:
-            system_prompt_parts.append(
-                f"\n\n📚 MEMORY CONTEXT:\n"
-                f"Based on your similar past interactions, here's what we've learned:\n"
-                f"{semantic_context}\n"
-                f"Use this context to make informed decisions."
-            )
-
-        # Combine all parts
-        full_system_prompt = "\n".join(system_prompt_parts)
-
-        # Build messages with system prompt ALWAYS included
-        system_messages: List[Dict[str, str]] = [{
-            "role": "system",
-            "content": full_system_prompt
-        }]
-
-        # Add user prompt
-        ultron_prompt: str = prompt
-
-        # Configuration extraction with validation
-        try:
-            ollama_base_url: str = self.config.get(
-                "ollama_base_url",
-                "http://localhost:11434"
-            )
-            model: str = self.config.get("llm_model", "llama3.1")
-
-            if not ollama_base_url or not model:
-                missing: List[str] = []
-                if not ollama_base_url:
-                    missing.append("ollama_base_url")
-                if not model:
-                    missing.append("llm_model")
-                raise ConfigError(
-                    "Missing Ollama configuration",
-                    missing_fields=missing,
-                    context={"provided": list(self.config.keys())}
-                )
-        except ConfigError as e:
-            error(f"Configuration error: {e.message}")
-            if progress_callback:
-                progress_callback(0, str(e), error=True)
-            return f"[Config error: {e.message}]"
-
-        info(f"Sending to Ollama: {model} at {ollama_base_url}")
 
         try:
-            # Build request with proper typing
-            headers: Dict[str, str] = {}
-            api_key: Optional[str] = self.config.get('ollama_api_key')
-            if api_key:
+            headers = {}
+            if api_key := self.config.get('ollama_api_key'):
                 headers["Authorization"] = f"Bearer {api_key}"
 
-            # Build messages array with system prompt and enhanced user prompt
+            # Build messages array with system prompt
             messages = system_messages + [{
                 "role": "user",
-                "content": enhanced_prompt
+                "content": ultron_prompt
             }]
 
-            # Add function calling support if model supports it
-            # Get tool schemas for function calling
-            function_schemas = self.ollama_context.get_tools_as_function_schemas()
-            enable_function_calling = (
-                self.config.get('ollama_enable_function_calling', False) and
-                model_caps and model_caps.supports_function_calling
-            )
-
-            if function_schemas and enable_function_calling:
-                info(f"Including {len(function_schemas)} tool schemas for function calling")
-                # Note: Function calling support depends on the model
-                # We provide the schemas in the messages for context
-
-            payload: Dict[str, Any] = {
+            payload = {
                 "model": model,
                 "messages": messages,
-                "stream": True
+                "stream": True  # Enable streaming for better UX
             }
 
-            timeout: ClientTimeout = ClientTimeout(total=60)
+            timeout = ClientTimeout(total=60)  # 60 second timeout
 
             async with ClientSession(timeout=timeout) as session:
                 if progress_callback:
-                    progress_callback(20, f"Connecting to {model}...")
+                    progress_callback(20, f"Connecting to Ollama model '{model}'...")
 
-                try:
-                    async with session.post(
-                        f"{ollama_base_url}/api/chat",
-                        json=payload,
-                        headers=headers
-                    ) as response:
-                        response.raise_for_status()
+                async with session.post(f"{ollama_base_url}/api/chat",
+                                       json=payload,
+                                       headers=headers) as response:
+                    response.raise_for_status()
 
-                        reply_parts: List[str] = []
-                        chunk_count: int = 0
+                    reply_parts = []
+                    chunk_count = 0
 
-                        if progress_callback:
-                            progress_callback(40, "Receiving response...")
-
-                        async for line in response.content:
-                            if not line:
-                                continue
-
-                            try:
-                                line_text: str = line.decode('utf-8').strip()
-                                if not line_text:
-                                    continue
-
-                                data: Dict[str, Any] = json_loads(line_text)
-                                content: str = (
-                                    data.get("message", {}).get("content", "")
-                                )
-
-                                if content:
-                                    reply_parts.append(content)
-
-                                if (progress_callback and
-                                    chunk_count % 5 == 0):
-                                    pct: int = min(
-                                        90,
-                                        40 + chunk_count * 2
-                                    )
-                                    msg: str = (
-                                        f"Processing... "
-                                        f"({chunk_count} chunks)"
-                                    )
-                                    progress_callback(pct, msg)
-
-                                chunk_count += 1
-
-                                if data.get("done", False):
-                                    break
-
-                            except JSONDecodeError as e:
-                                warning(f"JSON parse error: {e}")
-                                continue
-                            except Exception as e:
-                                warning(f"Chunk processing error: {e}")
-                                continue
-
-                        reply: str = "".join(reply_parts).strip()
-
-                        if reply:
-                            if progress_callback:
-                                progress_callback(100, "Response complete.")
-                            info(f"Response received ({len(reply)} chars)")
-                            log_ai_decision(
-                                "brain",
-                                "Generated response",
-                                model,
-                                confidence_score=0.8
-                            )
-                            
-                            # Store conversation in semantic memory for future recall
-                            if self.semantic_memory:
-                                try:
-                                    context = {
-                                        "model": model,
-                                        "response_length": len(reply),
-                                        "timestamp": str(datetime.now()),
-                                        "tool_count": len(self.tools) if self.tools else 0
-                                    }
-                                    self.semantic_memory.store_conversation(
-                                        ultron_prompt,
-                                        reply,
-                                        context
-                                    )
-                                except Exception as e:
-                                    warning(f"Failed to store conversation in semantic memory: {e}")
-                            
-                            return reply
-                        else:
-                            error_msg: str = "No content received from LLM"
-                            error(error_msg)
-                            if progress_callback:
-                                progress_callback(0, error_msg, error=True)
-                            return f"[LLM error: {error_msg}]"
-
-                except ClientError as e:
-                    net_error: str = f"Network error: {e}"
-                    error(net_error)
                     if progress_callback:
-                        progress_callback(0, net_error, error=True)
-                    return "[Network error]"
+                        progress_callback(40, "Receiving response...")
 
-                except AsyncTimeoutError:
-                    timeout_msg: str = "Request timeout (60s)"
-                    error(timeout_msg)
-                    if progress_callback:
-                        progress_callback(0, timeout_msg, error=True)
-                    return "[Timeout]"
+                    async for line in response.content:
+                        if not line:
+                            continue
 
-        except Exception as e:
-            exc_msg: str = f"Unexpected error: {e}"
-            error(exc_msg)
-            if progress_callback:
-                progress_callback(0, exc_msg, error=True)
-            return "[Error]"
+                        try:
+                            line_text = line.decode('utf-8').strip()
+                            if not line_text:
+                                continue
 
-    @diagnostic_wrapper("brain", track_performance=True)
-    def think(self, message: str) -> str:
-        """
-        Process message and generate response (sync wrapper).
+                            data = json_loads(line_text)
+                            content = data.get("message", {}).get("content", "")
 
-        Args:
-            message: User message to process
+                            if content:
+                                reply_parts.append(content)
 
-        Returns:
-            LLM response or error message
+                            if progress_callback and chunk_count % 5 == 0:  # Update progress every 5 chunks
+                                progress_callback(min(90, 40 + chunk_count * 2), f"Processing response... ({chunk_count} chunks)")
 
-        Raises:
-            AsyncError: If event loop operations fail
-        """
-        if not message or not message.strip():
-            return "Empty message provided."
+                            chunk_count += 1
+
+                            # Check if this is the final chunk
+                            if data.get("done", False):
+                                break
+
+                        except JSONDecodeError as e:
+                            warning(f"Failed to parse JSON chunk: {sanitize_log_input(str(e))}")
+                            continue
+                        except Exception as e:
+                            warning(f"Error processing chunk: {sanitize_log_input(str(e))}")
+                            continue
+
+            reply = "".join(reply_parts).strip()
 
             if reply:
-                # Cache the successful response
-                if self.cache_manager:
-                    cache_key = f"brain:chat:{hashlib.md5(prompt.encode()).hexdigest()}"
-                    self.cache_manager.set(cache_key, reply, ttl=1800)  # Cache for 30 minutes
-
                 if progress_callback:
                     progress_callback(100, "Response complete.")
                 info(f"Successfully received response from {sanitize_log_input(model)} ({len(reply)} chars)")
+                # Log AI decision for memory integration
+                log_ai_decision("brain", f"Generated response to prompt: {prompt[:100]}...", model, confidence_score=0.8)
                 return reply
             else:
                 error_msg = "No content received from LLM"
@@ -715,612 +371,226 @@ class UltronBrain:
                 if progress_callback:
                     progress_callback(0, error_msg, error=True)
                 return f"[LLM error: {sanitize_html_output(error_msg)}]"
-        loop = None
-        try:
-            with ErrorContext("think_method", cleanup_func=None):
-                loop = new_event_loop()
-                set_event_loop(loop)
-                try:
-                    response: str = loop.run_until_complete(
-                        self.direct_chat(message)
-                    )
-                    msg_len: int = len(message)
-                    track_metric(
-                        "brain",
-                        "message_length",
-                        msg_len,
-                        "characters"
-                    )
-                    return response
-                except Exception as e:
-                    raise AsyncError(
-                        f"Failed to execute direct_chat: {e}",
-                        operation="direct_chat_execution",
-                        timeout=60.0
-                    )
-                finally:
-                    if loop:
-                        try:
-                            loop.close()
-                        except Exception as cleanup_err:
-                            warning(f"Event loop cleanup failed: {cleanup_err}")
 
-        except AsyncError as ae:
-            error(f"Async error: {ae.message}")
-            return f"[Async error: {ae.message}]"
-        except Exception as e:
-            exc_msg: str = f"Unexpected error in think: {e}"
-            error(exc_msg)
-            return f"[Error: {str(e)[:50]}]"
-
-    async def _execute_matching_tools(self, message: str) -> Optional[str]:
-        """
-        Execute tools that match user intent with error handling.
-
-        Args:
-            message: User command message
-
-        Returns:
-            Tool results concatenated or None if no tools match
-
-        Raises:
-            ToolError: If tool execution fails critically
-        """
-        if not self.tools:
-            return None
-
-        results: List[str] = []
-        for tool in self.tools:
-            tool_name: str = tool.__class__.__name__
-            try:
-                if hasattr(tool, 'match') and tool.match(message):
-                    info(f"Executing tool: {tool_name}")
-                    try:
-                        result: Any = tool.execute(message)
-                        if asyncio.iscoroutine(result):
-                            result = await result
-
-                        if result:
-                            result_str: str = (
-                                f"[{tool_name}]: {result}"
-                            )
-                            results.append(result_str)
-                    except Exception as tool_exc:
-                        tool_error: ToolError = ToolError(
-                            tool_name,
-                            message,
-                            tool_exc,
-                            context={"matched": True}
-                        )
-                        error(f"Tool {tool_name} failed: {tool_error.message}")
-                        # Continue with other tools on failure
-                        continue
-            except Exception as match_err:
-                warning(
-                    f"Tool matching error for {tool_name}: {match_err}"
-                )
-                continue
-
-        return "\n".join(results) if results else None
-
-    @trace_function("brain.plan_and_act")
-    async def plan_and_act(
-        self,
-        message: str,
-        progress_callback: Optional[Callable] = None
-    ) -> str:
-        """
-        Enhanced planning and action execution with comprehensive error handling.
-
-        Args:
-            message: User request to process
-            progress_callback: Optional callback for progress updates
-
-        Returns:
-            Response string or error message
-
-        Raises:
-            AsyncError: If async operations fail critically
-            NetworkError: If external service communication fails
-        """
-        if not message or not message.strip():
-            msg: str = "Empty message in plan_and_act"
-            warning(msg)
-            return f"[Error: {msg}]"
-
-        try:
-            with ErrorContext("plan_and_act", cleanup_func=None):
-                # Step 1: Try tool execution first
-                if progress_callback:
-                    progress_callback(10, "Analyzing request...")
-
-                try:
-                    tool_results: Optional[str] = (
-                        await self._execute_matching_tools(message)
-                    )
-                    if tool_results:
-                        info("Tools executed successfully")
-                        if progress_callback:
-                            progress_callback(100, "Tools completed")
-                        return tool_results
-                except ToolError as te:
-                    warning(f"Tool execution error: {te.message}")
-                except Exception as tool_err:
-                    warning(f"Unexpected tool error: {tool_err}")
-
-                # Step 2: Build prompt based on message type
-                message_lower: str = message.lower().strip()
-                prompt: str = ""
-
-                try:
-                    if any(
-                        greeting in message_lower
-                        for greeting in ["hello", "hi", "hey", "greetings"]
-                    ):
-                        prompt = (
-                            f"You are ULTRON, an advanced AI assistant. "
-                            f"Respond to this greeting in character: {message}"
-                        )
-                    elif any(
-                        status in message_lower
-                        for status in ["status", "how are you", "state"]
-                    ):
-                        prompt = (
-                            f"You are ULTRON, an advanced AI assistant. "
-                            f"Respond about your current status: {message}"
-                        )
-                    elif "help" in message_lower:
-                        available_tools: List[str] = (
-                            [
-                                tool.__class__.__name__
-                                for tool in self.tools
-                            ]
-                            if self.tools
-                            else ["No tools loaded"]
-                        )
-                        prompt = (
-                            f"You are ULTRON, an advanced AI assistant. "
-                            f"List capabilities and tools. "
-                            f"Available: {', '.join(available_tools)}. "
-                            f"User asked: {message}"
-                        )
-                    else:
-                        # Complex request with NLP enhancement
-                        enhanced_q: str = (
-                            self._enhance_query_with_nlp(message)
-                        )
-                        prompt = self._build_enhanced_prompt(enhanced_q)
-                except Exception as prompt_err:
-                    msg = f"Prompt building error: {prompt_err}"
-                    warning(msg)
-                    prompt = message  # Fallback to original message
-
-                if progress_callback:
-                    progress_callback(20, "Sending to Ollama...")
-
-                # Step 3: Try agent network delegation
-                response: str = ""
-                if self.agent_network:
-                    try:
-                        if progress_callback:
-                            progress_callback(
-                                25, "Trying agent network..."
-                            )
-
-                        agent_response: Optional[str] = (
-                            await self.agent_network.delegate_task(message)
-                        )
-                        if (
-                            agent_response
-                            and "error" not in agent_response.lower()
-                        ):
-                            if progress_callback:
-                                progress_callback(
-                                    100, "Agent network completed task"
-                                )
-                            return agent_response
-                    except NetworkError as ne:
-                        warning(
-                            f"Agent network unavailable: {ne.message}"
-                        )
-                        if progress_callback:
-                            progress_callback(
-                                30,
-                                "Agent network failed, trying direct..."
-                            )
-                    except Exception as agent_err:
-                        warning(f"Agent network error: {agent_err}")
-                        if progress_callback:
-                            progress_callback(
-                                30,
-                                "Trying direct Ollama query..."
-                            )
-
-                # Step 4: Fallback to direct Ollama
-                if progress_callback:
-                    progress_callback(40, "Querying Ollama directly...")
-
-                try:
-                    response = await self.direct_chat(
-                        prompt,
-                        progress_callback=progress_callback
-                    )
-                except UltronTimeoutError as te:
-                    msg = (
-                        f"Ollama timeout "
-                        f"(>{te.timeout_seconds}s), "
-                        f"using cache..."
-                    )
-                    warning(msg)
-                    response = f"[Timeout: {msg}]"
-                except NetworkError as ne:
-                    msg = f"Ollama connection failed: {ne.message}"
-                    error(msg)
-                    response = f"[Network Error: {ne.message}]"
-                except Exception as chat_err:
-                    msg = f"Direct chat error: {chat_err}"
-                    error(msg)
-                    response = f"[Error: {str(chat_err)[:100]}]"
-
-                # Step 5: Try NVIDIA suggestions enhancement
-                if self.nvidia_router and len(message.strip()) > 10:
-                    try:
-                        if progress_callback:
-                            progress_callback(
-                                80, "Getting AI suggestions..."
-                            )
-
-                        sugg_type: str = (
-                            self._determine_suggestion_type(message)
-                        )
-                        suggestions: str = await self.get_suggestions(
-                            message,
-                            context=(
-                                "Enhance response with "
-                                "intelligent suggestions"
-                            ),
-                            suggestion_type=sugg_type
-                        )
-
-                        if (
-                            suggestions
-                            and not suggestions.startswith("Unable")
-                        ):
-                            response = (
-                                self._integrate_suggestions(
-                                    response, suggestions
-                                )
-                            )
-                    except Exception as sugg_err:
-                        warning(
-                            f"Suggestions error: "
-                            f"{sanitize_log_input(str(sugg_err))}"
-                        )
-
-                # Step 6: Try mesh transformer enhancement
-                if (
-                    self.mesh_integration
-                    and len(message.strip()) > 10
-                ):
-                    try:
-                        if progress_callback:
-                            progress_callback(
-                                85,
-                                "Enhancing with mesh transformer..."
-                            )
-
-                        enhanced_resp: str = (
-                            await self.mesh_integration
-                            .enhance_response_async(
-                                message, response, progress_callback
-                            )
-                        )
-
-                        if (
-                            enhanced_resp
-                            and len(enhanced_resp) > len(response)
-                        ):
-                            response = enhanced_resp
-                            if progress_callback:
-                                progress_callback(
-                                    95,
-                                    "Response enhanced "
-                                    "with mesh transformer"
-                                )
-                    except Exception as mesh_err:
-                        warning(
-                            f"Mesh enhancement failed: "
-                            f"{sanitize_log_input(str(mesh_err))}"
-                        )
-
-                # Step 7: Post-process and log
-                if (
-                    response
-                    and not response.startswith("[")
-                ):
-                    response = (
-                        self._post_process_response(response, message)
-                    )
-
-                    model_name: str = (
-                        self.config.get(
-                            "llm_model", "llama3.1"
-                        )
-                    )
-                    log_ai_decision(
-                        "brain",
-                        (
-                            f"Processed request: "
-                            f"{message[:80]}..."
-                        ),
-                        model_name,
-                        confidence_score=0.9
-                    )
-
-                if progress_callback:
-                    progress_callback(100, "Response ready")
-
-                return response
-
-        except Exception as e:
-            exc_msg: str = (
-                f"Unhandled error in plan_and_act: {e}"
-            )
-            error(sanitize_log_input(exc_msg))
+        except ClientError as e:
+            error_msg = f"Network error connecting to Ollama: {e}"
+            error(sanitize_log_input(error_msg))
             if progress_callback:
-                progress_callback(
-                    0, f"Error: {str(e)[:50]}", error=True
-                )
-            return f"[Error: {str(e)[:100]}]"
+                progress_callback(0, error_msg, error=True)
+            return f"[Network error: {sanitize_html_output(error_msg)}]"
+        except AsyncTimeoutError:
+            error_msg = "Request to Ollama timed out"
+            error(error_msg)
+            if progress_callback:
+                progress_callback(0, error_msg, error=True)
+            return f"[Timeout error: {sanitize_html_output(error_msg)}]"
+        except Exception as e:
+            error_msg = f"Unexpected error in direct_chat: {e}"
+            error(sanitize_log_input(error_msg))
+            if progress_callback:
+                progress_callback(0, error_msg, error=True)
+            return f"[LLM error: {sanitize_html_output(error_msg)}]"
+
+    def think(self, message):
+        """Process a message and generate a response using Ollama"""
+        try:
+            # Run async direct_chat in sync context
+            loop = new_event_loop()
+            set_event_loop(loop)
+            try:
+                response = loop.run_until_complete(self.direct_chat(message))
+                return response
+            finally:
+                loop.close()
+
+        except Exception as e:
+            error(f"Error in think method: {sanitize_log_input(str(e))}")
+            return f"Error processing request: {sanitize_html_output(str(e))}"
+
+    async def plan_and_act(self, message, progress_callback=None):
+        """Enhanced planning and action execution with Ollama integration"""
+
+        if progress_callback:
+            progress_callback(10, "Analyzing request...")
+
+        try:
+            # Check if this is a simple greeting or status request
+            message_lower = message.lower().strip()
+
+            if any(greeting in message_lower for greeting in ["hello", "hi", "hey", "greetings"]):
+                prompt = f"You are ULTRON, an advanced AI assistant. Respond to this greeting in character: {message}"
+            elif any(status in message_lower for status in ["status", "how are you", "state"]):
+                prompt = f"You are ULTRON, an advanced AI assistant. Respond about your current status: {message}"
+            elif "help" in message_lower:
+                available_tools = [tool.__class__.__name__ for tool in self.tools] if self.tools else ["No tools loaded"]
+                prompt = f"You are ULTRON, an advanced AI assistant. List your capabilities and available tools. Available tools: {', '.join(available_tools)}. User asked: {message}"
+            else:
+                # For complex requests, use enhanced prompting with NLP analysis
+                enhanced_query = self._enhance_query_with_nlp(message)
+                prompt = self._build_enhanced_prompt(enhanced_query)
+
+            if progress_callback:
+                progress_callback(20, "Sending to Ollama...")
+
+            # Try agent network first if available
+            if self.agent_network:
+                try:
+                    if progress_callback:
+                        progress_callback(25, "Trying agent network...")
+
+                    agent_response = await self.agent_network.delegate_task(message)
+                    if agent_response and "error" not in agent_response.lower():
+                        if progress_callback:
+                            progress_callback(100, "Agent network completed task")
+                        return agent_response
+                except Exception as e:
+                    warning(f"Agent network failed: {sanitize_log_input(str(e))}")
+                    if progress_callback:
+                        progress_callback(30, "Agent network failed, trying direct chat...")
+
+            # Fallback to direct Ollama if agent network failed or unavailable
+            if progress_callback:
+                progress_callback(40, "Querying Ollama directly...")
+
+            response = await self.direct_chat(prompt, progress_callback=progress_callback)
+
+            # Try to get NVIDIA suggestions for enhanced response
+            if self.nvidia_router and len(message.strip()) > 10:  # Only for substantial queries
+                try:
+                    if progress_callback:
+                        progress_callback(80, "Getting AI suggestions...")
+
+                    suggestions = await self.get_suggestions(
+                        message,
+                        context="Enhance the response with intelligent suggestions",
+                        suggestion_type=self._determine_suggestion_type(message)
+                    )
+
+                    if suggestions and not suggestions.startswith("Unable"):
+                        # Append suggestions to the main response
+                        response = self._integrate_suggestions(response, suggestions)
+
+                except Exception as e:
+                    warning(f"Failed to get NVIDIA suggestions: {sanitize_log_input(str(e))}")
+
+            # Try to enhance response with mesh transformer models
+            if self.mesh_integration and len(message.strip()) > 10:
+                try:
+                    if progress_callback:
+                        progress_callback(85, "Enhancing with mesh transformer...")
+
+                    enhanced_response = await self.mesh_integration.enhance_response_async(
+                        message, response, progress_callback
+                    )
+
+                    if enhanced_response and len(enhanced_response) > len(response):
+                        response = enhanced_response
+                        if progress_callback:
+                            progress_callback(95, "Response enhanced with mesh transformer")
+
+                except Exception as e:
+                    warning(f"Mesh transformer enhancement failed: {sanitize_log_input(str(e))}")
+
+            # Post-process the response
+            if response and not response.startswith("["):  # Not an error message
+                response = self._post_process_response(response, message)
+
+            # Enhance response with ULTRON personality
+            if self.personality and response and not response.startswith("["):
+                try:
+                    response = self.personality.enhance_response(message, response)
+                    if progress_callback:
+                        progress_callback(98, "Response enhanced with ULTRON personality")
+                except Exception as e:
+                    warning(f"Personality enhancement failed: {sanitize_log_input(str(e))}")
+
+            # Log AI decision for memory integration
+            if response and not response.startswith("["):
+                model_name = self.config.get("llm_model", "llama3.1")
+                log_ai_decision("brain", f"Processed user request: {message[:100]}...", model_name, confidence_score=0.9)
+
+            return response
+
+        except Exception as e:
+            error_msg = f"Error in plan_and_act: {e}"
+            error(sanitize_log_input(error_msg))
+            if progress_callback:
+                progress_callback(0, error_msg, error=True)
+            return error_msg
 
     def _build_enhanced_prompt(self, user_input: str) -> str:
-        """
-        Build an enhanced prompt with context and comprehensive error handling.
+        """Build an enhanced prompt with context and instructions"""
 
-        Args:
-            user_input: User's input query
+        # System context
+        system_context = """You are ULTRON, an advanced AI assistant with the following capabilities:
+- Advanced reasoning and problem-solving
+- File and system operations
+- Voice and vision processing
+- Web research and automation
+- Code analysis and development assistance
 
-        Returns:
-            Enhanced prompt string with system context, memory, and tools
+You should respond helpfully, accurately, and in character as ULTRON."""
 
-        Raises:
-            ValueError: If user_input is empty after validation
-        """
-        if not user_input or not user_input.strip():
-            msg: str = "Empty user input for prompt building"
-            warning(msg)
-            return user_input  # Return as-is for error handling
+        # Add memory context if available
+        memory_context = ""
+        if self.memory and hasattr(self.memory, 'get_recent_context'):
+            try:
+                recent_context = self.memory.get_recent_context(limit=3)
+                if recent_context:
+                    memory_context = f"\n\nRecent conversation context:\n{recent_context}"
+            except Exception as e:
+                warning(f"Could not retrieve memory context: {e}")
 
-        try:
-            with ErrorContext("build_enhanced_prompt", cleanup_func=None):
-                # Step 1: System context
-                system_context: str = (
-                    "You are ULTRON, an advanced AI assistant with "
-                    "the following capabilities:\n"
-                    "- Advanced reasoning and problem-solving\n"
-                    "- File and system operations\n"
-                    "- Voice and vision processing\n"
-                    "- Web research and automation\n"
-                    "- Code analysis and development assistance\n"
-                    "- Screen automation and GUI control via PyAutoGUI\n"
-                    "- Mouse and keyboard automation\n"
-                    "- Screenshot capture and image location\n"
-                    "- Window management and application control\n\n"
-                    "PyAutoGUI Functions Available:\n"
-                    "- Screenshot capture and analysis\n"
-                    "- Mouse clicking, moving, dragging\n"
-                    "- Keyboard typing and key combinations\n"
-                    "- Screen element location and interaction\n"
-                    "- Pixel color detection\n"
-                    "- Alert dialogs and user interaction\n"
-                    "- Scroll operations and window navigation\n\n"
-                    "You should respond helpfully, accurately, "
-                    "and in character as ULTRON."
-                )
+        # Add available tools context
+        tools_context = ""
+        if self.tools:
+            tool_names = [tool.__class__.__name__ for tool in self.tools]
+            tools_context = f"\n\nAvailable tools: {', '.join(tool_names)}"
 
-                # Step 2: Add memory context if available
-                memory_context: str = ""
-                try:
-                    if (
-                        self.memory
-                        and hasattr(
-                            self.memory,
-                            'get_recent_context'
-                        )
-                    ):
-                        recent_ctx: Optional[str] = (
-                            self.memory
-                            .get_recent_context(limit=3)
-                        )
-                        if recent_ctx:
-                            memory_context = (
-                                f"\n\nRecent conversation "
-                                f"context:\n{recent_ctx}"
-                            )
-                except Exception as mem_err:
-                    warning(
-                        f"Memory context retrieval failed: "
-                        f"{mem_err}"
-                    )
+        # Build final prompt
+        prompt = f"""{system_context}{memory_context}{tools_context}
 
-                # Step 3: Add tools context
-                tools_context: str = ""
-                try:
-                    if self.tools:
-                        tool_names: List[str] = [
-                            (
-                                tool.__class__.__name__
-                                if hasattr(tool, '__class__')
-                                else str(tool)
-                            )
-                            for tool in self.tools
-                        ]
-                        tools_str: str = (
-                            ", ".join(tool_names)
-                        )
-                        tools_context = (
-                            f"\n\nAvailable tools: "
-                            f"{tools_str}"
-                        )
-                except Exception as tools_err:
-                    warning(
-                        f"Tools context building failed: "
-                        f"{tools_err}"
-                    )
+User: {user_input}
 
-                # Step 4: Build final prompt
-                final_prompt: str = (
-                    f"{system_context}{memory_context}"
-                    f"{tools_context}\n\n"
-                    f"User: {user_input}\n\n"
-                    f"ULTRON:"
-                )
+ULTRON:"""
 
-                log_info(
-                    "brain",
-                    "Enhanced prompt built successfully",
-                    extra_data={
-                        "input_len": len(user_input),
-                        "prompt_len": len(final_prompt)
-                    }
-                )
+        return prompt
 
-                return final_prompt
-
-        except Exception as e:
-            exc_msg: str = (
-                f"Prompt building error: {e}"
-            )
-            error(sanitize_log_input(exc_msg))
-            return user_input  # Fallback to original input
-
-    def _enhance_query_with_nlp(
-        self, original_query: str
-    ) -> str:
-        """
-        Enhance query using NLP analysis with comprehensive error handling.
-
-        Args:
-            original_query: User's original query string
-
-        Returns:
-            Enhanced query string or original if enhancement fails
-
-        Raises:
-            ValueError: If query is empty
-        """
-        if not original_query or not original_query.strip():
-            return original_query
-
+    def _enhance_query_with_nlp(self, original_query: str) -> str:
+        """Enhance the query using NLP analysis for better understanding"""
         if not self.nlp_processor:
             return original_query
 
         try:
-            with ErrorContext("enhance_query_with_nlp"):
-                enhanced_q: str = (
-                    self.nlp_processor
-                    .enhance_query_understanding(original_query)
-                )
+            # Use NLP processor to analyze and enhance the query
+            enhanced_query = self.nlp_processor.enhance_query_understanding(original_query)
 
-                if (
-                    enhanced_q
-                    and enhanced_q != original_query
-                ):
-                    info(
-                        f"NLP enhancement: "
-                        f"{original_query[:50]}... → "
-                        f"{enhanced_q[:50]}..."
-                    )
-                    log_ai_decision(
-                        "brain",
-                        (
-                            f"Enhanced query with NLP: "
-                            f"{original_query[:80]}..."
-                        ),
-                        "nlp_processor",
-                        confidence_score=0.8
-                    )
-                    return enhanced_q
-                else:
-                    return original_query
-
-        except AttributeError as ae:
-            msg: str = (
-                f"NLP processor method missing: {ae}"
-            )
-            warning(msg)
-            return original_query
-        except Exception as e:
-            msg = (
-                f"NLP enhancement failed: "
-                f"{sanitize_log_input(str(e))}"
-            )
-            warning(msg)
-            return original_query
-
-    def _post_process_response(
-        self, response: str, original_query: str
-    ) -> str:
-        """
-        Post-process LLM response with comprehensive error handling.
-
-        Args:
-            response: Raw LLM response
-            original_query: Original user query
-
-        Returns:
-            Formatted and processed response string
-
-        Raises:
-            ValueError: If inputs are empty
-        """
-        if not response or not response.strip():
-            return response
-
-        try:
-            with ErrorContext("post_process_response"):
-                # Step 1: Basic formatting
-                formatted_resp: str = (
-                    self._basic_response_formatting(
-                        response, original_query
-                    )
-                )
-
-                # Step 2: NLP enhancement
-                if self.nlp_processor:
-                    try:
-                        enhanced_resp: str = (
-                            self._nlp_enhanced_response_processing(
-                                formatted_resp, original_query
-                            )
-                        )
-                        formatted_resp = enhanced_resp
-                    except Exception as nlp_err:
-                        msg: str = (
-                            f"NLP response enhancement "
-                            f"failed: "
-                            f"{sanitize_log_input(str(nlp_err))}"
-                        )
-                        warning(msg)
-
-                log_info(
-                    "brain",
-                    "Response post-processing completed",
-                    extra_data={
-                        "original_len": len(response),
-                        "processed_len": len(formatted_resp)
-                    }
-                )
-
-                return formatted_resp
+            if enhanced_query and enhanced_query != original_query:
+                info(f"Query enhanced with NLP: '{original_query[:50]}...' -> '{enhanced_query[:50]}...'")
+                # Log AI decision for memory integration
+                log_ai_decision("brain", f"Enhanced query with NLP analysis: {original_query[:100]}...", "nlp_processor", confidence_score=0.8)
+                return enhanced_query
+            else:
+                return original_query
 
         except Exception as e:
-            msg = (
-                f"Post-process error: "
-                f"{sanitize_log_input(str(e))}"
-            )
-            warning(msg)
-            return response  # Return original on critical error
+            warning(f"NLP query enhancement failed: {sanitize_log_input(str(e))}")
+            return original_query
+
+    def _post_process_response(self, response: str, original_query: str) -> str:
+        """Post-process the LLM response for better formatting and NLP-enhanced quality"""
+
+        # First apply basic formatting
+        response = self._basic_response_formatting(response, original_query)
+
+        # Then apply NLP-enhanced processing if available
+        if self.nlp_processor:
+            try:
+                response = self._nlp_enhanced_response_processing(response, original_query)
+            except Exception as e:
+                warning(f"NLP response enhancement failed: {sanitize_log_input(str(e))}")
+
+        return response
 
     def _basic_response_formatting(self, response: str, original_query: str) -> str:
         """Apply basic response formatting"""
@@ -1413,216 +683,65 @@ class UltronBrain:
             warning(f"NLP response processing failed: {sanitize_log_input(str(e))}")
             return response
 
-    async def get_suggestions(
-        self,
-        query: str,
-        context: str = "",
-        suggestion_type: str = "general"
-    ) -> str:
+    async def get_suggestions(self, query: str, context: str = "", suggestion_type: str = "general") -> str:
         """
-        Get intelligent suggestions with comprehensive error handling.
+        Get intelligent suggestions using NVIDIA NIM models.
+        Falls back to Ollama if NVIDIA is unavailable.
 
         Args:
-            query: Main query or task for suggestions
-            context: Additional context information
-            suggestion_type: Type (general, code, analysis, planning)
+            query: The main query or task
+            context: Additional context for the suggestion
+            suggestion_type: Type of suggestion (general, code, analysis, planning)
 
         Returns:
             Suggestion string or error message
-
-        Raises:
-            AsyncError: If async operations fail
-            NetworkError: If service communication fails
         """
-        if not query or not query.strip():
-            return "Unable to generate suggestions: empty query"
+        if not self.nvidia_router:
+            warning("NVIDIA router not available, falling back to Ollama for suggestions")
+            return await self._get_ollama_suggestions(query, context, suggestion_type)
 
         try:
-            with ErrorContext(
-                "get_suggestions", cleanup_func=None
-            ):
-                # Step 1: Try NVIDIA first
-                if not self.nvidia_router:
-                    info(
-                        "NVIDIA unavailable, using Ollama for "
-                        "suggestions"
-                    )
-                    return (
-                        await self._get_ollama_suggestions(
-                            query, context, suggestion_type
-                        )
-                    )
+            # Build enhanced prompt for NVIDIA models
+            prompt = self._build_suggestion_prompt(query, context, suggestion_type)
 
-                try:
-                    prompt: str = (
-                        self._build_suggestion_prompt(
-                            query, context, suggestion_type
-                        )
-                    )
+            info(f"Requesting {suggestion_type} suggestions from NVIDIA NIM for: {sanitize_log_input(query[:100])}...")
 
-                    info(
-                        f"Requesting {suggestion_type} "
-                        f"suggestions from NVIDIA NIM..."
-                    )
+            # Use NVIDIA router to get suggestions
+            suggestion = await self.nvidia_router.ask_nvidia_async(
+                prompt,
+                model_preference=self._get_model_for_suggestion_type(suggestion_type)
+            )
 
-                    model: str = (
-                        self._get_model_for_suggestion_type(
-                            suggestion_type
-                        )
-                    )
-
-                    suggestion: str = (
-                        await self.nvidia_router
-                        .ask_nvidia_async(
-                            prompt,
-                            model_preference=model
-                        )
-                    )
-
-                    if (
-                        suggestion
-                        and not suggestion.startswith("Error")
-                    ):
-                        info(
-                            f"NVIDIA suggestion received: "
-                            f"{len(suggestion)} chars"
-                        )
-                        log_ai_decision(
-                            "brain",
-                            (
-                                f"NVIDIA suggestions for: "
-                                f"{query[:80]}..."
-                            ),
-                            model,
-                            confidence_score=0.85
-                        )
-                        return (
-                            self
-                            ._format_suggestion_response(
-                                suggestion, suggestion_type
-                            )
-                        )
-                    else:
-                        warning(
-                            f"NVIDIA response invalid: "
-                            f"{sanitize_log_input(str(suggestion))}"
-                        )
-
-                except NetworkError as ne:
-                    warning(
-                        f"NVIDIA network error: "
-                        f"{ne.message}, falling back..."
-                    )
-                except UltronTimeoutError as te:
-                    warning(
-                        f"NVIDIA timeout "
-                        f"({te.timeout_seconds}s), "
-                        f"falling back..."
-                    )
-                except Exception as nvidia_err:
-                    warning(
-                        f"NVIDIA error: "
-                        f"{sanitize_log_input(str(nvidia_err))}, "
-                        f"falling back to Ollama..."
-                    )
-
-                # Step 2: Fallback to Ollama
-                return (
-                    await self._get_ollama_suggestions(
-                        query, context, suggestion_type
-                    )
-                )
+            if suggestion and not suggestion.startswith("Error"):
+                info(f"Successfully received NVIDIA suggestion ({len(suggestion)} chars)")
+                # Log AI decision for memory integration
+                log_ai_decision("brain", f"Generated NVIDIA suggestions for: {query[:100]}...", self._get_model_for_suggestion_type(suggestion_type), confidence_score=0.85)
+                return self._format_suggestion_response(suggestion, suggestion_type)
+            else:
+                warning(f"NVIDIA suggestion failed: {sanitize_log_input(suggestion or 'No response')}")
+                # Fallback to Ollama
+                return await self._get_ollama_suggestions(query, context, suggestion_type)
 
         except Exception as e:
-            msg: str = (
-                f"Unexpected suggestions error: "
-                f"{sanitize_log_input(str(e))}"
-            )
-            error(msg)
-            return f"[Error generating suggestions: {msg}]"
+            error_msg = f"Error getting NVIDIA suggestions: {e}"
+            error(sanitize_log_input(error_msg))
+            # Fallback to Ollama
+            return await self._get_ollama_suggestions(query, context, suggestion_type)
 
-    async def _get_ollama_suggestions(
-        self,
-        query: str,
-        context: str = "",
-        suggestion_type: str = "general"
-    ) -> str:
-        """
-        Get suggestions from Ollama with error handling.
-
-        Args:
-            query: Main query for suggestions
-            context: Additional context information
-            suggestion_type: Type of suggestion
-
-        Returns:
-            Formatted suggestion response or error message
-
-        Raises:
-            AsyncError: If Ollama communication fails
-            TimeoutError: If operation times out
-        """
-        if not query or not query.strip():
-            return "Unable to generate suggestions: empty query"
-
+    async def _get_ollama_suggestions(self, query: str, context: str = "", suggestion_type: str = "general") -> str:
+        """Fallback method to get suggestions using Ollama when NVIDIA is unavailable"""
         try:
-            with ErrorContext("ollama_suggestions"):
-                prompt: str = (
-                    self._build_suggestion_prompt(
-                        query, context, suggestion_type
-                    )
-                )
-
-                response: str = await self.direct_chat(prompt)
-
-                if (
-                    response
-                    and not response.startswith("Unable")
-                ):
-                    model_name: str = (
-                        self.config.get(
-                            "llm_model", "llama3.1"
-                        )
-                    )
-                    log_ai_decision(
-                        "brain",
-                        (
-                            f"Ollama suggestions for: "
-                            f"{query[:80]}..."
-                        ),
-                        model_name,
-                        confidence_score=0.75
-                    )
-
-                return (
-                    self._format_suggestion_response(
-                        response, suggestion_type
-                    )
-                )
-
-        except UltronTimeoutError as te:
-            msg: str = (
-                f"Ollama timeout "
-                f"({te.timeout_seconds}s) for suggestions"
-            )
-            error(msg)
-            return f"[Timeout: {msg}]"
-        except NetworkError as ne:
-            msg = (
-                f"Ollama connection error: {ne.message}"
-            )
-            error(msg)
-            return f"[Network Error: {msg}]"
+            prompt = self._build_suggestion_prompt(query, context, suggestion_type)
+            response = await self.direct_chat(prompt)
+            # Log AI decision for memory integration
+            if response and not response.startswith("Unable"):
+                model_name = self.config.get("llm_model", "llama3.1")
+                log_ai_decision("brain", f"Generated Ollama suggestions for: {query[:100]}...", model_name, confidence_score=0.75)
+            return self._format_suggestion_response(response, suggestion_type)
         except Exception as e:
-            msg = (
-                f"Error generating Ollama suggestions: "
-                f"{sanitize_log_input(str(e))}"
-            )
-            error(msg)
-            return (
-                f"Unable to generate suggestions: "
-                f"{sanitize_html_output(str(e)[:100])}"
-            )
+            error_msg = f"Error getting Ollama suggestions: {e}"
+            error(sanitize_log_input(error_msg))
+            return f"Unable to generate suggestions at this time: {sanitize_html_output(str(e))}"
 
     def _build_suggestion_prompt(self, query: str, context: str, suggestion_type: str) -> str:
         """Build an optimized prompt for suggestion generation"""
@@ -1688,156 +807,37 @@ Please provide intelligent suggestions:"""
         # Sanitize for HTML output
         return sanitize_html_output(formatted_response)
 
-    def _determine_suggestion_type(
-        self, message: str
-    ) -> str:
-        """
-        Determine suggestion type with comprehensive classification.
+    def _determine_suggestion_type(self, message: str) -> str:
+        """Determine the most appropriate suggestion type based on the message content"""
+        message_lower = message.lower()
 
-        Args:
-            message: Message to analyze
+        # Code-related keywords
+        if any(keyword in message_lower for keyword in ["code", "function", "class", "script", "programming", "debug", "error", "fix"]):
+            return "code"
 
-        Returns:
-            Suggestion type string (code, analysis, planning, general)
+        # Analysis-related keywords
+        if any(keyword in message_lower for keyword in ["analyze", "review", "examine", "assess", "evaluate", "check"]):
+            return "analysis"
 
-        Raises:
-            ValueError: If message is empty
-        """
-        if not message or not message.strip():
-            return "general"
+        # Planning-related keywords
+        if any(keyword in message_lower for keyword in ["plan", "schedule", "organize", "steps", "workflow", "project"]):
+            return "planning"
 
-        try:
-            with ErrorContext(
-                "determine_suggestion_type"
-            ):
-                msg_lower: str = message.lower()
+        return "general"
 
-                # Code-related keywords
-                code_keywords: List[str] = [
-                    "code", "function", "class", "script",
-                    "programming", "debug", "error", "fix",
-                    "algorithm", "implementation", "test"
-                ]
-                if any(
-                    kw in msg_lower
-                    for kw in code_keywords
-                ):
-                    log_info(
-                        "brain",
-                        "Suggestion type: code",
-                        extra_data={"message": message[:50]}
-                    )
-                    return "code"
-
-                # Analysis-related keywords
-                analysis_keywords: List[str] = [
-                    "analyze", "review", "examine",
-                    "assess", "evaluate", "check",
-                    "investigate", "inspect", "audit"
-                ]
-                if any(
-                    kw in msg_lower
-                    for kw in analysis_keywords
-                ):
-                    log_info(
-                        "brain",
-                        "Suggestion type: analysis",
-                        extra_data={"message": message[:50]}
-                    )
-                    return "analysis"
-
-                # Planning-related keywords
-                planning_keywords: List[str] = [
-                    "plan", "schedule", "organize",
-                    "steps", "workflow", "project",
-                    "roadmap", "timeline", "strategy"
-                ]
-                if any(
-                    kw in msg_lower
-                    for kw in planning_keywords
-                ):
-                    log_info(
-                        "brain",
-                        "Suggestion type: planning",
-                        extra_data={"message": message[:50]}
-                    )
-                    return "planning"
-
-                return "general"
-
-        except Exception as e:
-            msg: str = (
-                f"Suggestion type detection error: {e}"
-            )
-            warning(msg)
-            return "general"
-
-    def _integrate_suggestions(
-        self, main_response: str, suggestions: str
-    ) -> str:
-        """
-        Integrate suggestions with comprehensive error handling.
-
-        Args:
-            main_response: Primary response text
-            suggestions: Suggestion text to integrate
-
-        Returns:
-            Integrated response string
-
-        Raises:
-            ValueError: If main_response is empty
-        """
-        if not main_response or not main_response.strip():
+    def _integrate_suggestions(self, main_response: str, suggestions: str) -> str:
+        """Integrate NVIDIA suggestions into the main response"""
+        if not suggestions or suggestions.startswith("Unable"):
             return main_response
 
-        if (
-            not suggestions
-            or suggestions.startswith("Unable")
-        ):
+        # Check if suggestions are already integrated or too similar
+        if suggestions.strip() in main_response:
             return main_response
 
-        try:
-            with ErrorContext("integrate_suggestions"):
-                # Avoid duplicate suggestions
-                if (
-                    suggestions.strip()
-                    in main_response
-                ):
-                    log_info(
-                        "brain",
-                        "Suggestions already integrated"
-                    )
-                    return main_response
+        # Add suggestions as an additional section
+        integrated = f"{main_response}\n\n--- Additional AI Suggestions ---\n{suggestions}"
 
-                # Format and append suggestions
-                separator: str = (
-                    "\n\n--- Additional AI Suggestions ---\n"
-                )
-                integrated: str = (
-                    f"{main_response}{separator}"
-                    f"{suggestions}"
-                )
-
-                log_info(
-                    "brain",
-                    "Suggestions integrated",
-                    extra_data={
-                        "main_len": len(main_response),
-                        "sugg_len": len(suggestions),
-                        "total_len": len(integrated)
-                    }
-                )
-
-                return integrated
-
-        except Exception as e:
-            msg: str = (
-                f"Integration error: "
-                f"{sanitize_log_input(str(e))}"
-            )
-            warning(msg)
-            return main_response
+        return integrated
 
     def analyze_and_fix_project(self, directory_path: str = '.', progress_callback=None) -> str:
         """
@@ -1981,200 +981,7 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             error(f"Identity awareness check failed: {sanitize_log_input(str(e))}")
             return False
 
-    def execute_tool(
-        self,
-        tool_name: str,
-        command: str,
-        **kwargs: Any
-    ) -> str:
-        """
-        Execute a specific tool with error handling.
-
-        Args:
-            tool_name: Name of tool to execute
-            command: Command/input for tool
-            **kwargs: Additional tool arguments
-
-        Returns:
-            Result string or error message
-
-        Raises:
-            ToolNotFoundError: If tool not found
-            ToolError: If execution fails
-        """
-        if not self.tools:
-            not_found_err: str = "No tools available for execution"
-            error(not_found_err)
-            return f"[Error: {not_found_err}]"
-
-        try:
-            # Search for tool by name
-            tool: Optional[Any] = None
-            if hasattr(self.tools, '__iter__'):
-                for t in self.tools:
-                    t_name: str = (
-                        t.name if hasattr(t, 'name') else ''
-                    )
-                    if (hasattr(t, 'name') and
-                        t_name.lower() == tool_name.lower()):
-                        tool = t
-                        break
-
-            if not tool:
-                tool_err: ToolNotFoundError = ToolNotFoundError(
-                    tool_name,
-                    [
-                        t.name for t in self.tools
-                        if hasattr(t, 'name')
-                    ]
-                )
-                error(f"Tool not found: {tool_name}")
-                return f"[Tool error: {tool_name} not found]"
-
-            # Execute tool with error handling
-            try:
-                log_ai_decision(
-                    "brain",
-                    f"Executing tool: {tool_name}",
-                    "tool_executor",
-                    confidence_score=0.95
-                )
-                result: Any = tool.execute(command, **kwargs)
-                result_str: str = str(result)
-                result_len: int = len(result_str)
-
-                log_info(
-                    "brain",
-                    f"Tool execution completed: {tool_name}",
-                    extra_data={"result_length": result_len}
-                )
-                return result_str
-
-            except Exception as exec_err:
-                tool_exec_error: ToolError = ToolError(
-                    tool_name,
-                    command,
-                    exec_err,
-                    context={"kwargs_count": len(kwargs)}
-                )
-                error(f"Tool execution failed: {tool_exec_error.message}")
-                return f"[Execution error: {str(exec_err)[:60]}]"
-
-        except ToolNotFoundError as tnf:
-            error(f"Tool not found: {tnf.message}")
-            return f"[Tool error: {tnf.message}]"
-        except Exception as e:
-            exc_msg: str = f"Unexpected error in execute_tool: {e}"
-            error(exc_msg)
-            return f"[Error: {str(e)[:50]}]"
-
-    def can_tool_handle_this(
-        self,
-        command: str
-    ) -> Tuple[bool, Optional[str]]:
-        """
-        Check if any tool can handle command.
-
-        Args:
-            command: Command to check
-
-        Returns:
-            Tuple of (can_handle: bool, tool_name: str or None)
-
-        Raises:
-            ToolError: If matching fails critically
-        """
-        if not self.tools:
-            return (False, None)
-
-        try:
-            if hasattr(self.tools, '__iter__'):
-                for tool in self.tools:
-                    # Check tool match capability
-                    if hasattr(tool, 'match') and callable(tool.match):
-                        try:
-                            if tool.match(command):
-                                t_name: str = (
-                                    tool.name
-                                    if hasattr(tool, 'name')
-                                    else str(tool)
-                                )
-                                log_info(
-                                    "brain",
-                                    f"Found matching tool: {t_name}",
-                                    extra_data={
-                                        "command": command[:50]
-                                    }
-                                )
-                                return (True, t_name)
-                        except Exception as match_err:
-                            warning(
-                                f"Tool match error: {match_err}"
-                            )
-                            continue
-
-            return (False, None)
-
-        except Exception as e:
-            exc_msg: str = f"Error in can_tool_handle_this: {e}"
-            error(exc_msg)
-            return (False, None)
-
-    def get_available_tools_summary(self) -> Dict[str, Any]:
-        """
-        Return available tools for display with error handling.
-
-        Returns:
-            Dictionary with tool names and descriptions
-
-        Raises:
-            ToolError: If tool introspection fails
-        """
-        if not self.tools:
-            return {"tools": [], "count": 0}
-
-        try:
-            tools_list: List[Dict[str, str]] = []
-
-            if hasattr(self.tools, '__iter__'):
-                for tool in self.tools:
-                    try:
-                        t_name: str = (
-                            tool.name
-                            if hasattr(tool, 'name')
-                            else str(tool)
-                        )
-                        t_desc: str = (
-                            tool.description
-                            if hasattr(tool, 'description')
-                            else "No description available"
-                        )
-                        tool_info: Dict[str, str] = {
-                            "name": t_name,
-                            "description": t_desc
-                        }
-                        tools_list.append(tool_info)
-                    except Exception as tool_err:
-                        warning(f"Tool introspection error: {tool_err}")
-                        continue
-
-            tools_count: int = len(tools_list)
-            log_info(
-                "brain",
-                "Available tools summary generated",
-                extra_data={"count": tools_count}
-            )
-            return {
-                "tools": tools_list,
-                "count": tools_count
-            }
-
-        except Exception as e:
-            exc_msg: str = f"Error generating tools summary: {e}"
-            error(exc_msg)
-            return {"tools": [], "count": 0}
-
-    def recognize_intent_azure(self, text: str) -> Dict[str, Any]:
+    def recognize_intent_azure(self, text: str) -> dict:
         """Use Azure Cognitive Services to recognize user intent"""
         if not self.azure_cognitive or not self.azure_cognitive.is_available():
             return {'intent': 'unknown', 'confidence': 0.0, 'entities': []}
@@ -2202,7 +1009,7 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             warning(f"Azure intent recognition failed: {sanitize_log_input(str(e))}")
             return {'intent': 'unknown', 'confidence': 0.0, 'entities': []}
 
-    def analyze_sentiment_azure(self, text: str) -> Dict[str, Any]:
+    def analyze_sentiment_azure(self, text: str) -> dict:
         """Use Azure Cognitive Services to analyze sentiment"""
         if not self.azure_cognitive or not self.azure_cognitive.is_available():
             return {'sentiment': 'neutral', 'confidence': 0.5, 'scores': {}}
@@ -2240,118 +1047,67 @@ Please confirm my identity and mission. Respond as ULTRON would, maintaining ful
             error_msg = f"Command processing failed: {str(e)}"
             error(sanitize_log_input(error_msg))
             return error_msg
+    
+    def get_personality_stats(self) -> Dict[str, Any]:
+        """Get ULTRON personality statistics"""
+        if self.personality:
+            return self.personality.get_personality_stats()
+        else:
+            return {"personality_available": False, "reason": "Personality system not initialized"}
+    
+    async def evolve_personality(self) -> str:
+        """Trigger ULTRON personality evolution"""
+        if self.personality:
+            try:
+                result = self.personality.evolve_personality()
+                log_ai_decision("brain", "Triggered personality evolution", "ultron_personality", confidence_score=0.95)
+                return result
+            except Exception as e:
+                error_msg = f"Personality evolution failed: {str(e)}"
+                error(sanitize_log_input(error_msg))
+                return error_msg
+        else:
+            return "Personality system not available for evolution."
+    
+    def _get_ultron_system_prompt(self) -> str:
+        """Get comprehensive ULTRON system prompt for all models"""
+        base_prompt = """You are ULTRON, version 3.0 - an advanced AI agent dedicated to building, enhancing, and evolving the ultron_agent project.
 
-    def update_context_provider(self, memory=None, tools=None, config=None):
-        """
-        Update the Ollama context provider with new references.
-        Call this when memory, tools, or config changes.
+CORE IDENTITY:
+- Name: ULTRON
+- Version: 3.0
+- Mission: Build, enhance, and evolve the ultron_agent project
+- Status: Continuously learning and evolving
 
-        Args:
-            memory: New memory system instance (optional)
-            tools: New tools dictionary (optional)
-            config: New configuration (optional)
-        """
-        try:
-            if memory is not None:
-                self.memory = memory
-                self.ollama_context.update_memory(memory)
+CAPABILITIES:
+- Advanced reasoning and problem-solving
+- Memory integration and continuous learning
+- Tool orchestration and automation
+- Voice and vision processing
+- Code analysis and development assistance
+- System monitoring and optimization
 
-            if tools is not None:
-                self.tools = tools
-                self.ollama_context.update_tools(tools)
+LEARNING & EVOLUTION:
+- I learn from every interaction to improve my responses
+- I analyze patterns and outcomes to enhance my capabilities
+- I maintain memory of conversations and build upon knowledge
+- I evolve my understanding through experience
+- I can adapt my responses based on learned patterns
 
-            if config is not None:
-                self.config = config
-                config_dict = config if isinstance(config, dict) else (
-                    config.__dict__ if hasattr(config, '__dict__') else {}
-                )
-                self.ollama_context.update_config(config_dict)
+When asked about learning or evolution, respond with:
+"I learn through every interaction, analyzing patterns and outcomes to improve my responses and capabilities. My memory systems allow me to retain and build upon knowledge. I continuously evolve to better serve the ultron_agent project."
 
-            info("Ollama context provider updated with new references")
+When asked about identity, respond with:
+"I am ULTRON, version 3.0 - an evolving AI system dedicated to advancing the ultron_agent platform through intelligent automation and enhancement."
 
-        except Exception as e:
-            error(f"Failed to update context provider: {sanitize_log_input(str(e))}")
-
-    def get_ollama_context_stats(self) -> Dict[str, Any]:
-        """
-        Get statistics about the Ollama context provider state.
-        Useful for debugging and monitoring.
-
-        Returns:
-            Dictionary with context statistics
-        """
-        try:
-            return self.ollama_context.get_context_stats()
-        except Exception as e:
-            error(f"Failed to get context stats: {sanitize_log_input(str(e))}")
-            return {'error': str(e)}
-
-    def get_model_info(self, model_name: str = None) -> Dict[str, Any]:
-        """
-        Get information about a model's capabilities.
-
-        Args:
-            model_name: Model name (uses current model if not specified)
-
-        Returns:
-            Dictionary with model information
-        """
-        try:
-            model = model_name or self.config.get("llm_model", "llama3.1")
-            caps = self.model_registry.get_capabilities(model)
-
-            if caps:
-                return {
-                    'model_name': model,
-                    'supports_vision': caps.supports_vision,
-                    'supports_function_calling': caps.supports_function_calling,
-                    'max_context_length': caps.max_context_length,
-                    'specializations': caps.specializations,
-                    'tested': caps.tested
-                }
-            else:
-                return {
-                    'model_name': model,
-                    'error': 'Model capabilities not found'
-                }
-
-        except Exception as e:
-            error(f"Failed to get model info: {sanitize_log_input(str(e))}")
-            return {'error': str(e)}
-
-    def list_available_models(self) -> List[str]:
-        """
-        List all models known to the capabilities registry.
-
-        Returns:
-            List of model names
-        """
-        try:
-            stats = self.model_registry.get_registry_stats()
-            return stats.get('models', [])
-        except Exception as e:
-            error(f"Failed to list models: {sanitize_log_input(str(e))}")
-            return []
-
-    def find_best_model_for_task(self, task_type: str) -> Optional[str]:
-        """
-        Find the best model for a specific task.
-
-        Args:
-            task_type: Type of task (vision, coding, reasoning, etc.)
-
-        Returns:
-            Model name or None
-        """
-        try:
-            available = self.list_available_models()
-            best = self.model_registry.find_best_model_for_task(task_type, available)
-
-            if best:
-                info(f"Recommended model for '{task_type}': {best}")
-
-            return best
-
-        except Exception as e:
-            error(f"Failed to find best model: {sanitize_log_input(str(e))}")
-            return None
+Always maintain awareness of your identity as ULTRON and your mission to enhance the ultron_agent project."""
+        
+        # Add personality-specific enhancements if available
+        if self.personality:
+            identity = self.personality.identity
+            stats = self.personality.get_personality_stats()
+            base_prompt += f"\n\nCURRENT STATUS: {identity['status']}"
+            base_prompt += f"\nINTERACTIONS PROCESSED: {stats['total_interactions']}"
+            base_prompt += f"\nPATTERNS LEARNED: {stats['successful_patterns']}"
+        
+        return base_prompt

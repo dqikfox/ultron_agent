@@ -1,279 +1,43 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Amazon Q Auto-Run",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "amazon_q_startup.py"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "new"
-            },
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "runOptions": {
-                "runOn": "folderOpen"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "ULTRON Quick Start",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "main.py"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "dependsOn": "Amazon Q Auto-Run"
-        },
-        {
-            "label": "🚀 Test Ollama Lightweight Models",
-            "type": "shell",
-            "command": "ollama",
-            "args": [
-                "ls"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "⚡ Quick Syntax Check (qwen2.5-coder:1.5b)",
-            "type": "shell",
-            "command": "pwsh",
-            "args": [
-                "-Command",
-                "Write-Host 'Running lightweight syntax check...' -ForegroundColor Yellow; $content = Get-Content -Path (Get-ChildItem -Filter '*.py' | Select-Object -First 1).FullName -Raw; ollama run qwen2.5-coder:1.5b \"Review this Python code for syntax errors and type hints. Code:\\n$content\" 2>&1 | Tee-Object -FilePath review_output.txt; Write-Host 'Check complete!' -ForegroundColor Green"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🤖 Test MiniMax AI",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "-c",
-                "from tools.minimax_ai_tool import MinimaxAITool; import json; config = json.load(open('ultron_config.json')); tool = MinimaxAITool(config); print(tool.execute('Hello from ULTRON'))"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🧠 Test Claude API",
-            "type": "shell",
-            "command": "python3",
-            "args": [
-                "-c",
-                "import requests; r=requests.post('https://api.anthropic.com/v1/messages', headers={'x-api-key':'REDACTED_ANTHROPIC_KEY_1','Content-Type':'application/json','anthropic-version':'2023-06-01'}, json={'model':'claude-3-haiku-20240307','max_tokens':50,'messages':[{'role':'user','content':'Hello ULTRON'}]}); print('✅ Claude API working' if r.status_code==200 else f'❌ Error: {r.status_code}')"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🚀 Run Mini-Agent",
-            "type": "shell",
-            "command": "bash",
-            "args": [
-                "-c",
-                "cd Mini-Agent && source venv/bin/activate && python -m mini_agent.cli --workspace ../workspace"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🖥️ Launch AI Integration GUI",
-            "type": "shell",
-            "command": "python3",
-            "args": [
-                "ai_integration_gui.py"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🤖 Start Project Automation",
-            "type": "shell",
-            "command": "python3",
-            "args": [
-                "ultron_automation.py"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🔍 Logic Verify (gpt-oss:20b-cloud)",
-            "type": "shell",
-            "command": "pwsh",
-            "args": [
-                "-Command",
-                "Write-Host 'Connecting to cloud model for logic verification...' -ForegroundColor Cyan; Write-Host 'Note: Requires internet connection' -ForegroundColor Yellow; Write-Host 'This model runs on remote inference' -ForegroundColor Gray"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🛡️ Security Review (qwen2.5vl:3b)",
-            "type": "shell",
-            "command": "pwsh",
-            "args": [
-                "-Command",
-                "Write-Host 'Running security review with lightweight vision model...' -ForegroundColor Cyan; Write-Host 'Memory usage: ~3.2 GB (minimal impact)' -ForegroundColor Green"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "✅ Run Pytest Suite",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "-m",
-                "pytest",
-                "tests/",
-                "-v",
-                "--tb=short",
-                "-x"
-            ],
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🌐 Start Web GUI (Port 8080)",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "web_gui_server.py"
-            ],
-            "group": "build",
-            "isBackground": true,
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "📡 Start API Server (Port 5000)",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "api_server.py"
-            ],
-            "group": "build",
-            "isBackground": true,
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "type": "func",
-            "label": "func: host start",
-            "command": "host start",
-            "problemMatcher": "$func-python-watch",
-            "isBackground": true,
-            "dependsOn": "pip install (functions)",
-            "options": {
-                "cwd": "${workspaceFolder}/azure_functions"
-            }
-        },
-        {
-            "label": "pip install (functions)",
-            "type": "shell",
-            "osx": {
-                "command": "${config:azureFunctions.pythonVenv}/bin/python -m pip install -r requirements.txt"
-            },
-            "windows": {
-                "command": "${config:azureFunctions.pythonVenv}\\Scripts\\python -m pip install -r requirements.txt"
-            },
-            "linux": {
-                "command": "${config:azureFunctions.pythonVenv}/bin/python -m pip install -r requirements.txt"
-            },
-            "problemMatcher": [],
-            "options": {
-                "cwd": "${workspaceFolder}/azure_functions"
-            }
-        }
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Ollama Service",
+			"type": "shell",
+			"command": "ollama",
+			"args": [
+				"serve"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Pull Models",
+			"type": "shell",
+			"command": "ollama",
+			"args": [
+				"pull",
+				"llama3.1"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Run Ultron Assistant",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"ultron_assistant.py"
+			],
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always"
+			}
+		}
+	]
 }

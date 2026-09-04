@@ -3,36 +3,12 @@ import os
 import tempfile
 import shutil
 import subprocess
-import hashlib
-import difflib
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
-from dataclasses import dataclass
 import git
-from utils.ultron_logger import log_info, log_error, log_file_operation, log_ai_decision
+from utils.ultron_logger import ultron_logger
 from utils.model_awareness import should_modify_file, check_file_context
-
-
-@dataclass
-class PatchRecord:
-    """Record of a patch applied to a file"""
-    timestamp: datetime
-    file_path: str
-    patch_id: str
-    original_hash: str
-    patched_hash: str
-    patch_content: str
-    success: bool
-    rollback_available: bool = True
-
-
-@dataclass
-class PatchConflict:
-    """Represents overlapping patch hunks"""
-    patch1_lines: Tuple[int, int]
-    patch2_lines: Tuple[int, int]
-    overlap_range: Tuple[int, int]
 
 class AutoPatchManager:
     """
@@ -45,7 +21,6 @@ class AutoPatchManager:
         self.project_root = Path(__file__).parent.parent
         self.backup_dir = self.project_root / "backups" / "auto_patches"
         self.backup_dir.mkdir(parents=True, exist_ok=True)
-        self.patch_history: Dict[str, List[PatchRecord]] = {}
 
         # Configuration from ultron_config.json
         self.auto_apply_enabled = config.get('auto_apply_patches', False)
@@ -53,7 +28,9 @@ class AutoPatchManager:
         self.allowed_modules = config.get('modules_allowed_for_auto_patch', ['tools', 'utils', 'docs'])
         self.rollback_enabled = config.get('rollback_enabled', True)
 
-        log_info("auto_patch_manager", "AutoPatchManager initialized")
+        ultron_logger.log_info("auto_patch_manager", "AutoPatchManager initialized",
+                              auto_apply=self.auto_apply_enabled,
+                              max_patch_size=self.max_patch_size)
 
     def parse_suggestions(self, suggestions_json: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         """Parse JSON suggestions and validate structure"""
@@ -75,13 +52,13 @@ class AutoPatchManager:
                 if self._validate_suggestion(suggestion):
                     validated_suggestions.append(suggestion)
                 else:
-                    log_error("auto_patch_manager",
+                    ultron_logger.log_error("auto_patch_manager",
                                            f"Invalid suggestion skipped: {suggestion.get('id', 'unknown')}")
 
             return validated_suggestions, metadata
 
         except json.JSONDecodeError as e:
-            log_error("auto_patch_manager", f"Failed to parse suggestions JSON: {str(e)}")
+            ultron_logger.log_error("auto_patch_manager", f"Failed to parse suggestions JSON: {str(e)}")
             raise ValueError(f"Invalid JSON format: {str(e)}")
 
     def _validate_suggestion(self, suggestion: Dict[str, Any]) -> bool:
@@ -92,7 +69,7 @@ class AutoPatchManager:
         # Check required fields
         for field in required_fields:
             if field not in suggestion:
-                log_error("auto_patch_manager", f"Missing required field: {field}")
+                ultron_logger.log_error("auto_patch_manager", f"Missing required field: {field}")
                 return False
 
         # Validate confidence score
@@ -108,13 +85,13 @@ class AutoPatchManager:
         # Check if module is allowed
         module = suggestion.get('module', '')
         if not any(allowed in module for allowed in self.allowed_modules):
-            log_info("auto_patch_manager", f"Module not allowed for auto-patch: {module}")
+            ultron_logger.log_info("auto_patch_manager", f"Module not allowed for auto-patch: {module}")
             return False
 
         # Check patch size
         code_snippet = suggestion.get('code_snippet', '')
         if len(code_snippet) > self.max_patch_size:
-            log_error("auto_patch_manager",
+            ultron_logger.log_error("auto_patch_manager",
                                    f"Code snippet too large: {len(code_snippet)} > {self.max_patch_size}")
             return False
 
@@ -139,13 +116,13 @@ class AutoPatchManager:
                 success, message = self._apply_single_suggestion(suggestion)
                 if success:
                     results['applied'] += 1
-                    log_ai_decision("auto_patch_manager",
-                                   f"Successfully applied suggestion: {suggestion['id']}",
-                                   ai_model=metadata.get('model_used', 'unknown'),
-                                   confidence_score=suggestion['confidence_score'])
+                    ultron_logger.log_ai_decision("auto_patch_manager",
+                                                 f"Successfully applied suggestion: {suggestion['id']}",
+                                                 ai_model=metadata.get('model_used', 'unknown'),
+                                                 confidence_score=suggestion['confidence_score'])
                 else:
                     results['failed'] += 1
-                    log_error("auto_patch_manager",
+                    ultron_logger.log_error("auto_patch_manager",
                                            f"Failed to apply suggestion {suggestion['id']}: {message}")
 
                 results['details'].append({
@@ -156,7 +133,7 @@ class AutoPatchManager:
 
             except Exception as e:
                 results['failed'] += 1
-                log_error("auto_patch_manager",
+                ultron_logger.log_error("auto_patch_manager",
                                        f"Exception applying suggestion {suggestion['id']}: {str(e)}")
                 results['details'].append({
                     'id': suggestion['id'],
@@ -173,6 +150,10 @@ class AutoPatchManager:
     def _apply_single_suggestion(self, suggestion: Dict[str, Any]) -> Tuple[bool, str]:
         """Apply a single suggestion with validation"""
         file_path = self.project_root / suggestion['file_path']
+
+        # Check if file exists
+        if not file_path.exists():
+            return False, f"File does not exist: {file_path}"
 
         # Use model awareness to check if modification should proceed
         should_proceed, reason, context = should_modify_file(str(file_path), "auto_patch", "auto_patch_manager")
@@ -201,10 +182,10 @@ class AutoPatchManager:
             return False, f"Failed to write file: {str(e)}"
 
         # Log the file operation
-        log_file_operation("auto_patch_manager",
-                          f"Applied auto-patch: {suggestion['id']}",
-                          str(file_path),
-                          "auto_patch")
+        ultron_logger.log_file_operation("auto_patch_manager",
+                                        f"Applied auto-patch: {suggestion['id']}",
+                                        str(file_path),
+                                        "auto_patch")
 
         return True, "Successfully applied"
 
@@ -250,9 +231,9 @@ class AutoPatchManager:
             repo.git.add('.')
             commit_msg = f"Auto-patch backup: {backup_id}"
             repo.index.commit(commit_msg)
-            log_info("auto_patch_manager", f"Git backup created: {backup_id}")
+            ultron_logger.log_info("auto_patch_manager", f"Git backup created: {backup_id}")
         except Exception as e:
-            log_error("auto_patch_manager", f"Git backup failed: {str(e)}")
+            ultron_logger.log_error("auto_patch_manager", f"Git backup failed: {str(e)}")
             # Fallback: manual copy of key files
             self._manual_backup(backup_path)
 
@@ -288,7 +269,7 @@ class AutoPatchManager:
 
         metadata_file = self.backup_dir / f"{backup_id}_metadata.json"
         if not metadata_file.exists():
-            log_error("auto_patch_manager", f"Backup metadata not found: {backup_id}")
+            ultron_logger.log_error("auto_patch_manager", f"Backup metadata not found: {backup_id}")
             return False
 
         try:
@@ -298,11 +279,11 @@ class AutoPatchManager:
             # Use git to rollback if available
             repo = git.Repo(self.project_root)
             repo.git.reset('--hard', f"HEAD~1")
-            log_info("auto_patch_manager", f"Rolled back to backup: {backup_id}")
+            ultron_logger.log_info("auto_patch_manager", f"Rolled back to backup: {backup_id}")
             return True
 
         except Exception as e:
-            log_error("auto_patch_manager", f"Rollback failed: {str(e)}")
+            ultron_logger.log_error("auto_patch_manager", f"Rollback failed: {str(e)}")
             return False
 
     def get_backup_history(self) -> List[Dict[str, Any]]:
@@ -314,124 +295,6 @@ class AutoPatchManager:
                     metadata = json.load(f)
                 backups.append(metadata)
             except Exception as e:
-                log_error("auto_patch_manager", f"Failed to read backup metadata: {str(e)}")
+                ultron_logger.log_error("auto_patch_manager", f"Failed to read backup metadata: {str(e)}")
 
         return sorted(backups, key=lambda x: x['timestamp'], reverse=True)
-
-    async def validate_patch(self, file_path: str, patch_content: str) -> Tuple[bool, str]:
-        """
-        Validate patch before applying
-
-        Args:
-            file_path: Path to file
-            patch_content: Patch content
-
-        Returns:
-            (is_valid, reason)
-        """
-        full_path = self.project_root / file_path
-
-        # Check file exists
-        if not full_path.exists():
-            return False, f"File does not exist: {file_path}"
-
-        # Check patch syntax
-        try:
-            # Simple validation: check if it looks like valid patch format
-            if not patch_content.strip():
-                return False, "Patch content is empty"
-        except Exception as e:
-            return False, f"Invalid patch format: {str(e)}"
-
-        return True, "Patch is valid"
-
-    async def dry_run_patch(self, file_path: str, patch: str) -> str:
-        """
-        Show what the patch would do without applying it
-
-        Args:
-            file_path: Path to file
-            patch: Patch content
-
-        Returns:
-            Preview of changes
-        """
-        full_path = self.project_root / file_path
-
-        try:
-            with open(full_path, 'r', encoding='utf-8') as f:
-                current = f.read()
-        except Exception as e:
-            return f"Error reading file: {str(e)}"
-
-        # Generate diff
-        lines_before = current.split('\n')
-        lines_after = self._apply_code_change(current, {'code_snippet': patch}).split('\n')
-
-        diff = difflib.unified_diff(lines_before, lines_after, lineterm='', n=3)
-        return '\n'.join(diff)
-
-    def detect_conflicts(self, file_path: str, patch1: str, patch2: str) -> List[PatchConflict]:
-        """
-        Detect if two patches would conflict when applied
-
-        Args:
-            file_path: Path to file
-            patch1: First patch
-            patch2: Second patch
-
-        Returns:
-            List of conflicts
-        """
-        conflicts = []
-
-        try:
-            # Simple conflict detection by checking line overlap
-            # In production, would use proper diff/merge algorithm
-            lines1 = patch1.split('\n')
-            lines2 = patch2.split('\n')
-
-            start1 = 0
-            for i, line in enumerate(lines1):
-                if line.startswith('@@'):
-                    # Extract line number from diff header
-                    pass
-        except Exception as e:
-            log_error("auto_patch_manager", f"Error detecting conflicts: {str(e)}")
-
-        return conflicts
-
-    async def get_patch_history(self, file_path: str) -> List[PatchRecord]:
-        """
-        Get history of all patches applied to a file
-
-        Args:
-            file_path: Path to file
-
-        Returns:
-            List of patch records
-        """
-        return self.patch_history.get(file_path, [])
-
-    def _compute_file_hash(self, content: str) -> str:
-        """Compute SHA256 hash of file content"""
-        return hashlib.sha256(content.encode()).hexdigest()
-
-    def _record_patch(self, file_path: str, original_content: str, patched_content: str,
-                     patch_content: str, success: bool) -> None:
-        """Record a patch in history"""
-        record = PatchRecord(
-            timestamp=datetime.now(),
-            file_path=file_path,
-            patch_id=f"patch_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-            original_hash=self._compute_file_hash(original_content),
-            patched_hash=self._compute_file_hash(patched_content),
-            patch_content=patch_content,
-            success=success
-        )
-
-        if file_path not in self.patch_history:
-            self.patch_history[file_path] = []
-
-        self.patch_history[file_path].append(record)
-

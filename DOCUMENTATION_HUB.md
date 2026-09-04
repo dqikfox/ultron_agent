@@ -82,27 +82,7 @@
 
 ---
 
-#### 2. Executive Summary - Path A (Lightweight Model Implementation)
-**File**: `EXECUTIVE_SUMMARY_AMAZON_Q.md`
-
-**Contents**:
-- Path A lightweight model implementation overview
-- Memory optimization strategy (73% RAM reduction)
-- Model selection guidelines (5 model tiers)
-- Installation procedures (automated and manual)
-- Configuration management for resource-constrained systems
-- Comprehensive testing and validation
-- Integration with ULTRON Agent brain module
-- Troubleshooting guide for low-memory scenarios
-- Success metrics and performance benchmarks
-
-**When to Use**: Implementing ULTRON on systems with 4GB RAM or less, or optimizing memory usage
-
-**Implementation Timeline**: 15-22 minutes
-
----
-
-#### 3. Voice System Documentation
+#### 2. Voice System Documentation
 **File**: `VOICE_MICROPHONE_DOCUMENTATION.md`
 
 **Contents**:
@@ -118,7 +98,7 @@
 
 ---
 
-#### 4. MCP Integration Guide
+#### 3. MCP Integration Guide
 **File**: `MCP_INTEGRATION_GUIDE.md`
 
 **Contents**:
@@ -137,7 +117,7 @@
 
 ---
 
-#### 5. System Architecture
+#### 4. System Architecture
 **File**: `SYSTEM_ARCHITECTURE.md`
 
 **Contents**:
@@ -152,7 +132,7 @@
 
 ---
 
-#### 6. Setup Guide
+#### 5. Setup Guide
 **File**: `SETUP_CHECKLIST.md`
 
 **Contents**:
@@ -167,7 +147,7 @@
 
 ---
 
-#### 7. Recent Fixes
+#### 6. Recent Fixes
 **File**: `FIXES_SUMMARY_2025-10-24.md`
 
 **Contents**:
@@ -250,26 +230,6 @@
 
 ---
 
-#### Avatar Game Documentation
-**Files**: 
-- `AVATAR_GAME_GUIDE.md` (Complete guide)
-- `AVATAR_GAME_QUICK_REFERENCE.md` (Quick reference)
-- `AVATAR_GAME_CHANGELOG.md` (Version history)
-
-**Contents**:
-- Character system (8 classes, 8 races, 3 alignments)
-- Combat mechanics and formulas
-- Loot system and item management
-- Progression and leveling
-- Visual features and animations
-- AI integration guide
-- Troubleshooting and tips
-- Launch commands and server setup
-
-**When to Use**: Playing or developing the Avatar Game system
-
----
-
 ## 🚀 Quick Start Guides
 
 ### For New Developers
@@ -338,14 +298,6 @@
 - **ULTRON**: `API.md` (ULTRON endpoints)
 - **Server Code**: `api_server.py`
 
-#### "...play or develop the Avatar Game?"
-- **Complete Guide**: `AVATAR_GAME_GUIDE.md`
-- **Quick Reference**: `AVATAR_GAME_QUICK_REFERENCE.md`
-- **Changelog**: `AVATAR_GAME_CHANGELOG.md`
-- **Server Code**: `avatar_game_server.py`
-- **Game Rules**: `dnd_system.js`
-- **Launch**: `start_avatar_game.bat`
-
 ---
 
 ## 📊 Documentation by Role
@@ -379,13 +331,6 @@
 - `tools/tool_interface.py`
 - `tools/tool_loader.py`
 - `MCP_INTEGRATION_GUIDE.md` for MCP tools
-
-### Game Developer
-- `AVATAR_GAME_GUIDE.md` → Complete game system
-- `AVATAR_GAME_QUICK_REFERENCE.md` → Quick reference
-- `dnd_system.js` → RPG rules engine
-- `avatar_game_server.py` → Server implementation
-- `gui/ultron_enhanced/web/ultron_avatar_game_ultimate.html` → Game UI
 
 ---
 
@@ -482,8 +427,8 @@ When making significant changes:
 
 ## 📅 Last Updated
 
-**Date**: January 16, 2025
-**Version**: ULTRON Agent 3.0.5 (Avatar Game Release)
+**Date**: October 25, 2025
+**Version**: ULTRON Agent 3.0
 **Maintainer**: Development Team
 
 ---
