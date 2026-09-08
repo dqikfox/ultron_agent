@@ -1,6 +1,8 @@
 import React from 'react';
 
-const Shield: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+interface ShieldProps extends React.SVGProps<SVGSVGElement> {}
+
+const Shield: React.FC<ShieldProps> = (props) => {
   return (
     <svg
       {...props}

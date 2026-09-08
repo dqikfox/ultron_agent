@@ -1,0 +1,312 @@
+/* Ultron Supreme Theme Styles */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap');
+
+/* Custom Properties */
+:root {
+  --ultron-red: #ff3333;
+  --ultron-red-glow: #ff3333;
+  --ultron-blue: #00d4ff;
+  --ultron-dark: #0a0a0a;
+  --ultron-darker: #050505;
+  --ultron-steel: #1a1a1a;
+  --ultron-steel-light: #2a2a2a;
+  --ultron-gray: #666666;
+  --ultron-success: #00ff88;
+  --ultron-warning: #ffaa00;
+  --ultron-error: #ff3333;
+  
+  --glass-bg: rgba(26, 26, 26, 0.3);
+  --glass-border: rgba(255, 51, 51, 0.2);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  
+  --glow-red: 0 0 20px rgba(255, 51, 51, 0.5);
+  --glow-blue: 0 0 20px rgba(0, 212, 255, 0.5);
+  --glow-subtle: 0 0 10px rgba(255, 51, 51, 0.2);
+}
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: var(--ultron-darker);
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* Background patterns */
+.circuit-bg {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 51, 51, 0.1) 0%, transparent 25%),
+    radial-gradient(circle at 75% 75%, rgba(0, 212, 255, 0.05) 0%, transparent 25%),
+    linear-gradient(45deg, transparent 40%, rgba(255, 51, 51, 0.02) 50%, transparent 60%);
+  background-size: 200px 200px, 150px 150px, 100px 100px;
+  animation: circuitFlow 20s linear infinite;
+}
+
+@keyframes circuitFlow {
+  0% { background-position: 0% 0%, 0% 0%, 0% 0%; }
+  100% { background-position: 200px 200px, -150px -150px, 100px 100px; }
+}
+
+/* Glass morphism effects */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-intense {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 51, 51, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Glow effects */
+.glow-red {
+  box-shadow: var(--glow-red);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-red:hover {
+  box-shadow: 0 0 30px rgba(255, 51, 51, 0.8);
+}
+
+.glow-blue {
+  box-shadow: var(--glow-blue);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-subtle {
+  box-shadow: var(--glow-subtle);
+}
+
+/* Text glow effects */
+.text-glow-red {
+  text-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+}
+
+.text-glow-blue {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+}
+
+/* Pulsing animations */
+.pulse-red {
+  animation: pulseRed 2s ease-in-out infinite;
+}
+
+.pulse-blue {
+  animation: pulseBlue 2s ease-in-out infinite;
+}
+
+@keyframes pulseRed {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 51, 51, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 51, 51, 0.8), 0 0 30px rgba(255, 51, 51, 0.6); }
+}
+
+@keyframes pulseBlue {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 212, 255, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.8), 0 0 30px rgba(0, 212, 255, 0.6); }
+}
+
+/* Scanning line effect */
+.scan-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ultron-red), transparent);
+  animation: scan 3s ease-in-out infinite;
+}
+
+@keyframes scan {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* Holographic effect */
+.holographic {
+  background: linear-gradient(
+    45deg,
+    rgba(255, 51, 51, 0.1) 0%,
+    rgba(0, 212, 255, 0.1) 25%,
+    rgba(255, 51, 51, 0.1) 50%,
+    rgba(0, 212, 255, 0.1) 75%,
+    rgba(255, 51, 51, 0.1) 100%
+  );
+  background-size: 400% 400%;
+  animation: holographicShift 4s ease-in-out infinite;
+}
+
+@keyframes holographicShift {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+
+/* Button styles */
+.btn-ultron {
+  background: linear-gradient(135deg, rgba(255, 51, 51, 0.2), rgba(255, 51, 51, 0.1));
+  border: 1px solid rgba(255, 51, 51, 0.4);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ultron:hover {
+  background: linear-gradient(135deg, rgba(255, 51, 51, 0.3), rgba(255, 51, 51, 0.2));
+  box-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-ultron:active {
+  transform: translateY(0);
+}
+
+.btn-ultron::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-ultron:hover::before {
+  left: 100%;
+}
+
+/* Input styles */
+.input-ultron {
+  background: rgba(26, 26, 26, 0.5);
+  border: 1px solid rgba(255, 51, 51, 0.3);
+  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-family: 'Roboto', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.input-ultron:focus {
+  outline: none;
+  border-color: var(--ultron-red);
+  box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+}
+
+.input-ultron::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ultron-steel);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, var(--ultron-red), rgba(255, 51, 51, 0.6));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ultron-red);
+}
+
+/* Loading spinner */
+.spinner-ultron {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 51, 51, 0.2);
+  border-top: 3px solid var(--ultron-red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Status indicators */
+.status-online {
+  color: var(--ultron-success);
+  text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+}
+
+.status-offline {
+  color: var(--ultron-error);
+  text-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+}
+
+.status-warning {
+  color: var(--ultron-warning);
+  text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+}
+
+/* Typography */
+.font-orbitron {
+  font-family: 'Orbitron', monospace;
+}
+
+.font-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Utility classes */
+.border-glow {
+  border: 1px solid;
+  border-image: linear-gradient(45deg, var(--ultron-red), var(--ultron-blue)) 1;
+}
+
+.bg-gradient-ultron {
+  background: linear-gradient(135deg, var(--ultron-steel), var(--ultron-darker));
+}
+
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+  
+  .btn-ultron {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .input-ultron {
+    padding: 10px 14px;
+  }
+}

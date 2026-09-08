@@ -1,0 +1,72 @@
+{
+  "system": {
+    "admin_mode": false,
+    "auto_start": true,
+    "debug_mode": false,
+    "log_level": "INFO"
+  },
+  "voice": {
+    "always_listening": true,
+    "wake_word_enabled": false,
+    "wake_word": "ultron",
+    "vad_threshold": 0.3,
+    "stt_provider": "whisper",
+    "tts_provider": "pyttsx3",
+    "streaming_tts": true,
+    "voice_id": "default",
+    "speech_rate": 200,
+    "speech_volume": 0.8,
+    "whisper_model": "base"
+  },
+  "ai": {
+    "primary_model": "gpt-4",
+    "fallback_models": ["deepseek", "phi-3"],
+    "local_models_enabled": true,
+    "temperature": 0.7,
+    "max_tokens": 2048,
+    "memory_enabled": true,
+    "context_window": 8192
+  },
+  "api": {
+    "openai_api_key": "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",
+    "deepseek_api_key": "sk-585fbd0a7885488496c63a123d2b2440",
+    "elevenlabs_api_key": "sk_a99d3caeef2c2dc6e98567110d905e724af83375e5c29d9d",
+    "offline_mode": false
+  },
+  "security": {
+    "require_admin_confirmation": true,
+    "log_all_commands": true,
+    "dangerous_commands_enabled": false,
+    "whitelist_mode": false
+  },
+  "gui": {
+    "theme": "ultron",
+    "window_size": [1200, 800],
+    "always_on_top": false,
+    "show_chatlog": true,
+    "show_system_info": true
+  },
+  "hardware": {
+    "gpu_acceleration": true,
+    "cuda_enabled": true,
+    "audio_device": "default",
+    "camera_enabled": false,
+    "camera_device": 0
+  },
+  "plugins": {
+    "enabled": true,
+    "auto_load": true,
+    "plugin_dir": "plugins"
+  },
+  "memory": {
+    "short_term_limit": 100,
+    "long_term_enabled": true,
+    "vector_db_enabled": true,
+    "auto_save_interval": 300
+  },
+  "startup": {
+    "greeting": "UltronSysAgent online. I am ready to assist you.",
+    "check_updates": true,
+    "load_previous_session": true
+  }
+}

@@ -19,10 +19,10 @@ class IdleMonitor:
         self.on_idle_callback: Optional[Callable] = None
 
         # Subscribe to user activity events (async)
-        asyncio.create_task(self.event_system.subscribe("user_input", lambda event: self._update_activity()))
-        asyncio.create_task(self.event_system.subscribe("voice_command", lambda event: self._update_activity()))
-        asyncio.create_task(self.event_system.subscribe("gui_interaction", lambda event: self._update_activity()))
-        asyncio.create_task(self.event_system.subscribe("command_executed", lambda event: self._update_activity()))
+        asyncio.create_task(self.event_system.subscribe("user_input", self._update_activity))
+        asyncio.create_task(self.event_system.subscribe("voice_command", self._update_activity))
+        asyncio.create_task(self.event_system.subscribe("gui_interaction", self._update_activity))
+        asyncio.create_task(self.event_system.subscribe("command_executed", self._update_activity))
 
         log_info("idle_monitor", f"IdleMonitor initialized with threshold: {idle_threshold_minutes} minutes")
 

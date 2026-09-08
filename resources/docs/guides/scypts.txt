@@ -1,0 +1,30 @@
+PowerShell Script to Set Up Local AI Model Environment on Windows
+Create UltronAI folder in D:\ if not exists
+$installPath = "D:\UltronAI"
+if (-Not (Test-Path $installPath)) {
+New-Item -ItemType Directory -Path $installPath
+}
+Set-Location -Path $installPath
+Install Chocolatey (if not installed)
+if (-Not (Get-Command choco -ErrorAction SilentlyContinue)) {
+Set-ExecutionPolicy Bypass -Scope Process -Force
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+}
+Install dependencies
+choco install -y python git vscode curl
+Add Python to PATH (if needed)
+$env:Path += ";$((Get-Command python).Source | Split-Path)"
+Upgrade pip and install Python libraries
+python -m pip install --upgrade pip
+python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+python -m pip install transformers sentencepiece accelerate huggingface_hub bitsandbytes
+Clone text-generation-webui (for model hosting)
+git clone https://github.com/oobabooga/text-generation-webui.git
+cd text-generation-webui
+Create run script for quick start
+@"
+cd $installPath\text-generation-webui
+python server.py --model-menu
+"@ | Out-File "$installPath\run-ultron-ai.ps1" -Encoding UTF8
+Write-Host "Ultron AI environment setup complete. Run 'run-ultron-ai.ps1' to start the local server."

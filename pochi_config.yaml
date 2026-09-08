@@ -7,13 +7,13 @@ models:
   - name: Claude 3.5 Sonnet
     provider: anthropic
     model: claude-3-5-sonnet-latest
-    apiKey: REDACTED_ANTHROPIC_KEY_2
+    apiKey: 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
     description: "Latest Claude 3.5 Sonnet model for advanced reasoning"
     
   - name: Claude 3.5 Sonnet (Backup)
     provider: anthropic
     model: claude-3-5-sonnet-20241022
-    apiKey: REDACTED_ANTHROPIC_KEY_2
+    apiKey: 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
     description: "Specific Claude 3.5 Sonnet version for stability"
 
 context:

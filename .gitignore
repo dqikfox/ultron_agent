@@ -1,14 +1,70 @@
-node_modules
-node_modules
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
-.env*.local
-.env
+# IDE
+.vscode/settings_clean.json
+.continue/.env
 
-# Local config with secrets
-ultron_config.json
+# Logs
+logs/
+*.log
+debug_logs/
+
+# Cache
+cache/
+.coverage
+
+# JDK
+Oracle_JDK-24/
+
+# Generated files
+*.wav
+*.ico
+*.png
+
+# Temporary
+.old/
+.redundant/
+.git-rewrite/
+
+# Project specific
+ultron-agent-project/
+ultron_integration/
+resources/
+core/ultron-agent-command-center/release/
+*.snap
+*.AppImage
+*.zip
+*.exe
+
+# Test artifacts
+tests/__pycache__/
+
+# Build artifacts
+scripts/ultron_ci/__pycache__/
+tools/__pycache__/
+utils/__pycache__/
+ultron_addons/__pycache__/
+ultron_agent/__pycache__/
+ultron_agent/core/__pycache__/

@@ -1,0 +1,67 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="headGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a1a" />
+      <stop offset="50%" stop-color="#2a2a2a" />
+      <stop offset="100%" stop-color="#0a0a0a" />
+    </linearGradient>
+    <filter id="glow">
+      <feMorphology operator="dilate" radius="2"/>
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="256" height="256" fill="#0B0F13"/>
+  
+  <!-- Circuit pattern -->
+  <g stroke="#ff2e92" stroke-width="1" fill="none" opacity="0.3">
+    <rect x="20" y="20" width="40" height="40" />
+    <rect x="100" y="60" width="30" height="30" />
+    <rect x="140" y="20" width="50" height="50" />
+    <circle cx="40" cy="140" r="16" />
+    <circle cx="160" cy="160" r="12" />
+    <line x1="60" y1="40" x2="100" y2="75" />
+    <line x1="130" y1="75" x2="140" y2="45" />
+    <line x1="40" y1="124" x2="40" y2="90" />
+    <line x1="148" y1="160" x2="190" y2="45" />
+  </g>
+  
+  <!-- Main Ultron head -->
+  <g transform="translate(64, 64)">
+    <!-- Head outline -->
+    <path
+      d="M20 30 L108 30 L118 40 L118 80 L98 120 L50 120 L30 80 L30 40 Z"
+      fill="url(#headGradient)"
+      stroke="#ff2e92"
+      stroke-width="2"
+      filter="url(#glow)"
+    />
+    
+    <!-- Face segments -->
+    <line x1="30" y1="60" x2="118" y2="60" stroke="#ff2e92" stroke-width="1" opacity="0.7" />
+    <line x1="30" y1="80" x2="118" y2="80" stroke="#ff2e92" stroke-width="1" opacity="0.7" />
+    <line x1="50" y1="30" x2="50" y2="120" stroke="#ff2e92" stroke-width="1" opacity="0.5" />
+    <line x1="98" y1="30" x2="98" y2="120" stroke="#ff2e92" stroke-width="1" opacity="0.5" />
+    
+    <!-- Eyes -->
+    <circle cx="50" cy="50" r="6" fill="#ff4545" filter="url(#glow)" />
+    <circle cx="98" cy="50" r="6" fill="#ff4545" filter="url(#glow)" />
+    
+    <!-- Mouth/speaker grille -->
+    <rect x="60" y="85" width="28" height="12" fill="none" stroke="#ff2e92" stroke-width="2" />
+    <line x1="63" y1="88" x2="63" y2="94" stroke="#ff2e92" stroke-width="1" />
+    <line x1="69" y1="88" x2="69" y2="94" stroke="#ff2e92" stroke-width="1" />
+    <line x1="74" y1="88" x2="74" y2="94" stroke="#ff2e92" stroke-width="1" />
+    <line x1="79" y1="88" x2="79" y2="94" stroke="#ff2e92" stroke-width="1" />
+    <line x1="85" y1="88" x2="85" y2="94" stroke="#ff2e92" stroke-width="1" />
+  </g>
+  
+  <!-- Outer ring -->
+  <circle cx="128" cy="128" r="120" fill="none" stroke="#ff2e92" stroke-width="1" opacity="0.5"/>
+  <circle cx="128" cy="128" r="110" fill="none" stroke="#23e6ff" stroke-width="1" opacity="0.3"/>
+</svg>

@@ -1,0 +1,37 @@
+# POCHI Configuration for Ultron Agent
+name: Ultron-POCHI Integration
+version: 1.0.0
+schema: v1
+
+models:
+  - name: Claude 3.5 Sonnet
+    provider: anthropic
+    model: claude-3-5-sonnet-latest
+    apiKey: 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
+    description: "Latest Claude 3.5 Sonnet model for advanced reasoning"
+    
+  - name: Claude 3.5 Sonnet (Backup)
+    provider: anthropic
+    model: claude-3-5-sonnet-20241022
+    apiKey: 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
+    description: "Specific Claude 3.5 Sonnet version for stability"
+
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+
+settings:
+  max_tokens: 4096
+  temperature: 0.7
+  timeout: 30
+  
+# Integration with Ultron Agent
+integration:
+  auto_detect_language: true
+  provide_context: true
+  enhanced_responses: true

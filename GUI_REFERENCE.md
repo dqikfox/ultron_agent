@@ -15,8 +15,8 @@ start file:///C:/Projects/ultron_agent_2/gui/ultron_enhanced/web/index.html
 
 # Method 2: Local web server (recommended)
 cd gui/ultron_enhanced/web
-python -m http.server 8081
-# Then open: http://localhost:8081
+python -m http.server 8000
+# Then open: http://localhost:8000/index.html
 ```
 
 ## ❌ DEPRECATED INTERFACES - DO NOT USE

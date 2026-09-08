@@ -1,6 +1,7 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-socketio==5.10.0
+openai==1.32.0
 websockets==12.0
 python-multipart==0.0.6
 jinja2==3.1.2
@@ -9,7 +10,6 @@ jinja2==3.1.2
 autogenstudio==0.1.5
 autogen-agentchat==0.5.0
 pyautogen==0.2.26
-openai>=1.3
 
 # Additional dependencies for AutoGen Studio
 docker==7.0.0
@@ -23,9 +23,7 @@ transformers==4.36.2
 torch==2.1.2
 torchvision==0.16.2
 Pillow
-mss==9.0.1
 requests==2.31.0
-google-generativeai==0.7.2
 
 # Langflow and Langchain Integration
 langflow==1.0.15
@@ -33,7 +31,7 @@ langchain==0.2.17
 langchain-community==0.2.0
 langchain-core==0.2.43
 langchain-experimental==0.0.60
-langchain-openai>=0.0.1
+langchain-openai==0.1.17
 langchain-text-splitters==0.2.0
 langserve==0.2.0
 
@@ -43,30 +41,7 @@ pygame==2.5.2
 pyttsx3==2.90
 SpeechRecognition==3.10.0
 
-# Advanced NLP with spaCy
-spacy==3.7.2
-scikit-learn==1.3.2
-joblib==1.3.2
-
 # Web Server Dependencies
 aiohttp==3.9.0
 psutil==5.9.6
-flask-socketio==5.3.5
 pynvml==11.5.0
-flask==3.0.0
-pytesseract==0.3.10
-pydantic==2.5.0
-python-dotenv==1.0.0
-mistralai>=1.0.0
-psycopg2-binary==2.9.9
-sentence-transformers>=2.2.0
-
-# LlamaIndex integration (https://docs.llamaindex.ai)
-llama-index-core>=0.10.0
-llama-index-llms-ollama>=0.3.0
-llama-index-llms-openai>=0.2.0
-llama-index-llms-anthropic>=0.3.0
-llama-index-embeddings-openai>=0.2.0
-llama-index-embeddings-huggingface>=0.3.0
-llama-index-readers-file>=0.2.0
-llama-index-embeddings-ollama>=0.3.0
