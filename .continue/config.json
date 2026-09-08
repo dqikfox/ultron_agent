@@ -1,0 +1,146 @@
+{
+  "name": "ULTRON Agent - Enhanced AI Development Environment",
+  "version": "1.0.0",
+  "schema": "v1",
+  "models": [
+    {
+      "name": "Codestral (Primary)",
+      "provider": "mistral",
+      "model": "codestral-latest",
+      "apiKey": "${MISTRAL_API_KEY}",
+      "roles": ["chat", "edit"],
+      "defaultCompletionOptions": {
+        "temperature": 0.7,
+        "maxTokens": 2048
+      }
+    },
+    {
+      "name": "Claude 3.7 Sonnet",
+      "provider": "anthropic",
+      "model": "claude-3-7-sonnet-20240229",
+      "apiKey": "${ANTHROPIC_API_KEY}",
+      "roles": ["chat", "edit"]
+    },
+    {
+      "name": "Gemini 2.0 Flash",
+      "provider": "google",
+      "model": "gemini-2.0-flash-exp",
+      "apiKey": "${GEMINI_API_KEY}",
+      "roles": ["chat"]
+    },
+    {
+      "name": "Llama 3.2 Local",
+      "provider": "ollama",
+      "model": "llama3.2:latest",
+      "roles": ["chat"]
+    },
+    {
+      "name": "Codestral Autocomplete",
+      "provider": "mistral",
+      "model": "codestral-latest",
+      "apiKey": "${MISTRAL_API_KEY}",
+      "roles": ["autocomplete"],
+      "autocompleteOptions": {
+        "disable": false,
+        "maxPromptTokens": 1024,
+        "debounceDelay": 250,
+        "modelTimeout": 150,
+        "maxSuffixPercentage": 0.2,
+        "prefixPercentage": 0.3,
+        "onlyMyCode": true
+      }
+    },
+    {
+      "name": "Qwen2.5 Coder 1.5B (Local)",
+      "provider": "ollama",
+      "model": "qwen2.5-coder:1.5b",
+      "roles": ["autocomplete"],
+      "autocompleteOptions": {
+        "disable": false,
+        "maxPromptTokens": 1024,
+        "debounceDelay": 200,
+        "modelTimeout": 100,
+        "maxSuffixPercentage": 0.2,
+        "prefixPercentage": 0.3,
+        "onlyMyCode": true
+      }
+    },
+    {
+      "name": "Qwen2.5 Coder 7B (Local)",
+      "provider": "ollama",
+      "model": "qwen2.5-coder:7b",
+      "roles": ["autocomplete"],
+      "autocompleteOptions": {
+        "disable": false,
+        "maxPromptTokens": 1024,
+        "debounceDelay": 300,
+        "modelTimeout": 200,
+        "maxSuffixPercentage": 0.2,
+        "prefixPercentage": 0.3,
+        "onlyMyCode": true
+      }
+    }
+  ],
+  "context": [
+    {
+      "provider": "file",
+      "start": "README.md",
+      "end": "ARCHITECTURE.md"
+    },
+    {
+      "provider": "file",
+      "start": ".github/copilot-instructions.md"
+    },
+    {
+      "provider": "file",
+      "start": "ultron_config.json"
+    },
+    {
+      "provider": "codebase",
+      "nRetrieve": 50,
+      "nFinal": 20
+    }
+  ],
+  "slashCommands": [
+    {
+      "name": "analyze",
+      "description": "Analyze code for ULTRON Agent patterns and best practices",
+      "step": "Analyze the selected code for ULTRON Agent development patterns, including:\n- Model awareness integration\n- Centralized logging usage\n- Event system patterns\n- Voice accessibility features\n- Tool plugin structure\nProvide recommendations for improvement."
+    },
+    {
+      "name": "test",
+      "description": "Generate comprehensive tests for ULTRON Agent components",
+      "step": "Generate pytest test cases for the selected ULTRON Agent component, including:\n- Unit tests for core functionality\n- Integration tests for API endpoints\n- Mock tests for external services\n- Error handling and edge cases\n- Logging verification"
+    },
+    {
+      "name": "docs",
+      "description": "Generate comprehensive documentation for ULTRON Agent components",
+      "step": "Generate detailed documentation for the selected ULTRON Agent component, including:\n- Purpose and architecture\n- API reference\n- Configuration options\n- Integration points\n- Usage examples\n- Troubleshooting guide"
+    },
+    {
+      "name": "refactor",
+      "description": "Refactor code following ULTRON Agent patterns",
+      "step": "Refactor the selected code to follow ULTRON Agent development patterns:\n- Add proper error handling with logging\n- Implement model awareness checks\n- Add voice accessibility features\n- Follow event system patterns\n- Ensure thread safety for GUI components\n- Add comprehensive type hints"
+    }
+  ],
+  "tabAutocompleteOptions": {
+    "disable": false,
+    "maxPromptTokens": 1024,
+    "debounceDelay": 250,
+    "modelTimeout": 150,
+    "maxSuffixPercentage": 0.2,
+    "prefixPercentage": 0.3,
+    "onlyMyCode": true,
+    "multilineCompletions": "auto"
+  },
+  "ui": {
+    "showChatScrollbar": true,
+    "showPromptScrollbar": true,
+    "codeBlockToolbarPosition": "top",
+    "fontSize": 13
+  },
+  "experimental": {
+    "promptPath": ".continue/prompts",
+    "modelContextWindowLimit": 128000
+  }
+}

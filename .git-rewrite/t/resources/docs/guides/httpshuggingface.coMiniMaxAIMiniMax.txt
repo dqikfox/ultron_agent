@@ -1,0 +1,1 @@
+https://huggingface.co/MiniMaxAI/MiniMax-M1-80k

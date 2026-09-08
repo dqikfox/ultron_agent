@@ -1,0 +1,25 @@
+# ULTRON Local - Minimal Dependencies for Offline Operation
+speech_recognition==3.10.4
+pyttsx3==2.90
+opencv-python==4.9.0.80
+pytesseract==0.3.10
+pillow==10.3.0
+numpy==1.26.4
+psutil==5.9.8
+pyautogui==0.9.54
+keyboard==0.13.5
+Flask==3.0.3
+websockets==12.0
+asyncio-mqtt==0.16.2
+transformers==4.35.2
+torch==2.1.2
+tokenizers==0.15.0
+scikit-learn==1.4.2
+python-magic==0.4.27
+cryptography==42.0.7
+aiofiles==24.1.0
+vosk==0.3.45
+sounddevice==0.4.6
+webrtcvad==2.0.10
+noisereduce==3.0.0
+librosa==0.10.1

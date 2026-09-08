@@ -1,0 +1,26 @@
+name: ultron
+version: 1.0.4
+schema: v1
+
+models:
+  - name: star
+    provider: ollama
+    model: starcoder2:7b
+    apiKey: ee50c43f3f854b06856b6a0f23f2ae13.NbmLeq0kN8pDxlIlBaDKKXu0
+    baseUrl: http://localhost:11434
+    roles: [chat, autocomplete]
+    
+    defaultCompletionOptions:
+      maxTokens: 2048
+      temperature: 0.1
+      topP: 0.95
+      stop: ["Human:", "Assistant:", "User:"]
+    
+    chatOptions:
+      baseSystemMessage: "You are Ultron Assistant, an AI coding assistant for the ULTRON Agent 2 automation project. Focus on Python automation, PyAutoGUI safety, voice integration, and clean code with proper error handling."
+    
+    autocompleteOptions:
+      maxTokens: 128
+      temperature: 0.02
+      topP: 0.9
+      stop: ["\n\n", "def ", "class "]

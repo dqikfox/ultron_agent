@@ -1,0 +1,76 @@
+# ULTRON Enhanced AI System - Complete Requirements
+
+# Core AI Dependencies
+openai>=1.0.0
+torch>=2.0.0
+transformers>=4.30.0
+numpy>=1.24.0
+
+# System and Process Management
+psutil>=5.9.0
+pyautogui>=0.9.54
+requests>=2.31.0
+
+# Voice Recognition and Synthesis
+SpeechRecognition>=3.10.0
+pyttsx3>=2.90
+sounddevice>=0.4.6
+PyAudio>=0.2.11
+webrtcvad>=2.0.0
+noisereduce>=3.0.0
+
+# Computer Vision and OCR
+Pillow>=10.0.0
+opencv-python>=4.8.0
+pytesseract>=0.3.10
+
+# Machine Learning and Data Science
+scikit-learn>=1.3.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+
+# File Processing and Text Extraction
+textract>=1.6.5
+python-magic>=0.4.27
+python-magic-bin>=0.4.14; sys_platform == "win32"
+
+# Security and Encryption
+cryptography>=41.0.0
+keyring>=24.0.0
+
+# Offline Speech Recognition (Optional)
+vosk>=0.3.45
+
+# Web Framework
+websockets>=11.0.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+
+# Windows-specific
+pywin32>=306; sys_platform == "win32"
+
+# Audio and Media
+pygame>=2.5.0
+
+# Utilities
+python-dotenv>=1.0.0
+colorama>=0.4.6
+tqdm>=4.65.0
+pathlib>=1.0.0
+asyncio>=3.4.3
+
+# Development and Testing
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Optional Performance Enhancements
+memory-profiler>=0.61.0
+line-profiler>=4.0.0
+
+# GUI (for advanced features)
+PyQt5>=5.15.0
+
+# Network and System Monitoring
+netifaces>=0.11.0
+getmac>=0.9.0

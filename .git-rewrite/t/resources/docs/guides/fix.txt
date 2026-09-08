@@ -1,0 +1,182 @@
+
+
+1. Start Core Infrastructure
+cmd
+cd autogpt_platform\db\docker
+docker compose up -d
+2. Initialize Database
+cmd
+cd ..\..\backend
+docker compose -f docker-compose.platform.yml up -d db redis rabbitmq
+3. Run Migrations
+cmd
+docker compose -f docker-compose.platform.yml up migrate
+4. Start REST API Server
+cmd
+docker compose -f docker-compose.platform.yml up -d rest_server
+5. Launch Frontend
+cmd
+cd ..\frontend
+pnpm install
+pnpm dev
+Verification Steps 🔍
+After step 4, check services:
+
+cmd
+docker compose -f docker-compose.platform.yml ps
+Should show:
+
+text
+db             healthy
+redis          healthy
+rabbitmq       healthy
+migrate        exited (0)
+rest_server    running
+Access Points 🌐
+Service	URL	Credentials
+Frontend	http://localhost:3000	None
+REST API	http://localhost:8006/docs	None
+Database	localhost:5432	postgres/Havikz111111
+RabbitMQ	http://localhost:15672	rabbitmq_user_default/Havikz111111
+Troubleshooting Toolkit 🛠️
+If services fail:
+
+Database issues:
+
+cmd
+docker exec -it autogpt_platform-db-1 psql -U postgres -c "\l"
+RabbitMQ recovery:
+
+cmd
+docker restart rabbitmq
+docker compose -f docker-compose.platform.yml up -d --force-recreate rabbitmq
+Reset everything:
+
+cmd
+docker compose -f docker-compose.platform.yml down --volumes --remove-orphans
+docker system prune -af
+Pro Tip 💡
+Create a startup script launch.bat:
+
+bat
+@echo off
+cd autogpt_platform\db\docker
+docker compose up -d
+timeout /t 10
+cd ..\..\backend
+docker compose -f docker-compose.platform.yml up -d db redis rabbitmq
+timeout /t 15
+docker compose -f docker-compose.platform.yml up migrate
+docker compose -f docker-compose.platform.yml up -d rest_server
+start "" /D "autogpt_platform\frontend" pnpm dev
+echo AutoGPT is running! Access at http://localhost:3000
+
+
+
+
+
+
+
+
+
+I see the issues. Let's fix this step-by-step:
+
+Fixing the Problems 🔧
+Poetry Command Error:
+
+cmd
+:: Use the correct command to run the backend server
+poetry run app
+Frontend Setup:
+
+cmd
+:: Navigate to frontend and install dependencies
+cd autogpt_platform\frontend
+pnpm install
+pnpm dev
+Docker Compose Fix:
+
+cmd
+:: 1. Remove orphan containers
+docker compose down --remove-orphans --volumes
+
+:: 2. Rebuild with correct configuration
+docker compose -f docker-compose.platform.yml up -d --build
+Critical Fixes in docker-compose.platform.yml:
+yaml
+# Add this to redis service:
+healthcheck:
+  test: ["CMD", "redis-cli", "-a", "Havikz111111", "ping"]
+
+# Change rabbitmq healthcheck to:
+healthcheck:
+  test: ["CMD", "rabbitmqctl", "status"]
+Windows-Specific Commands:
+cmd
+:: Copy .env files properly
+cd autogpt_platform\backend
+copy .env.example .env
+
+:: Generate encryption key
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+Startup Sequence:
+cmd
+:: 1. Start core services
+docker compose -f docker-compose.platform.yml up -d db redis rabbitmq
+
+:: 2. Run migrations
+docker compose -f docker-compose.platform.yml up migrate
+
+:: 3. Start REST server
+docker compose -f docker-compose.platform.yml up -d rest_server
+
+:: 4. Start frontend (new terminal)
+cd autogpt_platform\frontend
+pnpm dev
+Verification:
+cmd
+docker compose -f docker-compose.platform.yml ps
+Should show all services as healthy:
+
+text
+NAME                       STATUS                        PORTS
+autogpt_platform-db-1      running (healthy)             5432/tcp
+autogpt_platform-redis-1   running (healthy)             6379/tcp
+rabbitmq                   running (healthy)             5672/tcp, 15672/tcp
+autogpt_platform-rest_...  running                       8006/tcp
+If RabbitMQ Fails:
+cmd
+:: Remove old container and restart
+docker stop rabbitmq
+docker rm rabbitmq
+docker compose -f docker-compose.platform.yml up -d --force-recreate rabbitmq
+Port Conflicts Solution:
+cmd
+:: Find and kill processes using ports
+netstat -ano | findstr :5672
+taskkill /PID <PID> /F
+
+:: Repeat for 5432, 6379, 8006
+This should resolve all the issues. The key fixes are:
+
+Correct healthchecks for Redis/RabbitMQ
+
+Proper Windows command syntax
+
+Sequential startup order
+
+Port conflict resolution
+
+Using the correct compose file explicitly
+
+The errors were due to:
+
+Healthcheck commands failing authentication
+
+Port conflicts with existing services
+
+Incorrect Windows commands (cp vs copy)
+
+Missing Docker network configuration
+
+Race conditions between services starting

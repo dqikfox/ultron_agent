@@ -2,223 +2,365 @@
 setlocal enabledelayedexpansion
 chcp 65001 > nul 2>&1
 
-:: ════════════════════════════════════════════════════════════════════════
-:: ULTRON AGENT 3.0 - LAUNCHER
-:: ════════════════════════════════════════════════════════════════════════
-:: This script:
-::   - Starts Ollama AI backend
-::   - Launches Web GUI and API servers
-::   - Monitors service health
-::   - Opens browser to Web GUI
-::
-:: FEATURES:
-::   ✓ Automatic service startup
-::   ✓ Health checking before completion
-::   ✓ Startup time tracking
-::   ✓ Clean shutdown on exit
-:: ════════════════════════════════════════════════════════════════════════
+:: ========================================================================
+:: ULTRON Agent 3.0 - Master Launcher
+:: ========================================================================
+:: Purpose: Single-command startup for complete ULTRON Agent system
+:: Services: Ollama LLM, Web GUI (8080), Frontend UI (5175), NVIDIA Chat (8002)
+:: Dependencies: Python 3.8+, Ollama, Web browser
+:: Usage: Just run this file - everything starts automatically
+:: ========================================================================
 
-title ULTRON Agent 3.0 - Launcher
+title ULTRON Agent 3.0 - Master Launcher
 
 :: ──────────────────────────────────────────────────────────────────────
-:: CONFIGURATION
+:: CONFIGURATION SECTION
 :: ──────────────────────────────────────────────────────────────────────
+:: Customize these settings if needed
 
 set "PYTHON_CMD=python"
 set "OLLAMA_CMD=%USERPROFILE%\AppData\Local\Programs\Ollama\ollama.exe"
-set "LOG_FILE=ultron.log"
-
-:: CRITICAL PORTS (must match API server configuration)
+set "LOG_FILE=ultron_master_startup.log"
+set "OLLAMA_MODEL=llava:7b"
 set "OLLAMA_PORT=11434"
-set "WEB_GUI_PORT=8888"
-set "API_SERVER_PORT=8889"
+set "WEB_GUI_PORT=8080"
+set "FRONTEND_PORT=5175"
+set "NVIDIA_CHAT_PORT=8002"
 
-:: AI MODEL CONFIGURATION
-:: PRIMARY: llava:7b (stable, fast, multimodal) - RECOMMENDED
-:: FALLBACK: deepseek-r1:14b (advanced reasoning, may timeout)
-set "OLLAMA_MODEL=dolphin3:latest"
-set "FALLBACK_MODEL=deepseek-r1:14b"
+set "NVIDIA_CHAT_PORT=8002"
 
 :: ──────────────────────────────────────────────────────────────────────
 :: INITIALIZATION
 :: ──────────────────────────────────────────────────────────────────────
+:: Initialize logging and display startup banner
 
+:: Create/clear log file
 echo. > "%LOG_FILE%"
-echo [%date% %time%] ULTRON Launcher >> "%LOG_FILE%"
+echo [%date% %time%] ULTRON Agent 3.0 Master Startup >> "%LOG_FILE%"
 echo ================================================ >> "%LOG_FILE%"
 
 cls
 echo.
 echo ╔══════════════════════════════════════════════════════════════╗
-echo ║              ULTRON AGENT 3.0 - LAUNCHER                   ║
+echo ║                    ULTRON AGENT 3.0                         ║
+echo ║                   MASTER LAUNCHER                           ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
-echo [INFO] Startup sequence initiated...
+echo [INFO] Starting ULTRON Agent system...
 echo.
 
-:: Calculate startup time (seconds precision)
-for /f "tokens=1-4 delims=: " %%a in ("!time: =0!") do (
-    set "h=%%a" & set "m=%%b" & set "s=%%c"
-    if "!h:~0,1!"=="0" set "h=!h:~1!"
-    if "!m:~0,1!"=="0" set "m=!m:~1!"
-    if "!s:~0,1!"=="0" set "s=!s:~1!"
-    if "!h!"=="" set "h=0"
-    if "!m!"=="" set "m=0"
-    if "!s!"=="" set "s=0"
-    set /a "start_sec=h*3600+m*60+s"
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 0: CLEANUP
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Stop any existing ULTRON processes to prevent conflicts
+:: Targets: Python, Ngrok, Ollama processes
+
+echo [1/9] Cleaning up existing processes...
+powershell -Command "Get-Process python,ngrok,ollama -ErrorAction SilentlyContinue | Stop-Process -Force" >nul 2>&1
+timeout /t 2 /nobreak >nul
+echo       ✓ Cleanup complete
+echo.
+
+echo       ✓ Cleanup complete
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 1: PRE-FLIGHT CHECKS
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Verify required files exist before starting services
+:: Checks: Python scripts, configuration files, GUI files
+
+echo [2/9] Running pre-flight checks...
+
+:: Check critical Python files
+if not exist "web_gui_server.py" (
+    echo       ✗ ERROR: web_gui_server.py not found
+    pause
+    exit /b 1
+)
+if not exist "main.py" (
+    echo       ✗ ERROR: main.py not found
+    pause
+    exit /b 1
 )
 
-:: ──────────────────────────────────────────────────────────────────────
-:: STEP 1: CLEANUP - Kill existing processes
-:: ──────────────────────────────────────────────────────────────────────
+:: Check configuration (warning only)
+if not exist "ultron_config.json" (
+    echo       ⚠ WARNING: ultron_config.json not found ^(using defaults^)
+) >nul 2>&1
 
-echo [1/6] 🧹 Cleanup existing processes...
-powershell -Command "Get-Process python,ollama,ngrok -EA SilentlyContinue | Stop-Process -Force" >nul 2>&1
-timeout /t 1 /nobreak >nul
-echo       ✓ Cleaned up stale processes
+:: Check GUI directory
+if exist "gui\ultron_enhanced\web\index.html" (
+    echo       ✓ GUI files verified
+) else (
+    echo       ⚠ WARNING: Primary GUI not found ^(fallback will be used^)
+)
+
+echo       ✓ Pre-flight checks passed
+echo.
+
+echo       ✓ Pre-flight checks passed
 echo.
 
 :: ──────────────────────────────────────────────────────────────────────
-:: STEP 2: PREFLIGHT CHECKS
+:: STEP 2: PYTHON VERIFICATION
 :: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Ensure Python is installed and accessible
+:: Requirement: Python 3.8 or higher
 
-echo [2/6] ✓ Preflight checks...
-set "PREFLIGHT_FAIL=0"
-if not exist "web_gui_server.py" set "PREFLIGHT_FAIL=1" & echo       ✗ web_gui_server.py missing
-if not exist "main.py" set "PREFLIGHT_FAIL=1" & echo       ✗ main.py missing
-if not exist "ultron_config.json" echo       ⚠ Config missing (using defaults)
-if !PREFLIGHT_FAIL! equ 1 (echo       ✗ CRITICAL FILES MISSING & pause & exit /b 1)
-echo       ✓ All critical files present
-echo.
+echo [3/9] Verifying Python installation...
+where %PYTHON_CMD% >nul 2>&1
+if !errorlevel! neq 0 (
+    echo       ✗ ERROR: Python not found in PATH
+    echo       Install Python 3.8+ from https://python.org
+    pause
+    exit /b 1
+)
 
-:: ──────────────────────────────────────────────────────────────────────
-:: STEP 3: PYTHON VERIFICATION
-:: ──────────────────────────────────────────────────────────────────────
-
-echo [3/6] 🐍 Python verification...
-where %PYTHON_CMD% >nul 2>&1 || (echo       ✗ Python not in PATH & pause & exit /b 1)
+:: Get Python version silently
 for /f "tokens=2" %%v in ('%PYTHON_CMD% --version 2^>^&1') do set PYTHON_VERSION=%%v
-echo       ✓ Python %PYTHON_VERSION% available
+echo       ✓ Python %PYTHON_VERSION% detected
+echo.
+
+echo       ✓ Python %PYTHON_VERSION% detected
 echo.
 
 :: ──────────────────────────────────────────────────────────────────────
-:: STEP 4: OLLAMA STARTUP (CRITICAL)
+:: STEP 3: OLLAMA SERVICE STARTUP
 :: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Start Ollama LLM backend for AI reasoning
+:: Port: 11434
+:: Dependency: All AI features require Ollama running
 
-echo [4/6] 🤖 Ollama AI backend startup...
-curl -s -m 1 http://localhost:%OLLAMA_PORT%/api/tags >nul 2>&1 && (echo       ✓ Already running & goto ollama_ready)
-if not exist "%OLLAMA_CMD%" (echo       ✗ Ollama not installed & pause & exit /b 1)
-start "Ollama-AI" /MIN /BELOWNORMAL "%OLLAMA_CMD%" serve
-set "retry=0"
-:ollama_wait
-curl -s -m 1 http://localhost:%OLLAMA_PORT%/api/tags >nul 2>&1 && goto ollama_ready
-set /a retry+=1
-if !retry! lss 8 (timeout /t 1 /nobreak >nul & goto ollama_wait)
-echo       ⚠ Ollama timeout after 8 seconds - continuing anyway
+echo [4/9] Starting Ollama service...
+
+:: Check if already running
+curl -s http://localhost:%OLLAMA_PORT%/api/tags >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Ollama already running
+    goto ollama_ready
+)
+
+:: Verify Ollama installation
+if not exist "%OLLAMA_CMD%" (
+    echo       ✗ ERROR: Ollama not found
+    echo       Install from https://ollama.ai/download
+    pause
+    exit /b 1
+)
+
+:: Start Ollama service in background
+start "Ollama Service" /MIN "%OLLAMA_CMD%" serve
+timeout /t 10 /nobreak >nul
+
+:: Verify startup with retry logic (max 5 attempts)
+set "retry_count=0"
+:ollama_retry
+curl -s http://localhost:%OLLAMA_PORT%/api/tags >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Ollama service started
+    goto ollama_ready
+)
+
+set /a retry_count+=1
+if !retry_count! lss 5 (
+    timeout /t 3 /nobreak >nul
+    goto ollama_retry
+)
+
+echo       ✗ ERROR: Ollama failed to start after 5 attempts
+pause
+exit /b 1
+
 :ollama_ready
-echo       ✓ Ollama responsive at http://localhost:%OLLAMA_PORT%
 echo.
 
 :: ──────────────────────────────────────────────────────────────────────
-:: STEP 5: MODEL VERIFICATION
+:: STEP 4: AI MODEL VERIFICATION
 :: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Ensure required AI model is downloaded
+:: Model: llava:7b (multimodal vision-enabled LLM)
+:: Note: First-time download may take 10-30 minutes
 
-echo [5/6] 🧠 AI model verification...
-"%OLLAMA_CMD%" list 2>nul | findstr "%OLLAMA_MODEL%" >nul && (echo       ✓ Model: %OLLAMA_MODEL% & goto model_ready)
-echo       ⚠ Primary model missing, checking fallback...
-"%OLLAMA_CMD%" list 2>nul | findstr "%FALLBACK_MODEL%" >nul && (set "OLLAMA_MODEL=%FALLBACK_MODEL%" & echo       ✓ Using fallback: %FALLBACK_MODEL% & goto model_ready)
-echo       ⚠ No models available - please install: ollama pull llava:7b
-:model_ready
-echo.
-
-:: ──────────────────────────────────────────────────────────────────────
-:: STEP 6: SERVICE STARTUP
-:: ──────────────────────────────────────────────────────────────────────
-
-echo [6/6] 🚀 Service startup and health check...
-start "ULTRON-WebGUI" /MIN python web_gui_server.py
-timeout /t 1 /nobreak >nul
-start "ULTRON-API" /MIN python api_server.py 2>nul
-echo       ✓ Web GUI (port %WEB_GUI_PORT%) launched
-echo       ✓ API Server (port %API_SERVER_PORT%) launched
-echo.
-
-:: Wait for services to initialize
-timeout /t 3 /nobreak >nul
-echo       Checking service health...
-curl -s -m 1 http://localhost:%WEB_GUI_PORT%/ >nul 2>&1 && echo       ✓ Web GUI HEALTHY || echo       ⚠ Web GUI initializing...
-curl -s -m 1 http://localhost:%API_SERVER_PORT%/health >nul 2>&1 && echo       ✓ API Server HEALTHY || echo       ⚠ API Server initializing...
-echo.
-
-:: ──────────────────────────────────────────────────────────────────────
-:: STARTUP COMPLETE - DISPLAY STATUS
-:: ──────────────────────────────────────────────────────────────────────
-
-for /f "tokens=1-4 delims=: " %%a in ("!time: =0!") do (
-    set "h=%%a" & set "m=%%b" & set "s=%%c"
-    if "!h:~0,1!"=="0" set "h=!h:~1!"
-    if "!m:~0,1!"=="0" set "m=!m:~1!"
-    if "!s:~0,1!"=="0" set "s=!s:~1!"
-    if "!h!"=="" set "h=0"
-    if "!m!"=="" set "m=0"
-    if "!s!"=="" set "s=0"
-    set /a "end_sec=h*3600+m*60+s"
+echo [5/9] Checking AI model...
+"%OLLAMA_CMD%" list 2>nul | findstr "%OLLAMA_MODEL%" >nul
+if !errorlevel! neq 0 (
+    echo       ⚠ Model %OLLAMA_MODEL% not found - downloading...
+    "%OLLAMA_CMD%" pull %OLLAMA_MODEL%
+    if !errorlevel! neq 0 (
+        echo       ✗ ERROR: Failed to download model
+        pause
+        exit /b 1
+    )
+    echo       ✓ Model downloaded successfully
+) else (
+    echo       ✓ Model %OLLAMA_MODEL% ready
 )
-set /a "duration_sec=end_sec-start_sec"
-if !duration_sec! lss 0 set /a "duration_sec+=86400"
-
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║           ✅ ULTRON AGENT 3.0 - STARTUP COMPLETE            ║
-echo ╚══════════════════════════════════════════════════════════════╝
 echo.
-echo  🚀 STARTUP TIME: !duration_sec! seconds
-echo  🤖 AI MODEL: %OLLAMA_MODEL%
-echo.
-echo  🌐 WEB GUI:      http://localhost:%WEB_GUI_PORT%/
-echo  API SERVER:      http://localhost:%API_SERVER_PORT%/
-echo  🤖 OLLAMA:       http://localhost:%OLLAMA_PORT%/
-echo.
-echo  📝 LOGS:         %LOG_FILE%
-echo  ⏸️  Press Ctrl+C to stop all services
-echo.
-echo ╚══════════════════════════════════════════════════════════════╝
-echo.
-
-[%date% %time%] Startup complete in !duration_sec!s >> "%LOG_FILE%"
 
 :: ──────────────────────────────────────────────────────────────────────
-:: LAUNCH BROWSER TO WEB GUI
+:: STEP 5: PYTHON SYNTAX VALIDATION
 :: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Quick syntax check of core Python files
+:: Files tested: main.py, web_gui_server.py
 
-echo 🌐 Launching Web GUI in default browser...
-set "GUI_URL=http://localhost:%WEB_GUI_PORT%/"
-for %%b in (chrome.exe msedge.exe firefox.exe) do (
-    where %%b >nul 2>&1 && (start %%b "!GUI_URL!" & echo       ✓ Opened in %%b & goto browser_done)
+echo [6/9] Validating Python scripts...
+set SYNTAX_ERROR=0
+for %%f in (web_gui_server.py main.py) do (
+    python -m py_compile "%%f" >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo       ✗ Syntax error in %%f
+        set SYNTAX_ERROR=1
+    )
 )
-start "" "!GUI_URL!"
-echo       ✓ Opened in default browser
-:browser_done
+if !SYNTAX_ERROR! equ 1 (
+    echo       ✗ ERROR: Python syntax errors detected
+    pause
+    exit /b 1
+)
+echo       ✓ All scripts valid
 echo.
 
 :: ──────────────────────────────────────────────────────────────────────
-:: END OF STARTUP - WAIT FOR USER
 :: ──────────────────────────────────────────────────────────────────────
+:: STEP 6: WEB GUI SERVER STARTUP
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Launch Pokédex-style web interface (PRIMARY GUI)
+:: Port: 8080 (configurable via WEB_GUI_PORT)
+:: Endpoint: http://localhost:8080/
 
+echo [7/9] Starting Web GUI Server (port %WEB_GUI_PORT%)...
+start "ULTRON Web GUI" /MIN python web_gui_server.py
+timeout /t 5 /nobreak >nul
+
+curl -s "http://localhost:%WEB_GUI_PORT%/" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Web GUI Server running
+) else (
+    echo       ⚠ Web GUI Server may not have started
+)
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 7: FRONTEND UI SERVER STARTUP
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: Alternative frontend interface
+:: Port: 5175 (configurable via FRONTEND_PORT)
+:: Endpoint: http://localhost:5175/
+
+echo [8/9] Starting Frontend UI Server (port %FRONTEND_PORT%)...
+start "ULTRON Frontend UI" /MIN python frontend_server.py --port %FRONTEND_PORT%
 timeout /t 3 /nobreak >nul
 
-:keep_alive
+curl -s "http://localhost:%FRONTEND_PORT%/" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ Frontend UI Server running
+) else (
+    echo       ⚠ Frontend UI Server may not have started
+)
 echo.
-echo ═══════════════════════════════════════════════════════════════
-echo   ULTRON services are running. Press Ctrl+C to stop.
-echo ═══════════════════════════════════════════════════════════════
-echo.
-timeout /t 99999 /nobreak >nul
-goto keep_alive
 
-:end_of_script
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 8: NVIDIA ENHANCED CHAT SERVER STARTUP
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 8: NVIDIA ENHANCED CHAT SERVER STARTUP
+:: ──────────────────────────────────────────────────────────────────────
+:: Purpose: NVIDIA-enhanced AI chat service
+:: Port: 8002 (configurable via NVIDIA_CHAT_PORT)
+:: Endpoint: http://localhost:8002/health
+
+echo [9/9] Starting NVIDIA Chat Server (port 8002)...
+start "ULTRON NVIDIA Chat" /MIN python nvidia_enhanced_ultron.py
+timeout /t 3 /nobreak >nul
+
+curl -s "http://localhost:8002/health" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo       ✓ NVIDIA Chat Server running
+) else (
+    echo       ⚠ NVIDIA Chat Server may not have started
+)
 echo.
-echo 🛑 Shutting down ULTRON services...
-powershell -Command "Get-Process python,ollama -EA SilentlyContinue | Stop-Process -Force" 2>nul
-echo ✓ All services terminated
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STEP 9: STARTUP COMPLETE
+:: ──────────────────────────────────────────────────────────────────────
+
+:: Optional: Start Ngrok tunnel for remote access
+where ngrok >nul 2>&1
+if !errorlevel! equ 0 (
+    echo [OPTIONAL] Starting Ngrok tunnel...
+    start "ULTRON Ngrok Tunnel" /MIN cmd /c "ngrok http 8080"
+    timeout /t 5 /nobreak >nul
+
+    for /f "tokens=*" %%i in ('curl -s http://localhost:4040/api/tunnels ^| findstr /C:"public_url" ^| findstr /C:"https://"') do (
+        set NGROK_LINE=%%i
+    )
+
+    if defined NGROK_LINE (
+        for /f "tokens=2 delims=:," %%a in ("!NGROK_LINE!") do (
+            set NGROK_RAW=%%a
+            set NGROK_URL=!NGROK_RAW:"=!
+            set NGROK_URL=!NGROK_URL: =!
+            set NGROK_URL=https:!NGROK_URL!
+        )
+    )
+
+    if defined NGROK_URL (
+        echo          ✓ Ngrok tunnel: !NGROK_URL!
+        echo          Dashboard: http://localhost:4040
+    ) else (
+        echo          ⚠ Ngrok started - check http://localhost:4040 for URL
+    )
+) else (
+    echo          - Ngrok not installed (optional)
+)
 echo.
-exit /b 0
+
+:: ──────────────────────────────────────────────────────────────────────
+:: STARTUP SUMMARY
+:: ──────────────────────────────────────────────────────────────────────
+
+echo ╔════════════════════════════════════════════════════════════════╗
+echo ║                  🚀 ULTRON AGENT 3.0 READY                     ║
+echo ╚════════════════════════════════════════════════════════════════╝
+echo.
+echo    Services Running:
+echo    • Ollama LLM       : http://localhost:%OLLAMA_PORT%
+echo    • Web GUI          : http://localhost:%WEB_GUI_PORT%
+echo    • Frontend UI      : http://localhost:%FRONTEND_PORT%
+echo    • NVIDIA Chat      : http://localhost:8002
+echo.
+echo    Opening Web GUI in browser...
+echo.
+
+:: Auto-open PRIMARY GUI only (Web GUI on port 8080)
+start http://localhost:%WEB_GUI_PORT%
+
+echo    Press any key to stop all services...
+pause
+echo.
+echo    Shutting down ULTRON services...
+echo.
+
+:: ──────────────────────────────────────────────────────────────────────
+:: HELPER FUNCTIONS
+:: ──────────────────────────────────────────────────────────────────────
+
+:: ──────────────────────────────────────────────────────────────────────
+:: HELPER FUNCTIONS
+:: ──────────────────────────────────────────────────────────────────────
+
+:info
+echo [INFO] %~1
+echo [%date% %time%] [INFO] %~1 >> "%LOG_FILE%" 2>nul
+goto :eof
+
+:success
+echo [SUCCESS] %~1
+echo [%date% %time%] [SUCCESS] %~1 >> "%LOG_FILE%" 2>nul
+goto :eof
+
+:error
+echo [ERROR] %~1
+echo [%date% %time%] [ERROR] %~1 >> "%LOG_FILE%" 2>nul
+goto :eof

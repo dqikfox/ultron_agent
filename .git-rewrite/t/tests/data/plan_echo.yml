@@ -1,0 +1,4 @@
+tasks:
+  - action: echo
+    params:
+      message: "hello-world"

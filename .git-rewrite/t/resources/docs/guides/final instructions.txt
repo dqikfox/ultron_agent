@@ -1,0 +1,146 @@
+AutoGPT Platform — Complete Step-by-Step Windows Installation Guide
+
+1. Prerequisites
+
+Install and verify the following:
+
+Git: https://git-scm.com/download/win
+
+Node.js (with npm): https://nodejs.org/en/download/
+
+Verify: node -v, npm -v
+
+Docker Desktop (with Docker Compose): https://docs.docker.com/desktop/
+
+Use WSL 2 backend, not Hyper-V!
+
+Verify: docker -v, docker compose -v
+
+2. Clone the Repository
+
+Open Command Prompt or Windows Terminal:
+
+cd C:\Users\YOURNAME\source\repos
+git clone https://github.com/Significant-Gravitas/AutoGPT.git
+cd AutoGPT\autogpt_platform
+
+All Docker/Backend commands are run from here unless stated otherwise.
+
+3. Configure Environment (.env) Files
+
+a. Copy the environment file:copy .env.example .env(Use copy, not cp, on Windows!)
+
+b. Edit .env in autogpt_platform (Notepad/VSCode):
+
+Change every required secret (POSTGRES_PASSWORD, JWT_SECRET, etc) to strong unique values.
+
+Double-check POSTGRES_PASSWORD matches everywhere it's referenced (especially in docker compose and .env).
+
+c. Save the file.
+
+4. Backend Setup (Docker Compose)
+
+From autogpt_platform folder:
+
+docker compose up -d --build
+
+This will start all backend containers.
+
+Wait for all to say "Up" or "Healthy".
+
+To check status:
+
+docker ps -a
+
+If any container is in Restarting/Exited state, check logs:
+
+docker logs <container_name>
+
+Do not proceed until containers are up and healthy.
+
+5. Frontend Setup (Node.js/PNPM)
+
+Open a NEW terminal window:
+
+cd C:\Users\YOURNAME\source\repos\AutoGPT\autogpt_platform\frontend
+copy .env.example .env
+corepack enable
+pnpm install
+pnpm dev
+
+(Leave this terminal running for the frontend!)
+
+6. Access the Platform
+
+Go to http://localhost:3000 in your browser.
+
+7. Troubleshooting & Real-World Fixes
+
+File not found (docker-compose.platform.yaml):
+
+Use .yml not .yaml.
+
+Be in the right folder! Run dir to confirm filename.
+
+depends on undefined service "db":
+
+Ensure your docker-compose file includes a db (Postgres) block.
+
+Example:
+
+db:
+  image: supabase/postgres:15.8.1.049
+  restart: always
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: <your_password>
+    POSTGRES_DB: postgres
+  healthcheck:
+    test: ["CMD", "pg_isready", "-U", "postgres"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+
+Prisma/DB auth errors (P1000: Authentication failed):
+
+Make sure .env and Compose passwords match.
+
+If not, docker compose down --volumes to wipe data and retry.
+
+Unknown shorthand flag (-f):
+
+With Docker Desktop, use: docker compose -f filename.yml up -d --build
+
+Don't mix docker compose (space) and docker-compose (hyphen); prefer the space version.
+
+Database stuck unhealthy (Windows):
+
+Use WSL 2 for Docker backend!
+
+Docker Desktop > Settings > General > Enable "WSL 2 based engine".
+
+To nuke and reset everything:
+
+docker compose down --volumes --remove-orphans
+
+8. Useful Commands
+
+Check all containers: docker ps -a
+
+Logs for a container: docker logs <container_name>
+
+Stop all: docker compose down
+
+Rebuild and restart: docker compose up -d --build
+
+Notes
+
+Never use production with defaults or exposed secrets!
+
+If you edit .env or Compose, restart Docker.
+
+When stuck: always check logs (docker logs <name>).
+
+This guide is AI-generated and adapted for Lord Hitchy, from both docs and hands-on problem-solving.
+

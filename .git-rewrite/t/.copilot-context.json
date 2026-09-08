@@ -1,0 +1,135 @@
+{
+  "version": "1.0",
+  "project": {
+    "name": "ULTRON Agent 3.0",
+    "description": "Advanced AI agent with multi-modal capabilities, security-first architecture, and multi-AI integration",
+    "type": "python-ai-agent",
+    "framework": "asyncio-based",
+    "security_level": "high"
+  },
+  "codebase": {
+    "patterns": {
+      "security": "Always use security_utils for input sanitization and validation",
+      "logging": "Use sanitize_log_input for all log messages to prevent log injection",
+      "async": "Prefer async/await for I/O operations and use proper resource management",
+      "error_handling": "Use specific exceptions, not broad except clauses",
+      "type_hints": "Always include comprehensive type hints",
+      "documentation": "Use Google-style docstrings with Args and Returns sections"
+    },
+    "modules": {
+      "core": {
+        "agent_core": "Main agent orchestration and coordination",
+        "brain": "AI reasoning and decision-making engine",
+        "config": "Configuration management with security enhancements",
+        "gui_ultimate": "Advanced GUI interface with security fixes"
+      },
+      "security": {
+        "security_utils": "Input sanitization, XSS prevention, path validation",
+        "functions": [
+          "sanitize_log_input(text: str) -> str",
+          "sanitize_html_output(text: str) -> str", 
+          "validate_file_path(path: str, allowed_bases: list = None) -> bool",
+          "secure_filename(filename: str) -> str",
+          "validate_api_key(key: str) -> bool"
+        ]
+      },
+      "integration": {
+        "integration_manager": "Component orchestration and health monitoring",
+        "performance_optimizer": "Performance monitoring and optimization",
+        "copilot_integration": "Enhanced AI assistance and project context"
+      },
+      "testing": {
+        "test_security": "Comprehensive security test suite (10/10 tests passing)",
+        "patterns": "Use pytest with AAA pattern (Arrange, Act, Assert)"
+      }
+    },
+    "conventions": {
+      "naming": {
+        "functions": "snake_case",
+        "variables": "snake_case", 
+        "classes": "PascalCase",
+        "constants": "UPPER_SNAKE_CASE",
+        "files": "snake_case.py"
+      },
+      "imports": {
+        "order": "stdlib, third-party, local modules",
+        "style": "from module import specific_function",
+        "security": "Always import security_utils functions explicitly"
+      },
+      "docstrings": {
+        "style": "Google format",
+        "required_sections": ["Args", "Returns", "Raises"],
+        "example": "\"\"\"Function description.\n\nArgs:\n    param: Description\n\nReturns:\n    Description of return value\n\"\"\""
+      }
+    }
+  },
+  "ai_context": {
+    "focus_areas": [
+      "Security-first development with input sanitization",
+      "Performance optimization and monitoring", 
+      "Multi-AI integration (Amazon Q, GitHub Copilot, Sixth AI)",
+      "Async programming patterns with proper resource management",
+      "Comprehensive error handling and logging",
+      "Type safety with full type hints"
+    ],
+    "security_requirements": [
+      "Sanitize all user inputs with security_utils functions",
+      "Validate file paths to prevent traversal attacks",
+      "Escape HTML output to prevent XSS",
+      "Use specific exception handling, not broad catches",
+      "Log all security events with sanitized inputs"
+    ],
+    "avoid": [
+      "Hardcoded credentials or API keys",
+      "Broad exception handling (except: pass)",
+      "Blocking I/O operations in async contexts",
+      "Unsanitized user input in logs or output",
+      "Direct file path operations without validation",
+      "Missing type hints on function parameters and returns"
+    ],
+    "preferred_libraries": {
+      "async": "asyncio, aiohttp, aiofiles",
+      "security": "bcrypt, cryptography, secrets",
+      "testing": "pytest, pytest-asyncio",
+      "logging": "logging with RotatingFileHandler",
+      "type_checking": "typing, mypy"
+    }
+  },
+  "development_workflow": {
+    "testing": {
+      "command": "python -m pytest test_security.py -v",
+      "coverage": "All security tests must pass (10/10)",
+      "patterns": "Use AAA pattern and descriptive test names"
+    },
+    "security_checks": {
+      "input_validation": "Always validate and sanitize inputs",
+      "output_encoding": "Escape HTML output for web interfaces",
+      "file_operations": "Validate paths and check permissions",
+      "logging": "Sanitize all logged data"
+    },
+    "performance": {
+      "monitoring": "Use PerformanceMonitor for critical functions",
+      "async_patterns": "Prefer async/await for I/O operations",
+      "resource_management": "Use context managers for resources"
+    }
+  },
+  "integration_points": {
+    "ai_services": {
+      "amazon_q": "AWS-focused assistance and cloud services",
+      "github_copilot": "Code completion and general programming",
+      "sixth_ai": "Advanced inline completions with proposed APIs"
+    },
+    "components": {
+      "registration": "Use integration_manager.register_component()",
+      "initialization": "Implement initialize() and health_check() methods",
+      "monitoring": "Register with PerformanceMonitor for metrics"
+    }
+  },
+  "common_tasks": {
+    "new_function": "Use ultron-secure-func snippet for security-first functions",
+    "async_handler": "Use ultron-async snippet for async operations",
+    "component_class": "Use ultron-class snippet for new components",
+    "api_endpoint": "Use ultron-api snippet for web endpoints",
+    "test_function": "Use ultron-test snippet for test cases"
+  }
+}

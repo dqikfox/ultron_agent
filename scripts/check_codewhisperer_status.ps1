@@ -1,7 +1,26 @@
 # Check AWS CodeWhisperer Customization Status
 # Usage: .\scripts\check_codewhisperer_status.ps1
 
-$customizationArn = "arn:aws:codewhisperer:us-east-1:941284019015:customization/7UY44NRR97Q4"
+# Load customization ARN from environment variable or config file
+$customizationArn = $env:CODEWHISPERER_CUSTOMIZATION_ARN
+
+if (-not $customizationArn) {
+    $configPath = Join-Path $PSScriptRoot "codewhisperer_config.json"
+    if (Test-Path $configPath) {
+        try {
+            $config = Get-Content $configPath | ConvertFrom-Json
+            $customizationArn = $config.customizationArn
+        } catch {
+            Write-Host "❌ Failed to parse codewhisperer_config.json: $_" -ForegroundColor Red
+            exit 1
+        }
+    }
+}
+
+if (-not $customizationArn) {
+    Write-Host "❌ Customization ARN not set. Please set the CODEWHISPERER_CUSTOMIZATION_ARN environment variable or provide codewhisperer_config.json." -ForegroundColor Red
+    exit 1
+}
 
 Write-Host "🔍 Checking CodeWhisperer Customization Status..." -ForegroundColor Cyan
 Write-Host ""

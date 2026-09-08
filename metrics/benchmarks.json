@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2025-10-27T01:01:38.086925",
+    "cpu_usage": 25.0,
+    "memory_usage": 43.6,
+    "response_time": 50.0,
+    "api_latency": -1,
+    "ollama_latency": 94.08831596374512,
+    "gui_load_time": -1,
+    "tool_count": 3,
+    "active_services": 4,
+    "version": "5b4246c8"
+  }
+]

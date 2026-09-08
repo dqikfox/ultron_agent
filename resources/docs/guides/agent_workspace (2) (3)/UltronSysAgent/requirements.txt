@@ -1,0 +1,58 @@
+# Core dependencies
+asyncio-mqtt>=0.16.0
+numpy>=1.24.0
+psutil>=5.9.0
+
+# AI and Language Models
+openai>=1.35.0
+httpx>=0.25.0
+
+# Voice Processing
+sounddevice>=0.4.6
+webrtcvad>=2.0.10
+# whisper  # Uncomment if you want to install OpenAI Whisper
+pyttsx3>=2.90
+
+# File Processing
+PyPDF2>=3.0.1
+python-docx>=0.8.11
+Pillow>=10.0.0
+pytesseract>=0.3.10
+
+# Computer Vision
+opencv-python>=4.8.0
+
+# Vector Database and Embeddings
+chromadb>=0.4.15
+sentence-transformers>=2.2.2
+
+# GUI
+tkinter  # Usually comes with Python
+# tkinterdnd2>=0.3.0  # Optional for drag-and-drop
+
+# Networking and APIs
+requests>=2.31.0
+flask>=2.3.0
+
+# Database
+sqlite3  # Usually comes with Python
+
+# Windows-specific
+pywin32>=306; sys_platform == "win32"
+pyautogui>=0.9.54
+
+# Local AI Models (optional)
+# llama-cpp-python>=0.2.11  # Uncomment for local model support
+
+# Development and testing
+pytest>=7.4.0
+black>=23.7.0
+isort>=5.12.0
+
+# Colorama for Windows console colors
+colorama>=0.4.6
+
+# Additional utilities
+python-dotenv>=1.0.0
+schedule>=1.2.0
+watchdog>=3.0.0
