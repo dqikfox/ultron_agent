@@ -1,0 +1,104 @@
+name: Ultron Agent CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-type-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Lint with ruff
+      run: ruff check .
+
+    - name: Format check with black
+      run: black --check .
+
+    - name: Type check with mypy
+      run: mypy ultron_agent/ --ignore-missing-imports
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y portaudio19-dev python3-pyaudio
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Run tests
+      run: pytest tests/ -v --cov=ultron_agent --cov-report=xml
+
+    - name: Upload coverage
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+
+  build:
+    runs-on: windows-latest
+    needs: [lint-and-type-check, test]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        pip install pyinstaller
+
+    - name: Build executable
+      run: |
+        pyinstaller --onefile --windowed --name UltronAgent main.py
+
+    - name: Create release archive
+      run: |
+        mkdir UltronAgent-${{ github.sha }}
+        copy dist/UltronAgent.exe UltronAgent-${{ github.sha }}/
+        copy README.md UltronAgent-${{ github.sha }}/
+        copy LICENSE UltronAgent-${{ github.sha }}/
+        7z a UltronAgent-${{ github.sha }}.zip UltronAgent-${{ github.sha }}/
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: UltronAgent-Windows
+        path: UltronAgent-${{ github.sha }}.zip

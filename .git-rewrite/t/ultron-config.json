@@ -1,0 +1,27 @@
+{
+  "ollamaUrl": "http://localhost:11434",
+  "elevenLabsApiKey": "",
+  "selectedVoice": "EXAVITQu4vr4xnSDxMaL",
+  "theme": "ultron-dark",
+  "audioSettings": {
+    "pushToTalk": true,
+    "alwaysListening": false,
+    "voiceActivation": "spacebar"
+  },
+  "uiSettings": {
+    "showWaveform": true,
+    "glowEffects": true,
+    "animationSpeed": "normal"
+  },
+  "systemSettings": {
+    "autoStart": false,
+    "minimizeToTray": true,
+    "enableNotifications": true
+  },
+  "voiceSettings": {
+    "preventRepetition": true,
+    "maxRepeatWords": 1,
+    "speechRate": 170,
+    "speechVolume": 1.0
+  }
+}

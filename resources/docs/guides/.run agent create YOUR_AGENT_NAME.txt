@@ -1,0 +1,47 @@
+./run agent create YOUR_AGENT_NAME
+
+
+./run agent start YOUR_AGENT_NAME
+
+This starts the agent on the URL: http://localhost:8000/
+
+agpt % ./run benchmark
+Usage: cli.py benchmark [OPTIONS] COMMAND [ARGS]...
+
+  Commands to start the benchmark and list tests and categories
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  categories  Benchmark categories group command
+  start       Starts the benchmark command
+  tests       Benchmark tests group command
+agpt % ./run benchmark categories     
+Usage: cli.py benchmark categories [OPTIONS] COMMAND [ARGS]...
+
+  Benchmark categories group command
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  list  List benchmark categories command
+agpt % ./run benchmark tests      
+Usage: cli.py benchmark tests [OPTIONS] COMMAND [ARGS]...
+
+  Benchmark tests group command
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  details  Benchmark test details command
+  list     List benchmark tests command
+The benchmark has been split into different categories of skills you can test your agent on. You can see what categories are available with
+
+./run benchmark categories list
+# And what tests are available with
+./run benchmark tests list
+
+ultro@MSI:/mnt/c/Users/ultro/source/repos/AutoGPT/classic$ ./run agent start ultron

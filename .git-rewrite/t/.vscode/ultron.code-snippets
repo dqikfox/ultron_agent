@@ -1,0 +1,226 @@
+{
+  "ULTRON Security Function": {
+    "prefix": "ultron-secure-func",
+    "body": [
+      "def ${1:function_name}(${2:params}) -> ${3:return_type}:",
+      "    \"\"\"${4:Description}",
+      "    ",
+      "    Args:",
+      "        ${2:params}: ${5:Parameter description}",
+      "    ",
+      "    Returns:",
+      "        ${3:return_type}: ${6:Return description}",
+      "    \"\"\"",
+      "    try:",
+      "        # Sanitize inputs",
+      "        sanitized_input = sanitize_log_input(str(${7:input_var}))",
+      "        ",
+      "        # Your implementation here",
+      "        ${8:implementation}",
+      "        ",
+      "        return ${9:result}",
+      "    except Exception as e:",
+      "        logger.error(f\"${1:function_name} failed: {sanitize_log_input(str(e))}\")",
+      "        raise"
+    ],
+    "description": "ULTRON secure function template with proper error handling and input sanitization"
+  },
+  
+  "ULTRON Async Handler": {
+    "prefix": "ultron-async",
+    "body": [
+      "async def ${1:handler_name}(${2:params}) -> ${3:return_type}:",
+      "    \"\"\"${4:Async handler description}\"\"\"",
+      "    try:",
+      "        async with ${5:context_manager}:",
+      "            ${6:implementation}",
+      "            return ${7:result}",
+      "    except Exception as e:",
+      "        logger.error(f\"Async operation failed: {sanitize_log_input(str(e))}\")",
+      "        raise"
+    ],
+    "description": "ULTRON async handler template with proper resource management"
+  },
+  
+  "ULTRON Security Check": {
+    "prefix": "ultron-security",
+    "body": [
+      "# Security validation",
+      "if not validate_file_path(${1:file_path}):",
+      "    raise ValueError(\"Invalid file path\")",
+      "",
+      "sanitized_input = sanitize_log_input(${2:user_input})",
+      "sanitized_output = sanitize_html_output(${3:html_content})"
+    ],
+    "description": "ULTRON security validation checks"
+  },
+  
+  "ULTRON Component Registration": {
+    "prefix": "ultron-component",
+    "body": [
+      "# Register component with integration manager",
+      "${1:component_instance} = ${2:ComponentClass}()",
+      "integration_manager.register_component('${3:component_name}', ${1:component_instance})",
+      "",
+      "# Initialize if needed",
+      "if hasattr(${1:component_instance}, 'initialize'):",
+      "    await ${1:component_instance}.initialize()"
+    ],
+    "description": "Register component with ULTRON integration manager"
+  },
+  
+  "ULTRON Class Template": {
+    "prefix": "ultron-class",
+    "body": [
+      "class ${1:ClassName}:",
+      "    \"\"\"${2:Class description}\"\"\"",
+      "    ",
+      "    def __init__(self, ${3:params}):",
+      "        self.logger = logging.getLogger(__name__)",
+      "        ${4:initialization}",
+      "        ",
+      "    async def initialize(self) -> bool:",
+      "        \"\"\"Initialize the component.\"\"\"",
+      "        try:",
+      "            ${5:initialization_logic}",
+      "            self.logger.info(f\"${1:ClassName} initialized successfully\")",
+      "            return True",
+      "        except Exception as e:",
+      "            self.logger.error(f\"${1:ClassName} initialization failed: {sanitize_log_input(str(e))}\")",
+      "            return False",
+      "            ",
+      "    async def health_check(self) -> bool:",
+      "        \"\"\"Check component health.\"\"\"",
+      "        try:",
+      "            ${6:health_check_logic}",
+      "            return True",
+      "        except Exception:",
+      "            return False"
+    ],
+    "description": "ULTRON component class template with initialization and health check"
+  },
+  
+  "ULTRON API Endpoint": {
+    "prefix": "ultron-api",
+    "body": [
+      "@app.route('/${1:endpoint}', methods=['${2:GET}'])",
+      "async def ${3:handler_name}():",
+      "    \"\"\"${4:Endpoint description}\"\"\"",
+      "    try:",
+      "        # Validate request",
+      "        ${5:validation_logic}",
+      "        ",
+      "        # Process request",
+      "        result = ${6:processing_logic}",
+      "        ",
+      "        # Sanitize response",
+      "        sanitized_result = sanitize_html_output(str(result))",
+      "        ",
+      "        return jsonify({",
+      "            'status': 'success',",
+      "            'data': sanitized_result",
+      "        })",
+      "    except Exception as e:",
+      "        logger.error(f\"API endpoint ${1:endpoint} failed: {sanitize_log_input(str(e))}\")",
+      "        return jsonify({",
+      "            'status': 'error',",
+      "            'message': 'Internal server error'",
+      "        }), 500"
+    ],
+    "description": "ULTRON API endpoint template with security and error handling"
+  },
+  
+  "ULTRON Test Function": {
+    "prefix": "ultron-test",
+    "body": [
+      "def test_${1:function_name}(self):",
+      "    \"\"\"Test ${2:description}\"\"\"",
+      "    # Arrange",
+      "    ${3:test_setup}",
+      "    ",
+      "    # Act",
+      "    result = ${4:function_call}",
+      "    ",
+      "    # Assert",
+      "    assert ${5:assertion}",
+      "    ${6:additional_assertions}"
+    ],
+    "description": "ULTRON test function template following AAA pattern"
+  },
+  
+  "ULTRON Logger Setup": {
+    "prefix": "ultron-logger",
+    "body": [
+      "import logging",
+      "from security_utils import sanitize_log_input",
+      "",
+      "# Setup logger",
+      "logger = logging.getLogger(__name__)",
+      "logger.setLevel(logging.INFO)",
+      "",
+      "# Create handler with rotation",
+      "handler = logging.handlers.RotatingFileHandler(",
+      "    '${1:logfile}.log',",
+      "    maxBytes=10*1024*1024,  # 10MB",
+      "    backupCount=5",
+      ")",
+      "",
+      "# Set format",
+      "formatter = logging.Formatter(",
+      "    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'",
+      ")",
+      "handler.setFormatter(formatter)",
+      "logger.addHandler(handler)"
+    ],
+    "description": "ULTRON logger setup with rotation and security"
+  },
+  
+  "ULTRON Config Loader": {
+    "prefix": "ultron-config",
+    "body": [
+      "def load_config(config_path: str) -> Dict[str, Any]:",
+      "    \"\"\"Load configuration with validation.\"\"\"",
+      "    try:",
+      "        if not validate_file_path(config_path):",
+      "            raise ValueError(\"Invalid config file path\")",
+      "            ",
+      "        with open(config_path, 'r', encoding='utf-8') as f:",
+      "            config = json.load(f)",
+      "            ",
+      "        # Validate required keys",
+      "        required_keys = [${1:'key1', 'key2'}]",
+      "        for key in required_keys:",
+      "            if key not in config:",
+      "                raise KeyError(f\"Missing required config key: {key}\")",
+      "                ",
+      "        logger.info(f\"Configuration loaded from {sanitize_log_input(config_path)}\")",
+      "        return config",
+      "        ",
+      "    except Exception as e:",
+      "        logger.error(f\"Config loading failed: {sanitize_log_input(str(e))}\")",
+      "        raise"
+    ],
+    "description": "ULTRON configuration loader with validation"
+  },
+  
+  "ULTRON Performance Monitor": {
+    "prefix": "ultron-perf",
+    "body": [
+      "from performance_optimizer import PerformanceMonitor",
+      "",
+      "# Initialize performance monitoring",
+      "perf_monitor = PerformanceMonitor()",
+      "",
+      "# Monitor function execution",
+      "@perf_monitor.monitor_execution",
+      "def ${1:function_name}(${2:params}):",
+      "    \"\"\"${3:Function description}\"\"\"",
+      "    ${4:implementation}",
+      "",
+      "# Get performance metrics",
+      "metrics = perf_monitor.get_metrics()",
+      "logger.info(f\"Performance metrics: {sanitize_log_input(str(metrics))}\")"
+    ],
+    "description": "ULTRON performance monitoring setup"
+  }
+}

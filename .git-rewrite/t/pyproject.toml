@@ -1,0 +1,145 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ultron-agent"
+version = "3.0.0"
+description = "Local voice-first AI assistant with multi-model support"
+authors = [
+    {name = "dqikfox", email = "dqikst@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi>=0.104.0,<0.105.0",
+    "uvicorn[standard]>=0.24.0,<0.25.0",
+    "pydantic>=2.5.0,<3.0.0",
+    "python-multipart>=0.0.6,<0.1.0",
+    "python-dotenv>=1.0.0,<2.0.0",
+    "requests>=2.31.0,<3.0.0",
+    "aiohttp>=3.9.0,<4.0.0",
+    "asyncio-mqtt>=0.16.0,<0.17.0",
+    "websockets>=12.0,<13.0",
+    "pyttsx3>=2.90,<3.0",
+    "SpeechRecognition>=3.10.0,<4.0.0",
+    "PyAudio>=0.2.11,<0.3.0",
+    "elevenlabs>=1.0.0,<2.0.0",
+    "openai>=1.0.0,<2.0.0",
+    "Pillow>=10.0.0,<11.0.0",
+    "opencv-python>=4.8.0,<5.0.0",
+    "pyautogui>=0.9.54,<0.10.0",
+    "psutil>=5.9.0,<6.0.0",
+    "GPUtil>=1.4.0,<2.0.0",
+    "python-json-logger>=2.0.7,<3.0.0",
+    "prometheus-client>=0.19.0,<0.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0,<8.0.0",
+    "pytest-asyncio>=0.21.0,<0.22.0",
+    "pytest-cov>=4.1.0,<5.0.0",
+    "black>=23.0.0,<24.0.0",
+    "ruff>=0.1.0,<0.2.0",
+    "mypy>=1.7.0,<2.0.0",
+    "pre-commit>=3.5.0,<4.0.0",
+]
+gui = [
+    "tkinter-native>=1.0.0,<2.0.0",
+    "customtkinter>=5.2.0,<6.0.0",
+]
+ml = [
+    "torch>=2.1.0,<3.0.0",
+    "transformers>=4.35.0,<5.0.0",
+    "numpy>=1.24.0,<2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/dqikfox/ultron_agent"
+Repository = "https://github.com/dqikfox/ultron_agent"
+Issues = "https://github.com/dqikfox/ultron_agent/issues"
+
+[project.scripts]
+ultron = "ultron_agent.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ultron_agent*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  __pycache__
+  | \.git
+  | \.venv
+  | venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+line-length = 88
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pyttsx3.*",
+    "speech_recognition.*",
+    "elevenlabs.*",
+    "pyautogui.*",
+    "cv2.*",
+    "GPUtil.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "--cov=ultron_agent --cov-report=html --cov-report=term-missing"
+asyncio_mode = "auto"

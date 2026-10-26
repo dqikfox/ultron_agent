@@ -1,18 +1,11 @@
 import time
 import psutil
 import asyncio
-import tracemalloc
-import json
-import cProfile
-import pstats
-from io import StringIO
-from typing import Dict, List, Any, Optional, Callable
-from dataclasses import dataclass, asdict, field
-from datetime import datetime
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, asdict
 from utils.ultron_logger import ultron_logger
 import threading
 from contextlib import contextmanager
-from functools import wraps
 
 @dataclass
 class PerformanceMetrics:
@@ -26,8 +19,6 @@ class PerformanceMetrics:
     memory_percent: float
     thread_count: int
     operation_metadata: Dict[str, Any]
-    peak_memory_mb: float = 0.0  # Peak memory during execution
-    allocated_memory_mb: float = 0.0  # Memory allocated
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -44,23 +35,6 @@ class SystemMetrics:
     network_connections: int
     active_threads: int
 
-@dataclass
-class MemoryStats:
-    """Memory usage statistics"""
-    current_usage_mb: float
-    peak_usage_mb: float
-    allocated_mb: float
-    timestamp: datetime = field(default_factory=datetime.now)
-
-@dataclass
-class PerformanceAlert:
-    """Performance threshold violation alert"""
-    component: str
-    metric: str
-    value: float
-    threshold: float
-    timestamp: datetime = field(default_factory=datetime.now)
-
 class PerformanceProfiler:
     """Performance profiling system for ULTRON auto-analysis"""
 
@@ -71,13 +45,6 @@ class PerformanceProfiler:
         self.monitoring_active = False
         self.monitoring_thread: Optional[threading.Thread] = None
         self.collection_interval = config.get('performance_collection_interval', 1.0)  # seconds
-        self.performance_thresholds: Dict[str, float] = {}
-        self.alerts: List[PerformanceAlert] = []
-        self.historical_comparisons: Dict[str, List[PerformanceMetrics]] = {}
-
-        # Initialize memory tracking
-        tracemalloc.start()
-        self.peak_memory = 0.0
 
     def start_system_monitoring(self):
         """Start background system monitoring"""
@@ -333,95 +300,6 @@ class PerformanceProfiler:
 
         return bottlenecks
 
-    def set_performance_threshold(self, component: str, metric: str, threshold: float) -> None:
-        """Set performance threshold for a component metric"""
-        key = f"{component}:{metric}"
-        self.performance_thresholds[key] = threshold
-        ultron_logger.log_info("performance_profiler", f"Threshold set: {key} = {threshold}")
-
-    async def get_memory_usage(self) -> MemoryStats:
-        """Get current memory usage statistics"""
-        current, peak = tracemalloc.get_traced_memory()
-        return MemoryStats(
-            current_usage_mb=current / (1024 * 1024),
-            peak_usage_mb=peak / (1024 * 1024),
-            allocated_mb=psutil.Process().memory_info().rss / (1024 * 1024)
-        )
-
-    async def profile_async(self, coro) -> Any:
-        """Profile an async coroutine"""
-        start = time.time()
-        start_memory = tracemalloc.get_traced_memory()[0]
-
-        try:
-            result = await coro
-            duration = (time.time() - start) * 1000
-            end_memory = tracemalloc.get_traced_memory()[0]
-            memory_used = (end_memory - start_memory) / (1024 * 1024)
-
-            ultron_logger.log_info("performance_profiler",
-                                 f"Async operation: {duration:.2f}ms, Memory: {memory_used:.2f}MB")
-            return result
-        except Exception as e:
-            ultron_logger.log_error("performance_profiler", f"Async profiling error: {str(e)}")
-            raise
-
-    def generate_report(self, format: str = 'json') -> str:
-        """Generate performance report in specified format"""
-        summary = self.get_performance_summary()
-        bottlenecks = self.identify_bottlenecks()
-
-        if format == 'json':
-            report = {
-                "timestamp": datetime.now().isoformat(),
-                "summary": summary,
-                "bottlenecks": bottlenecks,
-                "alerts": [asdict(a) for a in self.alerts]
-            }
-            return json.dumps(report, indent=2, default=str)
-        elif format == 'csv':
-            lines = ["metric,value"]
-            for key, value in summary.items():
-                lines.append(f"{key},{value}")
-            return '\n'.join(lines)
-        elif format == 'html':
-            return self._generate_html_report(summary, bottlenecks)
-        else:
-            return str(summary)
-
-    def _generate_html_report(self, summary: dict, bottlenecks: dict) -> str:
-        """Generate HTML performance report"""
-        html = "<html><body><h1>Performance Report</h1>"
-        html += f"<p>Generated: {datetime.now().isoformat()}</p>"
-        html += "<h2>Summary</h2><ul>"
-        for key, value in summary.items():
-            html += f"<li>{key}: {value}</li>"
-        html += "</ul><h2>Bottlenecks</h2><ul>"
-        for key, value in bottlenecks.items():
-            if isinstance(value, list):
-                for item in value:
-                    html += f"<li>{item}</li>"
-            else:
-                html += f"<li>{key}: {value}</li>"
-        html += "</ul></body></html>"
-        return html
-
-    async def compare_with_history(self, component: str) -> Dict[str, Any]:
-        """Compare current performance with historical data"""
-        current_metrics = [m for m in self.metrics_history if component in m.operation_name]
-
-        if not current_metrics:
-            return {"error": f"No metrics found for component: {component}"}
-
-        current_avg = sum(m.duration for m in current_metrics) / len(current_metrics)
-
-        return {
-            "component": component,
-            "current_avg_ms": current_avg,
-            "metric_count": len(current_metrics),
-            "trend": "improving" if current_avg < 1000 else "degrading"
-        }
-
     def export_metrics(self, filepath: str):
         """Export all metrics to JSON file"""
         export_data = {
@@ -432,6 +310,7 @@ class PerformanceProfiler:
             "export_timestamp": time.time()
         }
 
+        import json
         with open(filepath, 'w') as f:
             json.dump(export_data, f, indent=2, default=str)
 

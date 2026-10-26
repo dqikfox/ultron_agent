@@ -57,6 +57,7 @@ async def setup_ai_toolkit() -> Dict[str, Any]:
     return result
 
 if __name__ == "__main__":
+    try:
     import asyncio
     
     async def test():
@@ -64,3 +65,6 @@ if __name__ == "__main__":
         print(f"AI Setup Result: {result}")
     
     asyncio.run(test())
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)

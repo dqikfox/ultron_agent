@@ -1,0 +1,198 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "github.copilot.enable": {
+      "*": true,
+      "python": true,
+      "json": true,
+      "markdown": true,
+      "yaml": true,
+      "html": true,
+      "javascript": true,
+      "typescript": true,
+      "css": true,
+      "sql": true,
+      "shellscript": true
+    },
+    "github.copilot.advanced": {
+      "secret_key": "github-copilot",
+      "length": 500,
+      "temperature": "",
+      "top_p": "",
+      "stops": {
+        "*": ["\\n\\n\\n"],
+        "python": [
+          "\\ndef ",
+          "\\nclass ",
+          "\\nif ",
+          "\\n#",
+          "\\n\\n\\n"
+        ]
+      }
+    },
+    "github.copilot.chat.enabled": true,
+    "github.copilot.inlineSuggest.enable": true,
+    "github.copilot.nextEditSuggestions.enabled": true,
+    
+    "python.analysis.extraPaths": [
+      "./",
+      "./tests/",
+      "./security_utils.py",
+      "./integration_manager.py",
+      "./performance_optimizer.py"
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.diagnosticMode": "workspace",
+    
+    "editor.suggest.showWords": false,
+    "editor.inlineSuggest.enabled": true,
+    "editor.suggest.preview": true,
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": true,
+      "strings": true
+    },
+    
+    "files.associations": {
+      "*.py": "python",
+      "*.pyi": "python",
+      "*.md": "markdown",
+      "*.json": "jsonc",
+      "*.yaml": "yaml",
+      "*.yml": "yaml"
+    },
+    
+    "search.exclude": {
+      "**/__pycache__": true,
+      "**/node_modules": true,
+      "**/.git": true,
+      "**/venv": true,
+      "**/env": true,
+      "**/*.pyc": true
+    },
+    
+    "files.watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/node_modules/**": true,
+      "**/venv/**": true,
+      "**/__pycache__/**": true,
+      "**/*.pyc": true
+    },
+    
+    "python.defaultInterpreterPath": "python",
+    "python.formatting.provider": "black",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    
+    "workbench.colorTheme": "Default Dark+",
+    "workbench.iconTheme": "vs-seti",
+    
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    
+    "amazonQ.telemetry": true,
+    "amazonQ.shareCodeWhispererContentWithAWS": true,
+    
+    "extensions.experimental.affinity": {
+      "sixth.sixth-ai": 1
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "github.copilot",
+      "github.copilot-chat",
+      "ms-python.python",
+      "ms-python.black-formatter",
+      "ms-python.flake8",
+      "amazonwebservices.amazon-q-vscode",
+      "sixth.sixth-ai",
+      "ms-vscode.vscode-json",
+      "redhat.vscode-yaml",
+      "ms-vscode.powershell"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Initialize Copilot Integration",
+        "type": "shell",
+        "command": "python",
+        "args": ["copilot_integration.py"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Security Tests",
+        "type": "shell",
+        "command": "python",
+        "args": ["-m", "pytest", "test_security.py", "-v"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Start ULTRON Agent",
+        "type": "shell",
+        "command": "python",
+        "args": ["main.py"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "ULTRON Agent Debug",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/main.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}"
+        }
+      },
+      {
+        "name": "Initialize Copilot",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/copilot_integration.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}"
+      }
+    ]
+  }
+}

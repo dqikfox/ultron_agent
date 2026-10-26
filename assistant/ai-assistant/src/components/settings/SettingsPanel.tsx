@@ -11,18 +11,17 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Slider } from '../ui/slider';
 import { Badge } from '../ui/badge';
-import {
-  Sun,
-  Moon,
-  Monitor,
-  Languages,
-  MessageSquare,
-  Bell,
+import { 
+  Sun, 
+  Moon, 
+  Monitor, 
+  Languages, 
+  MessageSquare, 
+  Bell, 
   Save,
   RefreshCw,
   AlertTriangle,
-  CheckCircle2,
-  Shield
+  CheckCircle2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -142,8 +141,8 @@ const SettingsPanel: React.FC = () => {
                     Choose which AI personality to use by default
                   </p>
                 </div>
-                <Select
-                  value={localSettings.defaultMode}
+                <Select 
+                  value={localSettings.defaultMode} 
                   onValueChange={(value) => handleSettingChange('defaultMode', value)}
                 >
                   <SelectTrigger className="w-[240px]">
@@ -166,8 +165,8 @@ const SettingsPanel: React.FC = () => {
                     Select your preferred language
                   </p>
                 </div>
-                <Select
-                  value={localSettings.language}
+                <Select 
+                  value={localSettings.language} 
                   onValueChange={(value) => handleSettingChange('language', value)}
                 >
                   <SelectTrigger className="w-[240px]">
@@ -190,9 +189,9 @@ const SettingsPanel: React.FC = () => {
                     Automatically save your chat history
                   </p>
                 </div>
-                <Switch
-                  checked={localSettings.autoSave}
-                  onCheckedChange={(checked) => handleSettingChange('autoSave', checked)}
+                <Switch 
+                  checked={localSettings.autoSave} 
+                  onCheckedChange={(checked) => handleSettingChange('autoSave', checked)} 
                 />
               </div>
             </CardContent>
@@ -250,8 +249,8 @@ const SettingsPanel: React.FC = () => {
                     Adjust the text size for better readability
                   </p>
                 </div>
-                <Select
-                  value={localSettings.fontSize}
+                <Select 
+                  value={localSettings.fontSize} 
                   onValueChange={(value) => handleSettingChange('fontSize', value)}
                 >
                   <SelectTrigger className="w-[240px]">
@@ -302,9 +301,9 @@ const SettingsPanel: React.FC = () => {
                     Receive desktop notifications for new messages
                   </p>
                 </div>
-                <Switch
-                  checked={localSettings.notifications}
-                  onCheckedChange={(checked) => handleSettingChange('notifications', checked)}
+                <Switch 
+                  checked={localSettings.notifications} 
+                  onCheckedChange={(checked) => handleSettingChange('notifications', checked)} 
                 />
               </div>
 
