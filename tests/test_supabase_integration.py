@@ -2,16 +2,58 @@
 Integration test: verify Supabase is wired into the ULTRON agent.
 Run with: pytest tests/test_supabase_integration.py
       or: python tests/test_supabase_integration.py
+
+Tests that require a live Supabase instance are automatically skipped when
+the local stack is not reachable (no ultron_config.json or network error).
 """
 
 import asyncio
 import sys
 import os
 
+import pytest
+
 # Ensure project root is in path and is the cwd for config lookup
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 CONFIG_PATH = os.path.join(PROJECT_ROOT, "ultron_config.json")
+
+
+# ---------------------------------------------------------------------------
+# Skip marker – applied to every test that needs a live Supabase connection
+# ---------------------------------------------------------------------------
+
+def _supabase_available() -> bool:
+    """Return True only when ultron_config.json has credentials AND
+    the Supabase REST endpoint responds with HTTP 200."""
+    from ultron.supabase_client import create_client_from_config
+    client = create_client_from_config(CONFIG_PATH)
+    if client is None:
+        return False
+    try:
+        import aiohttp
+
+        async def _ping():
+            async with aiohttp.ClientSession(
+                headers={
+                    "apikey": client.key,
+                    "Authorization": f"Bearer {client.key}",
+                },
+                timeout=aiohttp.ClientTimeout(total=3),
+            ) as session:
+                async with session.get(f"{client.base_url}/rest/v1/") as resp:
+                    return resp.status == 200
+
+        return asyncio.run(_ping())
+    except Exception:
+        return False
+
+
+_SUPABASE_LIVE = _supabase_available()
+requires_supabase = pytest.mark.skipif(
+    not _SUPABASE_LIVE,
+    reason="Local Supabase stack not available (set SUPABASE_URL / key in ultron_config.json)",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -86,18 +128,22 @@ async def _tool_execution_logging():
 # Sync pytest test functions
 # ---------------------------------------------------------------------------
 
+@requires_supabase
 def test_client_factory():
     asyncio.run(_client_factory())
 
 
+@requires_supabase
 def test_conversation_lifecycle():
     asyncio.run(_conversation_lifecycle())
 
 
+@requires_supabase
 def test_memory_sync():
     asyncio.run(_memory_sync())
 
 
+@requires_supabase
 def test_tool_execution_logging():
     asyncio.run(_tool_execution_logging())
 
@@ -143,13 +189,16 @@ def test_agent_core_has_supabase_init():
 if __name__ == "__main__":
     async def main():
         print("Running Supabase integration tests...\n")
-        await _client_factory();          print("✅ client factory OK")
-        await _conversation_lifecycle();  print("✅ conversation lifecycle OK")
-        await _memory_sync();             print("✅ memory sync OK")
-        await _tool_execution_logging();  print("✅ tool execution logging OK")
+        if _SUPABASE_LIVE:
+            await _client_factory();          print("✅ client factory OK")
+            await _conversation_lifecycle();  print("✅ conversation lifecycle OK")
+            await _memory_sync();             print("✅ memory sync OK")
+            await _tool_execution_logging();  print("✅ tool execution logging OK")
+        else:
+            print("⚠️  Skipping live tests — Supabase not reachable")
         test_tool_interface_supabase_property(); print("✅ tool interface OK")
         test_memory_class_supabase_methods();    print("✅ memory methods OK")
         test_agent_core_has_supabase_init();     print("✅ agent_core wiring OK")
-        print("\n✅ All Supabase integration tests passed!")
+        print("\n✅ All available Supabase integration tests passed!")
 
     asyncio.run(main())
