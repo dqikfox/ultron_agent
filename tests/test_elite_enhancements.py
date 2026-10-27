@@ -394,3 +394,40 @@ class TestMemory:
         recent = m.get_recent_memory(limit=5)
         assert "new_item" in recent
         assert "old_item" not in recent
+
+class TestCircuitBreakerConcurrency:
+    def test_only_one_async_recovery_probe(self):
+        from utils.circuit_breaker import CircuitBreaker, CircuitOpenError
+        async def scenario():
+            cb = CircuitBreaker('probe', recovery_timeout=0)
+            cb._trip()
+            entered, release = asyncio.Event(), asyncio.Event()
+            async def slow():
+                entered.set()
+                await release.wait()
+            first = asyncio.create_task(cb.call(slow))
+            await entered.wait()
+            with pytest.raises(CircuitOpenError):
+                await cb.call(lambda: None)
+            with pytest.raises(CircuitOpenError):
+                cb.call_sync(lambda: None)
+            release.set()
+            await first
+        asyncio.run(scenario())
+
+    def test_cancelled_probe_can_be_retried(self):
+        from utils.circuit_breaker import CircuitBreaker
+        async def scenario():
+            cb = CircuitBreaker('cancel', recovery_timeout=0)
+            cb._trip()
+            entered = asyncio.Event()
+            async def slow():
+                entered.set()
+                await asyncio.Event().wait()
+            first = asyncio.create_task(cb.call(slow))
+            await entered.wait()
+            first.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await first
+            assert await cb.call(lambda: 42) == 42
+        asyncio.run(scenario())

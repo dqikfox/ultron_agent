@@ -1725,7 +1725,7 @@ class UltronWebHandler(http.server.SimpleHTTPRequestHandler):
 class UltronWebServer:
     """ULTRON Web Server with agent integration"""
 
-    def __init__(self, agent_ref: Optional[Any] = None, port: int = 8080):
+    def __init__(self, agent_ref: Optional[Any] = None, port: int = 8888):
         self.agent_ref = agent_ref
         self.port = port
         self.server = None
@@ -2023,7 +2023,7 @@ def main():
     print("=" * 60)
 
     # Create and start web server FIRST (so it's accessible immediately)
-    server = UltronWebServer(agent_ref=None, port=8080)
+    server = UltronWebServer(agent_ref=None, port=8888)
 
     if not server.start_server():
         print("Failed to start web server - web_gui_server.py:1902")

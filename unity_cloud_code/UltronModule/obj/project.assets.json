@@ -55,27 +55,26 @@
     ]
   },
   "packageFolders": {
-    "/home/ultro/.nuget/packages/": {}
+    "C:\\Users\\CHANN0$\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
+      "projectUniqueName": "c:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
       "projectName": "UltronModule",
-      "projectPath": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/UltronModule.csproj",
-      "packagesPath": "/home/ultro/.nuget/packages/",
-      "outputPath": "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/obj/",
+      "projectPath": "c:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\UltronModule.csproj",
+      "packagesPath": "C:\\Users\\CHANN0$\\.nuget\\packages\\",
+      "outputPath": "c:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/ultro/projects/ultron_agent/unity_cloud_code/UltronModule/nuget.config",
-        "/home/ultro/.nuget/NuGet/NuGet.Config"
+        "c:\\project\\ultron_agent\\ultron_agent\\unity_cloud_code\\UltronModule\\NuGet.Config",
+        "C:\\Users\\CHANN0$\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.1"
       ],
       "sources": {
-        "https://api.nuget.org/v3/index.json": {},
-        "https://packages.unity.com/nuget/registry": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "netstandard2.1": {
@@ -93,7 +92,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "netstandard2.1": {
@@ -126,7 +125,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/ultro/.dotnet/sdk/10.0.101/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.204\\RuntimeIdentifierGraph.json"
       }
     }
   }

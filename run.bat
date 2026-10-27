@@ -30,8 +30,8 @@ set "LOG_FILE=ultron.log"
 
 :: CRITICAL PORTS (must match API server configuration)
 set "OLLAMA_PORT=11434"
-set "WEB_GUI_PORT=8080"
-set "API_SERVER_PORT=5000"
+set "WEB_GUI_PORT=8888"
+set "API_SERVER_PORT=8889"
 
 :: AI MODEL CONFIGURATION
 :: PRIMARY: llava:7b (stable, fast, multimodal) - RECOMMENDED

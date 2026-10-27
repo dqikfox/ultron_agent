@@ -113,8 +113,8 @@ class CircuitBreaker:
         self._failure_count: int = 0
         self._half_open_successes: int = 0
         self._opened_at: Optional[float] = None
-        self._lock = asyncio.Lock()
-        self._sync_lock = threading.Lock()
+        self._sync_lock = threading.RLock()
+        self._probe_in_flight = False
         self.stats = CircuitStats()
 
     # ------------------------------------------------------------------
@@ -188,7 +188,7 @@ class CircuitBreaker:
         CircuitOpenError
             When the circuit is OPEN and the recovery timeout has not elapsed.
         """
-        async with self._lock:
+        with self._sync_lock:
             self.stats.total_calls += 1
             if self._state == CircuitState.OPEN:
                 if self._should_attempt_reset():
@@ -197,6 +197,12 @@ class CircuitBreaker:
                 else:
                     self.stats.rejected_calls += 1
                     raise CircuitOpenError(self.name, self._retry_after())
+            if self._state == CircuitState.HALF_OPEN:
+                if self._probe_in_flight:
+                    self.stats.rejected_calls += 1
+                    raise CircuitOpenError(self.name, self._retry_after())
+                self._probe_in_flight = True
+            is_probe = self._state == CircuitState.HALF_OPEN
 
         try:
             if asyncio.iscoroutinefunction(fn):
@@ -204,13 +210,17 @@ class CircuitBreaker:
             else:
                 result = fn(*args, **kwargs)
         except self.expected_exceptions:
-            async with self._lock:
+            with self._sync_lock:
                 self._record_failure()
             raise
         else:
-            async with self._lock:
+            with self._sync_lock:
                 self._record_success()
             return result
+        finally:
+            if is_probe:
+                with self._sync_lock:
+                    self._probe_in_flight = False
 
     # ------------------------------------------------------------------
     # Sync call interface
@@ -234,6 +244,12 @@ class CircuitBreaker:
                 else:
                     self.stats.rejected_calls += 1
                     raise CircuitOpenError(self.name, self._retry_after())
+            if self._state == CircuitState.HALF_OPEN:
+                if self._probe_in_flight:
+                    self.stats.rejected_calls += 1
+                    raise CircuitOpenError(self.name, self._retry_after())
+                self._probe_in_flight = True
+            is_probe = self._state == CircuitState.HALF_OPEN
 
         try:
             result = fn(*args, **kwargs)
@@ -245,6 +261,10 @@ class CircuitBreaker:
             with self._sync_lock:
                 self._record_success()
             return result
+        finally:
+            if is_probe:
+                with self._sync_lock:
+                    self._probe_in_flight = False
 
     # ------------------------------------------------------------------
     # Diagnostics

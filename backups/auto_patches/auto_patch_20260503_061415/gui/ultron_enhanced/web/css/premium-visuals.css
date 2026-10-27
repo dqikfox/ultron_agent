@@ -1,0 +1,169 @@
+/* Premium Visuals - Circuit Board & Glowing Effects */
+
+/* Circuit Board Background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, rgba(255,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,0,0,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(255,0,0,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255,0,0,0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    animation: energyFlow 8s ease-in-out infinite;
+}
+
+@keyframes energyFlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* Premium Button Base */
+.quick-action-btn, .search-btn, .voice-command-btn, .queue-btn, .clipboard-btn, .bookmark-btn, .macro-btn, .export-btn,
+.ai-assistant-btn, .collab-btn, .analytics-btn, .workspace-btn, .plugin-btn, .timeline-btn,
+.notes-btn, .recorder-btn, .snippets-btn, .favorites-btn, .tutorial-btn, .darkmode-btn, .fullscreen-btn, .print-btn {
+    background: linear-gradient(135deg, 
+        rgba(20, 20, 20, 0.95) 0%,
+        rgba(40, 10, 10, 0.95) 50%,
+        rgba(20, 20, 20, 0.95) 100%) !important;
+    border: 2px solid rgba(255, 0, 0, 0.6) !important;
+    box-shadow: 
+        0 0 20px rgba(255, 0, 0, 0.4),
+        inset 0 0 20px rgba(255, 0, 0, 0.1),
+        0 4px 15px rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Circuit Pattern Overlay */
+.quick-action-btn::before, .search-btn::before, .voice-command-btn::before, .queue-btn::before, .clipboard-btn::before, .bookmark-btn::before, .macro-btn::before, .export-btn::before,
+.ai-assistant-btn::before, .collab-btn::before, .analytics-btn::before, .workspace-btn::before, .plugin-btn::before, .timeline-btn::before,
+.notes-btn::before, .recorder-btn::before, .snippets-btn::before, .favorites-btn::before, .tutorial-btn::before, .darkmode-btn::before, .fullscreen-btn::before, .print-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, transparent 48%, rgba(255,0,0,0.1) 50%, transparent 52%),
+        linear-gradient(0deg, transparent 48%, rgba(255,0,0,0.1) 50%, transparent 52%);
+    background-size: 10px 10px;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* Glowing Energy Effect */
+.quick-action-btn::after, .search-btn::after, .voice-command-btn::after, .queue-btn::after, .clipboard-btn::after, .bookmark-btn::after, .macro-btn::after, .export-btn::after,
+.ai-assistant-btn::after, .collab-btn::after, .analytics-btn::after, .workspace-btn::after, .plugin-btn::after, .timeline-btn::after,
+.notes-btn::after, .recorder-btn::after, .snippets-btn::after, .favorites-btn::after, .tutorial-btn::after, .darkmode-btn::after, .fullscreen-btn::after, .print-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,0,0,0.3) 0%, transparent 70%);
+    animation: energyPulse 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes energyPulse {
+    0%, 100% { transform: scale(0.8); opacity: 0.3; }
+    50% { transform: scale(1.2); opacity: 0.6; }
+}
+
+/* Hover Effects */
+.quick-action-btn:hover, .search-btn:hover, .voice-command-btn:hover, .queue-btn:hover, .clipboard-btn:hover, .bookmark-btn:hover, .macro-btn:hover, .export-btn:hover,
+.ai-assistant-btn:hover, .collab-btn:hover, .analytics-btn:hover, .workspace-btn:hover, .plugin-btn:hover, .timeline-btn:hover,
+.notes-btn:hover, .recorder-btn:hover, .snippets-btn:hover, .favorites-btn:hover, .tutorial-btn:hover, .darkmode-btn:hover, .fullscreen-btn:hover, .print-btn:hover {
+    transform: scale(1.15) !important;
+    box-shadow: 
+        0 0 30px rgba(255, 0, 0, 0.8),
+        inset 0 0 30px rgba(255, 0, 0, 0.2),
+        0 6px 25px rgba(0, 0, 0, 0.7) !important;
+    border-color: rgba(255, 0, 0, 1) !important;
+}
+
+/* Icon Styling */
+.quick-action-btn, .search-btn, .voice-command-btn, .queue-btn, .clipboard-btn, .bookmark-btn, .macro-btn, .export-btn,
+.ai-assistant-btn, .collab-btn, .analytics-btn, .workspace-btn, .plugin-btn, .timeline-btn,
+.notes-btn, .recorder-btn, .snippets-btn, .favorites-btn, .tutorial-btn, .darkmode-btn, .fullscreen-btn, .print-btn {
+    color: #ff3333 !important;
+    text-shadow: 
+        0 0 10px rgba(255, 0, 0, 0.8),
+        0 0 20px rgba(255, 0, 0, 0.4) !important;
+    font-size: 1.8rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fix Right Side Spacing */
+.quick-action-btn { bottom: 80px !important; right: 20px !important; }
+.search-btn { bottom: 150px !important; right: 20px !important; }
+.voice-command-btn { bottom: 220px !important; right: 20px !important; }
+.queue-btn { bottom: 290px !important; right: 20px !important; }
+.clipboard-btn { bottom: 360px !important; right: 20px !important; }
+.bookmark-btn { bottom: 430px !important; right: 20px !important; }
+.macro-btn { bottom: 500px !important; right: 20px !important; }
+.export-btn { bottom: 570px !important; right: 20px !important; }
+
+/* NEXUS Buttons - Right Side Top */
+.ai-assistant-btn { bottom: 640px !important; right: 20px !important; }
+.collab-btn { bottom: 710px !important; right: 20px !important; }
+.analytics-btn { bottom: 780px !important; right: 20px !important; }
+.workspace-btn { bottom: 850px !important; right: 20px !important; }
+.plugin-btn { bottom: 920px !important; right: 20px !important; }
+.timeline-btn { bottom: 990px !important; right: 20px !important; }
+
+/* Left Side Buttons */
+.notes-btn { left: 20px !important; bottom: 80px !important; }
+.recorder-btn { left: 20px !important; bottom: 150px !important; }
+.snippets-btn { left: 20px !important; bottom: 220px !important; }
+.favorites-btn { left: 20px !important; bottom: 290px !important; }
+.tutorial-btn { left: 20px !important; bottom: 360px !important; }
+.darkmode-btn { left: 20px !important; bottom: 430px !important; }
+.fullscreen-btn { left: 20px !important; bottom: 500px !important; }
+.print-btn { left: 20px !important; bottom: 570px !important; }
+
+/* Energy Lines Animation */
+@keyframes energyLine {
+    0% { transform: translateY(0) scaleY(1); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-100vh) scaleY(2); opacity: 0; }
+}
+
+/* Add Energy Lines to Body */
+body {
+    position: relative;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .quick-action-btn, .search-btn, .voice-command-btn, .queue-btn, .clipboard-btn, .bookmark-btn, .macro-btn, .export-btn,
+    .ai-assistant-btn, .collab-btn, .analytics-btn, .workspace-btn, .plugin-btn, .timeline-btn,
+    .notes-btn, .recorder-btn, .snippets-btn, .favorites-btn, .tutorial-btn, .darkmode-btn, .fullscreen-btn, .print-btn {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 1.4rem !important;
+    }
+}
