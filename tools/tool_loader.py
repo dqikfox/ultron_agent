@@ -4,6 +4,8 @@ Discovers and loads tools at runtime with comprehensive error handling
 """
 
 import os
+import asyncio
+import concurrent.futures
 import importlib
 import inspect
 from typing import Dict, List, Type, Optional, Tuple, Callable
@@ -298,6 +300,77 @@ class ToolLoader:
             raise UltronError(
                 message=f"Failed to load tools: {str(e)}"
             )
+
+    async def load_all_tools_async(
+        self,
+        memory=None,
+        supabase=None,
+        max_workers: int = 8,
+    ) -> Dict[str, ToolInterface]:
+        """
+        Load all discovered tools in parallel using a thread-pool executor.
+
+        Module imports are CPU-bound but can still have significant I/O wait
+        (file reads, .pyc compilation).  Running them concurrently in threads
+        reduces cold-start time when there are many tools.
+
+        Args:
+            memory: Optional memory system to share with all tools.
+            supabase: Optional Supabase client to share with all tools.
+            max_workers: Thread-pool size (default: 8).
+
+        Returns:
+            Dict mapping tool names to loaded tool instances.
+        """
+        if memory:
+            ToolInterface.shared_memory = memory
+        if supabase:
+            ToolInterface.shared_supabase = supabase
+
+        tool_files: List[str] = self.discover_tools()
+
+        loop = asyncio.get_event_loop()
+
+        def _load_one(tool_file: str) -> Tuple[str, Optional[str]]:
+            """Load a single module in a worker thread."""
+            try:
+                self.load_tool_module(tool_file)
+                return (tool_file, None)
+            except ToolError as exc:
+                return (tool_file, str(exc))
+            except Exception as exc:
+                return (tool_file, str(exc))
+
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=max_workers, thread_name_prefix="tool-loader"
+        ) as executor:
+            futures = [
+                loop.run_in_executor(executor, _load_one, tf)
+                for tf in tool_files
+            ]
+            results = await asyncio.gather(*futures, return_exceptions=True)
+
+        for outcome in results:
+            if isinstance(outcome, Exception):
+                log_error("tool_loader", f"Async load task raised: {outcome}")
+                continue
+            tool_file, error = outcome
+            if error:
+                self.failed_tools[tool_file] = error
+                log_error(
+                    "tool_loader",
+                    f"Failed to load {tool_file}: {error}",
+                    tool=tool_file,
+                )
+
+        log_info(
+            "tool_loader",
+            f"Async-loaded {len(self.loaded_tools)} tools "
+            f"({len(self.failed_tools)} failed)",
+            successful=len(self.loaded_tools),
+            failed=len(self.failed_tools),
+        )
+        return self.loaded_tools
 
     def reload_tool(self, tool_name: str) -> bool:
         """

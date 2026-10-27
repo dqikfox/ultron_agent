@@ -12,3 +12,9 @@ node_modules
 
 # Local config with secrets
 ultron_config.json
+
+# Generated Python and local runtime artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+logs/command_history.json

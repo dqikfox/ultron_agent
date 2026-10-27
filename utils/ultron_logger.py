@@ -38,8 +38,31 @@ def log_file_operation(operation: str, file_path: str, status: str = "success", 
         msg += f" - {details}"
     print(f"[FILE] {msg}")
 
-# Compatibility
-ultron_logger = type('Logger', (), {
-    'info': lambda msg: print(f"[INFO] {msg}"),
-    'error': lambda msg: print(f"[ERROR] {msg}")
-})()
+
+class _Logger:
+    """Minimal logger compatible with the stdlib logging.Logger interface."""
+
+    @staticmethod
+    def info(msg, *args, **kwargs):
+        print(f"[INFO] {msg}")
+
+    @staticmethod
+    def warning(msg, *args, **kwargs):
+        print(f"[WARNING] {msg}")
+
+    @staticmethod
+    def error(msg, *args, **kwargs):
+        print(f"[ERROR] {msg}")
+
+    @staticmethod
+    def debug(msg, *args, **kwargs):
+        print(f"[DEBUG] {msg}")
+
+    @staticmethod
+    def critical(msg, *args, **kwargs):
+        print(f"[CRITICAL] {msg}")
+
+
+# Compatibility singleton
+ultron_logger = _Logger()
+
