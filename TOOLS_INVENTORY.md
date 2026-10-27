@@ -2,7 +2,7 @@
 
 Auto-generated tool discovery and documentation.
 
-**Total Tools Found:** 105
+**Total Tools Found:** 108
 
 ## Tool Categories
 
@@ -14,7 +14,7 @@ Auto-generated tool discovery and documentation.
 - **AI & Model Inference** (8 tools)
 - **System & Platform** (1 tools)
 - **GUI & Interface** (7 tools)
-- **Other** (51 tools)
+- **Other** (54 tools)
 
 ---
 
@@ -433,10 +433,10 @@ Enables:
 - **File:** `tool_interface.py`
 - **Inherits From:** `ABC`
 - **Description:** Abstract base class for all ULTRON Agent tools
-- **Public Methods:** name, description, match, execute, schema
-  ... and 2 more
+- **Public Methods:** name, description, memory, supabase, match
+  ... and 4 more
 
-## Other (51)
+## Other (54)
 
 
 ### AIAgentPersonas
@@ -639,6 +639,18 @@ Enables:
 - **Public Methods:** add_template, get_template, list_templates, create_instance, record_execution
   ... and 5 more
 
+### LlamaIndexTool
+
+- **File:** `llamaindex_tool.py`
+- **Inherits From:** `ToolInterface`
+- **Description:** Provides ULTRON with access to the full LlamaIndex framework:
+- Unified LLM chat / completion (Ollama, OpenAI, Anthropic)
+- RAG queries over agent memory
+- Dynamic document ingestion
+- Provider switch
+- **Public Methods:** name, description, match, execute, schema
+  ... and 2 more
+
 ### MCPEnhancedTool
 
 - **File:** `mcp_enhanced_tool.py`
@@ -773,6 +785,26 @@ This tool provides ULTRON with the ability to:
 - **Inherits From:** `ToolInterface`
 - **Description:** GPU-accelerated Stable Diffusion image generation
 - **Public Methods:** name, description, match, execute, schema
+
+### SupabaseDataAPITool
+
+- **File:** `supabase_data_api_tool.py`
+- **Inherits From:** `ToolInterface`
+- **Description:** Exposes the Supabase PostgREST Data API to ULTRON via natural language
+commands and structured kwargs.
+
+Supported commands:
+  select <table> [filter=...] [limit=N] [order=col.asc/desc]
+  insert <table
+- **Public Methods:** name, description, match, execute, schema
+  ... and 2 more
+
+### SupabaseTool
+
+- **File:** `supabase_tool.py`
+- **Inherits From:** `ToolInterface`
+- **Description:** Query ULTRON's Supabase-backed conversation history and memory.
+- **Public Methods:** match, schema
 
 ### ToolLoader
 
